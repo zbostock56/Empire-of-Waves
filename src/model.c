@@ -9,7 +9,7 @@ model.
 /*
   Loads a 3D model's mesh data into memory to populate a new MODEL object
 */
-MODEL *load_model(char *mesh_path) {
+MODEL *load_model(char *mesh_path, char *tex_path) {
   MODEL *model = malloc(sizeof(MODEL));
   if (model == NULL) {
     return NULL;
@@ -23,6 +23,12 @@ MODEL *load_model(char *mesh_path) {
 
   model_init(&md, model);
 
+  if (tex_path) {
+    model->texture = gen_texture(tex_path);
+  } else {
+    model->texture = INVALID_TEXTURE;
+  }
+
   return model;
 }
 
@@ -33,13 +39,21 @@ void free_model(MODEL *model) {
   glDeleteBuffers(1, &model->VBO);
   glDeleteBuffers(1, &model->EBO);
   glDeleteVertexArrays(1, &model->VAO);
+  if (model->texture != INVALID_TEXTURE) {
+    glDeleteTextures(1, &model->texture);
+  }
   free(model);
 }
 
 /*
   Render model to screen
 */
-void draw_model(MODEL *model) {
+void draw_model(MODEL *model, unsigned int shader) {
+  glUseProgram(shader);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, model->texture);
+  glUniform1i(glGetUniformLocation(shader, "tex"), 0);
+
   glBindVertexArray(model->VAO);
   glDrawElements(GL_TRIANGLES, model->num_indices, GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
@@ -93,6 +107,41 @@ MESH_DATA read_mesh(char *path) {
   fclose(file);
 
   return md;
+}
+
+unsigned int gen_texture(char *path) {
+  unsigned int tex;
+  glGenTextures(1, &tex);
+  glBindTexture(GL_TEXTURE_2D, tex);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+  int width;
+  int height;
+  int num_channels;
+  stbi_set_flip_vertically_on_load(1);
+  unsigned char *tex_data = stbi_load(path, &width, &height, &num_channels, 0);
+  if (tex_data) {
+    int format = GL_RGBA;
+    if (num_channels == 1) {
+      format = GL_RED;
+    } else if (num_channels == 2) {
+      format = GL_RG;
+    } else if (num_channels == 3) {
+      format = GL_RGB;
+    }
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
+                 GL_UNSIGNED_BYTE, tex_data);
+  } else {
+    fprintf(stderr, "model_loader.c: Failed to load texture: %s\n", path);
+    return INVALID_TEXTURE;
+  }
+  stbi_image_free(tex_data);
+
+  return tex;
 }
 
 void model_init(MESH_DATA *md, MODEL *model) {

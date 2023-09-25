@@ -21,5 +21,6 @@ typedef struct mesh_data {
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 
 MESH_DATA read_mesh(char *);
+unsigned int gen_texture(char *);
 void model_init(MESH_DATA *, MODEL *);
 
