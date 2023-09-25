@@ -3,6 +3,8 @@
 int main() {
   GLFWwindow *window = init_gl();
 
+  init_scene();
+
   while (!glfwWindowShouldClose(window)) {
     keyboard_input(window);
 
