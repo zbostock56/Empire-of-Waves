@@ -9,7 +9,7 @@ reads/manipulates chunks and/or islands.
 */
 
 #define C_WIDTH (512) // Width of a chunk in tiles
-#define I_WIDTH (64) // Width of an island in tiles
+#define I_WIDTH (128) // Width of an island in tiles
 #define MAX_ISLANDS (3) // Max islands per chunk
 
 typedef enum tile {

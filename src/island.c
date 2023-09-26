@@ -17,7 +17,6 @@ void generate_island(ISLAND *island) {
   float pnoise[I_WIDTH][I_WIDTH];
   float mask[I_WIDTH][I_WIDTH];
   int seed = generate_rand();
-  /* When index is set to 9.0, location is not set */
   memset(mask, 1.0, sizeof(mask));
   generate_mask(mask);
   /* Generate base perlin noise map */
@@ -76,16 +75,20 @@ void populate_tiles(ISLAND *island, float (*pnoise)[I_WIDTH]) {
           pixel = 0.0;
       }
       int location = i * I_WIDTH + j;
-      if (pixel > 0.8 && pixel <= 1.0) {
+      if (pixel > 0.7 && pixel <= 1.0) {
         // ROCK
         island->tiles[location] = ROCK;
-      } else if (pixel > 0.65 && pixel <= 0.8) {
+      }
+      #if 0
+      else if (pixel > 0.65 && pixel <= 0.7) {
         // HIGHLAND GRASS (IN THE FUTURE)
         island->tiles[location] = GRASS;
-      } else if (pixel > 0.45 && pixel <= 0.65) {
+      }
+      #endif
+      else if (pixel > 0.425 && pixel <= 0.7) {
         // LOWLAND GRASS (IN THE FUTURE)
         island->tiles[location] = GRASS;
-      } else if (pixel > 0.35 && pixel <= 0.45) {
+      } else if (pixel > 0.35 && pixel <= 0.425) {
         // SAND
         island->tiles[location] = SAND;
       } else if (pixel > 0.0 && pixel <= 0.35) {
