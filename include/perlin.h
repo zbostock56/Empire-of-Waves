@@ -1,3 +1,8 @@
+/*
+                                  PERLIN.h
+This header is simply used to generate perlin noise for island generation.
+*/
+
 /* INCLUDES */
 #include <stdio.h>
 
