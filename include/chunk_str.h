@@ -17,7 +17,8 @@ typedef enum tile {
   SHORE = 1,
   SAND = 2,
   GRASS = 3,
-  ROCK = 4
+  ROCK = 4,
+  MERCH = 5
 } TILE;
 
 typedef struct island {

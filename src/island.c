@@ -6,12 +6,11 @@ merchant location generation.
 */
 
 /*
-  Assumes that island is already allocated from chunk generation
-  Assumes that there are still islands that can be created
-  Assumes that island locations are generated and checked in
-  chunk generation
-  Assumes that the location is already determined in chunk
-  generation
+  Assumptions:
+    -> Island is already allocated from chunk generation
+    -> There are still islands that can be created
+    -> Island locations are generated and checked in
+       chunk generation
 */
 void generate_island(ISLAND *island) {
   float pnoise[I_WIDTH][I_WIDTH];
@@ -26,13 +25,21 @@ void generate_island(ISLAND *island) {
     }
   }
   populate_tiles(island, pnoise);
+  merchant_generate(&(island->merchant), island);
   return;
 }
 
+/*
+  Generate a random integer based on the number of seconds
+  and nano seconds of the system clock
+*/
 int generate_rand() {
-  return (int) fmod((nano_time() * 1103515245.0 + 12345.0), 2147483647.0);
+  return (int) fmod((nano_time() * 1103515245.0 + 12345.0), MAX_INT_FLOAT);
 }
 
+/*
+  Gets time from system clock with nano seconds
+*/
 double nano_time() {
   struct timespec tv;
   char time_str[32];
@@ -67,6 +74,11 @@ void generate_mask(float (*mask)[I_WIDTH]) {
   }
 }
 
+/*
+  Islands' tiles are populated by the "height map" generated
+  from perlin noise. Here the values, normalized from 0.0 -> 1.0,
+  are parsed to output different terrain based on their values.
+*/
 void populate_tiles(ISLAND *island, float (*pnoise)[I_WIDTH]) {
   for (int i = 0; i < I_WIDTH; i++) {
     for (int j = 0; j < I_WIDTH; j++) {
@@ -100,4 +112,55 @@ void populate_tiles(ISLAND *island, float (*pnoise)[I_WIDTH]) {
       }
     }
   }
+}
+
+/*
+  Reponsible for determining if a merchant will spawn, then
+  putting it in its respective location if one will be spawning.
+
+  Assumptions:
+    -> On a given island, a grass tile ALREADY EXISTS
+*/
+void merchant_generate(MERCHANT *merchant, ISLAND *island) {
+  /* determine if a merchant will be spawned */
+  int chance = rand() % 10;
+  if (chance < 0) {
+    chance *= -1;
+  }
+  if (chance >= 2) {
+    island->has_merchant = 0;
+    return;
+  }
+  /*
+    Find location for merchant to sit. If tile is not grass,
+    merchant cannot spawn there.
+  */
+  int found_location = 0;
+  int xloc_intra_island = 0;
+  int yloc_intra_island = 0;
+  int tile_location = 0;
+  int total_locs = I_WIDTH * I_WIDTH;
+  int num_visited = 0;
+  /* Macro from island.h */
+  while(!found_location) {
+    get_tile_location(tile_location, I_WIDTH);
+    num_visited++;
+    if (num_visited > total_locs) {
+      island->has_merchant = FALSE;
+      break;
+    }
+    if (island->tiles[tile_location] == GRASS) {
+      /* Location of merchant is relative to chunk coords */
+      /* <>loc_intra_island = x or y location relative to */
+      /* island coordinates. */
+      xloc_intra_island = tile_location % I_WIDTH;
+      yloc_intra_island = tile_location / I_WIDTH;
+      merchant->coords[X] = island->coords[X] + xloc_intra_island;
+      merchant->coords[Y] = island->coords[Y] + yloc_intra_island;
+      island->has_merchant = TRUE;
+      island->tiles[tile_location] = MERCH;
+      found_location = 1;
+    }
+  }
+  return;
 }

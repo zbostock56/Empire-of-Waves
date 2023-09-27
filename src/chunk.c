@@ -18,7 +18,11 @@ void generate_chunk(CHUNK *chunk) {
   /* Generate random number to find how many islands will */
   /* be in a chunk */
   int num_islands = generate_rand() % MAX_ISLANDS;
+  chunk->num_islands = num_islands;
   island_locator(isl_locations, num_islands);
+  /* Set the seed for the merchant generation */
+  srand((unsigned int) generate_rand());
+  /* Set the coords of the islands and generate subsequently */
   for (int i = 0; i < num_islands; i++) {
     chunk->islands[i].coords[X] = isl_locations[i][X];
     chunk->islands[i].coords[Y] = isl_locations[i][Y];
