@@ -72,6 +72,7 @@ void render_fbo_entity(MODEL *, mat4, mat4, mat4, mat4, mat4, mat4);
 void render_menu(UI_COMPONENT *);
 void render_text(char *, mat4);
 void render_island(ISLAND *);
+void render_chunk(ivec2);
 void render_tile(TILE, ivec2, vec2);
 
 unsigned int shader_init(const char *, const char *);

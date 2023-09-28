@@ -113,6 +113,15 @@ void render_scene(GLFWwindow *window) {
 
   render_player();
   if (mode == EXPLORATION) {
+    for (int i = 0; i < 5; i++) {
+      for (int j = 0; j < 5; j++) {
+        ivec2 chunk = {
+          e_player.ship_chunk[0] - 2 + j,
+          e_player.ship_chunk[1] - 2 + i
+        };
+        render_chunk(chunk);
+      }
+    }
     render_player_ship();
     render_enemy_ship(&test_enemy);
     render_trade_ship(&test_ts);
@@ -391,6 +400,54 @@ void render_fbo_entity(
   set_mat4("proj", proj, pixel_shader);
   quad->texture = entity_framebuffer.color_texture;
   draw_model(quad, pixel_shader);
+}
+
+void render_chunk(ivec2 chunk) {
+  vec3 world_coords = GLM_VEC2_ZERO_INIT;
+  vec2 tile_coords = GLM_VEC2_ZERO_INIT;
+  chunk_to_world(chunk, tile_coords, world_coords);
+  world_coords[0] = world_coords[0] + (T_WIDTH * C_WIDTH * 0.5);
+  world_coords[1] = world_coords[1] - (T_WIDTH * C_WIDTH * 0.5);
+
+  float c_val = 0.0f;
+  if (chunk[0] % 2 == 0) {
+    if (chunk[1] % 2 == 0) {
+      c_val = 1.0;
+    } else {
+      c_val = 0.0;
+    }
+  } else {
+    if (chunk[1] % 2 == 0) {
+      c_val = 0.0;
+    } else {
+      c_val = 1.0;
+    }
+  }
+  vec3 color = { c_val, c_val, c_val };
+
+  mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+  glm_translate(model_mat, world_coords);
+  glm_scale_uni(model_mat, 0.5 * T_WIDTH * C_WIDTH);
+
+  mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+  vec3 player_world_coords = GLM_VEC2_ZERO_INIT;
+  if (e_player.embarked) {
+    chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
+                   player_world_coords);
+  } else {
+    chunk_to_world(e_player.chunk, e_player.coords, player_world_coords);
+  }
+  glm_vec3_negate(player_world_coords);
+  glm_translate(view_mat, player_world_coords);
+  glm_translate_z(view_mat, -1.0f);
+
+  glUseProgram(color_shader);
+  set_vec3("color", color, color_shader);
+  set_mat4("model", model_mat, color_shader);
+  set_mat4("view", view_mat, color_shader);
+  set_mat4("proj", ortho_proj, color_shader);
+  draw_model(quad, color_shader);
+
 }
 
 void render_island(ISLAND *island) {
