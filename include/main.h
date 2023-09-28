@@ -8,3 +8,4 @@ GLFWwindow *init_gl();
 void init_scene();
 void keyboard_input(GLFWwindow *);
 void render_scene(GLFWwindow *);
+void cleanup_scene();

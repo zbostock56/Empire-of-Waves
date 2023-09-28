@@ -3,6 +3,7 @@
 #include <cglm/cglm.h>
 #include <glad/glad.h>
 #include <stb/stb_image.h>
+#include <cglm/cglm.h>
 #include <model_str.h>
 
 typedef struct mesh_vertex {
@@ -23,4 +24,4 @@ typedef struct mesh_data {
 MESH_DATA read_mesh(char *);
 unsigned int gen_texture(char *);
 void model_init(MESH_DATA *, MODEL *);
-
+unsigned int max_dot(MESH_VERT *, unsigned int, vec3);

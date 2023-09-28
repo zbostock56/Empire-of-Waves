@@ -18,6 +18,7 @@ int main() {
   }
 
   // Insert all "cleanup" functionality here
+  cleanup_scene();
 
   glfwTerminate();
 

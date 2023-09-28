@@ -29,7 +29,53 @@ MODEL *load_model(char *mesh_path, char *tex_path) {
     model->texture = INVALID_TEXTURE;
   }
 
+  free(md.vertices);
+  free(md.indices);
+
   return model;
+}
+
+void load_character(char *char_path, char *tex_path, CHARACTER *dest) {
+  dest->model = malloc(sizeof(MODEL));
+  if (dest->model == NULL) {
+    return;
+  }
+
+  MESH_DATA md = read_mesh(char_path);
+  if (!md.vertices && !md.indices && !md.num_verts && !md.num_indices) {
+    dest->model = NULL;
+    dest->width = 0.0;
+    dest->height = 0.0;
+    return;
+  }
+
+  model_init(&md, dest->model);
+  if (tex_path) {
+    dest->model->texture = gen_texture(tex_path);
+  } else {
+    dest->model->texture = INVALID_TEXTURE;
+  }
+
+  vec3 z = { 0.0, 0.0, 1.0 };
+  vec3 neg_z = { 0.0, 0.0, -1.0 };
+  vec3 x = { 1.0, 0.0, 0.0 };
+  vec3 neg_x = { -1.0, 0.0, 1.0 };
+
+  unsigned int max_z = max_dot(md.vertices, md.num_verts, z);
+  unsigned int min_z = max_dot(md.vertices, md.num_verts, neg_z);
+  unsigned int max_x = max_dot(md.vertices, md.num_verts, x);
+  unsigned int min_x = max_dot(md.vertices, md.num_verts, neg_x);
+
+  float height = md.vertices[max_x].coords[0] - md.vertices[min_x].coords[0];
+  float width = md.vertices[max_z].coords[2] - md.vertices[min_z].coords[2];
+
+  dest->width = width;
+  dest->height = height;
+
+  free(md.vertices);
+  free(md.indices);
+
+  return;
 }
 
 /*
@@ -174,3 +220,23 @@ void model_init(MESH_DATA *md, MODEL *model) {
 
   glBindVertexArray(0);
 }
+
+unsigned int max_dot(MESH_VERT *verts, unsigned int num_verts, vec3 dir) {
+  if (num_verts == 0) {
+    return 0;
+  }
+
+  unsigned int max_index = 0;
+  float max_dot = glm_vec3_dot(verts[0].coords, dir);
+
+  for (int i = 1; i < num_verts; i++) {
+    float cur = glm_vec3_dot(verts[i].coords, dir);
+    if (cur > max_dot) {
+      max_dot = cur;
+      max_index = i;
+    }
+  }
+
+  return max_index;
+}
+

@@ -6,4 +6,10 @@ typedef struct model {
   unsigned int texture;
 } MODEL;
 
+typedef struct character {
+  MODEL *model;
+  float width;
+  float height;
+} CHARACTER;
+
 #define INVALID_TEXTURE (0xBAADF00D)
