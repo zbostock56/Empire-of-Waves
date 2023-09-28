@@ -11,12 +11,12 @@ void init_scene() {
   e_player.embarked = 1;
 
   // TEST MODELS
-  vec2 te_coords = { 0.0f, 0.0f };
+  vec2 te_coords = { 1.0f, 0.0f };
   world_to_chunk(te_coords, test_enemy.chunk, test_enemy.coords);
   glm_vec2_zero(test_enemy.direction);
   test_enemy.direction[0] = 1.0;
 
-  vec2 ts_coords = { 0.0f, 0.0f };
+  vec2 ts_coords = { -1.5f, -1.5f };
   world_to_chunk(ts_coords, test_ts.chunk, test_ts.coords);
   glm_vec2_zero(test_ts.direction);
   test_ts.direction[0] = 1.0;
@@ -53,8 +53,9 @@ void render_scene(GLFWwindow *window) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   render_player_ship();
+  render_player();
   render_enemy_ship(&test_enemy);
-  //render_trade_ship(&test_ts);
+  render_trade_ship(&test_ts);
 
   glfwSwapBuffers(window);
   glfwPollEvents();
@@ -62,7 +63,6 @@ void render_scene(GLFWwindow *window) {
 
 void render_player_ship() {
   if (mode == EXPLORATION) {
-    // Offscreen render the player
     mat4 fbo_model_mat = GLM_MAT4_IDENTITY_INIT;
     mat4 player_rot = GLM_MAT4_IDENTITY_INIT;
     vec3 player_dir = { e_player.ship_direction[0],
@@ -76,10 +76,20 @@ void render_player_ship() {
     glm_translate_z(fbo_view_mat, -3.0);
 
     mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+    mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+    if (!e_player.embarked) {
+      vec3 world_coords = GLM_VEC3_ZERO_INIT;
+      chunk_to_world(e_player.ship_chunk, e_player.ship_coords, world_coords);
+      glm_translate(model_mat, world_coords);
+
+      vec3 player_world_coords = GLM_VEC3_ZERO_INIT;
+      chunk_to_world(e_player.chunk, e_player.coords, player_world_coords);
+      glm_vec3_negate(player_world_coords);
+      glm_translate(view_mat, player_world_coords);
+    }
     glm_rotate_z(model_mat, glm_rad(90.0), model_mat);
     glm_scale_uni(model_mat, 0.25);
 
-    mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
 
     render_fbo_entity(player_ship, fbo_model_mat, model_mat, fbo_view_mat,
                       view_mat, persp_proj, ortho_proj);
@@ -101,18 +111,22 @@ void render_enemy_ship(E_ENEMY *es) {
     glm_translate_z(fbo_view_mat, -3.0);
 
     mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
-    //vec2 world_pos = GLM_VEC2_ZERO_INIT;
-    //chunk_to_world(es->chunk, es->coords, world_pos);
+    vec3 world_coords = GLM_VEC3_ZERO_INIT;
+    chunk_to_world(es->chunk, es->coords, world_coords);
+    glm_translate(model_mat, world_coords);
     glm_rotate_z(model_mat, glm_rad(90.0), model_mat);
     glm_scale_uni(model_mat, 0.25);
 
     mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
-    vec2 player_world_coords = GLM_VEC2_ZERO_INIT;
-    chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
-                   player_world_coords);
-    vec3 player_pos = { -player_world_coords[0], -player_world_coords[1],
-                        0.0 };
-    glm_translate(view_mat, player_pos);
+    vec3 player_world_coords = GLM_VEC2_ZERO_INIT;
+    if (e_player.embarked) {
+      chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
+                     player_world_coords);
+    } else {
+      chunk_to_world(e_player.chunk, e_player.coords, player_world_coords);
+    }
+    glm_vec3_negate(player_world_coords);
+    glm_translate(view_mat, player_world_coords);
 
     render_fbo_entity(enemy_ship, fbo_model_mat, model_mat, fbo_view_mat,
                       view_mat, persp_proj, ortho_proj);
@@ -135,24 +149,60 @@ void render_trade_ship(TRADE_SHIP *ts) {
     glm_translate_z(fbo_view_mat, -3.0);
 
     mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+    vec3 world_coords = GLM_VEC3_ZERO_INIT;
+    chunk_to_world(ts->chunk, ts->coords, world_coords);
+    glm_translate(model_mat, world_coords);
     glm_rotate_z(model_mat, glm_rad(90.0), model_mat);
     glm_scale_uni(model_mat, 0.25);
 
     mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
-    vec3 player_pos = { -e_player.ship_coords[0], -e_player.ship_coords[1],
-                        0.0 };
-    glm_translate(view_mat, player_pos);
+    vec3 player_world_coords = GLM_VEC2_ZERO_INIT;
+    if (e_player.embarked) {
+      chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
+                     player_world_coords);
+    } else {
+      chunk_to_world(e_player.chunk, e_player.coords, player_world_coords);
+    }
+    glm_vec3_negate(player_world_coords);
+    glm_translate(view_mat, player_world_coords);
 
     render_fbo_entity(trade_ship, fbo_model_mat, model_mat, fbo_view_mat,
                       view_mat, persp_proj, ortho_proj);
   }
 }
 
-/*
 void render_player() {
+  if ((mode == EXPLORATION && !e_player.embarked) || mode == COMBAT) {
+    mat4 fbo_model_mat = GLM_MAT4_IDENTITY_INIT;
+    mat4 player_rot = GLM_MAT4_IDENTITY_INIT;
+    vec3 player_dir = GLM_VEC2_ZERO_INIT;
+    if (mode == EXPLORATION) {
+      player_dir[0] = e_player.direction[0];
+      player_dir[1] = e_player.direction[1];
+    } else {
+      player_dir[0] = c_player.direction[0];
+      player_dir[1] = c_player.direction[1];
+    }
+    calc_rot_mat(player_dir, player_rot);
+    glm_translate_y(fbo_model_mat, -0.5);
+    glm_rotate_x(fbo_model_mat, glm_rad(-25.0), fbo_model_mat);
+    glm_mat4_mul(fbo_model_mat, player_rot, fbo_model_mat);
 
+    mat4 fbo_view_mat = GLM_MAT4_IDENTITY_INIT;
+    glm_translate_z(fbo_view_mat, -3.0);
+
+    mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+    glm_rotate_z(model_mat, glm_rad(90.0), model_mat);
+    glm_scale_uni(model_mat, 0.25);
+
+    mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+
+    render_fbo_entity(player, fbo_model_mat, model_mat, fbo_view_mat,
+                      view_mat, persp_proj, ortho_proj);
+  }
 }
 
+/*
 void render_unit(C_UNIT *unit) {
 
 }

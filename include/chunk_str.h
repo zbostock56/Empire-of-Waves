@@ -8,8 +8,8 @@ representing an exploration mode island. Can be included in any file which
 reads/manipulates chunks and/or islands.
 */
 
-#define T_WIDTH (0.1) // Width of a tile in world units
-#define C_WIDTH (512) // Width of a chunk in tiles
+#define T_WIDTH (1) // Width of a tile in world units
+#define C_WIDTH (2) // Width of a chunk in tiles
 #define I_WIDTH (64) // Width of an island in tiles
 #define MAX_ISLANDS (3) // Max islands per chunk
 

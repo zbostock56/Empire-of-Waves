@@ -51,6 +51,7 @@ TRADE_SHIP test_ts;
 void render_player_ship();
 void render_enemy_ship(E_ENEMY *);
 void render_trade_ship(TRADE_SHIP *);
+void render_player();
 void render_fbo_entity(MODEL *, mat4, mat4, mat4, mat4, mat4, mat4);
 
 unsigned int shader_init(const char *, const char *);
