@@ -30,6 +30,11 @@ void init_scene() {
   test_menu.width = 0.75;
   test_menu.height = 0.25;
   test_menu.text = test_text;
+
+  vec2 tu_coords = { -1.0f, 0.0f };
+  glm_vec2_copy(tu_coords, test_unit.coords);
+  vec2 tu_dir = { 0.0, -1.0};
+  glm_vec2_copy(tu_dir, test_unit.direction);
   // END TEST
 
   // Initialize offscreen framebuffer
@@ -97,12 +102,16 @@ void render_scene(GLFWwindow *window) {
   glClearColor(1.0, 0.0, 0.0, 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  render_player_ship();
   render_player();
-  render_enemy_ship(&test_enemy);
-  render_trade_ship(&test_ts);
-  render_merchant(&test_merchant);
-  render_menu(&test_menu);
+  if (mode == EXPLORATION) {
+    render_player_ship();
+    render_enemy_ship(&test_enemy);
+    render_trade_ship(&test_ts);
+    render_merchant(&test_merchant);
+    render_menu(&test_menu);
+  } else {
+    render_unit(&test_unit);
+  }
 
   mat4 text_model = GLM_MAT4_IDENTITY_INIT;
   glm_translate_z(text_model, -1.0);
@@ -110,46 +119,47 @@ void render_scene(GLFWwindow *window) {
   glm_rotate_z(text_model, glm_rad(90.0), text_model);
   glm_rotate_x(text_model, glm_rad(90.0), text_model);
   glm_scale_uni(text_model, 2.0);
-  render_text("Test", text_model);
+  if (mode == EXPLORATION) {
+    render_text("Exploaration", text_model);
+  } else {
+    render_text("Combat", text_model);
+  }
 
   glfwSwapBuffers(window);
   glfwPollEvents();
 }
 
 void render_player_ship() {
-  if (mode == EXPLORATION) {
-    mat4 fbo_model_mat = GLM_MAT4_IDENTITY_INIT;
-    mat4 player_rot = GLM_MAT4_IDENTITY_INIT;
-    vec3 player_dir = { e_player.ship_direction[0],
-                        e_player.ship_direction[1], 0.0f };
-    calc_rot_mat(player_dir, player_rot);
-    glm_scale_uni(fbo_model_mat, 0.5);
-    glm_translate_y(fbo_model_mat, -0.5);
-    glm_rotate_x(fbo_model_mat, glm_rad(-25.0), fbo_model_mat);
-    glm_mat4_mul(fbo_model_mat, player_rot, fbo_model_mat);
+  mat4 fbo_model_mat = GLM_MAT4_IDENTITY_INIT;
+  mat4 player_rot = GLM_MAT4_IDENTITY_INIT;
+  vec3 player_dir = { e_player.ship_direction[0],
+                      e_player.ship_direction[1], 0.0f };
+  calc_rot_mat(player_dir, player_rot);
+  glm_scale_uni(fbo_model_mat, 0.5);
+  glm_translate_y(fbo_model_mat, -0.5);
+  glm_rotate_x(fbo_model_mat, glm_rad(-25.0), fbo_model_mat);
+  glm_mat4_mul(fbo_model_mat, player_rot, fbo_model_mat);
 
-    mat4 fbo_view_mat = GLM_MAT4_IDENTITY_INIT;
-    glm_translate_z(fbo_view_mat, -3.0);
+  mat4 fbo_view_mat = GLM_MAT4_IDENTITY_INIT;
+  glm_translate_z(fbo_view_mat, -3.0);
 
-    mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
-    mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
-    if (!e_player.embarked) {
-      vec3 world_coords = GLM_VEC3_ZERO_INIT;
-      chunk_to_world(e_player.ship_chunk, e_player.ship_coords, world_coords);
-      glm_translate(model_mat, world_coords);
+  mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+  mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+  if (!e_player.embarked) {
+    vec3 world_coords = GLM_VEC3_ZERO_INIT;
+    chunk_to_world(e_player.ship_chunk, e_player.ship_coords, world_coords);
+    glm_translate(model_mat, world_coords);
 
-      vec3 player_world_coords = GLM_VEC3_ZERO_INIT;
-      chunk_to_world(e_player.chunk, e_player.coords, player_world_coords);
-      glm_vec3_negate(player_world_coords);
-      glm_translate(view_mat, player_world_coords);
-    }
-    glm_rotate_z(model_mat, glm_rad(90.0), model_mat);
-    glm_scale_uni(model_mat, 0.75);
-
-
-    render_fbo_entity(player_ship, fbo_model_mat, model_mat, fbo_view_mat,
-                      view_mat, persp_proj, ortho_proj);
+    vec3 player_world_coords = GLM_VEC3_ZERO_INIT;
+    chunk_to_world(e_player.chunk, e_player.coords, player_world_coords);
+    glm_vec3_negate(player_world_coords);
+    glm_translate(view_mat, player_world_coords);
   }
+  glm_rotate_z(model_mat, glm_rad(90.0), model_mat);
+  glm_scale_uni(model_mat, 0.75);
+
+  render_fbo_entity(player_ship, fbo_model_mat, model_mat, fbo_view_mat,
+                    view_mat, persp_proj, ortho_proj);
 }
 
 void render_enemy_ship(E_ENEMY *es) {
@@ -193,7 +203,8 @@ void render_player() {
 }
 
 void render_unit(C_UNIT *unit) {
-  // Render combat mode unit here
+  // TODO Sprint 2: render allies here as well
+  render_c_npc(enemy, unit->coords, unit->direction, 0.25);
 }
 
 void render_merchant(MERCHANT *m) {
@@ -232,6 +243,36 @@ void render_e_npc(MODEL *model, ivec2 chunk, vec2 coords, vec2 direction,
   }
   glm_vec3_negate(player_world_coords);
   glm_translate(view_mat, player_world_coords);
+
+  render_fbo_entity(model, fbo_model_mat, model_mat, fbo_view_mat,
+                    view_mat, persp_proj, ortho_proj);
+}
+
+void render_c_npc(MODEL *model, vec2 coords, vec2 direction, float scale) {
+  mat4 fbo_model_mat = GLM_MAT4_IDENTITY_INIT;
+  mat4 npc_rot = GLM_MAT4_IDENTITY_INIT;
+  vec3 npc_dir = { direction[0], direction[1], 0.0f };
+  calc_rot_mat(npc_dir, npc_rot);
+  glm_scale_uni(fbo_model_mat, scale);
+  glm_translate_y(fbo_model_mat, -0.5);
+  glm_rotate_x(fbo_model_mat, glm_rad(-50.0), fbo_model_mat);
+  glm_mat4_mul(fbo_model_mat, npc_rot, fbo_model_mat);
+
+  mat4 fbo_view_mat = GLM_MAT4_IDENTITY_INIT;
+  glm_translate_z(fbo_view_mat, -3.0);
+
+  mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+  vec3 npc_coords = GLM_VEC3_ZERO_INIT;
+  glm_vec2_copy(coords, npc_coords);
+  glm_translate(model_mat, npc_coords);
+  glm_rotate_z(model_mat, glm_rad(90.0), model_mat);
+  glm_scale_uni(model_mat, 0.75);
+
+  mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+  vec3 player_coords = GLM_VEC2_ZERO_INIT;
+  glm_vec2_copy(c_player.coords, player_coords);
+  glm_vec3_negate(player_coords);
+  glm_translate(view_mat, player_coords);
 
   render_fbo_entity(model, fbo_model_mat, model_mat, fbo_view_mat,
                     view_mat, persp_proj, ortho_proj);

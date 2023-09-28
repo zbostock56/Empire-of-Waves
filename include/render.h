@@ -53,6 +53,7 @@ E_ENEMY test_enemy;
 TRADE_SHIP test_ts;
 MERCHANT test_merchant;
 UI_COMPONENT test_menu;
+C_UNIT test_unit;
 // END TEST
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
@@ -64,6 +65,7 @@ void render_player();
 void render_unit(C_UNIT *);
 void render_merchant(MERCHANT *);
 void render_e_npc(MODEL *, ivec2, vec2, vec2, float);
+void render_c_npc(MODEL *, vec2, vec2, float);
 void render_fbo_entity(MODEL *, mat4, mat4, mat4, mat4, mat4, mat4);
 void render_menu(UI_COMPONENT *);
 void render_text(char *, mat4);
