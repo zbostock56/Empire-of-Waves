@@ -39,6 +39,7 @@ typedef struct exploration_player {
   vec2 coords;
   vec2 ship_coords;
   vec2 direction;
+  vec2 ship_direction;
   int embarked;
   I_SLOT inventory[INV_SIZE];
   unsigned int resources[NUM_RESOURCES];

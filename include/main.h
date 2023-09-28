@@ -1,5 +1,11 @@
 #include <stdio.h>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <chunk_str.h>
 
-void generate_chunk(CHUNK *chunk);
+// ======================= EXTERNALLY DEFINED FUNCTIONS ======================
+
+GLFWwindow *init_gl();
+void init_scene();
+void keyboard_input(GLFWwindow *);
+void render_scene(GLFWwindow *);
+void cleanup_scene();
