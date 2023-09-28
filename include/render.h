@@ -44,6 +44,7 @@ vec3 Z = { 0.0, 0.0, 1.0 };
 // TEST ENTITIES
 E_ENEMY test_enemy;
 TRADE_SHIP test_ts;
+MERCHANT test_merchant;
 // END TEST
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
@@ -52,6 +53,9 @@ void render_player_ship();
 void render_enemy_ship(E_ENEMY *);
 void render_trade_ship(TRADE_SHIP *);
 void render_player();
+void render_unit(C_UNIT *);
+void render_merchant(MERCHANT *);
+void render_e_npc(MODEL *, ivec2, vec2, vec2, float);
 void render_fbo_entity(MODEL *, mat4, mat4, mat4, mat4, mat4, mat4);
 
 unsigned int shader_init(const char *, const char *);
