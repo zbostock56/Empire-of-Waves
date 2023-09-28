@@ -64,3 +64,13 @@ const char *fragment_shader_text = " \
   }\n \
 ";
 
+const char *fragment_shader_color = " \
+  #version 430 core\n \
+  out vec4 FragColor;\n \
+  in vec2 tex_coords;\n \
+  uniform vec3 color;\n \
+  void main() {\n \
+    FragColor = vec4(color, 1.0);\n \
+  }\n \
+";
+

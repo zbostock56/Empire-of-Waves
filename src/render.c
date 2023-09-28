@@ -35,6 +35,14 @@ void init_scene() {
   glm_vec2_copy(tu_coords, test_unit.coords);
   vec2 tu_dir = { 0.0, -1.0};
   glm_vec2_copy(tu_dir, test_unit.direction);
+
+  ivec2 ti_chunk = { 0, 0 };
+  ivec2 ti_coords = { 0, 0 };
+  glm_ivec2_copy(ti_chunk, test_island.chunk);
+  glm_ivec2_copy(ti_coords, test_island.coords);
+  for (int i = 0; i < I_WIDTH * I_WIDTH; i++) {
+    test_island.tiles[i] = OCEAN;
+  }
   // END TEST
 
   // Initialize offscreen framebuffer
@@ -42,6 +50,7 @@ void init_scene() {
 
   // Initialize shaders
   std_shader = shader_init(vertex_shader, fragment_shader_texture);
+  color_shader = shader_init(vertex_shader, fragment_shader_color);
   pixel_shader = shader_init(vertex_shader, fragment_shader_pixelated);
   text_shader = shader_init(vertex_shader, fragment_shader_text);
 
@@ -109,6 +118,7 @@ void render_scene(GLFWwindow *window) {
     render_trade_ship(&test_ts);
     render_merchant(&test_merchant);
     render_menu(&test_menu);
+    render_island(&test_island);
   } else {
     render_unit(&test_unit);
   }
@@ -124,6 +134,13 @@ void render_scene(GLFWwindow *window) {
   } else {
     render_text("Combat", text_model);
   }
+
+  vec2 world_coords = GLM_VEC2_ZERO_INIT;
+  chunk_to_world(e_player.ship_chunk, e_player.ship_coords, world_coords);
+  printf("world: { %f, %f }\nchunk: { %d, %d }\nchunk_coords: { %f, %f }\n\n",
+         world_coords[0], world_coords[1],
+         e_player.ship_chunk[0], e_player.ship_chunk[1],
+         e_player.ship_coords[0], e_player.ship_coords[1]);
 
   glfwSwapBuffers(window);
   glfwPollEvents();
@@ -291,7 +308,7 @@ void render_menu(UI_COMPONENT *menu) {
   set_mat4("model", model_mat, std_shader);
   set_mat4("view", view_mat, std_shader);
   set_mat4("proj", ortho_proj, std_shader);
-  quad->texture = 0xBAADF00D;
+  quad->texture = menu->texture;
   draw_model(quad, std_shader);
 
   if (menu->text) {
@@ -374,6 +391,76 @@ void render_fbo_entity(
   set_mat4("proj", proj, pixel_shader);
   quad->texture = entity_framebuffer.color_texture;
   draw_model(quad, pixel_shader);
+}
+
+void render_island(ISLAND *island) {
+  for (int i = 0; i < (I_WIDTH * I_WIDTH); i++) {
+    vec2 tile_coords = {
+      i % I_WIDTH,
+      i / I_WIDTH
+    };
+    vec2 island_coords = {
+      island->coords[0],
+      island->coords[1]
+    };
+    glm_vec2_add(island_coords, tile_coords, tile_coords);
+
+    render_tile(island->tiles[i], island->chunk, tile_coords);
+  }
+}
+
+void render_tile(TILE tile, ivec2 chunk, vec2 coords) {
+  vec3 world_coords = GLM_VEC2_ZERO_INIT;
+  chunk_to_world(chunk, coords, world_coords);
+  world_coords[0] = world_coords[0] + (T_WIDTH * 0.5);
+  world_coords[1] = world_coords[1] - (T_WIDTH * 0.5);
+
+  // TODO actually use tile textures here
+  vec3 color = GLM_VEC3_ZERO_INIT;
+  if (tile == OCEAN) {
+    color[0] = 3.0;
+    color[1] = 157.0;
+    color[2] = 252.0;
+  } else if (tile == SHORE) {
+    color[0] = 3.0;
+    color[1] = 235.0;
+    color[2] = 252.0;
+  } else if (tile == SAND) {
+    color[0] = 252.0;
+    color[1] = 243.0;
+    color[2] = 162.0;
+  } else if (tile == GRASS) {
+    color[0] = 4.0;
+    color[1] = 209.0;
+    color[2] = 38.0;
+  } else if (tile == ROCK) {
+    color[0] = 99.0;
+    color[1] = 87.0;
+    color[2] = 67.0;
+  }
+  glm_vec3_normalize(color);
+
+  mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+  glm_translate(model_mat, world_coords);
+  glm_scale_uni(model_mat, 0.5 * T_WIDTH);
+
+  mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+  vec3 player_world_coords = GLM_VEC2_ZERO_INIT;
+  if (e_player.embarked) {
+    chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
+                   player_world_coords);
+  } else {
+    chunk_to_world(e_player.chunk, e_player.coords, player_world_coords);
+  }
+  glm_vec3_negate(player_world_coords);
+  glm_translate(view_mat, player_world_coords);
+
+  glUseProgram(color_shader);
+  set_vec3("color", color, color_shader);
+  set_mat4("model", model_mat, color_shader);
+  set_mat4("view", view_mat, color_shader);
+  set_mat4("proj", ortho_proj, color_shader);
+  draw_model(quad, color_shader);
 }
 
 /*

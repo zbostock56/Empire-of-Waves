@@ -30,6 +30,7 @@ typedef struct framebuffer {
 // - framebuffers
 // - etc...
 unsigned int std_shader;
+unsigned int color_shader;
 unsigned int pixel_shader;
 unsigned int text_shader;
 
@@ -54,6 +55,7 @@ TRADE_SHIP test_ts;
 MERCHANT test_merchant;
 UI_COMPONENT test_menu;
 C_UNIT test_unit;
+ISLAND test_island;
 // END TEST
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
@@ -69,6 +71,8 @@ void render_c_npc(MODEL *, vec2, vec2, float);
 void render_fbo_entity(MODEL *, mat4, mat4, mat4, mat4, mat4, mat4);
 void render_menu(UI_COMPONENT *);
 void render_text(char *, mat4);
+void render_island(ISLAND *);
+void render_tile(TILE, ivec2, vec2);
 
 unsigned int shader_init(const char *, const char *);
 FRAMEBUFFER framebuffer_init();
