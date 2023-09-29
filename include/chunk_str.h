@@ -11,7 +11,7 @@ reads/manipulates chunks and/or islands.
 #define C_WIDTH (512) // Width of a chunk in tiles
 #define I_WIDTH (128) // Width of an island in tiles
 #define T_WIDTH (0.1) // Width of a tile in world units
-#define MAX_ISLANDS (3) // Max islands per chunk
+#define MAX_ISLANDS (5) // Max islands per chunk
 
 typedef enum tile {
   OCEAN = 0,

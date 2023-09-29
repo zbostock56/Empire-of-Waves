@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <chunk_str.h>
+
 typedef unsigned char BYTE;
 typedef struct
 {
@@ -9,5 +10,7 @@ typedef struct
         BYTE    g;
         BYTE    r;
 } RGB_data;
+
+void generate_chunk(CHUNK *chunk);
 void generate_island(ISLAND *island);
 int bmp_generator(char *filename, int width, int height, unsigned char *data);

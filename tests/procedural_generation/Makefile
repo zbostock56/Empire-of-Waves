@@ -1,4 +1,4 @@
-FILES = ../../src/island.c ../../src/perlin.c ./src/*.c
+FILES = ../../src/island.c ../../src/perlin.c ../../src/chunk.c ./src/*.c
 LIBS += -L usr/lib/x86_64-linux-gnu/
 INCLUDE += -I ../../include -I ./include
 LINK += -l:libglfw.so.3.3 -lGL -lX11 -l:libXrandr.so.2 -l:libXi.so.6

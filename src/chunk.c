@@ -14,6 +14,7 @@ Assumptions:
   -> Chunk struct is fully allocated BEFORE function is called
 */
 void generate_chunk(CHUNK *chunk) {
+  srand((unsigned int) generate_rand());
   ivec2 isl_locations[MAX_ISLANDS];
   /* Generate random number to find how many islands will */
   /* be in a chunk */
@@ -21,7 +22,6 @@ void generate_chunk(CHUNK *chunk) {
   chunk->num_islands = num_islands;
   island_locator(isl_locations, num_islands);
   /* Set the seed for the merchant generation */
-  srand((unsigned int) generate_rand());
   /* Set the coords of the islands and generate subsequently */
   for (int i = 0; i < num_islands; i++) {
     chunk->islands[i].coords[X] = isl_locations[i][X];
@@ -64,18 +64,18 @@ void island_locator(ivec2 *locs, int num_islands) {
   int invalid = 0;
   for (int i = 0; i < num_islands; i++) {
     do {
-      locs[i][X] = generate_rand() % bounds;
-      locs[i][Y] = generate_rand() % bounds;
+      locs[i][X] = rand() % bounds;
+      locs[i][Y] = rand() % bounds;
       xymax[i][X] = locs[i][X] + I_WIDTH;
       xymax[i][Y] = locs[i][Y] + I_WIDTH;
       bounds_check(xymax[i]);
       bounds_check(locs[i]);
       invalid = 0;
       for (int j = 0; j < i && !invalid; j++) {
-        if (locs[i][X] >= locs[j][X] &&
-            locs[i][X] <= xymax[j][X] &&
-            locs[i][Y] >= locs[j][Y] &&
-            locs[i][Y] <= locs[j][Y]) {
+        if (locs[i][X] <= (locs[j][X] + xymax[j][X]) &&
+            (locs[i][X] + xymax[i][X]) >= locs[j][X] &&
+            locs[i][Y] <= (locs[j][Y] + xymax[j][Y]) &&
+            (locs[i][Y] + xymax[i][Y]) >= locs[j][Y]) {
           bounds_check(xymax[j]);
           bounds_check(locs[j]);
           invalid = 1;

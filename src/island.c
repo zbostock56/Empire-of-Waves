@@ -15,13 +15,16 @@ merchant location generation.
 void generate_island(ISLAND *island) {
   float pnoise[I_WIDTH][I_WIDTH];
   float mask[I_WIDTH][I_WIDTH];
-  int seed = generate_rand();
+  int seed = rand();
+  int depth_salt = rand() % 2;
+  float freq_salt = fmod(((float) rand() / (float) rand()), 0.2);
   memset(mask, 1.0, sizeof(mask));
   generate_mask(mask);
   /* Generate base perlin noise map */
   for (int i = 0; i < I_WIDTH; i++) {
     for (int j = 0; j < I_WIDTH; j++) {
-      pnoise[i][j] = perlin(i, j, FREQ, DEPTH, seed) * mask[i][j];
+      pnoise[i][j] = perlin(i, j, FREQ + freq_salt, DEPTH + depth_salt, seed)
+                     * mask[i][j];
     }
   }
   populate_tiles(island, pnoise);
