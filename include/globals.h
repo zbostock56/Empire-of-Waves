@@ -6,6 +6,7 @@ typedef enum game_mode {
 extern GAME_MODE mode;
 extern float delta_time;
 extern float last_frame;
+extern int console_enabled;
 
 // EXPLORATION MODE STATE
 extern E_PLAYER e_player;

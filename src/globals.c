@@ -17,6 +17,7 @@ INCLUDE globals.h INSTEAD
 GAME_MODE mode = EXPLORATION;
 float delta_time = 0.0;
 float last_frame = 0.0;
+int console_enabled = 0;
 
 // EXPLORATION MODE STATE
 E_PLAYER e_player;
