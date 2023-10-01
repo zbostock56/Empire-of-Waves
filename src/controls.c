@@ -48,23 +48,41 @@ void fb_size_callback(GLFWwindow *window, int width, int height) {
 void exploration_movement(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
     vec2 movement = GLM_VEC2_ZERO_INIT;
-    vec2 world_coords = GLM_VEC2_ZERO_INIT;;
+    vec2 world_coords = GLM_VEC2_ZERO_INIT;
+    vec2 test_before = GLM_VEC2_ZERO_INIT;
     if (e_player.embarked) {
       chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
                      world_coords);
 
       glm_vec2_scale(e_player.ship_direction, delta_time, movement);
-      glm_vec2_add(movement, world_coords, world_coords);
-      world_to_chunk(world_coords, e_player.ship_chunk,
-                     e_player.ship_coords);
-    } else {
-      chunk_to_world(e_player.chunk, e_player.coords,
-                     world_coords);
+      glm_vec2_add(movement, world_coords, test_before);
+      world_to_chunk(test_before, e_player.ship_chunk, test_before);
 
-      glm_vec2_scale(e_player.direction, delta_time, movement);
-      glm_vec2_add(movement, world_coords, world_coords);
-      world_to_chunk(world_coords, e_player.chunk,
-                     e_player.coords);
+      /*
+        Only move the ship if the predicted tile is an Ocean or Shore tile
+      */
+      if (player_collisions(test_before)) {
+        glm_vec2_add(movement, world_coords, world_coords);
+        world_to_chunk(world_coords, e_player.ship_chunk,
+                      e_player.ship_coords);
+      }
+    } else {
+      
+        chunk_to_world(e_player.chunk, e_player.coords,
+                      world_coords);
+
+        glm_vec2_scale(e_player.direction, delta_time, movement);
+        glm_vec2_add(movement, world_coords, test_before);
+        world_to_chunk(test_before, e_player.chunk, test_before);
+
+        /*
+          Only move the ship if the predicted tile is not an 'obstructive' tile
+        */
+        if (!player_collisions(test_before)) {
+          glm_vec2_add(movement, world_coords, world_coords);
+          world_to_chunk(world_coords, e_player.chunk,
+                        e_player.coords);
+        }
     }
   }
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {

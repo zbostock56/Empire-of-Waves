@@ -40,9 +40,30 @@ void init_scene() {
   ivec2 ti_coords = { 0, 0 };
   glm_ivec2_copy(ti_chunk, test_island.chunk);
   glm_ivec2_copy(ti_coords, test_island.coords);
-  for (int i = 0; i < I_WIDTH * I_WIDTH; i++) {
-    test_island.tiles[i] = OCEAN;
+  // for (int i = 0; i < I_WIDTH * I_WIDTH; i++) {
+  //   if (i < I_WIDTH * I_WIDTH/2) 
+  //     test_island.tiles[i] = SAND;
+  //   else 
+  //     test_island.tiles[i] = OCEAN;
+  // }
+  int tiles[64] = 
+  {
+    2, 2, 2, 2, 2, 0, 0, 0,
+    2, 2, 2, 2, 2, 0, 0, 0,
+    2, 2, 2, 2, 2, 0, 0, 0,
+    2, 2, 2, 0, 0, 0, 0, 0,
+    2, 2, 2, 0, 0, 0, 0, 0,
+    2, 2, 2, 0, 0, 0, 0, 0,
+    2, 2, 2, 0, 0, 0, 0, 0,
+    2, 2, 2, 2, 2, 0, 0, 0
+  };
+  for (int i=0;i<I_WIDTH*I_WIDTH;i++) {
+    test_island.tiles[i] = tiles[i%64];
   }
+
+  CHUNK test_chunk  = {{0, 0}, {test_island}, 0, 1, 0 };
+  player_chunks[4] = test_chunk;
+
   // END TEST
 
   // Initialize offscreen framebuffer
@@ -144,13 +165,20 @@ void render_scene(GLFWwindow *window) {
     render_text("Combat", text_model);
   }
 
+  // vec2 world_coords = GLM_VEC2_ZERO_INIT;
+  // chunk_to_world(e_player.ship_chunk, e_player.ship_coords, world_coords);
+  // printf("world: { %f, %f }\nchunk: { %d, %d }\nchunk_coords: { %f, %f }\n\n",
+  //        world_coords[0], world_coords[1],
+  //        e_player.ship_chunk[0], e_player.ship_chunk[1],
+  //        e_player.ship_coords[0], e_player.ship_coords[1]);
+         
   vec2 world_coords = GLM_VEC2_ZERO_INIT;
-  chunk_to_world(e_player.ship_chunk, e_player.ship_coords, world_coords);
+  chunk_to_world(e_player.chunk, e_player.coords, world_coords);
   printf("world: { %f, %f }\nchunk: { %d, %d }\nchunk_coords: { %f, %f }\n\n",
          world_coords[0], world_coords[1],
-         e_player.ship_chunk[0], e_player.ship_chunk[1],
-         e_player.ship_coords[0], e_player.ship_coords[1]);
-
+         e_player.chunk[0], e_player.chunk[1],
+         e_player.coords[0], e_player.coords[1]);
+  
   glfwSwapBuffers(window);
   glfwPollEvents();
 }

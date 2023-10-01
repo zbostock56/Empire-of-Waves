@@ -21,3 +21,4 @@ void debug_keys(GLFWwindow *);
 
 void chunk_to_world(ivec2, vec2, vec2);
 void world_to_chunk(vec2, ivec2, vec2);
+int player_collisions(vec2);

@@ -1,21 +1,12 @@
 #include <collision.h>
-#include <chunk_str.h>
-#include <player_str.h>
-#include <globals.h>
 
-#define X (0)
-#define Y (1)
-#define PLAYER_WIDTH (1.0)
-#define PLAYER_HEIGHT (1.0)
-#define COORDS_X (50.5)
-#define COORDS_Y (25.5)
 /*
                                 COLLISION.c
 Implements the functionality for detecting and handling collisions across the
 various other systems in the application.
 */
 
-// Checks collision between two bounding boxes
+/* Checks collision between two bounding boxes */
 int check_collision(float *p1, float w1, float h1, float *p2, float w2, float h2) {
     float box1_top = p1[Y]+h1/2;
     float box2_top = p2[Y]+h2/2;
@@ -39,55 +30,62 @@ int check_collision(float *p1, float w1, float h1, float *p2, float w2, float h2
 
 
 /* 
-    --------------
-    --------------
-    --------------
-    --------------
-    --------------
-    player_chunk -> chunk[x, y]
-    player_coord -> [[0, C_WIDTH], [0, C_WIDTH]]
-    To get the tile, I need to check the island.
-    Check boundary 
-    chunk
-    
+   helper function for getting the island player's currently on 
 */
-ISLAND * cur_island() {
-    CHUNK cur_chunk;
-    for (int i = 0; i < 9; i++) {
-        if (e_player.chunk[X] == player_chunks[i].coords[X] && 
-            e_player.chunk[Y] == player_chunks[i].coords[Y]) 
-        {
-            cur_chunk = player_chunks[i];
-            break;
-        }
-    }
-    
+int cur_island() {
+    CHUNK * cur_chunk = &player_chunks[4];
+    printf("current_chunk {%d, %d}\n", cur_chunk->coords[0], cur_chunk->coords[1]);
     /* Finds which island the the player is on by checking if they collide */
-    for (int i = 0; i < cur_chunk.num_islands; i++) {
-        vec2 mid_island = {cur_chunk.islands[i].coords[X] + C_WIDTH/2 - 1, cur_chunk.islands[i].coords[Y] + C_WIDTH/2 -1 };
-        if (check_collision(e_player.coords, PLAYER_WIDTH, PLAYER_HEIGHT, mid_island, I_WIDTH, I_WIDTH)) {
-            return &(cur_chunk.islands[i]);
+    for (int i = 0; i < cur_chunk->num_islands; i++) {
+        vec2 mid_island = {cur_chunk->islands[i].coords[X] + C_WIDTH/2 - 1, cur_chunk->islands[i].coords[Y] + C_WIDTH/2 -1 };
+        vec2 mid_island_world = GLM_VEC2_ZERO_INIT;
+        vec2 player_world = GLM_VEC2_ZERO_INIT;
+        
+        /* Converting positions to global coordinates */
+        chunk_to_world(e_player.chunk, mid_island, mid_island_world);
+        chunk_to_world(e_player.chunk, e_player.coords, player_world);
+        if (check_collision(player_world, PLAYER_WIDTH, PLAYER_HEIGHT, mid_island_world, I_WIDTH, I_WIDTH)) {
+            return i;
         }
     }
-    return NULL;
+    return -1;
 }
 
 /* 
-    Helpfer function for checking the tile's type the character is on
+    Helper function for checking the tile's type of a given local coordinate
 */
-int check_tile(ISLAND * cur_island) {
-    int tile_x = truncf((e_player.coords)[X]); 
-    int tile_y = truncf((e_player.coords)[Y]);
+int check_tile(int cur_isl, vec2 coords) {
     
-    return cur_island->tiles[tile_x * I_WIDTH + tile_y];
+    int tile_x = truncf((coords)[X]); 
+    int tile_y = truncf((coords)[Y]);
+    CHUNK * cur_chunk = &player_chunks[4];
+    printf("Tile X : %d Tile Y : %d\n", tile_x, tile_y);
+    return cur_chunk->islands[cur_isl].tiles[tile_y * I_WIDTH + tile_x];
+}
+
+/*
+    Helper function for chcking if the tile is an 'obstructive' tile
+*/
+int is_obstructive(int tile) {
+    if (tile == OCEAN || tile == SHORE) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 
 // Exploration mode collision:
 
-void player_collisions() {
-    int tile = check_tile(cur_island);
+/*
+    Handles the collision of player and player's ship in the island
+*/
+int player_collisions(vec2 coords) {
+    // int tile = check_tile(cur_island);
     /* If tile is obstructive, */
     
+    int tile = check_tile(cur_island(), coords);
+    return is_obstructive(tile);
 }
+
 // Combat mode collision:
