@@ -9,6 +9,8 @@ GLFWwindow *init_gl() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  /* Start global seed */
+  srand(glfwGetTime() * 10101);
 
   window = glfwCreateWindow(RES_X, RES_Y, PROJECT_TITLE, NULL, NULL);
   if (window == NULL) {

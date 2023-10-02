@@ -1,9 +1,8 @@
 #include <enemy_str.h>
 #include <stdio.h>
-#include <sys/time.h>
 
 /* DEFINES */
-#define EVENT_TIMER (10.0)
+#define EVENT_TIMER (2.0)
 
 /* GLOBALS */
 float global_time = EVENT_TIMER;
