@@ -131,4 +131,9 @@ void debug_keys(GLFWwindow *window) {
   } else if (glfwGetKey(window, GLFW_KEY_MINUS) != GLFW_PRESS) {
     holding_minus = 0;
   }
+
+  // dialog state
+  if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+    isTalking = (isTalking ? 0 : 1);
+  }
 }

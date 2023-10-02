@@ -127,6 +127,7 @@ void render_scene(GLFWwindow *window) {
     render_trade_ship(&test_ts);
     render_merchant(&test_merchant);
     render_menu(&test_menu);
+    render_dialog(window); // Render Dialog Test
     render_island(&test_island);
   } else {
     render_unit(&test_unit);
@@ -144,13 +145,14 @@ void render_scene(GLFWwindow *window) {
     render_text("Combat", text_model);
   }
 
+  /*
   vec2 world_coords = GLM_VEC2_ZERO_INIT;
   chunk_to_world(e_player.ship_chunk, e_player.ship_coords, world_coords);
   printf("world: { %f, %f }\nchunk: { %d, %d }\nchunk_coords: { %f, %f }\n\n",
          world_coords[0], world_coords[1],
          e_player.ship_chunk[0], e_player.ship_chunk[1],
          e_player.ship_coords[0], e_player.ship_coords[1]);
-
+  */
   glfwSwapBuffers(window);
   glfwPollEvents();
 }
@@ -630,3 +632,56 @@ void set_vec4(char *name, vec4 matrix, unsigned int shader) {
 void set_vec3(char *name, vec3 matrix, unsigned int shader) {
   glUniform3fv(glGetUniformLocation(shader, name), 1, (float *) matrix);
 }
+
+/*
+  The following functions are dialog functions
+*/
+/*
+                                   dialog.c
+Implements the functionality for opening and closing a dialog box. Could be 
+used for conversation with merchants or other places that need a dialog box.
+*/
+DIALOG * new_dialog(char *name, char *content) {
+  DIALOG *dialog = malloc(sizeof(DIALOG));
+  dialog->name = malloc(MAX_NAME * sizeof(char));
+  strcpy(dialog->name, name);
+  dialog->content = malloc(MAX_CONTENT * sizeof(char));
+  strcpy(dialog->content, content);
+  return dialog;
+}
+
+void render_dialog(GLFWwindow *window) {
+  if (isTalking) {
+    printf("\n******** Opening Dialog ********\n");
+    DIALOG * dialog = new_dialog("dialog_name", "dialog_content");
+    printf("\n******** dialog_name = \"%s\", dialog_content = \"%s\" ********\n", dialog->name, dialog->content);
+    open_dialog(dialog);
+  }
+}
+
+void open_dialog(DIALOG *dialog) {
+  printf("\n******** Rendering Name() ********\n");
+  UI_COMPONENT ui_dialog_name;
+  glm_vec2_zero(ui_dialog_name.position);
+  ui_dialog_name.position[0] = -0.40;
+  ui_dialog_name.position[1] = -0.75;
+  ui_dialog_name.width = 0.75;
+  ui_dialog_name.height = 0.25;
+  ui_dialog_name.text = dialog->name;
+  render_menu(&ui_dialog_name);
+
+  printf("\n******** Rendering Content() ********\n");
+  UI_COMPONENT ui_dialog_content;
+  glm_vec2_zero(ui_dialog_content.position);
+  ui_dialog_content.position[0] = -0.40;
+  ui_dialog_content.position[1] = -0.90;
+  ui_dialog_content.width = 0.75;
+  ui_dialog_content.height = 0.25;
+  ui_dialog_content.text = dialog->content;
+  render_menu(&ui_dialog_content);
+};
+
+void close_dialog(DIALOG *dialog) {
+
+
+};

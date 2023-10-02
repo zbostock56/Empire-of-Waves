@@ -22,3 +22,6 @@ extern float next_event;
 extern C_PLAYER c_player;
 extern C_UNIT *npc_units;
 extern unsigned int num_npc_units;
+
+// DIALOG STATE
+extern int isTalking;
