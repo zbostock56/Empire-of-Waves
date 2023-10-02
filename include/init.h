@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <sys/time.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 

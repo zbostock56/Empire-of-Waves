@@ -6,7 +6,7 @@ random events.
 */
 
 void update_event_timer() {
-  if ((global_time -= delta_time) <= 0) {
+  if ((global_time -= delta_time) <= 0.0) {
     global_time = EVENT_TIMER;
   }
 }

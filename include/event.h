@@ -1,12 +1,13 @@
 #include <enemy_str.h>
 #include <stdio.h>
+#include <sys/time.h>
 
 /* DEFINES */
-#define EVENT_TIMER (100000000000)
+#define EVENT_TIMER (10.0)
 
 /* GLOBALS */
-long global_time = EVENT_TIMER;
-extern int delta_time;
+float global_time = EVENT_TIMER;
+extern float delta_time;
 
 /* PROTOTYPES */
 void update_event_timer();
