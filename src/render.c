@@ -146,11 +146,12 @@ void render_scene(GLFWwindow *window) {
 
   vec2 world_coords = GLM_VEC2_ZERO_INIT;
   chunk_to_world(e_player.ship_chunk, e_player.ship_coords, world_coords);
+  /*
   printf("world: { %f, %f }\nchunk: { %d, %d }\nchunk_coords: { %f, %f }\n\n",
          world_coords[0], world_coords[1],
          e_player.ship_chunk[0], e_player.ship_chunk[1],
          e_player.ship_coords[0], e_player.ship_coords[1]);
-
+*/
   glfwSwapBuffers(window);
   glfwPollEvents();
 }
