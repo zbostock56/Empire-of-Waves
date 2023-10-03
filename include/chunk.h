@@ -8,6 +8,10 @@
 #define FIRST  (0)
 #define SECOND (1)
 #define THIRD  (2)
+#define CHUNKS_SIMULATED (9)
+
+/* GLOBALS */
+extern CHUNK player_chunks[CHUNKS_SIMULATED];
 
 /* PROTOTYPES */
 /* ISLAND.C */
