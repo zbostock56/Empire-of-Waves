@@ -18,7 +18,7 @@ void update_event_timer() {
 /* Enemy spawn rate chances (50%) */
 void spawn_event() {
   if (rand() % 2 == 0) {
-    //spawn_enemy();
+    spawn_enemy();
     printf("SPAWN ENEMY\n");
   }
 }

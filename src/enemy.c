@@ -8,7 +8,7 @@ respawn, despawn, move, attack, and rotate.
 
 /* Reponsible for spawning enemy in a chunk that is not */
 /* at enemy cap nor is outside of the simulation range */
-void spawn_enemy(ivec2 chunk, ivec2 coords) {
+void spawn_enemy() {
   int avail_chunks[CHUNKS_SIMULATED];
   int num_avail = find_avail_chunks(avail_chunks);
   /* Choose a chunk to spawn an enemy in */
@@ -18,7 +18,7 @@ void spawn_enemy(ivec2 chunk, ivec2 coords) {
   }
   int not_found = 1;
   int chunk_pos = 0;
-  ivec2 chosen_chunk;
+  ivec2 chosen_chunk = { 0, 0 };
   while (not_found) {
     chunk_pos = rand() % CHUNKS_SIMULATED;
     if (avail_chunks[chunk_pos]) {

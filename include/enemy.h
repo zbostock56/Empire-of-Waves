@@ -41,7 +41,7 @@ extern E_PLAYER e_player;
 }
 
 /* =================== INTERNALLY DEFINED FUNCTIONS =================== */
-void spawn_enemy(ivec2 chunk, ivec2 coords);
+void spawn_enemy();
 int find_avail_chunks();
 void generate_chunk_tiles(int chunk_tiles[C_WIDTH][C_WIDTH], CHUNK chunk);
 

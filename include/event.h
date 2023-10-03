@@ -8,6 +8,9 @@
 float global_time = EVENT_TIMER;
 extern float delta_time;
 
-/* PROTOTYPES */
+/* ================ EXTERNALLY DEFINED FUNCTIONS ================== */
+void spawn_enemy();
+
+/* ================ INTERNALLY DEFINED FUNCTIONS ================== */
 void update_event_timer();
 void spawn_event();
