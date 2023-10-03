@@ -46,7 +46,7 @@ void spawn_enemy() {
     TILE tile = chunk_tiles[posx][posy];
     if ((in_player_chunk && e_player.coords[0] != posx && e_player.coords[1] != posy)
          || !in_player_chunk) {
-      if (tile == OCEAN) {
+      if (tile == 1) {
         /* Sets up base enemy */
         unsigned int num_e = player_chunks[chunk_pos].num_enemies;
         E_ENEMY *enemy = &player_chunks[chunk_pos].enemies[num_e];
@@ -59,6 +59,8 @@ void spawn_enemy() {
         enemy->speed = 1.0;
         enemy->crew_count = 1;
         player_chunks[chunk_pos].num_enemies++;
+        not_found = 0;
+        printf("ENEMY SPAWNED:\nchunk: %d | %d\npos: %f | %f\n", enemy->chunk[0], enemy->chunk[1], enemy->coords[0], enemy->coords[1]);
         /* TODO: Account for resize enemy buffer */
       }
     }

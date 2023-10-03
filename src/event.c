@@ -10,7 +10,9 @@ random events.
 void update_event_timer() {
   if ((global_time -= delta_time) <= 0.0) {
     global_time = EVENT_TIMER;
-    spawn_event();
+    if (mode == EXPLORATION && e_player.embarked == 1) {
+      spawn_event();
+    }
   }
 }
 
@@ -19,6 +21,5 @@ void update_event_timer() {
 void spawn_event() {
   if (rand() % 2 == 0) {
     spawn_enemy();
-    printf("SPAWN ENEMY\n");
   }
 }

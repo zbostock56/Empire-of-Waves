@@ -1,12 +1,14 @@
-#include <enemy_str.h>
 #include <stdio.h>
+#include <player_str.h>
+#include <chunk_str.h>
+#include <trade_ship_str.h>
+#include <globals.h>
 
 /* DEFINES */
-#define EVENT_TIMER (2.0)
+#define EVENT_TIMER (10.0)
 
 /* GLOBALS */
 float global_time = EVENT_TIMER;
-extern float delta_time;
 
 /* ================ EXTERNALLY DEFINED FUNCTIONS ================== */
 void spawn_enemy();
