@@ -1,8 +1,14 @@
-#include <event.h>
+#include <ev.h>
 /*
                                     EVENT.c
 Implements the functionality for maintaining a random event timer, and spawning
 random events.
+*/
+
+/*
+
+TESTING COPY, CHANGED TO SUIT TESTING NEEDS
+
 */
 
 /* Checks time value against frame rendering speed. If hits 0, then */

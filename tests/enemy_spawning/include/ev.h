@@ -5,7 +5,7 @@
 #include <globals.h>
 
 /* DEFINES */
-#define EVENT_TIMER (10.0)
+#define EVENT_TIMER (0.10)
 
 /* GLOBALS */
 float global_time = EVENT_TIMER;
