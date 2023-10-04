@@ -127,8 +127,12 @@ void render_scene(GLFWwindow *window) {
     render_trade_ship(&test_ts);
     render_merchant(&test_merchant);
     render_menu(&test_menu);
-    DIALOG * dialog = new_dialog("name", "content");
-    render_dialog(window, dialog); // Render Dialog Test
+    // Dialog Testing Starts
+    DIALOG *dialog = new_dialog("dialog_name", "dialog_content");
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+      render_dialog(window, dialog); // Render Dialog Test
+    }
+    // Dialog Testing Ends
     render_island(&test_island);
   } else {
     render_unit(&test_unit);
@@ -648,18 +652,18 @@ void render_dialog(GLFWwindow *window, DIALOG *dialog) {
   int window_width, window_height;
   glfwGetFramebufferSize(window, &window_width, &window_height);
 
-  float dialog_width = window_width - (2 * 32.0f);
-  float dialog_height = 256.0f;
-  vec2 dialog_position = { 32.0f, window_height - dialog_height - 32.0f }; // Adjusted to bottom
+  // float dialog_width = 0;
+  // float dialog_height = 0;
+  vec2 dialog_position = { -0.5 , -0.2 }; // Adjusted to bottom
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   // Render the dialog box content
   UI_COMPONENT *content_box = &(dialog->ui_content);
-  content_box->width = dialog_width;
-  content_box->height = dialog_height;
+  // content_box->width = dialog_width;
+  // content_box->height = dialog_height;
   content_box->position[0] = dialog_position[0];
-  content_box->position[1] = dialog_position[1] + 30.0f;  // Below the name by 30 units
+  content_box->position[1] = dialog_position[1] - 0.2;  // Below the name
   
   if (content_box->textured) {
     glBindTexture(GL_TEXTURE_2D, content_box->texture);
@@ -667,11 +671,19 @@ void render_dialog(GLFWwindow *window, DIALOG *dialog) {
   } else {
     // Render the content box without a texture (a default color or a quad)
   }
-  render_text(content_box->text, content_box->position);
+  // render_text(content_box->text, content_box->position);
+  mat4 content_position = GLM_MAT4_IDENTITY_INIT;
+  vec3 content_translate = GLM_VEC3_ZERO_INIT;
+  glm_vec2_copy(content_box->position, content_translate);
+  glm_translate(content_position, content_translate);
+  glm_rotate_z(content_position, glm_rad(90.0), content_position);
+  glm_rotate_x(content_position, glm_rad(90.0), content_position);
+  glm_scale_uni(content_position, 2.0);
+  render_text(content_box->text, content_position);
 
   // Render the dialog name, assuming the name is at the top and slightly larger
   UI_COMPONENT *name_box = &(dialog->ui_name);
-  name_box->position[0] = dialog_position[0] + 10.0f;  // Add some left padding
+  name_box->position[0] = dialog_position[0];
   name_box->position[1] = dialog_position[1];  // Topmost position of the dialog
 
   if (name_box->textured) {
@@ -680,52 +692,12 @@ void render_dialog(GLFWwindow *window, DIALOG *dialog) {
   } else {
     // Render the content box without a texture (a default color or a quad)
   }
-  render_text(name_box->text, name_box->position);
+  mat4 name_position = GLM_MAT4_IDENTITY_INIT;
+  vec3 name_translate = GLM_VEC3_ZERO_INIT;
+  glm_vec2_copy(name_box->position, name_translate);
+  glm_translate(name_position, name_translate);
+  glm_rotate_z(name_position, glm_rad(90.0), name_position);
+  glm_rotate_x(name_position, glm_rad(90.0), name_position);
+  glm_scale_uni(name_position, 2.0);
+  render_text(name_box->text, name_position);
 }
-
-/*
-DIALOG * new_dialog(char *name, char *content) {
-  DIALOG *dialog = malloc(sizeof(DIALOG));
-  dialog->name = malloc(MAX_NAME * sizeof(char));
-  strcpy(dialog->name, name);
-  dialog->content = malloc(MAX_CONTENT * sizeof(char));
-  strcpy(dialog->content, content);
-  return dialog;
-}
-
-void render_dialog(GLFWwindow *window) {
-  if (isTalking) {
-    printf("\n******** Opening Dialog ********\n");
-    DIALOG * dialog = new_dialog("dialog_name", "dialog_content");
-    printf("\n******** dialog_name = \"%s\", dialog_content = \"%s\" ********\n", dialog->name, dialog->content);
-    open_dialog(dialog);
-  }
-}
-
-void open_dialog(DIALOG *dialog) {
-  printf("\n******** Rendering Name() ********\n");
-  UI_COMPONENT ui_dialog_name;
-  glm_vec2_zero(ui_dialog_name.position);
-  ui_dialog_name.position[0] = -0.40;
-  ui_dialog_name.position[1] = -0.75;
-  ui_dialog_name.width = 0.75;
-  ui_dialog_name.height = 0.25;
-  ui_dialog_name.text = dialog->name;
-  render_menu(&ui_dialog_name);
-
-  printf("\n******** Rendering Content() ********\n");
-  UI_COMPONENT ui_dialog_content;
-  glm_vec2_zero(ui_dialog_content.position);
-  ui_dialog_content.position[0] = -0.40;
-  ui_dialog_content.position[1] = -0.90;
-  ui_dialog_content.width = 0.75;
-  ui_dialog_content.height = 0.25;
-  ui_dialog_content.text = dialog->content;
-  render_menu(&ui_dialog_content);
-};
-
-void close_dialog(DIALOG *dialog) {
-
-
-};
-*/
