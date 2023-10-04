@@ -15,7 +15,7 @@ int main() {
     // - etc...
 
     render_scene(window);
-    update_event_timer();
+    //update_event_timer();
   }
 
   // Insert all "cleanup" functionality here
