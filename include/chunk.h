@@ -1,5 +1,6 @@
 /* INCLUDES */
 #include <stdio.h>
+#include <glad/glad.h>
 #include <player_str.h>
 #include <chunk_str.h>
 #include <trade_ship_str.h>
@@ -33,10 +34,14 @@ ivec2 CHUNK_OFFSETS[9] = {
   {-1, -1}, { 0, -1}, { 1, -1}
 };
 
+float T_WIDTH = 0.1;
+
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 /* ISLAND.C */
 int generate_rand();
 void generate_island(ISLAND *island);
+void populate_tile_pixel_buffer(ISLAND *, unsigned char (*)[3]);
+unsigned int texture_from_buffer(unsigned char *, int, int, int);
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 

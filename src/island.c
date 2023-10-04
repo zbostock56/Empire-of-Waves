@@ -28,14 +28,15 @@ void generate_island(ISLAND *island) {
     }
   }
   merchant_generate(&(island->merchant), island);
-
-  // TODO Create island texture buffer from preloaded tile texture buffers
-  unsigned char tile_colors[I_WIDTH * I_WIDTH][3];
-  populate_tiles(island, pnoise, tile_colors);
+  populate_tiles(island, pnoise);
 
   // TODO generate listings buffer
   island->merchant.listings = NULL;
   island->merchant.num_listings = 0;
+
+  // TODO Create island texture buffer from preloaded tile texture buffers
+  unsigned char tile_colors[I_WIDTH * I_WIDTH][3];
+  populate_tile_pixel_buffer(island, tile_colors);
   island->texture = texture_from_buffer((unsigned char *) tile_colors,
                                         I_WIDTH, I_WIDTH, GL_RGB);
   return;
@@ -91,8 +92,7 @@ void generate_mask(float (*mask)[I_WIDTH]) {
   from perlin noise. Here the values, normalized from 0.0 -> 1.0,
   are parsed to output different terrain based on their values.
 */
-void populate_tiles(ISLAND *island, float (*pnoise)[I_WIDTH],
-                    unsigned char (*tile_colors)[3]) {
+void populate_tiles(ISLAND *island, float (*pnoise)[I_WIDTH]) {
   for (int i = 0; i < I_WIDTH; i++) {
     for (int j = 0; j < I_WIDTH; j++) {
       float pixel = pnoise[i][j];
@@ -103,10 +103,6 @@ void populate_tiles(ISLAND *island, float (*pnoise)[I_WIDTH],
       if (pixel > 0.7 && pixel <= 1.0) {
         // ROCK
         island->tiles[location] = ROCK;
-
-        tile_colors[location][0] = 99;
-        tile_colors[location][1] = 87;
-        tile_colors[location][2] = 67;
       }
       #if 0
       else if (pixel > 0.65 && pixel <= 0.7) {
@@ -117,32 +113,43 @@ void populate_tiles(ISLAND *island, float (*pnoise)[I_WIDTH],
       else if (pixel > 0.425 && pixel <= 0.7) {
         // LOWLAND GRASS (IN THE FUTURE)
         island->tiles[location] = GRASS;
-
-        tile_colors[location][0] = 4;
-        tile_colors[location][1] = 209;
-        tile_colors[location][2] = 38;
       } else if (pixel > 0.35 && pixel <= 0.425) {
         // SAND
         island->tiles[location] = SAND;
-
-        tile_colors[location][0] = 252;
-        tile_colors[location][1] = 243;
-        tile_colors[location][2] = 162;
       } else if (pixel > 0.0 && pixel <= 0.35) {
         // SHORE (LANDABLE)
         island->tiles[location] = SHORE;
-
-        tile_colors[location][0] = 3;
-        tile_colors[location][1] = 235;
-        tile_colors[location][2] = 252;
       } else {
         // WATER
         island->tiles[location] = OCEAN;
-
-        tile_colors[location][0] = 3;
-        tile_colors[location][1] = 157;
-        tile_colors[location][2] = 252;
       }
+    }
+  }
+}
+
+void populate_tile_pixel_buffer(ISLAND *island,
+                                unsigned char (*tile_colors)[3]) {
+  for (int i = 0; i < I_WIDTH * I_WIDTH; i++) {
+    if (island->tiles[i] == ROCK) {
+      tile_colors[i][0] = 99;
+      tile_colors[i][1] = 87;
+      tile_colors[i][2] = 67;
+    } else if (island->tiles[i] == GRASS) {
+      tile_colors[i][0] = 4;
+      tile_colors[i][1] = 209;
+      tile_colors[i][2] = 38;
+    } else if (island->tiles[i] == SAND) {
+      tile_colors[i][0] = 252;
+      tile_colors[i][1] = 243;
+      tile_colors[i][2] = 162;
+    } else if (island->tiles[i] == SHORE) {
+      tile_colors[i][0] = 3;
+      tile_colors[i][1] = 235;
+      tile_colors[i][2] = 252;
+    } else if (island->tiles[i] == OCEAN) {
+      tile_colors[i][0] = 3;
+      tile_colors[i][1] = 157;
+      tile_colors[i][2] = 252;
     }
   }
 }
