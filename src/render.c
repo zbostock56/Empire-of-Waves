@@ -127,7 +127,8 @@ void render_scene(GLFWwindow *window) {
     render_trade_ship(&test_ts);
     render_merchant(&test_merchant);
     render_menu(&test_menu);
-    render_dialog(window); // Render Dialog Test
+    DIALOG * dialog = new_dialog("name", "content");
+    render_dialog(window, dialog); // Render Dialog Test
     render_island(&test_island);
   } else {
     render_unit(&test_unit);
@@ -634,13 +635,55 @@ void set_vec3(char *name, vec3 matrix, unsigned int shader) {
 }
 
 /*
-  The following functions are dialog functions
-*/
-/*
-                                   dialog.c
+                                   dialog
 Implements the functionality for opening and closing a dialog box. Could be 
 used for conversation with merchants or other places that need a dialog box.
 */
+
+void render_dialog(GLFWwindow *window, DIALOG *dialog) {
+  if (!dialog || !dialog->is_open) {
+    return;
+  }
+
+  int window_width, window_height;
+  glfwGetFramebufferSize(window, &window_width, &window_height);
+
+  float dialog_width = window_width - (2 * 32.0f);
+  float dialog_height = 256.0f;
+  vec2 dialog_position = { 32.0f, window_height - dialog_height - 32.0f }; // Adjusted to bottom
+
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  // Render the dialog box content
+  UI_COMPONENT *content_box = &(dialog->ui_content);
+  content_box->width = dialog_width;
+  content_box->height = dialog_height;
+  content_box->position[0] = dialog_position[0];
+  content_box->position[1] = dialog_position[1] + 30.0f;  // Below the name by 30 units
+  
+  if (content_box->textured) {
+    glBindTexture(GL_TEXTURE_2D, content_box->texture);
+    // Render the textured quad with a texture
+  } else {
+    // Render the content box without a texture (a default color or a quad)
+  }
+  render_text(content_box->text, content_box->position);
+
+  // Render the dialog name, assuming the name is at the top and slightly larger
+  UI_COMPONENT *name_box = &(dialog->ui_name);
+  name_box->position[0] = dialog_position[0] + 10.0f;  // Add some left padding
+  name_box->position[1] = dialog_position[1];  // Topmost position of the dialog
+
+  if (name_box->textured) {
+    glBindTexture(GL_TEXTURE_2D, name_box->texture);
+    // Render the textured quad with a texture
+  } else {
+    // Render the content box without a texture (a default color or a quad)
+  }
+  render_text(name_box->text, name_box->position);
+}
+
+/*
 DIALOG * new_dialog(char *name, char *content) {
   DIALOG *dialog = malloc(sizeof(DIALOG));
   dialog->name = malloc(MAX_NAME * sizeof(char));
@@ -685,3 +728,4 @@ void close_dialog(DIALOG *dialog) {
 
 
 };
+*/
