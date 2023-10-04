@@ -6,6 +6,8 @@
 
 GLFWwindow *init_gl();
 void init_scene();
+void init_chunks();
 void keyboard_input(GLFWwindow *);
+void manage_chunks();
 void render_scene(GLFWwindow *);
 void cleanup_scene();

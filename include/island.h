@@ -8,15 +8,16 @@ so that the graphics side can render the islands in the viewport.
 /* INCLUDES */
 #include <stdio.h>
 #include <stdlib.h>
-#include <chunk_str.h>
+#include <string.h>
 #include <time.h>
 #include <error.h>
 #include <math.h>
-#include <string.h>
+#include <glad/glad.h>
+#include <chunk_str.h>
 
 /* DEFINES */
-#define FREQ          (0.1)
-#define DEPTH         (4)
+#define FREQ          (0.05)
+#define DEPTH         (3)
 #define X             (0)
 #define Y             (1)
 #define MAX_INT       (2147483647)
@@ -33,8 +34,10 @@ void generate_island(ISLAND *island);
 int generate_rand();
 double nano_time();
 void generate_mask(float (*mask)[I_WIDTH]);
-void populate_tiles(ISLAND *island, float (*pnoise)[I_WIDTH]);
+void populate_tiles(ISLAND *island, float (*pnoise)[I_WIDTH],
+                    unsigned char (*tile_colors)[3]);
 void merchant_generate(MERCHANT *merchant, ISLAND *island);
+unsigned int texture_from_buffer(unsigned char *, int, int, int);
 
 /* MACROS */
 /* Safe-guard for the chances if tile_location is */
