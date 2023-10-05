@@ -34,7 +34,7 @@ int check_collision(float *p1, float w1, float h1, float *p2, float w2, float h2
 */
 int cur_island() {
     CHUNK * cur_chunk = &player_chunks[4];
-    printf("current_chunk {%d, %d}\n", cur_chunk->coords[0], cur_chunk->coords[1]);
+
     /* Finds which island the the player is on by checking if they collide */
     for (int i = 0; i < cur_chunk->num_islands; i++) {
         vec2 mid_island = {cur_chunk->islands[i].coords[X] + C_WIDTH/2 - 1, cur_chunk->islands[i].coords[Y] + C_WIDTH/2 -1 };
@@ -48,6 +48,7 @@ int cur_island() {
             return i;
         }
     }
+    
     return -1;
 }
 
@@ -56,6 +57,10 @@ int cur_island() {
 */
 int check_tile(int cur_isl, vec2 coords) {
     
+    /* If it is not in an island, the tile should be an ocean tile */
+    if (cur_isl == -1) {
+        return OCEAN;
+    }
     int tile_x = truncf((coords)[X]); 
     int tile_y = truncf((coords)[Y]);
     CHUNK * cur_chunk = &player_chunks[4];
@@ -63,29 +68,31 @@ int check_tile(int cur_isl, vec2 coords) {
     return cur_chunk->islands[cur_isl].tiles[tile_y * I_WIDTH + tile_x];
 }
 
-/*
-    Helper function for chcking if the tile is an 'obstructive' tile
-*/
-int is_obstructive(int tile) {
-    if (tile == OCEAN || tile == SHORE) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-
 // Exploration mode collision:
 
 /*
-    Handles the collision of player and player's ship in the island
+    Handles the collision of a character
 */
 int player_collisions(vec2 coords) {
     // int tile = check_tile(cur_island);
     /* If tile is obstructive, */
     
     int tile = check_tile(cur_island(), coords);
-    return is_obstructive(tile);
+    if (tile == OCEAN || tile == SHORE) {
+        return true;
+    }
+    return false;
+}
+
+/*
+    Handles the collision of a ship
+*/
+int ship_collisions(vec2 coords) {
+    int tile = check_tile(cur_island(), coords);
+    if (tile == OCEAN || tile == SHORE) {
+        return false;
+    }
+    return true;
 }
 
 // Combat mode collision:

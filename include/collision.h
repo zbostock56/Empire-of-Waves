@@ -15,6 +15,7 @@ int check_collision(float*, float, float, float*, float, float);
 int cur_island();
 int check_tile(int cur_isl, vec2);
 int player_collisions(vec2);
+int ship_collisions(vec2);
 
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 void chunk_to_world(ivec2, vec2, vec2);
