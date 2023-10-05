@@ -15,20 +15,10 @@
 #define MAX_CHUNK_PATH_LEN (100)
 #define MAX_CHUNK_COORD (1000000)
 
-// Macros specifying index names for player_chunks
-#define CHUNK_UPPER_LEFT (0)
-#define CHUNK_UP (1)
-#define CHUNK_UPPER_RIGHT (2)
-#define CHUNK_LEFT (3)
-#define PLAYER_CHUNK (4)
-#define CHUNK_RIGHT (5)
-#define CHUNK_LOWER_LEFT (6)
-#define CHUNK_DOWN (7)
-#define CHUNK_LOWER_RIGHT (8)
+/* GLOBALS */
+extern CHUNK player_chunks[CHUNKS_SIMULATED];
 
-// Offsets of each chunk in player_chunks from player_chunks[4]
-// Each index correponds to the same chunk pointer in player_chunks
-ivec2 CHUNK_OFFSETS[9] = {
+ivec2 CHUNK_OFFSETS[CHUNKS_SIMULATED] = {
   {-1,  1}, { 0,  1}, { 1,  1},
   {-1,  0}, { 0,  0}, { 1,  0},
   {-1, -1}, { 0, -1}, { 1, -1}

@@ -27,15 +27,15 @@ so that the graphics side can render the islands in the viewport.
 
 /* PROTOTYPES */
 /* perlin.h */
-float perlin(float x, float y, float freq, int depth, int SEED);
+float perlin(float, float, float, int, int);
 
 /* Native functions */
-void generate_island(ISLAND *island);
+void generate_island(ISLAND *);
 int generate_rand();
 double nano_time();
 void generate_mask(float (*mask)[I_WIDTH]);
-void populate_tiles(ISLAND *island, float (*pnoise)[I_WIDTH]);
-void merchant_generate(MERCHANT *merchant, ISLAND *island);
+void populate_tiles(ISLAND *, float (*)[I_WIDTH]);
+void merchant_generate(MERCHANT *, ISLAND *);
 void populate_tile_pixel_buffer(ISLAND *, unsigned char (*)[3]);
 unsigned int texture_from_buffer(unsigned char *, int, int, int);
 
