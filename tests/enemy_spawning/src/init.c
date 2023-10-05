@@ -1,5 +1,11 @@
 #include <init.h>
 
+/*
+
+TESTING COPY, CHANGED TO SUIT TESTING
+
+*/
+
 GLFWwindow *init_gl() {
   GLFWwindow *window;
 
@@ -11,6 +17,10 @@ GLFWwindow *init_gl() {
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   /* Start global seed */
   srand(glfwGetTime() * 10101);
+  /* Initialize buffers */
+  for (int i = 0; i < 9; i++) {
+    player_chunks[i].enemies = malloc(sizeof(E_ENEMY) * 10);
+  }
 
   window = glfwCreateWindow(RES_X, RES_Y, PROJECT_TITLE, NULL, NULL);
   if (window == NULL) {
@@ -20,7 +30,6 @@ GLFWwindow *init_gl() {
   }
 
   glfwSetFramebufferSizeCallback(window, fb_size_callback);
-  glfwSetMouseButtonCallback(window, mouse_click);
   glfwSetCursorPosCallback(window, mouse_pos);
   glfwSetScrollCallback(window, mouse_scroll);
 

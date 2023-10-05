@@ -109,6 +109,8 @@ void set_mat3(char *, mat3, unsigned int);
 void set_vec4(char *, vec4, unsigned int);
 void set_vec3(char *, vec3, unsigned int);
 
+void render_dialog(GLFWwindow *window, DIALOG *dialog);
+
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 
 MODEL *load_model(char *, char *);

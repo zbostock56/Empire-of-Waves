@@ -30,6 +30,3 @@ float next_event;
 C_PLAYER c_player;
 C_UNIT *npc_units;
 unsigned int num_npc_units;
-
-// DIALOG STATE
-int isTalking = 0;

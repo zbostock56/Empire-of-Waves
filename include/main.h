@@ -10,3 +10,4 @@ void keyboard_input(GLFWwindow *);
 void render_scene(GLFWwindow *);
 void cleanup_scene();
 void init_menus();
+void update_event_timer();

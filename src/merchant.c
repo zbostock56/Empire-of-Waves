@@ -5,7 +5,6 @@
 #include <cglm/vec2.h>
 #include <GLFW/glfw3.h>
 #include <cglm/cglm.h>
-#include <dialog.h>
 #include <globals.h>
 
 /*
@@ -16,7 +15,7 @@ modifying merchant relationships, and conducting trade.
 
 
 // #23 - As a user I would like to talk to merchants
-
+/*
 MERCHANT get_closest_merchant(E_PLAYER e_player) {
     float closest_merchant_distance = 1e9+7;
     MERCHANT closest_merchant;
@@ -52,3 +51,4 @@ void merchant_interaction_listener(GLFWwindow *window, MERCHANT closest_merchant
         }
     }
 }
+*/

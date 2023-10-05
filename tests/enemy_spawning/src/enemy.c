@@ -1,4 +1,4 @@
-#include <enemy.h>
+#include <en.h>
 /*
                                     ENEMY.c
 Implements the functionality for enemy pathfinding/behavior in combat mode and
@@ -6,13 +6,30 @@ exploration mode, and helper functions for common enemy operations such as
 respawn, despawn, move, attack, and rotate.
 */
 
+/*
+
+TESTING COPY, CHANGED WITH OUPUTS AND OTHER CHECKS
+
+*/
+
 /* Reponsible for spawning enemy in a chunk that is not */
 /* at enemy cap nor is outside of the simulation range */
 void spawn_enemy() {
+  /*
+    Check the number of enemies in the 3 x 3 chunks
+  */
+  int number_enemies = 0;
+  for (int i = 0; i < 9; i++) {
+    number_enemies += player_chunks[i].num_enemies;
+    printf("Number Enemies chunk %d | %d\n", i, player_chunks[i].num_enemies);
+  }
+  printf("NUMBER OF ENEMIES: %d\n", number_enemies);
   int avail_chunks[CHUNKS_SIMULATED];
   int num_avail = find_avail_chunks(avail_chunks);
   /* Choose a chunk to spawn an enemy in */
   if (num_avail == 0) {
+    printf("NO CHUNKS AVAILABLE\n");
+    check_enemy_positions();
     /* No chunks available */
     return;
   }
@@ -60,6 +77,7 @@ void spawn_enemy() {
         enemy->crew_count = 1;
         player_chunks[chunk_pos].num_enemies++;
         not_found = 0;
+        printf("ENEMY SPAWNED:\nchunk: %d | %d\npos: %f | %f\n", enemy->chunk[0], enemy->chunk[1], enemy->coords[0], enemy->coords[1]);
         /* TODO: Account for resize enemy buffer */
       }
     }
@@ -123,4 +141,31 @@ int find_avail_chunks(int avail_chunks[CHUNKS_SIMULATED]) {
     }
   }
   return num_avail;
+}
+
+
+/* TEST CASE */
+/* Proves that all enemies are being spawned on ocean tiles  */
+void check_enemy_positions() {
+  /* GCC trick to initialize array with all zeros on the stack */
+  CHUNK chunk;
+  for (int i = 0; i < 9; i++) {
+    int chunk_tiles[C_WIDTH][C_WIDTH] = {
+      [0 ... C_WIDTH - 1] = { [0 ... C_WIDTH - 1] = 1 }
+    };
+    chunk = player_chunks[i];
+    generate_chunk_tiles(chunk_tiles, chunk);
+    for (int j = 0; j < 3; j++) {
+      int posx = chunk.enemies[j].coords[0];
+      int posy = chunk.enemies[j].coords[1];
+      if (chunk_tiles[posx][posy] == 0) {
+        printf("FAILURE\n");
+        printf("Chunk info:\nx: %d\ny: %d\nposx: %d\nposy: %d\n",
+                chunk.coords[0], chunk.coords[1], posx, posy);
+        exit(1);
+      }
+    }
+  }
+  printf("Tests Passed\n");
+  exit(0);
 }

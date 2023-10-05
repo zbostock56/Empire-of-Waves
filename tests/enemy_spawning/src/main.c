@@ -3,7 +3,6 @@
 int main() {
   GLFWwindow *window = init_gl();
 
-  init_menus();
   init_scene();
 
   while (!glfwWindowShouldClose(window)) {
@@ -16,7 +15,7 @@ int main() {
     // - etc...
 
     render_scene(window);
-    //update_event_timer();
+    update_event_timer();
   }
 
   // Insert all "cleanup" functionality here
