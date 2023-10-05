@@ -24,13 +24,6 @@ void init_scene() {
   vec2 tm_coords = { -1.0f, 0.0f };
   world_to_chunk(tm_coords, test_merchant.chunk, test_merchant.coords);
 
-  char *test_text = "Hello!";
-  glm_vec2_zero(test_menu.position);
-  test_menu.position[1] = -0.75;
-  test_menu.width = 0.75;
-  test_menu.height = 0.25;
-  test_menu.text = test_text;
-
   vec2 tu_coords = { -1.0f, 0.0f };
   glm_vec2_copy(tu_coords, test_unit.coords);
   vec2 tu_dir = { 0.0, -1.0};
@@ -62,7 +55,8 @@ void init_scene() {
   enemy_ship = load_model("assets/enemy_ship.bin", "assets/1B.png");
   trade_ship = load_model("assets/trade_ship.bin", "assets/2A.png");
   quad = load_model("assets/quad.bin", NULL);
-  char path[50] = "assets/Dinklebitmap/x.bin";
+  char default_path[50] = "assets/Dinklebitmap/x.bin";
+  char lowercase_path[50] = "assets/Dinklebitmap/x_lower.bin";
   for (char cur = ' '; cur <= '~'; cur++) {
     int index = cur - ' ';
     if (cur == '/') {
@@ -77,9 +71,17 @@ void init_scene() {
     } else if (cur == '.') {
       load_character("assets/Dinklebitmap/period.bin",
                      "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '"') {
+      load_character("assets/Dinklebitmap/quote.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur >= 'a' && cur <= 'z') {
+      lowercase_path[20] = cur;
+      load_character(lowercase_path, "assets/Dinklebitmap/font.png",
+                     font + index);
     } else {
-      path[20] = cur;
-      load_character(path, "assets/Dinklebitmap/font.png", font + index);
+      default_path[20] = cur;
+      load_character(default_path, "assets/Dinklebitmap/font.png",
+                     font + index);
     }
   }
 
@@ -113,6 +115,7 @@ void render_scene(GLFWwindow *window) {
 
   render_player();
   if (mode == EXPLORATION) {
+    /*
     for (int i = 0; i < 5; i++) {
       for (int j = 0; j < 5; j++) {
         ivec2 chunk = {
@@ -122,27 +125,19 @@ void render_scene(GLFWwindow *window) {
         render_chunk(chunk);
       }
     }
+    */
     render_player_ship();
     render_enemy_ship(&test_enemy);
     render_trade_ship(&test_ts);
     render_merchant(&test_merchant);
-    render_menu(&test_menu);
-    render_dialog(window); // Render Dialog Test
-    render_island(&test_island);
+
+    //render_dialog(window); // Render Dialog Test
+    //render_island(&test_island);
+    for (int i = 0; i < NUM_COMPONENTS; i++) {
+      render_ui(ui_tab + i);
+    }
   } else {
     render_unit(&test_unit);
-  }
-
-  mat4 text_model = GLM_MAT4_IDENTITY_INIT;
-  glm_translate_z(text_model, -1.0);
-  glm_translate_y(text_model, 0.75);
-  glm_rotate_z(text_model, glm_rad(90.0), text_model);
-  glm_rotate_x(text_model, glm_rad(90.0), text_model);
-  glm_scale_uni(text_model, 2.0);
-  if (mode == EXPLORATION) {
-    render_text("Exploaration", text_model);
-  } else {
-    render_text("Combat", text_model);
   }
 
   /*
@@ -172,6 +167,9 @@ void render_player_ship() {
   glm_translate_z(fbo_view_mat, -3.0);
 
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+  vec3 depth_offset = { 0.0, 0.0, SHIP_DEPTH };
+  glm_translate(model_mat, depth_offset);
+
   mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
   if (!e_player.embarked) {
     vec3 world_coords = GLM_VEC3_ZERO_INIT;
@@ -220,6 +218,8 @@ void render_player() {
     glm_translate_z(fbo_view_mat, -3.0);
 
     mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+    vec3 depth_offset = { 0.0, 0.0, AVATAR_DEPTH };
+    glm_translate(model_mat, depth_offset);
     glm_rotate_z(model_mat, glm_rad(90.0), model_mat);
     glm_scale_uni(model_mat, 0.75);
 
@@ -255,7 +255,7 @@ void render_e_npc(MODEL *model, ivec2 chunk, vec2 coords, vec2 direction,
   glm_translate_z(fbo_view_mat, -3.0);
 
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
-  vec3 world_coords = GLM_VEC3_ZERO_INIT;
+  vec3 world_coords = { 0.0, 0.0, AVATAR_DEPTH };
   chunk_to_world(chunk, coords, world_coords);
   glm_translate(model_mat, world_coords);
   glm_rotate_z(model_mat, glm_rad(90.0), model_mat);
@@ -290,7 +290,7 @@ void render_c_npc(MODEL *model, vec2 coords, vec2 direction, float scale) {
   glm_translate_z(fbo_view_mat, -3.0);
 
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
-  vec3 npc_coords = GLM_VEC3_ZERO_INIT;
+  vec3 npc_coords = { 0.0, 0.0, AVATAR_DEPTH };
   glm_vec2_copy(coords, npc_coords);
   glm_translate(model_mat, npc_coords);
   glm_rotate_z(model_mat, glm_rad(90.0), model_mat);
@@ -306,51 +306,76 @@ void render_c_npc(MODEL *model, vec2 coords, vec2 direction, float scale) {
                     view_mat, persp_proj, ortho_proj);
 }
 
-void render_menu(UI_COMPONENT *menu) {
+void render_ui(UI_COMPONENT *comp) {
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
-  vec3 menu_scale = { 0.5 * menu->width, 0.5 * menu->height, 1.0 };
-  vec3 menu_pos = { menu->position[0], menu->position[1], -1.0 };
-  glm_translate(model_mat, menu_pos);
-  glm_scale(model_mat, menu_scale);
+  // Dimensions of UI component (width, height)
+  vec3 comp_scale = { 0.5 * comp->width, 0.5 * comp->height, 0.0 };
+  // Location of "pivot" point of ui component
+  vec3 comp_pivot = { 0.0, 0.0, UI_DEPTH };
+  // Number of characters in ui component text
+  int text_len = 0;
+  // Width of ui component text
+  float text_width = 0.0;
+  float text_height = 0.0;
+  if (comp->text) {
+    text_len = strlen(comp->text);
+    text_width = get_text_width(comp->text, text_len) * comp->text_scale;
+    // All characters have uniform height, so just scale by height of first
+    // character in font
+    text_height = font[0].height * comp->text_scale;
+  }
 
-  mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+  // Dynamic scaling of width and height
+  if (comp_scale[0] == 0.0) {
+    comp_scale[0] = (text_width * 0.5) + comp->text_padding;
+  }
+  if (comp_scale[1] == 0.0) {
+    comp_scale[1] = (text_height * 0.5) + comp->text_padding;
+  }
 
-  glUseProgram(std_shader);
-  set_mat4("model", model_mat, std_shader);
-  set_mat4("view", view_mat, std_shader);
-  set_mat4("proj", ortho_proj, std_shader);
-  quad->texture = menu->texture;
-  draw_model(quad, std_shader);
+  // Adjust comp position based on pivot point
+  vec3 comp_offset = { UI_PIVOT_OFFSETS[comp->pivot][0] * comp_scale[0],
+                       UI_PIVOT_OFFSETS[comp->pivot][1] * comp_scale[1],
+                       0.0 };
+  glm_vec2_add(comp->position, comp_offset, comp_pivot);
 
-  if (menu->text) {
+  glm_translate(model_mat, comp_pivot);
+  glm_scale(model_mat, comp_scale);
+
+  if (comp->text) {
+    // Location of "pivot" point of text, relative to center of UI component
+    vec3 text_pivot = { 0.0, 0.0, TEXT_DEPTH };
+    if (comp->text_anchor == T_CENTER) {
+      text_pivot[0] = -0.5 * text_width;
+    } else if (comp->text_anchor == T_LEFT) {
+      text_pivot[0] = -comp_scale[0] + comp->text_padding;
+    } else if (comp->text_anchor == T_RIGHT) {
+      text_pivot[0] = comp_scale[0] - (text_width + comp->text_padding);
+    }
+    glm_vec2_add(text_pivot, comp_pivot, text_pivot);
     mat4 text_model_mat = GLM_MAT4_IDENTITY_INIT;
-    menu_pos[2] += 1.0;
-    glm_translate(text_model_mat, menu_pos);
-    glm_rotate_z(text_model_mat, glm_rad(90.0), text_model_mat);
-    glm_rotate_x(text_model_mat, glm_rad(90.0), text_model_mat);
-    glm_scale_uni(text_model_mat, 2.0);
-    render_text(menu->text, text_model_mat);
+    glm_translate(text_model_mat, text_pivot);
+    glm_scale_uni(text_model_mat, comp->text_scale);
+
+    render_text(comp->text, text_len, text_model_mat);
+  }
+
+  if (comp->textured) {
+    mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+
+    glUseProgram(std_shader);
+    set_mat4("model", model_mat, std_shader);
+    set_mat4("view", view_mat, std_shader);
+    set_mat4("proj", ortho_proj, std_shader);
+    quad->texture = comp->texture;
+    draw_model(quad, std_shader);
   }
 }
 
-void render_text(char *text, mat4 text_model) {
-  // Calculate total width of text to determine translation needed to center
-  // text
-  int text_len = strlen(text);
-  float total_width = 0.0;
-  for (unsigned int i = 0; i < text_len; i++) {
-    int char_index = text[i] - ' ';
-    if (text[i] < ' ') {
-      char_index = ' ';
-    }
-    total_width += font[char_index].width;
-  }
-  // Account for spaces
-  total_width += ((text_len - 1) * (1.0 / 160.0));
-
-
+void render_text(char *text, int text_len, mat4 text_model) {
   mat4 char_model = GLM_MAT4_IDENTITY_INIT;
-  glm_translate_z(char_model, -(total_width / 2.0));
+  glm_rotate_z(char_model, glm_rad(90.0), char_model);
+  glm_rotate_x(char_model, glm_rad(90.0), char_model);
 
   // Render each character of the text
   for (unsigned int i = 0; i < text_len; i++) {
@@ -611,6 +636,53 @@ void calc_rot_mat(vec3 dir, mat4 dest) {
   glm_mat4_ins3(rot, dest);
 }
 
+float get_text_width(char *text, int text_len) {
+  // Calculate total width of text to determine translation needed to center
+  // text
+  float total_width = 0.0;
+  for (unsigned int i = 0; i < text_len; i++) {
+    int char_index = text[i] - ' ';
+    if (text[i] < ' ') {
+      char_index = ' ';
+    }
+    total_width += font[char_index].width;
+  }
+  // Account for space in between letters
+  total_width += ((text_len - 1) * (1.0 / 160.0));
+  return total_width;
+}
+
+void get_ui_min_max(UI_COMPONENT *comp, vec4 dest) {
+  vec2 comp_scale = { 0.5 * comp->width, 0.5 * comp->height };
+  vec2 comp_pivot = { 0.0, 0.0 };
+  int text_len = 0;
+  float text_width = 0.0;
+  float text_height = 0.0;
+  if (comp->text) {
+    text_len = strlen(comp->text);
+    text_width = get_text_width(comp->text, text_len) * comp->text_scale;
+    text_height = font[0].height * comp->text_scale;
+  }
+
+  // Dynamic scaling of width and height
+  if (comp_scale[0] == 0.0) {
+    comp_scale[0] = (text_width * 0.5) + comp->text_padding;
+  }
+  if (comp_scale[1] == 0.0) {
+    comp_scale[1] = (text_height * 0.5) + comp->text_padding;
+  }
+
+  // Adjust comp position based on pivot point
+  vec2 comp_offset = { UI_PIVOT_OFFSETS[comp->pivot][0] * comp_scale[0],
+                       UI_PIVOT_OFFSETS[comp->pivot][1] * comp_scale[1] };
+  glm_vec2_add(comp->position, comp_offset, comp_pivot);
+
+  dest[X_MIN] = comp_pivot[0] - comp_scale[0];
+  dest[X_MAX] = comp_pivot[0] + comp_scale[0];
+  dest[Y_MIN] = comp_pivot[1] - comp_scale[1];
+  dest[Y_MAX] = comp_pivot[1] + comp_scale[1];
+}
+
 /*
   The following functions are helpers to consicely set up uniform variables in
   shaders
@@ -638,9 +710,10 @@ void set_vec3(char *name, vec3 matrix, unsigned int shader) {
 */
 /*
                                    dialog.c
-Implements the functionality for opening and closing a dialog box. Could be 
+Implements the functionality for opening and closing a dialog box. Could be
 used for conversation with merchants or other places that need a dialog box.
 */
+/*
 DIALOG * new_dialog(char *name, char *content) {
   DIALOG *dialog = malloc(sizeof(DIALOG));
   dialog->name = malloc(MAX_NAME * sizeof(char));
@@ -685,3 +758,4 @@ void close_dialog(DIALOG *dialog) {
 
 
 };
+*/

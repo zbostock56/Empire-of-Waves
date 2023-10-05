@@ -3,6 +3,7 @@
 int main() {
   GLFWwindow *window = init_gl();
 
+  init_menus();
   init_scene();
 
   while (!glfwWindowShouldClose(window)) {

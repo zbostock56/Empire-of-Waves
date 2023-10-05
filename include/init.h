@@ -8,6 +8,7 @@
 
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 
+void mouse_click(GLFWwindow *, int, int, int);
 void mouse_pos(GLFWwindow *, double, double);
 void mouse_scroll(GLFWwindow *, double, double);
 void fb_size_callback(GLFWwindow *, int, int);
