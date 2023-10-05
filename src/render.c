@@ -24,32 +24,18 @@ void init_scene() {
   vec2 tm_coords = { -1.0f, 0.0f };
   world_to_chunk(tm_coords, test_merchant.chunk, test_merchant.coords);
 
-  char *test_text = "Hello!";
-  glm_vec2_zero(test_menu.position);
-  test_menu.position[1] = -0.75;
-  test_menu.width = 0.75;
-  test_menu.height = 0.25;
-  test_menu.text = test_text;
-
   vec2 tu_coords = { -1.0f, 0.0f };
   glm_vec2_copy(tu_coords, test_unit.coords);
   vec2 tu_dir = { 0.0, -1.0};
   glm_vec2_copy(tu_dir, test_unit.direction);
 
-  /*
   ivec2 ti_chunk = { 0, 0 };
-  ivec2 ti_coords = { 1, 1 };
+  ivec2 ti_coords = { 0, 0 };
   glm_ivec2_copy(ti_chunk, test_island.chunk);
   glm_ivec2_copy(ti_coords, test_island.coords);
   for (int i = 0; i < I_WIDTH * I_WIDTH; i++) {
     test_island.tiles[i] = OCEAN;
   }
-  generate_island(&test_island);
-  */
-  unsigned char ocean_buffer[3] = { 3, 157, 252 };
-  ocean_texture = texture_from_buffer(ocean_buffer, 1, 1, GL_RGB);
-
-
   // END TEST
 
   // Initialize offscreen framebuffer
@@ -99,8 +85,6 @@ void init_scene() {
     }
   }
 
-  // TODO: Initiallize tile texture buffers
-
   // Setup perspective matrices
   glm_ortho(-1.0, 1.0, -1.0, 1.0, 0.0, 100.0, ortho_proj);
   glm_perspective(glm_rad(45.0f), RES_X / RES_Y, 0.1, 100.0, persp_proj);
@@ -131,9 +115,7 @@ void render_scene(GLFWwindow *window) {
 
   render_player();
   if (mode == EXPLORATION) {
-    // TODO: render chunk enemies
-
-    // TEST RENDERING
+    /*
     for (int i = 0; i < 5; i++) {
       for (int j = 0; j < 5; j++) {
         ivec2 chunk = {
@@ -143,42 +125,32 @@ void render_scene(GLFWwindow *window) {
         render_chunk(chunk);
       }
     }
+    */
     render_player_ship();
     render_enemy_ship(&test_enemy);
     render_trade_ship(&test_ts);
     render_merchant(&test_merchant);
-    render_menu(&test_menu);
-    // END TEST
-
-    for (int i = 0; i < 9; i++) {
-      for (int j = 0; j < player_chunks[i].num_islands; j++) {
-        render_island(player_chunks[i].islands + j);
-      }
+    for (int i = 0; i < NUM_COMPONENTS; i++) {
+      render_ui(ui_tab + i);
     }
-    //render_island(&test_island);
+    // Dialog Testing Starts
+    DIALOG *dialog = new_dialog("dialog_name", "dialog_content");
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+      render_dialog(window, dialog); // Render Dialog Test
+    }
+    // Dialog Testing Ends
   } else {
     render_unit(&test_unit);
   }
 
-  mat4 text_model = GLM_MAT4_IDENTITY_INIT;
-  glm_translate_z(text_model, -1.0);
-  glm_translate_y(text_model, 0.75);
-  glm_rotate_z(text_model, glm_rad(90.0), text_model);
-  glm_rotate_x(text_model, glm_rad(90.0), text_model);
-  glm_scale_uni(text_model, 2.0);
-  if (mode == EXPLORATION) {
-    render_text("Exploaration", text_model);
-  } else {
-    render_text("Combat", text_model);
-  }
-
-  //vec2 world_coords = GLM_VEC2_ZERO_INIT;
-  //chunk_to_world(e_player.ship_chunk, e_player.ship_coords, world_coords);
-  //printf("world: { %f, %f }\nchunk: { %d, %d }\nchunk_coords: { %f, %f }\n\n",
-  //       world_coords[0], world_coords[1],
-  //       e_player.ship_chunk[0], e_player.ship_chunk[1],
-  //       e_player.ship_coords[0], e_player.ship_coords[1]);
-
+  /*
+  vec2 world_coords = GLM_VEC2_ZERO_INIT;
+  chunk_to_world(e_player.ship_chunk, e_player.ship_coords, world_coords);
+  printf("world: { %f, %f }\nchunk: { %d, %d }\nchunk_coords: { %f, %f }\n\n",
+         world_coords[0], world_coords[1],
+         e_player.ship_chunk[0], e_player.ship_chunk[1],
+         e_player.ship_coords[0], e_player.ship_coords[1]);
+  */
   glfwSwapBuffers(window);
   glfwPollEvents();
 }
@@ -198,6 +170,9 @@ void render_player_ship() {
   glm_translate_z(fbo_view_mat, -3.0);
 
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+  vec3 depth_offset = { 0.0, 0.0, SHIP_DEPTH };
+  glm_translate(model_mat, depth_offset);
+
   mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
   if (!e_player.embarked) {
     vec3 world_coords = GLM_VEC3_ZERO_INIT;
@@ -246,6 +221,8 @@ void render_player() {
     glm_translate_z(fbo_view_mat, -3.0);
 
     mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+    vec3 depth_offset = { 0.0, 0.0, AVATAR_DEPTH };
+    glm_translate(model_mat, depth_offset);
     glm_rotate_z(model_mat, glm_rad(90.0), model_mat);
     glm_scale_uni(model_mat, 0.75);
 
@@ -281,7 +258,7 @@ void render_e_npc(MODEL *model, ivec2 chunk, vec2 coords, vec2 direction,
   glm_translate_z(fbo_view_mat, -3.0);
 
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
-  vec3 world_coords = GLM_VEC3_ZERO_INIT;
+  vec3 world_coords = { 0.0, 0.0, AVATAR_DEPTH };
   chunk_to_world(chunk, coords, world_coords);
   glm_translate(model_mat, world_coords);
   glm_rotate_z(model_mat, glm_rad(90.0), model_mat);
@@ -316,7 +293,7 @@ void render_c_npc(MODEL *model, vec2 coords, vec2 direction, float scale) {
   glm_translate_z(fbo_view_mat, -3.0);
 
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
-  vec3 npc_coords = GLM_VEC3_ZERO_INIT;
+  vec3 npc_coords = { 0.0, 0.0, AVATAR_DEPTH };
   glm_vec2_copy(coords, npc_coords);
   glm_translate(model_mat, npc_coords);
   glm_rotate_z(model_mat, glm_rad(90.0), model_mat);
@@ -332,53 +309,76 @@ void render_c_npc(MODEL *model, vec2 coords, vec2 direction, float scale) {
                     view_mat, persp_proj, ortho_proj);
 }
 
-// TODO make more robust when it comes to sizing, also, define an alternate
-// version which assumes position is left most corner
-void render_menu(UI_COMPONENT *menu) {
+void render_ui(UI_COMPONENT *comp) {
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
-  vec3 menu_scale = { 0.5 * menu->width, 0.5 * menu->height, 1.0 };
-  vec3 menu_pos = { menu->position[0], menu->position[1], -1.0 };
-  glm_translate(model_mat, menu_pos);
-  glm_scale(model_mat, menu_scale);
+  // Dimensions of UI component (width, height)
+  vec3 comp_scale = { 0.5 * comp->width, 0.5 * comp->height, 0.0 };
+  // Location of "pivot" point of ui component
+  vec3 comp_pivot = { 0.0, 0.0, UI_DEPTH };
+  // Number of characters in ui component text
+  int text_len = 0;
+  // Width of ui component text
+  float text_width = 0.0;
+  float text_height = 0.0;
+  if (comp->text) {
+    text_len = strlen(comp->text);
+    text_width = get_text_width(comp->text, text_len) * comp->text_scale;
+    // All characters have uniform height, so just scale by height of first
+    // character in font
+    text_height = font[0].height * comp->text_scale;
+  }
 
-  mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+  // Dynamic scaling of width and height
+  if (comp_scale[0] == 0.0) {
+    comp_scale[0] = (text_width * 0.5) + comp->text_padding;
+  }
+  if (comp_scale[1] == 0.0) {
+    comp_scale[1] = (text_height * 0.5) + comp->text_padding;
+  }
 
-  glUseProgram(std_shader);
-  set_mat4("model", model_mat, std_shader);
-  set_mat4("view", view_mat, std_shader);
-  set_mat4("proj", ortho_proj, std_shader);
-  quad->texture = menu->texture;
-  draw_model(quad, std_shader);
+  // Adjust comp position based on pivot point
+  vec3 comp_offset = { UI_PIVOT_OFFSETS[comp->pivot][0] * comp_scale[0],
+                       UI_PIVOT_OFFSETS[comp->pivot][1] * comp_scale[1],
+                       0.0 };
+  glm_vec2_add(comp->position, comp_offset, comp_pivot);
 
-  if (menu->text) {
+  glm_translate(model_mat, comp_pivot);
+  glm_scale(model_mat, comp_scale);
+
+  if (comp->text) {
+    // Location of "pivot" point of text, relative to center of UI component
+    vec3 text_pivot = { 0.0, 0.0, TEXT_DEPTH };
+    if (comp->text_anchor == T_CENTER) {
+      text_pivot[0] = -0.5 * text_width;
+    } else if (comp->text_anchor == T_LEFT) {
+      text_pivot[0] = -comp_scale[0] + comp->text_padding;
+    } else if (comp->text_anchor == T_RIGHT) {
+      text_pivot[0] = comp_scale[0] - (text_width + comp->text_padding);
+    }
+    glm_vec2_add(text_pivot, comp_pivot, text_pivot);
     mat4 text_model_mat = GLM_MAT4_IDENTITY_INIT;
-    menu_pos[2] += 1.0;
-    glm_translate(text_model_mat, menu_pos);
-    glm_rotate_z(text_model_mat, glm_rad(90.0), text_model_mat);
-    glm_rotate_x(text_model_mat, glm_rad(90.0), text_model_mat);
-    glm_scale_uni(text_model_mat, 2.0);
-    render_text(menu->text, text_model_mat);
+    glm_translate(text_model_mat, text_pivot);
+    glm_scale_uni(text_model_mat, comp->text_scale);
+
+    render_text(comp->text, text_len, text_model_mat);
+  }
+
+  if (comp->textured) {
+    mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+
+    glUseProgram(std_shader);
+    set_mat4("model", model_mat, std_shader);
+    set_mat4("view", view_mat, std_shader);
+    set_mat4("proj", ortho_proj, std_shader);
+    quad->texture = comp->texture;
+    draw_model(quad, std_shader);
   }
 }
 
-void render_text(char *text, mat4 text_model) {
-  // Calculate total width of text to determine translation needed to center
-  // text
-  int text_len = strlen(text);
-  float total_width = 0.0;
-  for (unsigned int i = 0; i < text_len; i++) {
-    int char_index = text[i] - ' ';
-    if (text[i] < ' ') {
-      char_index = ' ';
-    }
-    total_width += font[char_index].width;
-  }
-  // Account for spaces
-  total_width += ((text_len - 1) * (1.0 / 160.0));
-
-
+void render_text(char *text, int text_len, mat4 text_model) {
   mat4 char_model = GLM_MAT4_IDENTITY_INIT;
-  glm_translate_z(char_model, -(total_width / 2.0));
+  glm_rotate_z(char_model, glm_rad(90.0), char_model);
+  glm_rotate_x(char_model, glm_rad(90.0), char_model);
 
   // Render each character of the text
   for (unsigned int i = 0; i < text_len; i++) {
@@ -433,13 +433,12 @@ void render_fbo_entity(
 }
 
 void render_chunk(ivec2 chunk) {
-  vec3 world_coords = GLM_VEC3_ZERO_INIT;
+  vec3 world_coords = GLM_VEC2_ZERO_INIT;
   vec2 tile_coords = GLM_VEC2_ZERO_INIT;
   chunk_to_world(chunk, tile_coords, world_coords);
   world_coords[0] = world_coords[0] + (T_WIDTH * C_WIDTH * 0.5);
   world_coords[1] = world_coords[1] - (T_WIDTH * C_WIDTH * 0.5);
 
-  /*
   float c_val = 0.0f;
   if (chunk[0] % 2 == 0) {
     if (chunk[1] % 2 == 0) {
@@ -455,7 +454,6 @@ void render_chunk(ivec2 chunk) {
     }
   }
   vec3 color = { c_val, c_val, c_val };
-  */
 
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   glm_translate(model_mat, world_coords);
@@ -473,55 +471,33 @@ void render_chunk(ivec2 chunk) {
   glm_translate(view_mat, player_world_coords);
   glm_translate_z(view_mat, -1.0f);
 
-  /*
   glUseProgram(color_shader);
   set_vec3("color", color, color_shader);
   set_mat4("model", model_mat, color_shader);
   set_mat4("view", view_mat, color_shader);
   set_mat4("proj", ortho_proj, color_shader);
   draw_model(quad, color_shader);
-  */
-  glUseProgram(std_shader);
-  set_mat4("model", model_mat, std_shader);
-  set_mat4("view", view_mat, std_shader);
-  set_mat4("proj", ortho_proj, std_shader);
-  quad->texture = ocean_texture;
-  draw_model(quad, std_shader);
+
 }
 
 void render_island(ISLAND *island) {
-  vec3 world_coords = GLM_VEC3_ZERO_INIT;
-  vec2 island_tile = { island->coords[0], island->coords[1] };
-  chunk_to_world(island->chunk, island_tile, world_coords);
-  world_coords[0] = world_coords[0] + (0.5 * T_WIDTH * I_WIDTH);
-  world_coords[1] = world_coords[1] - (0.5 * T_WIDTH * I_WIDTH);
+  for (int i = 0; i < (I_WIDTH * I_WIDTH); i++) {
+    vec2 tile_coords = {
+      i % I_WIDTH,
+      i / I_WIDTH
+    };
+    vec2 island_coords = {
+      island->coords[0],
+      island->coords[1]
+    };
+    glm_vec2_add(island_coords, tile_coords, tile_coords);
 
-  mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
-  glm_translate(model_mat, world_coords);
-  glm_scale_uni(model_mat, 0.5 * T_WIDTH * I_WIDTH);
-
-  mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
-  vec3 player_world_coords = GLM_VEC2_ZERO_INIT;
-  if (e_player.embarked) {
-    chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
-                   player_world_coords);
-  } else {
-    chunk_to_world(e_player.chunk, e_player.coords, player_world_coords);
+    render_tile(island->tiles[i], island->chunk, tile_coords);
   }
-  glm_vec3_negate(player_world_coords);
-  glm_translate(view_mat, player_world_coords);
-
-  glUseProgram(std_shader);
-  set_mat4("model", model_mat, std_shader);
-  set_mat4("view", view_mat, std_shader);
-  set_mat4("proj", ortho_proj, std_shader);
-  quad->texture = island->texture;
-  draw_model(quad, std_shader);
 }
 
-/*
 void render_tile(TILE tile, ivec2 chunk, vec2 coords) {
-  vec2 world_coords = GLM_VEC2_ZERO_INIT;
+  vec3 world_coords = GLM_VEC2_ZERO_INIT;
   chunk_to_world(chunk, coords, world_coords);
   world_coords[0] = world_coords[0] + (T_WIDTH * 0.5);
   world_coords[1] = world_coords[1] - (T_WIDTH * 0.5);
@@ -573,7 +549,6 @@ void render_tile(TILE tile, ivec2 chunk, vec2 coords) {
   set_mat4("proj", ortho_proj, color_shader);
   draw_model(quad, color_shader);
 }
-*/
 
 /*
   Helper function for compiling a shader program
@@ -664,6 +639,53 @@ void calc_rot_mat(vec3 dir, mat4 dest) {
   glm_mat4_ins3(rot, dest);
 }
 
+float get_text_width(char *text, int text_len) {
+  // Calculate total width of text to determine translation needed to center
+  // text
+  float total_width = 0.0;
+  for (unsigned int i = 0; i < text_len; i++) {
+    int char_index = text[i] - ' ';
+    if (text[i] < ' ') {
+      char_index = ' ';
+    }
+    total_width += font[char_index].width;
+  }
+  // Account for space in between letters
+  total_width += ((text_len - 1) * (1.0 / 160.0));
+  return total_width;
+}
+
+void get_ui_min_max(UI_COMPONENT *comp, vec4 dest) {
+  vec2 comp_scale = { 0.5 * comp->width, 0.5 * comp->height };
+  vec2 comp_pivot = { 0.0, 0.0 };
+  int text_len = 0;
+  float text_width = 0.0;
+  float text_height = 0.0;
+  if (comp->text) {
+    text_len = strlen(comp->text);
+    text_width = get_text_width(comp->text, text_len) * comp->text_scale;
+    text_height = font[0].height * comp->text_scale;
+  }
+
+  // Dynamic scaling of width and height
+  if (comp_scale[0] == 0.0) {
+    comp_scale[0] = (text_width * 0.5) + comp->text_padding;
+  }
+  if (comp_scale[1] == 0.0) {
+    comp_scale[1] = (text_height * 0.5) + comp->text_padding;
+  }
+
+  // Adjust comp position based on pivot point
+  vec2 comp_offset = { UI_PIVOT_OFFSETS[comp->pivot][0] * comp_scale[0],
+                       UI_PIVOT_OFFSETS[comp->pivot][1] * comp_scale[1] };
+  glm_vec2_add(comp->position, comp_offset, comp_pivot);
+
+  dest[X_MIN] = comp_pivot[0] - comp_scale[0];
+  dest[X_MAX] = comp_pivot[0] + comp_scale[0];
+  dest[Y_MIN] = comp_pivot[1] - comp_scale[1];
+  dest[Y_MAX] = comp_pivot[1] + comp_scale[1];
+}
+
 /*
   The following functions are helpers to consicely set up uniform variables in
   shaders
@@ -684,4 +706,68 @@ void set_vec4(char *name, vec4 matrix, unsigned int shader) {
 
 void set_vec3(char *name, vec3 matrix, unsigned int shader) {
   glUniform3fv(glGetUniformLocation(shader, name), 1, (float *) matrix);
+}
+
+/*
+                                   dialog
+Implements the functionality for opening and closing a dialog box. Could be
+used for conversation with merchants or other places that need a dialog box.
+*/
+
+void render_dialog(GLFWwindow *window, DIALOG *dialog) {
+  if (!dialog || !dialog->is_open) {
+    return;
+  }
+
+  int window_width, window_height;
+  glfwGetFramebufferSize(window, &window_width, &window_height);
+
+  // float dialog_width = 0;
+  // float dialog_height = 0;
+  vec2 dialog_position = { -0.5 , -0.2 }; // Adjusted to bottom
+
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  // Render the dialog box content
+  UI_COMPONENT *content_box = &(dialog->ui_content);
+  // content_box->width = dialog_width;
+  // content_box->height = dialog_height;
+  content_box->position[0] = dialog_position[0];
+  content_box->position[1] = dialog_position[1] - 0.2;  // Below the name
+
+  if (content_box->textured) {
+    glBindTexture(GL_TEXTURE_2D, content_box->texture);
+    // Render the textured quad with a texture
+  } else {
+    // Render the content box without a texture (a default color or a quad)
+  }
+  // render_text(content_box->text, content_box->position);
+  mat4 content_position = GLM_MAT4_IDENTITY_INIT;
+  vec3 content_translate = GLM_VEC3_ZERO_INIT;
+  glm_vec2_copy(content_box->position, content_translate);
+  glm_translate(content_position, content_translate);
+  glm_rotate_z(content_position, glm_rad(90.0), content_position);
+  glm_rotate_x(content_position, glm_rad(90.0), content_position);
+  glm_scale_uni(content_position, 2.0);
+  //render_text(content_box->text, content_position);
+
+  // Render the dialog name, assuming the name is at the top and slightly larger
+  UI_COMPONENT *name_box = &(dialog->ui_name);
+  name_box->position[0] = dialog_position[0];
+  name_box->position[1] = dialog_position[1];  // Topmost position of the dialog
+
+  if (name_box->textured) {
+    glBindTexture(GL_TEXTURE_2D, name_box->texture);
+    // Render the textured quad with a texture
+  } else {
+    // Render the content box without a texture (a default color or a quad)
+  }
+  mat4 name_position = GLM_MAT4_IDENTITY_INIT;
+  vec3 name_translate = GLM_VEC3_ZERO_INIT;
+  glm_vec2_copy(name_box->position, name_translate);
+  glm_translate(name_position, name_translate);
+  glm_rotate_z(name_position, glm_rad(90.0), name_position);
+  glm_rotate_x(name_position, glm_rad(90.0), name_position);
+  glm_scale_uni(name_position, 2.0);
+  //render_text(name_box->text, name_position);
 }

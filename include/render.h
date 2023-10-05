@@ -78,7 +78,6 @@ MERCHANT test_merchant;
 UI_COMPONENT test_menu;
 C_UNIT test_unit;
 ISLAND test_island;
-unsigned int ocean_texture;
 // END TEST
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
@@ -96,7 +95,7 @@ void render_ui(UI_COMPONENT *);
 void render_text(char *, int, mat4);
 void render_island(ISLAND *);
 void render_chunk(ivec2);
-//void render_tile(TILE, ivec2, vec2);
+void render_tile(TILE, ivec2, vec2);
 
 unsigned int shader_init(const char *, const char *);
 FRAMEBUFFER framebuffer_init();
@@ -121,6 +120,3 @@ void free_model(MODEL *);
 
 void chunk_to_world(ivec2, vec2, vec2);
 void world_to_chunk(vec2, ivec2, vec2);
-
-//void generate_island(ISLAND *);
-unsigned int texture_from_buffer(unsigned char *, int, int, int);

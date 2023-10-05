@@ -26,7 +26,9 @@ void spawn_enemy() {
     }
   }
   /* chunk_pos is now set to the chosen chunk */
-  glm_ivec2_add(CHUNK_OFFSETS[chunk_pos], e_player.chunk, chosen_chunk);
+  /* Macro defined in enemy.h */
+  convert_chunk_coords(chunk_pos, chosen_chunk,
+                       e_player.chunk);
   /* Determine where to put the enemy within the chunk */
   int in_player_chunk = chunk_pos == CURRENT_CHUNK ? 1 : 0;
   int posx = 0;

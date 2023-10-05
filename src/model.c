@@ -156,6 +156,15 @@ MESH_DATA read_mesh(char *path) {
 }
 
 unsigned int gen_texture(char *path) {
+  unsigned int tex;
+  glGenTextures(1, &tex);
+  glBindTexture(GL_TEXTURE_2D, tex);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
   int width;
   int height;
   int num_channels;
@@ -170,30 +179,13 @@ unsigned int gen_texture(char *path) {
     } else if (num_channels == 3) {
       format = GL_RGB;
     }
-
-    unsigned int tex = texture_from_buffer(tex_data, width, height, format);
-    stbi_image_free(tex_data);
-
-    return tex;
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
+                 GL_UNSIGNED_BYTE, tex_data);
   } else {
     fprintf(stderr, "model_loader.c: Failed to load texture: %s\n", path);
     return INVALID_TEXTURE;
   }
-}
-
-unsigned int texture_from_buffer(unsigned char *buffer, int width, int height,
-                                 int format) {
-  unsigned int tex;
-  glGenTextures(1, &tex);
-  glBindTexture(GL_TEXTURE_2D, tex);
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-  glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
-               GL_UNSIGNED_BYTE, buffer);
+  stbi_image_free(tex_data);
 
   return tex;
 }
