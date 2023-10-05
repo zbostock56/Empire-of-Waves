@@ -17,7 +17,7 @@ void generate_island(ISLAND *island) {
   float mask[I_WIDTH][I_WIDTH];
   int seed = rand();
   int depth_salt = rand() % 2;
-  float freq_salt = fmod(((float) rand() / (float) rand()), 0.2);
+  float freq_salt = fmod(((float) rand() / (float) rand()), 0.1);
   memset(mask, 1.0, sizeof(mask));
   generate_mask(mask);
   /* Generate base perlin noise map */
@@ -27,8 +27,18 @@ void generate_island(ISLAND *island) {
                      * mask[i][j];
     }
   }
-  populate_tiles(island, pnoise);
   merchant_generate(&(island->merchant), island);
+  populate_tiles(island, pnoise);
+
+  // TODO generate listings buffer
+  island->merchant.listings = NULL;
+  island->merchant.num_listings = 0;
+
+  // TODO Create island texture buffer from preloaded tile texture buffers
+  unsigned char tile_colors[I_WIDTH * I_WIDTH][3];
+  populate_tile_pixel_buffer(island, tile_colors);
+  island->texture = texture_from_buffer((unsigned char *) tile_colors,
+                                        I_WIDTH, I_WIDTH, GL_RGB);
   return;
 }
 
@@ -49,7 +59,7 @@ double nano_time() {
   if (clock_gettime(CLOCK_REALTIME, &tv)) {
     perror("Error getting time");
   }
-  sprintf(time_str, "%ld.%.9ld", tv.tv_sec, tv.tv_nsec);
+  sprintf(time_str, "%lld.%.9ld", tv.tv_sec, tv.tv_nsec);
   return atof(time_str);
 }
 
@@ -113,6 +123,33 @@ void populate_tiles(ISLAND *island, float (*pnoise)[I_WIDTH]) {
         // WATER
         island->tiles[location] = OCEAN;
       }
+    }
+  }
+}
+
+void populate_tile_pixel_buffer(ISLAND *island,
+                                unsigned char (*tile_colors)[3]) {
+  for (int i = 0; i < I_WIDTH * I_WIDTH; i++) {
+    if (island->tiles[i] == ROCK) {
+      tile_colors[i][0] = 99;
+      tile_colors[i][1] = 87;
+      tile_colors[i][2] = 67;
+    } else if (island->tiles[i] == GRASS) {
+      tile_colors[i][0] = 4;
+      tile_colors[i][1] = 209;
+      tile_colors[i][2] = 38;
+    } else if (island->tiles[i] == SAND) {
+      tile_colors[i][0] = 252;
+      tile_colors[i][1] = 243;
+      tile_colors[i][2] = 162;
+    } else if (island->tiles[i] == SHORE) {
+      tile_colors[i][0] = 3;
+      tile_colors[i][1] = 235;
+      tile_colors[i][2] = 252;
+    } else if (island->tiles[i] == OCEAN) {
+      tile_colors[i][0] = 3;
+      tile_colors[i][1] = 157;
+      tile_colors[i][2] = 252;
     }
   }
 }

@@ -3,6 +3,7 @@
 int main() {
   GLFWwindow *window = init_gl();
 
+  init_chunks();
   init_scene();
 
   while (!glfwWindowShouldClose(window)) {
@@ -13,6 +14,7 @@ int main() {
     // - pathfinding
     // - chunk serialization
     // - etc...
+    manage_chunks();
 
     render_scene(window);
     //update_event_timer();
@@ -22,5 +24,4 @@ int main() {
   cleanup_scene();
 
   glfwTerminate();
-
 }
