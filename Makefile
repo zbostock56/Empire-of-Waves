@@ -10,7 +10,7 @@ DFLAGS = -g -O0 -Wall -Werror -MMD -MP
 ifeq ($(OS),Windows_NT)
   LIBS += -L ./lib
   INCLUDE += -I ./include
-  LINK += -l:glfw3.dll -l:libcglm.a
+  LINK += -l:glfw3.dll -l:libcglm.a -lopengl32
 else
   detected_OS := $(shell uname)
   ifeq ($(detected_OS),Linux)
