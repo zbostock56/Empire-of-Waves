@@ -11,16 +11,21 @@ void init_scene() {
   e_player.embarked = 1;
 
   // TEST MODELS
-  vec2 te_coords = { 1.0f, 0.0f };
+  vec2 te_coords = { 0.0f, 0.0f };
   world_to_chunk(te_coords, test_enemy.chunk, test_enemy.coords);
   glm_vec2_zero(test_enemy.direction);
   test_enemy.direction[0] = 1.0;
 
-  vec2 ts_coords = { -1.5f, -1.5f };
+  vec2 ts_coords = { 0.0f, 0.0f };
   world_to_chunk(ts_coords, test_ts.chunk, test_ts.coords);
   glm_vec2_zero(test_ts.direction);
   test_ts.direction[0] = 1.0;
-
+  trade_ships = (TRADE_SHIP * )malloc(sizeof(TRADE_SHIP));
+  
+  ivec2 ts_chunk = { 0, 0 };
+  glm_ivec2_copy(ts_chunk, test_ts.chunk);
+  trade_ships = &test_ts;
+  
   vec2 tm_coords = { -1.0f, 0.0f };
   world_to_chunk(tm_coords, test_merchant.chunk, test_merchant.coords);
 
@@ -46,23 +51,27 @@ void init_scene() {
   //   else 
   //     test_island.tiles[i] = OCEAN;
   // }
-  int tiles[64] = 
-  {
-    2, 2, 2, 2, 2, 0, 0, 0,
-    2, 2, 2, 2, 2, 0, 0, 0,
-    2, 2, 2, 2, 2, 0, 0, 0,
-    2, 2, 2, 0, 0, 0, 0, 0,
-    2, 2, 2, 0, 0, 0, 0, 0,
-    2, 2, 2, 0, 0, 0, 0, 0,
-    2, 2, 2, 0, 0, 0, 0, 0,
-    2, 2, 2, 2, 2, 0, 0, 0
-  };
+  // int tiles[64] = 
+  // {
+  //   2, 2, 2, 2, 2, 2, 2, 2,
+  //   2, 0, 0, 0, 0, 0, 0, 2,
+  //   2, 0, 0, 0, 0, 0, 0, 0,
+  //   2, 0, 0, 0, 0, 0, 0, 0,
+  //   2, 0, 0, 0, 0, 0, 0, 0,
+  //   2, 0, 0, 0, 0, 0, 0, 0,
+  //   2, 2, 0, 0, 0, 0, 0, 0,
+  //   2, 2, 2, 2, 2, 2, 2, 0,
+  // };
   for (int i=0;i<I_WIDTH*I_WIDTH;i++) {
-    test_island.tiles[i] = tiles[i%64];
+    if (i < I_WIDTH || i > I_WIDTH*I_WIDTH - I_WIDTH || i % I_WIDTH == 0 || i%I_WIDTH == I_WIDTH-1) 
+      test_island.tiles[i] = SAND;
+    else
+      test_island.tiles[i] = OCEAN;
   }
 
   CHUNK test_chunk  = {{0, 0}, {test_island}, 0, 1, 0 };
   player_chunks[4] = test_chunk;
+  player_chunks[4].enemies = &test_enemy;
 
   // END TEST
 
@@ -119,6 +128,7 @@ void cleanup_scene() {
   free_model(enemy_ship);
   free_model(trade_ship);
   free_model(quad);
+  free(trade_ships);
   for (int i = 0; i < FONT_LEN; i++) {
     free_model(font[i].model);
   }
@@ -200,6 +210,9 @@ void render_player_ship() {
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
   if (!e_player.embarked) {
+    /*
+      Restricts the ship to stay still when the player moves off board.
+    */
     vec3 world_coords = GLM_VEC3_ZERO_INIT;
     chunk_to_world(e_player.ship_chunk, e_player.ship_coords, world_coords);
     glm_translate(model_mat, world_coords);
@@ -282,6 +295,7 @@ void render_e_npc(MODEL *model, ivec2 chunk, vec2 coords, vec2 direction,
 
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   vec3 world_coords = GLM_VEC3_ZERO_INIT;
+  printf("coords : X : %f Y: %f\n", coords[0], coords[1]);
   chunk_to_world(chunk, coords, world_coords);
   glm_translate(model_mat, world_coords);
   glm_rotate_z(model_mat, glm_rad(90.0), model_mat);
