@@ -25,3 +25,4 @@ MESH_DATA read_mesh(char *);
 unsigned int gen_texture(char *);
 void model_init(MESH_DATA *, MODEL *);
 unsigned int max_dot(MESH_VERT *, unsigned int, vec3);
+unsigned int texture_from_buffer(unsigned char *, int, int, int);

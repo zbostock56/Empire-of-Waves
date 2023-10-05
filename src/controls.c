@@ -62,6 +62,17 @@ void ui_click_listener(double x_pos, double y_pos) {
 
 void mouse_scroll(GLFWwindow *window, double x_offset, double y_offset) {
   // Mouse scroll handler here
+  float modifier = 0.01 * y_offset;
+  if ((y_offset < 0.0 && T_WIDTH + modifier > 0.001) ||
+      (y_offset > 0.0 && T_WIDTH + modifier <= 1.0)) {
+    T_WIDTH += modifier;
+  }
+
+  if (T_WIDTH <= 0.0) {
+    T_WIDTH = 0.001;
+  } else if (T_WIDTH > 1.0) {
+    T_WIDTH = 1.0;
+  }
 }
 
 void fb_size_callback(GLFWwindow *window, int width, int height) {
