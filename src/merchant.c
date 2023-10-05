@@ -47,7 +47,7 @@ int is_player_collide_merchant(MERCHANT merchant) {
 void merchant_interaction_listener(GLFWwindow *window, MERCHANT closest_merchant) {
     if (is_player_collide_merchant(closest_merchant)) {
         if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-            open_dialog(new_dialog("dialog_name", "dialog_content"));
+//            open_dialog(new_dialog("dialog_name", "dialog_content"));
         }
     }
 }
