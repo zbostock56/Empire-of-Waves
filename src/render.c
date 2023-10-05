@@ -29,13 +29,20 @@ void init_scene() {
   vec2 tu_dir = { 0.0, -1.0};
   glm_vec2_copy(tu_dir, test_unit.direction);
 
+  /*
   ivec2 ti_chunk = { 0, 0 };
-  ivec2 ti_coords = { 0, 0 };
+  ivec2 ti_coords = { 1, 1 };
   glm_ivec2_copy(ti_chunk, test_island.chunk);
   glm_ivec2_copy(ti_coords, test_island.coords);
   for (int i = 0; i < I_WIDTH * I_WIDTH; i++) {
     test_island.tiles[i] = OCEAN;
   }
+  generate_island(&test_island);
+  */
+  unsigned char ocean_buffer[3] = { 3, 157, 252 };
+  ocean_texture = texture_from_buffer(ocean_buffer, 1, 1, GL_RGB);
+
+
   // END TEST
 
   // Initialize offscreen framebuffer
@@ -85,6 +92,8 @@ void init_scene() {
     }
   }
 
+  // TODO: Initiallize tile texture buffers
+
   // Setup perspective matrices
   glm_ortho(-1.0, 1.0, -1.0, 1.0, 0.0, 100.0, ortho_proj);
   glm_perspective(glm_rad(45.0f), RES_X / RES_Y, 0.1, 100.0, persp_proj);
@@ -115,7 +124,9 @@ void render_scene(GLFWwindow *window) {
 
   render_player();
   if (mode == EXPLORATION) {
-    /*
+    // TODO: render chunk enemies
+
+    // TEST RENDERING
     for (int i = 0; i < 5; i++) {
       for (int j = 0; j < 5; j++) {
         ivec2 chunk = {
@@ -125,7 +136,7 @@ void render_scene(GLFWwindow *window) {
         render_chunk(chunk);
       }
     }
-    */
+
     render_player_ship();
     render_enemy_ship(&test_enemy);
     render_trade_ship(&test_ts);
@@ -139,6 +150,14 @@ void render_scene(GLFWwindow *window) {
       render_dialog(window, dialog); // Render Dialog Test
     }
     // Dialog Testing Ends
+    // END TEST
+
+    for (int i = 0; i < 9; i++) {
+      for (int j = 0; j < player_chunks[i].num_islands; j++) {
+        render_island(player_chunks[i].islands + j);
+      }
+    }
+    //render_island(&test_island);
   } else {
     render_unit(&test_unit);
   }
@@ -433,12 +452,13 @@ void render_fbo_entity(
 }
 
 void render_chunk(ivec2 chunk) {
-  vec3 world_coords = GLM_VEC2_ZERO_INIT;
+  vec3 world_coords = { 0.0, 0.0, WORLD_DEPTH};
   vec2 tile_coords = GLM_VEC2_ZERO_INIT;
   chunk_to_world(chunk, tile_coords, world_coords);
   world_coords[0] = world_coords[0] + (T_WIDTH * C_WIDTH * 0.5);
   world_coords[1] = world_coords[1] - (T_WIDTH * C_WIDTH * 0.5);
 
+  /*
   float c_val = 0.0f;
   if (chunk[0] % 2 == 0) {
     if (chunk[1] % 2 == 0) {
@@ -454,6 +474,7 @@ void render_chunk(ivec2 chunk) {
     }
   }
   vec3 color = { c_val, c_val, c_val };
+  */
 
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   glm_translate(model_mat, world_coords);
@@ -471,33 +492,55 @@ void render_chunk(ivec2 chunk) {
   glm_translate(view_mat, player_world_coords);
   glm_translate_z(view_mat, -1.0f);
 
+  /*
   glUseProgram(color_shader);
   set_vec3("color", color, color_shader);
   set_mat4("model", model_mat, color_shader);
   set_mat4("view", view_mat, color_shader);
   set_mat4("proj", ortho_proj, color_shader);
   draw_model(quad, color_shader);
-
+  */
+  glUseProgram(std_shader);
+  set_mat4("model", model_mat, std_shader);
+  set_mat4("view", view_mat, std_shader);
+  set_mat4("proj", ortho_proj, std_shader);
+  quad->texture = ocean_texture;
+  draw_model(quad, std_shader);
 }
 
 void render_island(ISLAND *island) {
-  for (int i = 0; i < (I_WIDTH * I_WIDTH); i++) {
-    vec2 tile_coords = {
-      i % I_WIDTH,
-      i / I_WIDTH
-    };
-    vec2 island_coords = {
-      island->coords[0],
-      island->coords[1]
-    };
-    glm_vec2_add(island_coords, tile_coords, tile_coords);
+  vec3 world_coords = {0.0, 0.0, WORLD_DEPTH};
+  vec2 island_tile = { island->coords[0], island->coords[1] };
+  chunk_to_world(island->chunk, island_tile, world_coords);
+  world_coords[0] = world_coords[0] + (0.5 * T_WIDTH * I_WIDTH);
+  world_coords[1] = world_coords[1] - (0.5 * T_WIDTH * I_WIDTH);
 
-    render_tile(island->tiles[i], island->chunk, tile_coords);
+  mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+  glm_translate(model_mat, world_coords);
+  glm_scale_uni(model_mat, 0.5 * T_WIDTH * I_WIDTH);
+
+  mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+  vec3 player_world_coords = GLM_VEC2_ZERO_INIT;
+  if (e_player.embarked) {
+    chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
+                   player_world_coords);
+  } else {
+    chunk_to_world(e_player.chunk, e_player.coords, player_world_coords);
   }
+  glm_vec3_negate(player_world_coords);
+  glm_translate(view_mat, player_world_coords);
+
+  glUseProgram(std_shader);
+  set_mat4("model", model_mat, std_shader);
+  set_mat4("view", view_mat, std_shader);
+  set_mat4("proj", ortho_proj, std_shader);
+  quad->texture = island->texture;
+  draw_model(quad, std_shader);
 }
 
+/*
 void render_tile(TILE tile, ivec2 chunk, vec2 coords) {
-  vec3 world_coords = GLM_VEC2_ZERO_INIT;
+  vec2 world_coords = GLM_VEC2_ZERO_INIT;
   chunk_to_world(chunk, coords, world_coords);
   world_coords[0] = world_coords[0] + (T_WIDTH * 0.5);
   world_coords[1] = world_coords[1] - (T_WIDTH * 0.5);
@@ -549,6 +592,7 @@ void render_tile(TILE tile, ivec2 chunk, vec2 coords) {
   set_mat4("proj", ortho_proj, color_shader);
   draw_model(quad, color_shader);
 }
+*/
 
 /*
   Helper function for compiling a shader program
