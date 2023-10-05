@@ -1,3 +1,8 @@
 bin/*
 .vscode/settings.json
+tests/procedural_generation/bin/*
 assets/*
+chunks/*
+tests/procedural_generation/*.bmp
+tests/enemy_spawning/bin/*
+tests/enemy_spawning/assets
