@@ -7,6 +7,11 @@ struct representing an enemy unit in combat mode. Can be included by any file
 which reads/manipulates enemy state.
 */
 
+/* DEFINES */
+/* Specifies the max number of enemies per chunk */
+#define MAX_ENEMIES (3)
+#define CHUNKS_SIMULATED (9)
+
 /*
   Enum describing weapon types
   Also defined in player_str.h

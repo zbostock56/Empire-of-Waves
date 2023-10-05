@@ -45,5 +45,6 @@ extern E_PLAYER e_player;
 void spawn_enemy();
 int find_avail_chunks();
 void generate_chunk_tiles(int [C_WIDTH][C_WIDTH], CHUNK);
+void check_enemy_positions();
 
 /* =================== EXTERNALLY DEFINED FUNCTIONS =================== */
