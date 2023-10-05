@@ -19,6 +19,8 @@ int generate_rand();
 void generate_island(ISLAND *island);
 
 /* NATIVE */
+void chunk_to_world(ivec2, vec2, vec2);
+void world_to_chunk(vec2, ivec2, vec2);
 void generate_chunk(CHUNK *chunk);
 void island_locator(ivec2 *locs, int num_islands);
 void bounds_check(ivec2 loc);

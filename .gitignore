@@ -4,3 +4,6 @@ assets/*
 tests/procedural_generation/*.bmp
 tests/enemy_spawning/bin/*
 tests/enemy_spawning/assets
+tests/console/assets
+tests/console/bin/*
+
