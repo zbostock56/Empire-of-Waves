@@ -7,4 +7,4 @@ tests/enemy_spawning/bin/*
 tests/enemy_spawning/assets
 tests/console/assets
 tests/console/bin/*
-
+tests/console/chunks
