@@ -75,8 +75,9 @@ void exploration_movement(GLFWwindow *window) {
       if (!ship_collisions(predicted_coords)) {
         glm_vec2_add(movement, world_coords, world_coords);
         world_to_chunk(world_coords, e_player.ship_chunk,
-                      e_player.ship_coords);
-      } 
+                    e_player.ship_coords); 
+      }
+      
       /*
         Reverse the direction if the ship collided with obstructive tile.
       */

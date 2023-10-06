@@ -59,9 +59,10 @@ void init_scene() {
 
 
 
-  CHUNK test_chunk  = {{0, 0}, {test_island}, 0, 1, 0 };
-  player_chunks[4] = test_chunk;
-  player_chunks[4].enemies = &test_enemy;
+  // CHUNK test_chunk  = {{0, 0}, {test_island}, 0, 1, 0 };
+  // player_chunks[4] = test_chunk;
+  // player_chunks[4].enemies = (E_ENEMY * )malloc(sizeof(E_ENEMY));
+  // player_chunks[4].enemies = &test_enemy;
 
   // END TEST
 

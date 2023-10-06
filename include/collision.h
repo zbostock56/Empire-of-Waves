@@ -7,8 +7,8 @@
 
 #define X (0)
 #define Y (1)
-#define PLAYER_WIDTH (3.0)
-#define PLAYER_HEIGHT (1.0)
+#define PLAYER_WIDTH (0.1)
+#define PLAYER_HEIGHT (0.1)
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 int check_collision(float*, float, float, float*, float, float);
