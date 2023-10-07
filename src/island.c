@@ -59,7 +59,12 @@ double nano_time() {
   if (clock_gettime(CLOCK_REALTIME, &tv)) {
     perror("Error getting time");
   }
+  #ifndef __linux__
+  sprintf(time_str, "%lld.%.9ld", tv.tv_sec, tv.tv_nsec);
+  #else
   sprintf(time_str, "%ld.%.9ld", tv.tv_sec, tv.tv_nsec);
+  #endif
+
   return atof(time_str);
 }
 
