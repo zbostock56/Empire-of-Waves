@@ -274,7 +274,7 @@ void save_merchant(FILE *file, MERCHANT *merchant) {
 Assumptions:
   -> Chunk struct is fully allocated BEFORE function is called
 */
-void generate_chunk(CHUNK *chunk) {
+int generate_chunk(CHUNK *chunk) {
   srand((unsigned int) generate_rand());
   ivec2 isl_locations[MAX_ISLANDS];
   /* Generate random number to find how many islands will */
@@ -282,19 +282,34 @@ void generate_chunk(CHUNK *chunk) {
   int num_islands = generate_rand() % MAX_ISLANDS;
   chunk->num_islands = num_islands;
   island_locator(isl_locations, num_islands);
+
+  chunk->num_enemies = 0;
+  chunk->enemies = malloc(sizeof(E_ENEMY) * STARTING_BUFF_SIZE);
+  if (chunk->enemies == NULL) {
+    return -1;
+  }
+
   /* Set the seed for the merchant generation */
   /* Set the coords of the islands and generate subsequently */
+  int status = 0;
+  chunk->enemy_buf_size = STARTING_BUFF_SIZE;
   for (int i = 0; i < num_islands; i++) {
     glm_ivec2_copy(chunk->coords, chunk->islands[i].chunk);
     glm_ivec2_copy(isl_locations[i], chunk->islands[i].coords);
-    generate_island(&chunk->islands[i]);
+    status = generate_island(&chunk->islands[i]);
+    if (status) {
+      for (int j = 0; j < i; j++) {
+        if (chunk->islands[j].has_merchant) {
+          free(chunk->islands[j].merchant.listings);
+        }
+        glDeleteTextures(1, &chunk->islands[j].texture);
+      }
+      free(chunk->enemies);
+      return -1;
+    }
   }
 
-  // TODO initialize enemy buffer
-  chunk->num_enemies = 0;
-  chunk->enemies = NULL;
-
-  return;
+  return 0;
 }
 
 /*

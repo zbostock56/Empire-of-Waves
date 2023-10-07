@@ -12,7 +12,7 @@ merchant location generation.
     -> Island locations are generated and checked in
        chunk generation
 */
-void generate_island(ISLAND *island) {
+int generate_island(ISLAND *island) {
   float pnoise[I_WIDTH][I_WIDTH];
   float mask[I_WIDTH][I_WIDTH];
   int seed = rand();
@@ -27,19 +27,30 @@ void generate_island(ISLAND *island) {
                      * mask[i][j];
     }
   }
-  merchant_generate(&(island->merchant), island);
   populate_tiles(island, pnoise);
+  merchant_generate(&(island->merchant), island);
 
-  // TODO generate listings buffer
-  island->merchant.listings = NULL;
-  island->merchant.num_listings = 0;
+  if (island->has_merchant) {
+    island->merchant.num_listings = 0;
+    island->merchant.listings = malloc(sizeof(LISTING) * STARTING_BUFF_SIZE);
+    island->merchant.listings_buf_size = STARTING_BUFF_SIZE;
+    if (island->merchant.listings == NULL) {
+      fprintf(stderr,
+              "generate_island: unabled to allocate merchant listings buffer");
+      return -1;
+    }
+  } else {
+    island->merchant.listings = NULL;
+    island->merchant.num_listings = 0;
+    island->merchant.listings_buf_size = 0;
+  }
 
   // TODO Create island texture buffer from preloaded tile texture buffers
   unsigned char tile_colors[I_WIDTH * I_WIDTH][3];
   populate_tile_pixel_buffer(island, tile_colors);
   island->texture = texture_from_buffer((unsigned char *) tile_colors,
                                         I_WIDTH, I_WIDTH, GL_RGB);
-  return;
+  return 0;
 }
 
 /*

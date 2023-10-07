@@ -26,7 +26,7 @@ void spawn_enemy() {
     }
   }
   /* chunk_pos is now set to the chosen chunk */
-  glm_ivec2_add(CHUNK_OFFSETS[chunk_pos], e_player.chunk, chosen_chunk);
+  glm_ivec2_add(CHUNK_OFFSETS[chunk_pos], e_player.ship_chunk, chosen_chunk);
   /* Determine where to put the enemy within the chunk */
   int in_player_chunk = chunk_pos == CURRENT_CHUNK ? 1 : 0;
   int posx = 0;
@@ -42,8 +42,8 @@ void spawn_enemy() {
     posx = rand() % C_WIDTH;
     posy = rand() % C_WIDTH;
     TILE tile = chunk_tiles[posx][posy];
-    if ((in_player_chunk && e_player.coords[0] != posx && e_player.coords[1] != posy)
-         || !in_player_chunk) {
+    if ((in_player_chunk && e_player.ship_coords[0] != posx &&
+         e_player.ship_coords[1] != posy) || !in_player_chunk) {
       if (tile == 1) {
         /* Sets up base enemy */
         unsigned int insert_index = player_chunks[chunk_pos].num_enemies;
