@@ -11,11 +11,6 @@ void init_scene() {
   e_player.embarked = 1;
 
   // TEST MODELS
-  vec2 te_coords = { 0.0f, 0.0f };
-  world_to_chunk(te_coords, test_enemy.chunk, test_enemy.coords);
-  glm_vec2_zero(test_enemy.direction);
-  test_enemy.direction[0] = -1.0;
-
   vec2 ts_coords = { 0.0f, 0.0f };
   world_to_chunk(ts_coords, test_ts.chunk, test_ts.coords);
   glm_vec2_zero(test_ts.direction);
@@ -134,7 +129,6 @@ void render_scene(GLFWwindow *window) {
       }
     }
     render_player_ship();
-    render_enemy_ship(&test_enemy);
     render_trade_ship(&test_ts);
     render_merchant(&test_merchant);
     render_menu(&test_menu);
@@ -143,6 +137,9 @@ void render_scene(GLFWwindow *window) {
     for (int i = 0; i < 9; i++) {
       for (int j = 0; j < player_chunks[i].num_islands; j++) {
         render_island(player_chunks[i].islands + j);
+      }
+      for (int j = 0; j < player_chunks[i].num_enemies; j++) {
+        render_enemy_ship(player_chunks[i].enemies + j);
       }
     }
     //render_island(&test_island);

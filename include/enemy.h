@@ -15,3 +15,5 @@ int find_avail_chunks();
 void generate_chunk_tiles(int [C_WIDTH][C_WIDTH], CHUNK);
 
 /* =================== EXTERNALLY DEFINED FUNCTIONS =================== */
+
+int double_buffer(void **, unsigned int *, unsigned int);

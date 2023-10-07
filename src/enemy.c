@@ -46,19 +46,29 @@ void spawn_enemy() {
          || !in_player_chunk) {
       if (tile == 1) {
         /* Sets up base enemy */
-        unsigned int num_e = player_chunks[chunk_pos].num_enemies;
-        E_ENEMY *enemy = &player_chunks[chunk_pos].enemies[num_e];
-        enemy->chunk[0] = chosen_chunk[0];
-        enemy->chunk[1] = chosen_chunk[1];
-        enemy->coords[0] = posx;
-        enemy->coords[1] = posy;
-        enemy->direction[0] = 0;
-        enemy->direction[1] = 1;
-        enemy->speed = 1.0;
-        enemy->crew_count = 1;
+        unsigned int insert_index = player_chunks[chunk_pos].num_enemies;
         player_chunks[chunk_pos].num_enemies++;
-        not_found = 0;
-        /* TODO: Account for resize enemy buffer */
+
+        int status = 0;
+        if (player_chunks[chunk_pos].num_enemies ==
+            player_chunks[chunk_pos].enemy_buf_size) {
+          status = double_buffer((void **) &player_chunks[chunk_pos].enemies,
+                                 &player_chunks[chunk_pos].enemy_buf_size,
+                                 sizeof(E_ENEMY));
+        }
+
+        if (status == 0) {
+          E_ENEMY *enemy = &player_chunks[chunk_pos].enemies[insert_index];
+          enemy->chunk[0] = chosen_chunk[0];
+          enemy->chunk[1] = chosen_chunk[1];
+          enemy->coords[0] = posx;
+          enemy->coords[1] = posy;
+          enemy->direction[0] = 0;
+          enemy->direction[1] = 1;
+          enemy->speed = 1.0;
+          enemy->crew_count = 1;
+          not_found = 0;
+        }
       }
     }
   }

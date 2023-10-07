@@ -22,4 +22,5 @@ extern float next_event;
 extern C_PLAYER c_player;
 extern C_UNIT *npc_units;
 extern unsigned int num_npc_units;
-extern ivec2 arena_dimensions;
+extern ivec2 arena_dimensions; // Specifies width and height of game arena in
+                               // tiles

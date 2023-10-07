@@ -98,7 +98,9 @@ void manage_chunks() {
 
 void free_chunk(CHUNK *chunk) {
   for (int i = 0; i < chunk->num_islands; i++) {
-    free(chunk->islands[i].merchant.listings);
+    if (chunk->islands[i].has_merchant) {
+      free(chunk->islands[i].merchant.listings);
+    }
     glDeleteTextures(1, &chunk->islands[i].texture);
   }
   free(chunk->enemies);
@@ -124,19 +126,36 @@ int load_chunk(ivec2 coords, CHUNK *dest) {
   fread(&dest->num_islands, sizeof(unsigned int), 1, chunk_file);
   fread(&dest->num_enemies, sizeof(unsigned int), 1, chunk_file);
   if (dest->num_enemies) {
-    dest->enemies = malloc(sizeof(E_ENEMY) * dest->num_enemies);
+    dest->enemies = malloc(sizeof(E_ENEMY) * dest->num_enemies * 2);
     if (dest->enemies == NULL) {
       fprintf(stderr, "chunk.c: Unable to allocate chunk enemy buffer\n");
+      fclose(chunk_file);
       return -1;
     }
+    dest->enemy_buf_size = dest->num_enemies * 2;
 
     fread(dest->enemies, sizeof(E_ENEMY), dest->num_enemies, chunk_file);
   } else {
-    dest->enemies = NULL;
+    dest->enemies = malloc(sizeof(E_ENEMY) * STARTING_BUFF_SIZE);
+    if (dest->enemies == NULL) {
+      fprintf(stderr, "chunk.c: Unable to allocate chunk enemy buffer\n");
+      fclose(chunk_file);
+      return -1;
+    }
+    dest->enemy_buf_size = STARTING_BUFF_SIZE;
   }
+
   for (unsigned int i = 0; i < dest->num_islands; i++) {
     int status = load_island(chunk_file, dest->islands + i);
-    if (status != 0) {
+    if (status) {
+      free(dest->enemies);
+      for (unsigned int j = 0; j < i; j++) {
+        if (dest->islands[j].has_merchant) {
+          free(dest->islands[j].merchant.listings);
+        }
+        glDeleteTextures(1, &dest->islands[j].texture);
+      }
+      fclose(chunk_file);
       return -1;
     }
   }
@@ -151,8 +170,12 @@ int load_island(FILE *file, ISLAND *dest) {
   fread(dest->coords, sizeof(int), 2, file);
   fread(dest->tiles, sizeof(TILE), I_WIDTH * I_WIDTH, file);
   fread(&dest->has_merchant, sizeof(int), 1, file);
+  int status  = 0;
   if (dest->has_merchant) {
-    return load_merchant(file, &dest->merchant);
+    status = load_merchant(file, &dest->merchant);
+    if (status) {
+      return -1;
+    }
   }
 
   // TODO Create island texture buffer from preloaded tile texture buffers
@@ -169,8 +192,11 @@ int load_merchant(FILE *file, MERCHANT *dest) {
   fread(dest->coords, sizeof(float), 2, file);
   fread(&dest->num_listings, sizeof(unsigned int), 1, file);
   fread(&dest->relationship, sizeof(float), 1, file);
+
+  dest->listings = NULL;
   if (dest->num_listings) {
-    dest->listings = malloc(sizeof(LISTING) * dest->num_listings);
+    dest->listings = malloc(sizeof(LISTING) * dest->num_listings * 2);
+    dest->listings_buf_size = dest->num_listings * 2;
     if (dest->listings == NULL) {
       fprintf(stderr, "chunk.c: Unable to allocate merchant listing buffer\n");
       return -1;
@@ -178,7 +204,12 @@ int load_merchant(FILE *file, MERCHANT *dest) {
 
     fread(dest->listings, sizeof(LISTING), dest->num_listings, file);
   } else {
-    dest->listings = NULL;
+    dest->listings = malloc(sizeof(LISTING) * STARTING_BUFF_SIZE);
+    dest->listings_buf_size = STARTING_BUFF_SIZE;
+    if (dest->listings == NULL) {
+      fprintf(stderr, "chunk.c: Unable to allocate merchant listing buffer\n");
+      return -1;
+    }
   }
 
   return 0;
@@ -407,4 +438,15 @@ int out_of_bounds(ivec2 coords, int max_x, int max_y) {
     (coords[X] < 0 && coords[X] < -max_x) ||
     (coords[Y] < 0 && coords[Y] < -max_x)
   );
+}
+
+int double_buffer(void **buffer, unsigned int *buff_size,
+                  unsigned int unit_size) {
+  void *new_buff = realloc(*buffer, 2 * (*buff_size) * unit_size);
+  if (new_buff == NULL) {
+    return -1;
+  }
+  (*buffer) = new_buff;
+  *buff_size = 2 * *buff_size;
+  return 0;
 }

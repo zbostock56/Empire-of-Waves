@@ -119,14 +119,44 @@ void detect_collisions() {
     if (e_player.embarked) {
       ship_collisions(player_chunks + PLAYER_CHUNK, e_player.ship_chunk,
                       e_player.ship_coords);
+
+      // Collision with enemy ships
+      detect_enemy_ships();
     } else {
       character_collisions(player_chunks + PLAYER_CHUNK, e_player.chunk,
                            e_player.coords);
     }
 
+    // Disembark / embark contexts
     detect_context_interaction();
   } else {
     unit_collision(c_player.coords);
+  }
+}
+
+void detect_enemy_ships() {
+  vec2 world_coords = GLM_VEC2_ZERO_INIT;
+  chunk_to_world(e_player.ship_chunk, e_player.ship_coords, world_coords);
+
+  CHUNK *chunk = player_chunks + PLAYER_CHUNK;
+  E_ENEMY *cur_enemy = NULL;
+  vec2 cur_enemy_world_coords = GLM_VEC2_ZERO_INIT;
+  if (chunk->enemies) {
+    for (int i = 0; i < chunk->num_enemies; i++) {
+      cur_enemy = chunk->enemies + i;
+      chunk_to_world(cur_enemy->chunk, cur_enemy->coords,
+                     cur_enemy_world_coords);
+
+      if (circle_circle_collision(world_coords,
+                                  SHIP_COLLISION_RADIUS * T_WIDTH,
+                                  cur_enemy_world_coords,
+                                  SHIP_COLLISION_RADIUS * T_WIDTH)) {
+        glm_vec2_zero(c_player.coords);
+        glm_vec2_zero(c_player.direction);
+        c_player.direction[0] = 1.0;
+        mode = COMBAT;
+      }
+    }
   }
 }
 
