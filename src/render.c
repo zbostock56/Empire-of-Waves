@@ -11,15 +11,11 @@ void init_scene() {
   e_player.embarked = 1;
 
   // TEST MODELS
-  vec2 te_coords = { 1.0f, 0.0f };
-  world_to_chunk(te_coords, test_enemy.chunk, test_enemy.coords);
-  glm_vec2_zero(test_enemy.direction);
-  test_enemy.direction[0] = 1.0;
-
-  vec2 ts_coords = { -1.5f, -1.5f };
+  vec2 ts_coords = { 0.0f, 0.0f };
   world_to_chunk(ts_coords, test_ts.chunk, test_ts.coords);
   glm_vec2_zero(test_ts.direction);
   test_ts.direction[0] = 1.0;
+  trade_ships = (TRADE_SHIP * )malloc(sizeof(TRADE_SHIP));
 
   vec2 tm_coords = { -1.0f, 0.0f };
   world_to_chunk(tm_coords, test_merchant.chunk, test_merchant.coords);
@@ -36,20 +32,8 @@ void init_scene() {
   vec2 tu_dir = { 0.0, -1.0};
   glm_vec2_copy(tu_dir, test_unit.direction);
 
-  /*
-  ivec2 ti_chunk = { 0, 0 };
-  ivec2 ti_coords = { 1, 1 };
-  glm_ivec2_copy(ti_chunk, test_island.chunk);
-  glm_ivec2_copy(ti_coords, test_island.coords);
-  for (int i = 0; i < I_WIDTH * I_WIDTH; i++) {
-    test_island.tiles[i] = OCEAN;
-  }
-  generate_island(&test_island);
-  */
   unsigned char ocean_buffer[3] = { 3, 157, 252 };
   ocean_texture = texture_from_buffer(ocean_buffer, 1, 1, GL_RGB);
-
-
   // END TEST
 
   // Initialize offscreen framebuffer
@@ -116,6 +100,7 @@ void cleanup_scene() {
   free_model(enemy_ship);
   free_model(trade_ship);
   free_model(quad);
+  free(trade_ships);
   for (int i = 0; i < FONT_LEN; i++) {
     free_model(font[i].model);
   }
@@ -144,7 +129,6 @@ void render_scene(GLFWwindow *window) {
       }
     }
     render_player_ship();
-    render_enemy_ship(&test_enemy);
     render_trade_ship(&test_ts);
     render_merchant(&test_merchant);
     render_menu(&test_menu);
@@ -154,10 +138,23 @@ void render_scene(GLFWwindow *window) {
       for (int j = 0; j < player_chunks[i].num_islands; j++) {
         render_island(player_chunks[i].islands + j);
       }
+      for (int j = 0; j < player_chunks[i].num_enemies; j++) {
+        render_enemy_ship(player_chunks[i].enemies + j);
+      }
     }
     //render_island(&test_island);
   } else {
+    // TEST RENDERING
     render_unit(&test_unit);
+    // END TEST
+
+    if (npc_units) {
+      for (int i = 0; i < num_npc_units; i++) {
+        render_unit(npc_units + i);
+      }
+    }
+
+    render_arena();
   }
 
   mat4 text_model = GLM_MAT4_IDENTITY_INIT;
@@ -200,6 +197,9 @@ void render_player_ship() {
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
   if (!e_player.embarked) {
+    /*
+      Restricts the ship to stay still when the player moves off board.
+    */
     vec3 world_coords = GLM_VEC3_ZERO_INIT;
     chunk_to_world(e_player.ship_chunk, e_player.ship_coords, world_coords);
     glm_translate(model_mat, world_coords);
@@ -209,7 +209,6 @@ void render_player_ship() {
     glm_vec3_negate(player_world_coords);
     glm_translate(view_mat, player_world_coords);
   }
-  glm_rotate_z(model_mat, glm_rad(90.0), model_mat);
   glm_scale_uni(model_mat, 0.75);
 
   render_fbo_entity(player_ship, fbo_model_mat, model_mat, fbo_view_mat,
@@ -246,7 +245,7 @@ void render_player() {
     glm_translate_z(fbo_view_mat, -3.0);
 
     mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
-    glm_rotate_z(model_mat, glm_rad(90.0), model_mat);
+    glm_translate_y(model_mat, 0.1);
     glm_scale_uni(model_mat, 0.75);
 
     mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
@@ -282,9 +281,10 @@ void render_e_npc(MODEL *model, ivec2 chunk, vec2 coords, vec2 direction,
 
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   vec3 world_coords = GLM_VEC3_ZERO_INIT;
+
   chunk_to_world(chunk, coords, world_coords);
+  glm_translate_y(model_mat, 0.1);
   glm_translate(model_mat, world_coords);
-  glm_rotate_z(model_mat, glm_rad(90.0), model_mat);
   glm_scale_uni(model_mat, 0.75);
 
   mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
@@ -317,14 +317,14 @@ void render_c_npc(MODEL *model, vec2 coords, vec2 direction, float scale) {
 
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   vec3 npc_coords = GLM_VEC3_ZERO_INIT;
-  glm_vec2_copy(coords, npc_coords);
+  glm_vec2_scale(coords, T_WIDTH, npc_coords);
+  glm_translate_y(model_mat, 0.1);
   glm_translate(model_mat, npc_coords);
-  glm_rotate_z(model_mat, glm_rad(90.0), model_mat);
   glm_scale_uni(model_mat, 0.75);
 
   mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
   vec3 player_coords = GLM_VEC2_ZERO_INIT;
-  glm_vec2_copy(c_player.coords, player_coords);
+  glm_vec2_scale(c_player.coords, T_WIDTH, player_coords);
   glm_vec3_negate(player_coords);
   glm_translate(view_mat, player_coords);
 
@@ -519,61 +519,58 @@ void render_island(ISLAND *island) {
   draw_model(quad, std_shader);
 }
 
-/*
-void render_tile(TILE tile, ivec2 chunk, vec2 coords) {
-  vec2 world_coords = GLM_VEC2_ZERO_INIT;
-  chunk_to_world(chunk, coords, world_coords);
-  world_coords[0] = world_coords[0] + (T_WIDTH * 0.5);
-  world_coords[1] = world_coords[1] - (T_WIDTH * 0.5);
-
-  // TODO actually use tile textures here
-  vec3 color = GLM_VEC3_ZERO_INIT;
-  if (tile == OCEAN) {
-    color[0] = 3.0;
-    color[1] = 157.0;
-    color[2] = 252.0;
-  } else if (tile == SHORE) {
-    color[0] = 3.0;
-    color[1] = 235.0;
-    color[2] = 252.0;
-  } else if (tile == SAND) {
-    color[0] = 252.0;
-    color[1] = 243.0;
-    color[2] = 162.0;
-  } else if (tile == GRASS) {
-    color[0] = 4.0;
-    color[1] = 209.0;
-    color[2] = 38.0;
-  } else if (tile == ROCK) {
-    color[0] = 99.0;
-    color[1] = 87.0;
-    color[2] = 67.0;
-  }
-  glm_vec3_normalize(color);
-
+void render_arena() {
+  // Render ocean
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
-  glm_translate(model_mat, world_coords);
-  glm_scale_uni(model_mat, 0.5 * T_WIDTH);
-
+  glm_translate_z(model_mat, -1.0);
   mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
-  vec3 player_world_coords = GLM_VEC2_ZERO_INIT;
-  if (e_player.embarked) {
-    chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
-                   player_world_coords);
-  } else {
-    chunk_to_world(e_player.chunk, e_player.coords, player_world_coords);
-  }
-  glm_vec3_negate(player_world_coords);
-  glm_translate(view_mat, player_world_coords);
+
+  vec3 ocean_col = { 3.0, 157.0, 252.0 };
+  glm_vec3_normalize(ocean_col);
 
   glUseProgram(color_shader);
-  set_vec3("color", color, color_shader);
   set_mat4("model", model_mat, color_shader);
   set_mat4("view", view_mat, color_shader);
   set_mat4("proj", ortho_proj, color_shader);
+  set_vec3("color", ocean_col, color_shader);
+  draw_model(quad, color_shader);
+
+  // Render arena floor
+  glm_mat4_identity(model_mat);
+  vec3 scale = {
+    0.5 * T_WIDTH * arena_dimensions[0],
+    0.5 * T_WIDTH * arena_dimensions[1],
+    1.0
+  };
+  glm_scale(model_mat, scale);
+
+  vec3 player_coords = GLM_VEC3_ZERO_INIT;
+  glm_vec2_scale(c_player.coords, T_WIDTH, player_coords);
+  glm_vec2_negate(player_coords);
+  glm_translate(view_mat, player_coords);
+
+  vec3 floor_col = { 120.0, 94.0, 23.0 };
+  glm_vec3_normalize(floor_col);
+
+  set_mat4("model", model_mat, color_shader);
+  set_mat4("view", view_mat, color_shader);
+  set_mat4("proj", ortho_proj, color_shader);
+  set_vec3("color", floor_col, color_shader);
+  draw_model(quad, color_shader);
+
+  // Render arena wall
+  glm_mat4_identity(model_mat);
+  scale[1] *= 0.25;
+  glm_translate_y(model_mat, 0.625 * T_WIDTH * arena_dimensions[1]);
+  glm_scale(model_mat, scale);
+
+  vec3 wall_col = { 235.0, 206.0, 129.0 };
+  glm_vec3_normalize(wall_col);
+
+  set_mat4("model", model_mat, color_shader);
+  set_vec3("color", wall_col, color_shader);
   draw_model(quad, color_shader);
 }
-*/
 
 /*
   Helper function for compiling a shader program

@@ -12,3 +12,4 @@ void manage_chunks();
 void render_scene(GLFWwindow *);
 void cleanup_scene();
 void update_event_timer();
+void detect_collisions();

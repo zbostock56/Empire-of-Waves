@@ -7,7 +7,7 @@ struct representing player state in combat mode. Can be included by any file
 which reads/manipulates player state.
 */
 
-#define INV_SIZE (10)
+#define INV_SIZE (1)
 
 #ifndef NUM_RESOURCES
 #define NUM_RESOURCES (1) // Also defined in items.h
