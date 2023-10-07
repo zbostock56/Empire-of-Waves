@@ -19,7 +19,8 @@
 #define X_MAX (2)
 #define Y_MAX (3)
 
-#define WORLD_DEPTH (-0.5)
+#define WORLD_DEPTH (-0.6)
+#define OBSTACLE_DEPTH (-0.5)
 #define SHIP_DEPTH (-0.4)
 #define AVATAR_DEPTH (-0.3)
 #define UI_DEPTH (-0.2)

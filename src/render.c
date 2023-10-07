@@ -238,7 +238,6 @@ void render_player() {
     vec3 depth_offset = { 0.0, 0.0, AVATAR_DEPTH };
     glm_translate(model_mat, depth_offset);
     glm_translate_y(model_mat, 0.1);
-    glm_rotate_z(model_mat, glm_rad(90.0), model_mat);
     glm_scale_uni(model_mat, 0.75);
 
     mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
@@ -537,7 +536,7 @@ void render_island(ISLAND *island) {
 void render_arena() {
   // Render ocean
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
-  glm_translate_z(model_mat, -1.0);
+  glm_translate_z(model_mat, WORLD_DEPTH);
   mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
 
   vec3 ocean_col = { 3.0, 157.0, 252.0 };
@@ -558,6 +557,7 @@ void render_arena() {
     1.0
   };
   glm_scale(model_mat, scale);
+  glm_translate_z(model_mat, OBSTACLE_DEPTH);
 
   vec3 player_coords = GLM_VEC3_ZERO_INIT;
   glm_vec2_scale(c_player.coords, T_WIDTH, player_coords);
@@ -578,6 +578,7 @@ void render_arena() {
   scale[1] *= 0.25;
   glm_translate_y(model_mat, 0.625 * T_WIDTH * arena_dimensions[1]);
   glm_scale(model_mat, scale);
+  glm_translate_z(model_mat, OBSTACLE_DEPTH);
 
   vec3 wall_col = { 235.0, 206.0, 129.0 };
   glm_vec3_normalize(wall_col);
