@@ -147,7 +147,17 @@ void render_scene(GLFWwindow *window) {
     }
     //render_island(&test_island);
   } else {
+    // TEST RENDERING
     render_unit(&test_unit);
+    // END TEST
+
+    if (npc_units) {
+      for (int i = 0; i < num_npc_units; i++) {
+        render_unit(npc_units + i);
+      }
+    }
+
+    render_arena();
   }
 
   mat4 text_model = GLM_MAT4_IDENTITY_INIT;
@@ -238,6 +248,7 @@ void render_player() {
     glm_translate_z(fbo_view_mat, -3.0);
 
     mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+    glm_translate_y(model_mat, 0.1);
     glm_scale_uni(model_mat, 0.75);
 
     mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
@@ -275,6 +286,7 @@ void render_e_npc(MODEL *model, ivec2 chunk, vec2 coords, vec2 direction,
   vec3 world_coords = GLM_VEC3_ZERO_INIT;
 
   chunk_to_world(chunk, coords, world_coords);
+  glm_translate_y(model_mat, 0.1);
   glm_translate(model_mat, world_coords);
   glm_scale_uni(model_mat, 0.75);
 
@@ -308,13 +320,14 @@ void render_c_npc(MODEL *model, vec2 coords, vec2 direction, float scale) {
 
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   vec3 npc_coords = GLM_VEC3_ZERO_INIT;
-  glm_vec2_copy(coords, npc_coords);
+  glm_vec2_scale(coords, T_WIDTH, npc_coords);
+  glm_translate_y(model_mat, 0.1);
   glm_translate(model_mat, npc_coords);
   glm_scale_uni(model_mat, 0.75);
 
   mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
   vec3 player_coords = GLM_VEC2_ZERO_INIT;
-  glm_vec2_copy(c_player.coords, player_coords);
+  glm_vec2_scale(c_player.coords, T_WIDTH, player_coords);
   glm_vec3_negate(player_coords);
   glm_translate(view_mat, player_coords);
 
@@ -509,61 +522,58 @@ void render_island(ISLAND *island) {
   draw_model(quad, std_shader);
 }
 
-/*
-void render_tile(TILE tile, ivec2 chunk, vec2 coords) {
-  vec2 world_coords = GLM_VEC2_ZERO_INIT;
-  chunk_to_world(chunk, coords, world_coords);
-  world_coords[0] = world_coords[0] + (T_WIDTH * 0.5);
-  world_coords[1] = world_coords[1] - (T_WIDTH * 0.5);
-
-  // TODO actually use tile textures here
-  vec3 color = GLM_VEC3_ZERO_INIT;
-  if (tile == OCEAN) {
-    color[0] = 3.0;
-    color[1] = 157.0;
-    color[2] = 252.0;
-  } else if (tile == SHORE) {
-    color[0] = 3.0;
-    color[1] = 235.0;
-    color[2] = 252.0;
-  } else if (tile == SAND) {
-    color[0] = 252.0;
-    color[1] = 243.0;
-    color[2] = 162.0;
-  } else if (tile == GRASS) {
-    color[0] = 4.0;
-    color[1] = 209.0;
-    color[2] = 38.0;
-  } else if (tile == ROCK) {
-    color[0] = 99.0;
-    color[1] = 87.0;
-    color[2] = 67.0;
-  }
-  glm_vec3_normalize(color);
-
+void render_arena() {
+  // Render ocean
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
-  glm_translate(model_mat, world_coords);
-  glm_scale_uni(model_mat, 0.5 * T_WIDTH);
-
+  glm_translate_z(model_mat, -1.0);
   mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
-  vec3 player_world_coords = GLM_VEC2_ZERO_INIT;
-  if (e_player.embarked) {
-    chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
-                   player_world_coords);
-  } else {
-    chunk_to_world(e_player.chunk, e_player.coords, player_world_coords);
-  }
-  glm_vec3_negate(player_world_coords);
-  glm_translate(view_mat, player_world_coords);
+
+  vec3 ocean_col = { 3.0, 157.0, 252.0 };
+  glm_vec3_normalize(ocean_col);
 
   glUseProgram(color_shader);
-  set_vec3("color", color, color_shader);
   set_mat4("model", model_mat, color_shader);
   set_mat4("view", view_mat, color_shader);
   set_mat4("proj", ortho_proj, color_shader);
+  set_vec3("color", ocean_col, color_shader);
+  draw_model(quad, color_shader);
+
+  // Render arena floor
+  glm_mat4_identity(model_mat);
+  vec3 scale = {
+    0.5 * T_WIDTH * arena_dimensions[0],
+    0.5 * T_WIDTH * arena_dimensions[1],
+    1.0
+  };
+  glm_scale(model_mat, scale);
+
+  vec3 player_coords = GLM_VEC3_ZERO_INIT;
+  glm_vec2_scale(c_player.coords, T_WIDTH, player_coords);
+  glm_vec2_negate(player_coords);
+  glm_translate(view_mat, player_coords);
+
+  vec3 floor_col = { 120.0, 94.0, 23.0 };
+  glm_vec3_normalize(floor_col);
+
+  set_mat4("model", model_mat, color_shader);
+  set_mat4("view", view_mat, color_shader);
+  set_mat4("proj", ortho_proj, color_shader);
+  set_vec3("color", floor_col, color_shader);
+  draw_model(quad, color_shader);
+
+  // Render arena wall
+  glm_mat4_identity(model_mat);
+  scale[1] *= 0.25;
+  glm_translate_y(model_mat, 0.625 * T_WIDTH * arena_dimensions[1]);
+  glm_scale(model_mat, scale);
+
+  vec3 wall_col = { 235.0, 206.0, 129.0 };
+  glm_vec3_normalize(wall_col);
+
+  set_mat4("model", model_mat, color_shader);
+  set_vec3("color", wall_col, color_shader);
   draw_model(quad, color_shader);
 }
-*/
 
 /*
   Helper function for compiling a shader program

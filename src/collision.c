@@ -102,12 +102,16 @@ int check_tile(ISLAND *island, vec2 coords) {
 
 void detect_collisions() {
   // Player
-  if (e_player.embarked) {
-    ship_collisions(player_chunks + PLAYER_CHUNK, e_player.ship_chunk,
-                    e_player.ship_coords);
+  if (mode == EXPLORATION) {
+    if (e_player.embarked) {
+      ship_collisions(player_chunks + PLAYER_CHUNK, e_player.ship_chunk,
+                      e_player.ship_coords);
+    } else {
+      character_collisions(player_chunks + PLAYER_CHUNK, e_player.chunk,
+                           e_player.coords);
+    }
   } else {
-    character_collisions(player_chunks + PLAYER_CHUNK, e_player.chunk,
-                         e_player.coords);
+    unit_collision(c_player.coords);
   }
 }
 
@@ -195,3 +199,71 @@ void ship_collisions(CHUNK *chunk, ivec2 chunk_coords, vec2 coords) {
 }
 
 // Combat mode collision:
+// Performs collision detection and resolution for combat units
+// - coords are given as tile coordinates
+void unit_collision(vec2 coords) {
+  float radius = CHARACTER_COLLISION_RADIUS * T_WIDTH;
+  vec2 collision_correction = GLM_VEC2_ZERO_INIT;
+
+  // Convert tile coordinates to world coordinate
+  vec2 player_world_coords = {
+    coords[X] * T_WIDTH,
+    coords[Y] * T_WIDTH
+  };
+
+  vec2 left_wall = {
+    -arena_dimensions[X] * T_WIDTH,
+    arena_dimensions[Y] * 0.5 * T_WIDTH
+  };
+  if (circle_aabb_collision(player_world_coords, radius, left_wall,
+                            0.5 * arena_dimensions[X] * T_WIDTH,
+                            arena_dimensions[Y] * T_WIDTH,
+                            collision_correction)) {
+    // Convert world coords to "tile" coords
+    collision_correction[X] /= T_WIDTH;
+    collision_correction[Y] /= T_WIDTH;
+    glm_vec2_add(coords, collision_correction, coords);
+  }
+
+  vec2 right_wall = {
+    arena_dimensions[X] * 0.5 * T_WIDTH,
+    arena_dimensions[Y] * 0.5 * T_WIDTH
+  };
+  if (circle_aabb_collision(player_world_coords, radius, right_wall,
+                            0.5 * arena_dimensions[X] * T_WIDTH,
+                            arena_dimensions[Y] * T_WIDTH,
+                            collision_correction)) {
+    // Convert world coords to "tile" coords
+    collision_correction[X] /= T_WIDTH;
+    collision_correction[Y] /= T_WIDTH;
+    glm_vec2_add(coords, collision_correction, coords);
+  }
+
+  vec2 top_wall = {
+    -arena_dimensions[X] * 0.5 * T_WIDTH,
+    arena_dimensions[Y] * T_WIDTH
+  };
+  if (circle_aabb_collision(player_world_coords, radius, top_wall,
+                            arena_dimensions[X] * T_WIDTH,
+                            0.5 * arena_dimensions[Y] * T_WIDTH,
+                            collision_correction)) {
+    // Convert world coords to "tile" coords
+    collision_correction[X] /= T_WIDTH;
+    collision_correction[Y] /= T_WIDTH;
+    glm_vec2_add(coords, collision_correction, coords);
+  }
+
+  vec2 bottom_wall = {
+    -arena_dimensions[X] * 0.5 * T_WIDTH,
+    -arena_dimensions[Y] * 0.5 * T_WIDTH
+  };
+  if (circle_aabb_collision(player_world_coords, radius, bottom_wall,
+                            arena_dimensions[X] * T_WIDTH,
+                            0.5 * arena_dimensions[Y] * T_WIDTH,
+                            collision_correction)) {
+    // Convert world coords to "tile" coords
+    collision_correction[X] /= T_WIDTH;
+    collision_correction[Y] /= T_WIDTH;
+    glm_vec2_add(coords, collision_correction, coords);
+  }
+}

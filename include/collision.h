@@ -16,6 +16,7 @@ ISLAND *cur_island(CHUNK *, vec2, float);
 int check_tile(ISLAND *cur_isl, vec2);
 void character_collisions(CHUNK *, ivec2, vec2);
 void ship_collisions(CHUNK *, ivec2, vec2);
+void unit_collision(vec2);
 
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 void chunk_to_world(ivec2, vec2, vec2);
