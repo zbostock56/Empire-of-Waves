@@ -61,6 +61,18 @@ int circle_aabb_collision(vec2 a_center, float a_radius, vec2 b_top_left,
   return 0;
 }
 
+// Performs collision detection of two circles
+int circle_circle_collision(vec2 a_center, float a_radius, vec2 b_center,
+                            float b_radius) {
+  // If the distance from circle a's center to circle b's center is less than
+  // the sum of their radii, then a collision has occured
+  float ab_dist = glm_vec2_distance(a_center, b_center);
+  if (ab_dist < a_radius + b_radius) {
+    return 1;
+  }
+  return 0;
+}
+
 /*
    helper function for getting the island player's currently on
 */
@@ -103,6 +115,7 @@ int check_tile(ISLAND *island, vec2 coords) {
 void detect_collisions() {
   // Player
   if (mode == EXPLORATION) {
+    // Collision with world
     if (e_player.embarked) {
       ship_collisions(player_chunks + PLAYER_CHUNK, e_player.ship_chunk,
                       e_player.ship_coords);
@@ -110,9 +123,51 @@ void detect_collisions() {
       character_collisions(player_chunks + PLAYER_CHUNK, e_player.chunk,
                            e_player.coords);
     }
+
+    detect_context_interaction();
   } else {
     unit_collision(c_player.coords);
   }
+}
+
+void detect_context_interaction() {
+  // Disembark / embark
+  vec2 world_coords_ship = GLM_VEC2_ZERO_INIT;
+  vec2 world_coords_char = GLM_VEC2_ZERO_INIT;
+  if (e_player.embarked) {
+    chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
+                   world_coords_ship);
+    float radius = T_WIDTH * CHARACTER_COLLISION_RADIUS;
+    ISLAND *island = cur_island(player_chunks + PLAYER_CHUNK,
+                                world_coords_ship, radius);
+    if (island) {
+      int tile = check_tile(island, e_player.ship_coords);
+      if (tile == SHORE) {
+        // Enable disembark prompt
+        shore_interaction_enabled = 1;
+      } else {
+        // Disable disembark prompt
+        shore_interaction_enabled = 0;
+      }
+    }
+  } else {
+    chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
+                   world_coords_ship);
+    chunk_to_world(e_player.chunk, e_player.coords, world_coords_char);
+
+    if (circle_circle_collision(world_coords_ship,
+                                INTERACTION_RADIUS * T_WIDTH,
+                                world_coords_char,
+                                CHARACTER_COLLISION_RADIUS * T_WIDTH)) {
+      // Enable embark prompt
+      shore_interaction_enabled = 1;
+    } else {
+      // Disabled embarked prompt
+      shore_interaction_enabled = 0;
+    }
+  }
+
+  // Merchant Interaction
 }
 
 /*
