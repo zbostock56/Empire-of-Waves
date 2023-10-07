@@ -30,7 +30,7 @@ so that the graphics side can render the islands in the viewport.
 float perlin(float, float, float, int, int);
 
 /* Native functions */
-void generate_island(ISLAND *);
+int generate_island(ISLAND *);
 int generate_rand();
 double nano_time();
 void generate_mask(float (*mask)[I_WIDTH]);

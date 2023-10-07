@@ -80,53 +80,111 @@ void fb_size_callback(GLFWwindow *window, int width, int height) {
 }
 
 void exploration_movement(GLFWwindow *window) {
+  vec2 world_coords = GLM_VEC2_ZERO_INIT;
+  if (e_player.embarked) {
+    chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
+                   world_coords);
+  } else {
+    chunk_to_world(e_player.chunk, e_player.coords,
+                  world_coords);
+  }
+
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
     vec2 movement = GLM_VEC2_ZERO_INIT;
-    vec2 world_coords = GLM_VEC2_ZERO_INIT;;
     if (e_player.embarked) {
-      chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
-                     world_coords);
-
       glm_vec2_scale(e_player.ship_direction, delta_time, movement);
       glm_vec2_add(movement, world_coords, world_coords);
       world_to_chunk(world_coords, e_player.ship_chunk,
                      e_player.ship_coords);
     } else {
-      chunk_to_world(e_player.chunk, e_player.coords,
-                     world_coords);
-
-      glm_vec2_scale(e_player.direction, delta_time, movement);
-      glm_vec2_add(movement, world_coords, world_coords);
-      world_to_chunk(world_coords, e_player.chunk,
-                     e_player.coords);
+        glm_vec2_scale(e_player.direction, delta_time, movement);
+        glm_vec2_add(movement, world_coords, world_coords);
+        world_to_chunk(world_coords, e_player.chunk,
+                      e_player.coords);
     }
   }
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
     vec2 movement = GLM_VEC2_ZERO_INIT;
-    vec2 world_coords = GLM_VEC2_ZERO_INIT;;
     if (e_player.embarked) {
-      chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
-                     world_coords);
-
       glm_vec2_scale(e_player.ship_direction, delta_time, movement);
       glm_vec2_sub(world_coords, movement, world_coords);
       world_to_chunk(world_coords, e_player.ship_chunk,
                      e_player.ship_coords);
     } else {
-      chunk_to_world(e_player.chunk, e_player.coords,
-                     world_coords);
-
       glm_vec2_scale(e_player.direction, delta_time, movement);
       glm_vec2_sub(world_coords, movement, world_coords);
       world_to_chunk(world_coords, e_player.chunk,
                      e_player.coords);
     }
   }
+  if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && !holding_interaction) {
+    if (shore_interaction_enabled) {
+      if (e_player.embarked) {
+        e_player.embarked = 0;
+        glm_ivec2_copy(e_player.ship_chunk, e_player.chunk);
+        glm_vec2_copy(e_player.ship_coords, e_player.coords);
+        glm_vec2_copy(e_player.ship_direction, e_player.direction);
+      } else {
+        e_player.embarked = 1;
+      }
+    }
+    holding_interaction = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_E) != GLFW_PRESS) {
+    holding_interaction = 0;
+  }
+  /*
+  if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS && !holding_equals) {
+    printf("Pressing \n");
+    vec2 movement = GLM_VEC2_ZERO_INIT;
+    vec2 world_coords = GLM_VEC2_ZERO_INIT;
+    vec2 predicted_coords = GLM_VEC2_ZERO_INIT;
+
+    chunk_to_world(trade_ships[0].chunk, trade_ships[0].coords,
+                    world_coords);
+
+    glm_vec2_scale(trade_ships[0].direction, delta_time, movement);
+    glm_vec2_add(world_coords, movement, predicted_coords);
+    world_to_chunk(predicted_coords, trade_ships[0].chunk, predicted_coords);
+    if (!ship_collisions(predicted_coords)) {
+      glm_vec2_add(world_coords, movement, world_coords);
+      world_to_chunk(world_coords, trade_ships[0].chunk,
+                     trade_ships[0].coords);
+    } else {
+      glm_vec2_rotate(trade_ships[0].direction,  90.0, trade_ships[0].direction);
+    }
+    holding_equals = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_0) != GLFW_PRESS) {
+    holding_equals = 0;
+  }
+
+  if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS && !holding_equals) {
+    printf("Pressing \n");
+    vec2 movement = GLM_VEC2_ZERO_INIT;
+    vec2 world_coords = GLM_VEC2_ZERO_INIT;
+    vec2 predicted_coords = GLM_VEC2_ZERO_INIT;
+    chunk_to_world(player_chunks[4].enemies[0].chunk, player_chunks[4].enemies[0].coords,
+                    world_coords);
+
+    glm_vec2_scale(player_chunks[4].enemies[0].direction, delta_time, movement);
+    glm_vec2_add(world_coords, movement, predicted_coords);
+    world_to_chunk(predicted_coords, player_chunks[4].enemies[0].chunk, predicted_coords);
+    if (!ship_collisions(predicted_coords)) {
+      glm_vec2_add(world_coords, movement, world_coords);
+      world_to_chunk(world_coords, player_chunks[4].enemies[0].chunk,
+                     player_chunks[4].enemies[0].coords);
+    } else {
+      glm_vec2_rotate(player_chunks[4].enemies[0].direction,  90.0, player_chunks[4].enemies[0].direction);
+    }
+    holding_equals = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_0) != GLFW_PRESS) {
+    holding_equals = 0;
+  }
+  */
 }
 
 void combat_movement(GLFWwindow *window) {
   vec2 movement = GLM_VEC2_ZERO_INIT;
-  glm_vec2_scale(c_player.direction, delta_time, movement);
+  glm_vec2_scale(c_player.direction, delta_time / T_WIDTH, movement);
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
     glm_vec2_add(movement, c_player.coords, c_player.coords);
   }
