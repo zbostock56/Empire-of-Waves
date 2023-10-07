@@ -59,7 +59,7 @@ double nano_time() {
   if (clock_gettime(CLOCK_REALTIME, &tv)) {
     perror("Error getting time");
   }
-  sprintf(time_str, "%lld.%.9ld", tv.tv_sec, tv.tv_nsec);
+  sprintf(time_str, "%ld.%.9ld", tv.tv_sec, tv.tv_nsec);
   return atof(time_str);
 }
 
@@ -129,24 +129,32 @@ void populate_tiles(ISLAND *island, float (*pnoise)[I_WIDTH]) {
 
 void populate_tile_pixel_buffer(ISLAND *island,
                                 unsigned char (*tile_colors)[3]) {
+  int texel_y = 0;
+  int texture_index = 0;
   for (int i = 0; i < I_WIDTH * I_WIDTH; i++) {
-    if (island->tiles[i] == ROCK) {
+    texel_y = (I_WIDTH - 1) - (i / I_WIDTH);
+    texture_index = (I_WIDTH * texel_y) + (i % I_WIDTH);
+    if (island->tiles[texture_index] == MERCH) {
+      tile_colors[i][0] = 255;
+      tile_colors[i][1] = 0;
+      tile_colors[i][2] = 0;
+    } else if (island->tiles[texture_index] == ROCK) {
       tile_colors[i][0] = 99;
       tile_colors[i][1] = 87;
       tile_colors[i][2] = 67;
-    } else if (island->tiles[i] == GRASS) {
+    } else if (island->tiles[texture_index] == GRASS) {
       tile_colors[i][0] = 4;
       tile_colors[i][1] = 209;
       tile_colors[i][2] = 38;
-    } else if (island->tiles[i] == SAND) {
+    } else if (island->tiles[texture_index] == SAND) {
       tile_colors[i][0] = 252;
       tile_colors[i][1] = 243;
       tile_colors[i][2] = 162;
-    } else if (island->tiles[i] == SHORE) {
+    } else if (island->tiles[texture_index] == SHORE) {
       tile_colors[i][0] = 3;
       tile_colors[i][1] = 235;
       tile_colors[i][2] = 252;
-    } else if (island->tiles[i] == OCEAN) {
+    } else if (island->tiles[texture_index] == OCEAN) {
       tile_colors[i][0] = 3;
       tile_colors[i][1] = 157;
       tile_colors[i][2] = 252;

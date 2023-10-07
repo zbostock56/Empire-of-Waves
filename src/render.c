@@ -21,11 +21,7 @@ void init_scene() {
   glm_vec2_zero(test_ts.direction);
   test_ts.direction[0] = 1.0;
   trade_ships = (TRADE_SHIP * )malloc(sizeof(TRADE_SHIP));
-  
-  ivec2 ts_chunk = { 0, 0 };
-  glm_ivec2_copy(ts_chunk, test_ts.chunk);
-  trade_ships = &test_ts;
-  
+
   vec2 tm_coords = { -1.0f, 0.0f };
   world_to_chunk(tm_coords, test_merchant.chunk, test_merchant.coords);
 
@@ -41,29 +37,8 @@ void init_scene() {
   vec2 tu_dir = { 0.0, -1.0};
   glm_vec2_copy(tu_dir, test_unit.direction);
 
-  /*
-  ivec2 ti_chunk = { 0, 0 };
-  ivec2 ti_coords = { 1, 1 };
-  glm_ivec2_copy(ti_chunk, test_island.chunk);
-  glm_ivec2_copy(ti_coords, test_island.coords);
-  for (int i=0;i<I_WIDTH*I_WIDTH;i++) {
-    if (i < I_WIDTH || i > I_WIDTH*I_WIDTH - I_WIDTH || i % I_WIDTH == 0 || i%I_WIDTH == I_WIDTH-1) 
-      test_island.tiles[i] = SAND;
-    else
-      test_island.tiles[i] = OCEAN;
-  }
-  generate_island(&test_island);
-  */
   unsigned char ocean_buffer[3] = { 3, 157, 252 };
   ocean_texture = texture_from_buffer(ocean_buffer, 1, 1, GL_RGB);
-
-
-
-  // CHUNK test_chunk  = {{0, 0}, {test_island}, 0, 1, 0 };
-  // player_chunks[4] = test_chunk;
-  // player_chunks[4].enemies = (E_ENEMY * )malloc(sizeof(E_ENEMY));
-  // player_chunks[4].enemies = &test_enemy;
-
   // END TEST
 
   // Initialize offscreen framebuffer
@@ -227,7 +202,6 @@ void render_player_ship() {
     glm_vec3_negate(player_world_coords);
     glm_translate(view_mat, player_world_coords);
   }
-  glm_rotate_z(model_mat, glm_rad(90.0), model_mat);
   glm_scale_uni(model_mat, 0.75);
 
   render_fbo_entity(player_ship, fbo_model_mat, model_mat, fbo_view_mat,
@@ -264,7 +238,6 @@ void render_player() {
     glm_translate_z(fbo_view_mat, -3.0);
 
     mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
-    glm_rotate_z(model_mat, glm_rad(90.0), model_mat);
     glm_scale_uni(model_mat, 0.75);
 
     mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
@@ -300,10 +273,9 @@ void render_e_npc(MODEL *model, ivec2 chunk, vec2 coords, vec2 direction,
 
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   vec3 world_coords = GLM_VEC3_ZERO_INIT;
-  
+
   chunk_to_world(chunk, coords, world_coords);
   glm_translate(model_mat, world_coords);
-  glm_rotate_z(model_mat, glm_rad(90.0), model_mat);
   glm_scale_uni(model_mat, 0.75);
 
   mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
@@ -338,7 +310,6 @@ void render_c_npc(MODEL *model, vec2 coords, vec2 direction, float scale) {
   vec3 npc_coords = GLM_VEC3_ZERO_INIT;
   glm_vec2_copy(coords, npc_coords);
   glm_translate(model_mat, npc_coords);
-  glm_rotate_z(model_mat, glm_rad(90.0), model_mat);
   glm_scale_uni(model_mat, 0.75);
 
   mat4 view_mat = GLM_MAT4_IDENTITY_INIT;

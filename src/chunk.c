@@ -61,9 +61,9 @@ void manage_chunks() {
       // Check if the new chunk to load already exists in memory
       if (out_of_bounds(new_chunk_offset, 1, 1)) {
         // New chunk does not currently exist in memory, load it up
-        printf("loading new: %s (%d) at (%d, %d)\n", index_to_str(i), i,
-               new_chunk_coords[X], new_chunk_coords[Y]);
-        fflush(stdout);
+//        printf("loading new: %s (%d) at (%d, %d)\n", index_to_str(i), i,
+//               new_chunk_coords[X], new_chunk_coords[Y]);
+//        fflush(stdout);
         status = load_chunk(new_chunk_coords, updated_chunks + i);
         if (status) {
           // Chunk also does not exist on disk, so generate it
@@ -86,8 +86,8 @@ void manage_chunks() {
   // unused chunks to disk
   for (int i = CHUNK_UPPER_LEFT; i <= CHUNK_LOWER_RIGHT; i++) {
     if (to_serialize[i]) {
-      printf("serializing: %s (%d)\n", index_to_str(i), i);
-      fflush(stdout);
+//      printf("serializing: %s (%d)\n", index_to_str(i), i);
+//      fflush(stdout);
       save_chunk(player_chunks + i);
       free_chunk(player_chunks + i);
     }

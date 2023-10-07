@@ -15,6 +15,7 @@ int main() {
     // - chunk serialization
     // - etc...
     manage_chunks();
+    detect_collisions();
 
     render_scene(window);
     //update_event_timer();

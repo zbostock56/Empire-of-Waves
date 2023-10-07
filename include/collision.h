@@ -7,15 +7,15 @@
 
 #define X (0)
 #define Y (1)
-#define PLAYER_WIDTH (0.1)
-#define PLAYER_HEIGHT (0.1)
+#define SHIP_COLLISION_RADIUS (1.0)
+#define CHARACTER_COLLISION_RADIUS (0.5)
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 int check_collision(float*, float, float, float*, float, float);
-int cur_island();
-int check_tile(int cur_isl, vec2);
-int player_collisions(vec2);
-int ship_collisions(vec2);
+ISLAND *cur_island(CHUNK *, vec2, float);
+int check_tile(ISLAND *cur_isl, vec2);
+void character_collisions(CHUNK *, ivec2, vec2);
+void ship_collisions(CHUNK *, ivec2, vec2);
 
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 void chunk_to_world(ivec2, vec2, vec2);
