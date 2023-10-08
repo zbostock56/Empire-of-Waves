@@ -5,6 +5,7 @@ int main() {
 
   init_chunks();
   init_scene();
+  init_lexer();
 
   while (!glfwWindowShouldClose(window)) {
     keyboard_input(window);
