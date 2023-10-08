@@ -16,7 +16,7 @@ UI_COMPONENT ui_tab[NUM_COMPONENTS];
 
 UI_COMPONENT * get_ui_component_by_ID(UI_ID ui_id) {
   // Check for invalid ui_id
-  if (ui_id < TEST_MENU || ui_id > DIALOG_BUTTON_ESTABLISH_TRADE_ROUTE) {
+  if (ui_id < TEST_MENU || ui_id > TRADE_BUTTON_LISTING_8) {
     return &ui_tab[0];
   }
   return &ui_tab[ui_id + 1]; // +1 to account for INVALID_MENU being -1
@@ -95,14 +95,18 @@ void init_menus() {
   );
 
   // Init Dialog menu
-  dialog = new_dialog("", "");
+  dialog = init_dialog();
   // Dialog merchant menu mesting
-  set_dialog(MERCHANT_OPTION, "Merchant", "Hail, Captain! What brings you to my humble stall");
-  open_dialog();
+  if (set_dialog(MERCHANT_OPTION, "Merchant", "Hail, Captain! What brings you to my humble stall")) {
+    open_dialog();
+  }
+  trade = init_trade();
+  if (set_trade(BUY, NULL)) {
+    open_trade();
+  }
 }
 
-
-DIALOG * new_dialog(char *name, char *content) {
+DIALOG * init_dialog() {
   DIALOG *dialog = malloc(sizeof(DIALOG));
   if (!dialog) {
     // Handle memory allocation failure, e.g., return NULL or exit
@@ -114,19 +118,17 @@ DIALOG * new_dialog(char *name, char *content) {
     free(dialog);
     return NULL;
   }
-  strncpy(dialog->name, name, MAX_NAME);
   dialog->name[MAX_NAME - 1] = '\0'; // Ensures null termination
 
   dialog->content = malloc(MAX_CONTENT * sizeof(char));
   if (!dialog->content) {
-      free(dialog->name);
-      free(dialog);
-      return NULL;
+    free(dialog->name);
+    free(dialog);
+    return NULL;
   }
-  strncpy(dialog->content, content, MAX_CONTENT);
   dialog->content[MAX_CONTENT - 1] = '\0'; // Ensures null termination
 
-  dialog->type = DEFAULT;
+  dialog->type = INVALID_DIALOG;
   dialog->ui_text_name = get_ui_component_by_ID(DIALOG_NAME);
   dialog->ui_text_content = get_ui_component_by_ID(DIALOG_CONTENT);
   dialog->ui_button_buy = get_ui_component_by_ID(DIALOG_BUTTON_BUY);
@@ -319,4 +321,153 @@ void open_establish_trade_route() {
 
 void close_establish_trade_route() {
 
+}
+
+TRADE * init_trade() {
+  TRADE *trade = malloc(sizeof(TRADE));
+  if (!trade) {
+    // Handle memory allocation failure, e.g., return NULL or exit
+    return NULL;
+  }
+
+  trade->type = INVALID_TRADE;
+  trade->merchant = NULL;
+  trade->ui_listing_0 = get_ui_component_by_ID(TRADE_BUTTON_LISTING_0);
+  trade->ui_listing_1 = get_ui_component_by_ID(TRADE_BUTTON_LISTING_1);
+  trade->ui_listing_2 = get_ui_component_by_ID(TRADE_BUTTON_LISTING_2);
+  trade->ui_listing_3 = get_ui_component_by_ID(TRADE_BUTTON_LISTING_3);
+  trade->ui_listing_4 = get_ui_component_by_ID(TRADE_BUTTON_LISTING_4);
+  trade->ui_listing_5 = get_ui_component_by_ID(TRADE_BUTTON_LISTING_5);
+  trade->ui_listing_6 = get_ui_component_by_ID(TRADE_BUTTON_LISTING_6);
+  trade->ui_listing_7 = get_ui_component_by_ID(TRADE_BUTTON_LISTING_7);
+  trade->ui_listing_8 = get_ui_component_by_ID(TRADE_BUTTON_LISTING_8);
+  
+  // Init listings
+  vec2 listing_0_position = { -1.0, -0.75 };
+  init_menu(
+    listing_0_position, // position
+    on_click_ui_listing_0, // on_click
+    (void *) 0xBAADF00D, // on_click_args
+    "1", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    1.5, // text_scale
+    0, // width
+    0, // height
+    PIVOT_BOTTOM_LEFT, // pivot
+    T_LEFT, // text_anchor
+    trade->ui_listing_0 // dest
+  );
+
+  return trade;
+}
+
+void free_trade() {
+  if (trade) {
+    free(trade);
+    trade = NULL;  // Set the global dialog to NULL
+  }
+}
+
+void open_trade() {
+  if (trade) {
+    switch (trade->type) {
+      case BUY: {
+        trade->ui_listing_0->enabled = 1;
+        trade->ui_listing_1->enabled = 1;
+        trade->ui_listing_2->enabled = 1;
+        trade->ui_listing_3->enabled = 1;
+        trade->ui_listing_4->enabled = 1;
+        trade->ui_listing_5->enabled = 1;
+        trade->ui_listing_6->enabled = 1;
+        trade->ui_listing_7->enabled = 1;
+        trade->ui_listing_8->enabled = 1;
+        break;
+      }
+      case SELL: {
+        trade->ui_listing_0->enabled = 1;
+        trade->ui_listing_1->enabled = 1;
+        trade->ui_listing_2->enabled = 1;
+        trade->ui_listing_3->enabled = 1;
+        trade->ui_listing_4->enabled = 1;
+        trade->ui_listing_5->enabled = 1;
+        trade->ui_listing_6->enabled = 1;
+        trade->ui_listing_7->enabled = 1;
+        trade->ui_listing_8->enabled = 1;
+        break;
+      }
+      default: {
+        trade->ui_listing_0->enabled = 1;
+        trade->ui_listing_1->enabled = 1;
+        trade->ui_listing_2->enabled = 1;
+        trade->ui_listing_3->enabled = 1;
+        trade->ui_listing_4->enabled = 1;
+        trade->ui_listing_5->enabled = 1;
+        trade->ui_listing_6->enabled = 1;
+        trade->ui_listing_7->enabled = 1;
+        trade->ui_listing_8->enabled = 1;
+        break;
+      }
+    }
+  }
+}
+
+void close_trade() {
+  if (trade) {
+    trade->ui_listing_0->enabled = 0;
+    trade->ui_listing_1->enabled = 0;
+    trade->ui_listing_2->enabled = 0;
+    trade->ui_listing_3->enabled = 0;
+    trade->ui_listing_4->enabled = 0;
+    trade->ui_listing_5->enabled = 0;
+    trade->ui_listing_6->enabled = 0;
+    trade->ui_listing_7->enabled = 0;
+    trade->ui_listing_8->enabled = 0;
+  }
+}
+
+int set_trade(T_TRADE dialog_type, MERCHANT * merchant) {
+  if (trade && merchant) {
+    trade->type = INVALID_TRADE;
+    trade->merchant = merchant;
+    trade->ui_listing_0->text = merchant->listings[0]->item_id;
+    trade->ui_listing_1->text = merchant->listings[1]->item_id;
+    trade->ui_listing_2->text = merchant->listings[2]->item_id;
+    trade->ui_listing_3->text = merchant->listings[3]->item_id;
+    trade->ui_listing_4->text = merchant->listings[4]->item_id;
+    trade->ui_listing_5->text = merchant->listings[5]->item_id;
+    trade->ui_listing_6->text = merchant->listings[6]->item_id;
+    trade->ui_listing_7->text = merchant->listings[7]->item_id;
+    trade->ui_listing_8->text = merchant->listings[8]->item_id;
+  }
+}
+
+void on_click_ui_listing_0() {
+  get_ui_component_by_ID(TRADE_BUTTON_LISTING_0)->text = "HIT!";
+}
+void on_click_ui_listing_1() {
+  get_ui_component_by_ID(TRADE_BUTTON_LISTING_1)->text = "HIT!";
+}
+void on_click_ui_listing_2() {
+  get_ui_component_by_ID(TRADE_BUTTON_LISTING_2)->text = "HIT!";
+}
+void on_click_ui_listing_3() {
+  get_ui_component_by_ID(TRADE_BUTTON_LISTING_3)->text = "HIT!";
+}
+void on_click_ui_listing_4() {
+  get_ui_component_by_ID(TRADE_BUTTON_LISTING_4)->text = "HIT!";
+}
+void on_click_ui_listing_5() {
+  get_ui_component_by_ID(TRADE_BUTTON_LISTING_5)->text = "HIT!";
+}
+void on_click_ui_listing_6() {
+  get_ui_component_by_ID(TRADE_BUTTON_LISTING_6)->text = "HIT!";
+}
+void on_click_ui_listing_7() {
+  get_ui_component_by_ID(TRADE_BUTTON_LISTING_7)->text = "HIT!";
+}
+void on_click_ui_listing_8() {
+  get_ui_component_by_ID(TRADE_BUTTON_LISTING_8)->text = "HIT!";
 }

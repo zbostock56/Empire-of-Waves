@@ -1,4 +1,5 @@
 #include <controls.h>
+
 /*
                                   CONTROLS.c
 Implements the functionality for detecting and handling keyboard and mouse
@@ -225,7 +226,11 @@ void debug_keys(GLFWwindow *window) {
   }
 
   // Dialog debug
-  if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-
+  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+    if (dialog->ui_text_name->enabled) {
+      close_dialog();
+    } else {
+      open_dialog();
+    }
   }
 }
