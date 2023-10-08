@@ -31,3 +31,4 @@ float next_event;
 C_PLAYER c_player;
 C_UNIT *npc_units;
 unsigned int num_npc_units;
+ivec2 arena_dimensions = { 50, 20 };

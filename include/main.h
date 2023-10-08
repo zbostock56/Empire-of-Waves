@@ -13,3 +13,4 @@ void render_scene(GLFWwindow *);
 void cleanup_scene();
 void update_event_timer();
 void init_lexer();
+void detect_collisions();

@@ -50,7 +50,6 @@ mat4 ortho_proj;
 vec3 Z = { 0.0, 0.0, 1.0 };
 
 // TEST ENTITIES
-E_ENEMY test_enemy;
 TRADE_SHIP test_ts;
 MERCHANT test_merchant;
 UI_COMPONENT test_menu;
@@ -74,6 +73,7 @@ void render_menu(UI_COMPONENT *);
 void render_text(char *, mat4);
 void render_island(ISLAND *);
 void render_chunk(ivec2);
+void render_arena();
 //void render_tile(TILE, ivec2, vec2);
 
 unsigned int shader_init(const char *, const char *);

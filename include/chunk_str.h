@@ -12,6 +12,7 @@ reads/manipulates chunks and/or islands.
 #define I_WIDTH (96) // Width of an island in tiles
 #define MAX_ISLANDS (5) // Max islands per chunk
 #define CHUNKS_SIMULATED (9)
+#define STARTING_BUFF_SIZE (5)
 
 // Macros specifying index names for player_chunks
 #define CHUNK_UPPER_LEFT (0)
@@ -52,6 +53,7 @@ typedef struct chunk {
   ivec2 coords;
   ISLAND islands[MAX_ISLANDS];
   E_ENEMY *enemies;
+  unsigned int enemy_buf_size;
   unsigned int num_islands;
   unsigned int num_enemies;
 } CHUNK;

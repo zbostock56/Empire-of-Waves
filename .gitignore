@@ -1,4 +1,5 @@
 bin/*
+.vscode/settings.json
 tests/procedural_generation/bin/*
 assets/*
 chunks/*
