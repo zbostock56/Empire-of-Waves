@@ -27,3 +27,4 @@ void detect_enemy_ships();
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 void chunk_to_world(ivec2, vec2, vec2);
 void world_to_chunk(vec2, ivec2, vec2);
+void update_enemy_position(E_ENEMY *);

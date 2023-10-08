@@ -17,3 +17,5 @@ void generate_chunk_tiles(int [C_WIDTH][C_WIDTH], CHUNK);
 /* =================== EXTERNALLY DEFINED FUNCTIONS =================== */
 
 int double_buffer(void **, unsigned int *, unsigned int);
+void chunk_to_world(ivec2, vec2, vec2);
+void world_to_chunk(vec2, ivec2, vec2);

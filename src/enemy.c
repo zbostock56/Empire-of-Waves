@@ -132,3 +132,16 @@ int find_avail_chunks(int avail_chunks[CHUNKS_SIMULATED]) {
   }
   return num_avail;
 }
+
+/*
+    Updates enemy position based on its direction and speed
+*/
+void update_enemy_position(E_ENEMY * enemy) {
+    vec2 enemy_world_coords = GLM_VEC2_ZERO_INIT;
+    vec2 movement = GLM_VEC2_ZERO_INIT;
+    chunk_to_world(enemy->chunk, enemy->coords, enemy_world_coords);
+    glm_vec2_scale(enemy->direction, enemy->speed, movement);
+    glm_vec2_add(movement, enemy_world_coords, enemy_world_coords);
+    world_to_chunk(enemy_world_coords, enemy->chunk, enemy->coords);
+    printf("updated\n");
+}
