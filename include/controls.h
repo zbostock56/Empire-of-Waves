@@ -3,6 +3,7 @@
 #include <player_str.h>
 #include <chunk_str.h>
 #include <trade_ship_str.h>
+#include <lexer_str.h>
 #include <globals.h>
 
 #define RES_X (640.0f)
@@ -40,3 +41,4 @@ void detect_context_interaction();
 void chunk_to_world(ivec2, vec2, vec2);
 void world_to_chunk(vec2, ivec2, vec2);
 void handle_command(char *);
+void tokenize(char *, int);

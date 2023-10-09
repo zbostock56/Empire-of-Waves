@@ -120,9 +120,9 @@ int is_identifier_char(char c) {
 /* Main function to parse entire token */
 void next(LEXER *lexer) {
   while (is_space(peek())) {
-   get();
+    get();
   }
-  char c = peek();
+  char c = get();
   int lines = lexer->num_lines;
   int toks = lexer->lines[lines].num_tokens;
   int characters = lexer->lines[lines].tokens[toks].num_chars;
@@ -134,8 +134,11 @@ void next(LEXER *lexer) {
     case '\0':
       lexer->lines[lines].tokens[toks].kind = END;
       lexer->lines[lines].tokens[toks].tok[characters] = c;
+      lexer->lines[lines].tokens[toks].num_chars++;
+      lexer->lines[lines].num_tokens++; 
       /* Line has been ended, increase number of lines */
       lexer->num_lines++;
+      return;
       break;
     case 'a':
     case 'b':
@@ -366,8 +369,8 @@ void slash_or_comment(TOKEN *token, char c) {
         return;
       }
     }
-    fprintf(stderr, "UNEXPECTED TOKEN WHEN PARSING COMMENT: %c\n", peek());
-    exit(1);
+    //fprintf(stderr, "UNEXPECTED TOKEN WHEN PARSING COMMENT: %c\n", peek());
+    //exit(1);
   } else {
     token->kind = SLASH;
     return;
@@ -382,7 +385,7 @@ char get() {
     exit(1);
   }
   input.input_size--;
-  char c = (*input.in)++;
+  char c = *input.in++;
   return c;
 }
 
@@ -397,7 +400,116 @@ char peek() {
   return c;
 }
 
-void tokenize(char *buffer) {
-  /* TODO: Implement token generation */
+void tokenize(char *buffer, int buffer_size) {
+  if (buffer_size == 0) {
+    return;
+  }
+  if (buffer_size > MAX_INPUT_SIZE) {
+    fprintf(stderr, "COMMAND INPUT TOO LARGE\n");
+    exit(1);
+  }
+  input.in = malloc(buffer_size);
+  char *temp = input.in;
+  for (int i = 0; i < buffer_size; i++) {
+    input.in[i] = buffer[i];
+  }
+  input.input_size = buffer_size;
+  while (input.input_size > 0) {
+    next(&lexer);
+  }
+  free(temp);
   return;
+}
+
+void print_tokens() {
+  for (int i = 0; i < lexer.num_lines; i++) {
+    LINE l = lexer.lines[i];
+    for (int j = 0; j < l.num_tokens; j++) {
+      TOKEN t = l.tokens[j];
+      switch (t.kind) {
+        case NUMBER:
+          printf("NUMBER      |");
+          break;
+        case IDENTIFIER:
+          printf("IDENTIFIER  |");
+          break;
+        case LEFTPAREN:
+          printf("LEFTPAREN   |");
+          break;
+        case RIGHTPAREN:
+          printf("RIGHTPAREN  |");
+          break;
+        case LEFTSQUARE:
+          printf("LEFTSQUARE  |");
+          break;
+        case RIGHTSQUARE:
+          printf("RIGHTSQUARE |");
+          break;
+        case LEFTCURLY:
+          printf("LEFTCURLY   |");
+          break;
+        case RIGHTCURLY:
+          printf("RIGHTCURLY  |");
+          break;
+        case LESSTHAN:
+          printf("LESSTHAN    |");
+          break;
+        case GREATERTHAN:
+          printf("GREATERTHAN |");
+          break;
+        case EQUAL:
+          printf("EQUAL       |");
+          break;
+        case PLUS:
+          printf("PLUS        |");
+          break;
+        case MINUS:
+          printf("MINUS       |");
+          break;
+        case ASTERISK:
+          printf("ASTERISK    |");
+          break;
+        case SLASH:
+          printf("SLASH       |");
+          break;
+        case HASH:
+          printf("HASH        |");
+          break;
+        case DOT:
+          printf("DOT         |");
+          break;
+        case COMMA:
+          printf("COMMA       |");
+          break;
+        case COLON:
+          printf("COLON       |");
+          break;
+        case SEMICOLON:
+          printf("SEMICOLON   |");
+          break;
+        case SINGLEQUOTE:
+          printf("SINGLEQUOTE |");
+          break;
+        case DOUBLEQUOTE:
+          printf("DOUBLEQUOTE |");
+          break;
+        case COMMENT:
+          printf("COMMENT     |");
+          break;
+        case PIPE:
+          printf("PIPE        |");
+          break;
+        case END:
+          printf("END         |");
+          break;
+        case UNEXPECTED:
+          printf("UNEXPECTED  |");
+          break;
+        }
+      for (int k = 0; k < t.num_chars; k++) {
+        printf("%c", t.tok[k]);
+      }
+      printf("|\n");
+    }
+  }
 }

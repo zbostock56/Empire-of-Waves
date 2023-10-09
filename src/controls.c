@@ -209,10 +209,12 @@ void debug_keys(GLFWwindow *window) {
     if (console_enabled) {
       console_enabled = 0;
       printf("CONSOLE END\n");
+      fflush(stdout);
       cons_cmd_len = 0;
     } else {
       console_enabled = 1;
       printf("\nEOW-CONSOLE $ ");
+      fflush(stdout);
     }
   } else if (glfwGetKey(window, GLFW_KEY_SLASH) != GLFW_PRESS) {
     holding_tilde = 0;
@@ -276,7 +278,8 @@ void console_keys(GLFWwindow *window) {
     holding_enter = 1;
     printf("\nEOW CONSOLE $ ");
     cons_cmd[cons_cmd_len] = '\0';
-    handle_command(cons_cmd);
+    tokenize(cons_cmd, cons_cmd_len);
+    //handle_command(cons_cmd);
     cons_cmd_len = 0;
   } else if (glfwGetKey(window, GLFW_KEY_ENTER) != GLFW_PRESS) {
     holding_enter = 0;
@@ -291,4 +294,6 @@ void console_keys(GLFWwindow *window) {
     }
   } else if (glfwGetKey(window, GLFW_KEY_PERIOD) != GLFW_PRESS) {
     holding_dot = 0;
-  }return NULL;
+  }
+  fflush(stdout);
+}
