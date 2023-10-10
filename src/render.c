@@ -17,9 +17,6 @@ void init_scene() {
   test_ts.direction[0] = 1.0;
   trade_ships = (TRADE_SHIP * )malloc(sizeof(TRADE_SHIP));
 
-  vec2 tm_coords = { -1.0f, 0.0f };
-  world_to_chunk(tm_coords, test_merchant.chunk, test_merchant.coords);
-
   vec2 tu_coords = { -1.0f, 0.0f };
   glm_vec2_copy(tu_coords, test_unit.coords);
   vec2 tu_dir = { 0.0, -1.0};
@@ -124,16 +121,18 @@ void render_scene(GLFWwindow *window) {
 
     render_player_ship();
     render_trade_ship(&test_ts);
-    render_merchant(&test_merchant);
     for (int i = 0; i < NUM_COMPONENTS; i++) {
       if (ui_tab[i].enabled) {
         render_ui(ui_tab + i);
       }
     }
-    // END TEST
 
+    // Render islands and merchants
     for (int i = 0; i < 9; i++) {
       for (int j = 0; j < player_chunks[i].num_islands; j++) {
+        if (player_chunks[i].islands[j].has_merchant) {
+          render_merchant(&player_chunks[i].islands[j].merchant);
+        }
         render_island(player_chunks[i].islands + j);
       }
       for (int j = 0; j < player_chunks[i].num_enemies; j++) {

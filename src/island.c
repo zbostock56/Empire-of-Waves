@@ -219,6 +219,7 @@ void merchant_generate(MERCHANT *merchant, ISLAND *island) {
       /* island coordinates. */
       xloc_intra_island = tile_location % I_WIDTH;
       yloc_intra_island = tile_location / I_WIDTH;
+      glm_ivec2_copy(island->chunk, merchant->chunk);
       merchant->coords[X] = island->coords[X] + xloc_intra_island;
       merchant->coords[Y] = island->coords[Y] + yloc_intra_island;
       island->has_merchant = TRUE;

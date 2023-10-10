@@ -4,6 +4,7 @@
 #include <player_str.h>
 #include <trade_ship_str.h>
 #include <globals.h>
+#include <menu.h>
 
 #define X (0)
 #define Y (1)
@@ -11,6 +12,8 @@
 #define INTERACTION_RADIUS (3.0)
 #define SHIP_COLLISION_RADIUS (1.0)
 #define CHARACTER_COLLISION_RADIUS (0.5)
+
+extern float T_WIDTH;
 
 int shore_interaction_enabled = 0;
 
@@ -23,6 +26,7 @@ void character_collisions(CHUNK *, ivec2, vec2);
 void ship_collisions(CHUNK *, ivec2, vec2);
 void unit_collision(vec2);
 void detect_enemy_ships();
+void check_merchant_prompt(vec2);
 
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 void chunk_to_world(ivec2, vec2, vec2);

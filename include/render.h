@@ -74,10 +74,7 @@ vec3 Z = { 0.0, 0.0, 1.0 };
 
 // TEST ENTITIES
 TRADE_SHIP test_ts;
-MERCHANT test_merchant;
-UI_COMPONENT test_menu;
 C_UNIT test_unit;
-ISLAND test_island;
 unsigned int ocean_texture;
 // END TEST
 

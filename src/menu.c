@@ -94,6 +94,41 @@ void init_menus() {
     get_ui_component_by_ID(TEST_MENU) // dest
   );
 
+  // Embark/Disembark prompt
+  vec2 prompt_pos = { 0.0, -0.25 };
+  init_menu(
+    prompt_pos,
+    NULL, NULL,
+    "Press 'e' to embark",
+    0,
+    0,
+    0,
+    0.0,
+    1.5,
+    0.0,
+    0.0,
+    PIVOT_CENTER,
+    T_CENTER,
+    ui_tab + EMBARK_PROMPT
+  );
+
+  // Interaction prompt
+  init_menu(
+    prompt_pos,
+    NULL, NULL,
+    "Press 'e' to interact",
+    0,
+    0,
+    0,
+    0.0,
+    1.5,
+    0.0,
+    0.0,
+    PIVOT_CENTER,
+    T_CENTER,
+    ui_tab + INTERACT_PROMPT
+  );
+
   // Init Dialog menu
   dialog = init_dialog();
   // Dialog merchant menu mesting

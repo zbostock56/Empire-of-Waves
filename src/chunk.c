@@ -17,9 +17,9 @@ void init_chunks() {
   ivec2 chunk_coords = { 0, 0 };
   for (int i = CHUNK_UPPER_LEFT; i <= CHUNK_LOWER_RIGHT; i++) {
     glm_ivec2_add(player_chunk, CHUNK_OFFSETS[i], chunk_coords);
-    printf("loading new: %s (%d) at (%d, %d)\n", index_to_str(i), i,
-           chunk_coords[X], chunk_coords[Y]);
-    fflush(stdout);
+//    printf("loading new: %s (%d) at (%d, %d)\n", index_to_str(i), i,
+//           chunk_coords[X], chunk_coords[Y]);
+//    fflush(stdout);
     status = load_chunk(chunk_coords, player_chunks + i);
     if (status) {
       glm_ivec2_copy(chunk_coords, player_chunks[i].coords);

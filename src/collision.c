@@ -111,6 +111,30 @@ int check_tile(ISLAND *island, vec2 coords) {
 }
 
 // Exploration mode collision:
+void check_merchant_prompt(vec2 world_player_coords) {
+  CHUNK *cur_chunk = player_chunks + PLAYER_CHUNK;
+
+  ISLAND *cur_island = NULL;
+  vec2 world_merchant_coords = GLM_VEC2_ZERO_INIT;
+  float dist_to_merchant = 0.0;
+  int found_merchant = 0;
+  for (int i = 0; i < cur_chunk->num_islands && !found_merchant; i++) {
+    cur_island = cur_chunk->islands + i;
+    if (cur_island->has_merchant) {
+      chunk_to_world(cur_island->merchant.chunk, cur_island->merchant.coords,
+                     world_merchant_coords);
+      dist_to_merchant = glm_vec2_distance(world_merchant_coords,
+                                           world_player_coords);
+      if (dist_to_merchant <= INTERACTION_RADIUS * T_WIDTH) {
+        ui_tab[INTERACT_PROMPT].enabled = 1;
+        found_merchant = 1;
+      }
+    }
+  }
+  if (!found_merchant) {
+    ui_tab[INTERACT_PROMPT].enabled = 0;
+  }
+}
 
 void detect_collisions() {
   // Player
@@ -127,7 +151,7 @@ void detect_collisions() {
                            e_player.coords);
     }
 
-    // Disembark / embark contexts
+    // Merchant and disembark / embark contexts
     detect_context_interaction();
   } else {
     unit_collision(c_player.coords);
@@ -175,9 +199,12 @@ void detect_context_interaction() {
       if (tile == SHORE) {
         // Enable disembark prompt
         shore_interaction_enabled = 1;
+        ui_tab[EMBARK_PROMPT].text = "press 'e' to disembark";
+        ui_tab[EMBARK_PROMPT].enabled = 1;
       } else {
         // Disable disembark prompt
         shore_interaction_enabled = 0;
+        ui_tab[EMBARK_PROMPT].enabled = 0;
       }
     }
   } else {
@@ -191,13 +218,17 @@ void detect_context_interaction() {
                                 CHARACTER_COLLISION_RADIUS * T_WIDTH)) {
       // Enable embark prompt
       shore_interaction_enabled = 1;
+      ui_tab[EMBARK_PROMPT].text = "press 'e' to embark";
+      ui_tab[EMBARK_PROMPT].enabled = 1;
     } else {
       // Disabled embarked prompt
       shore_interaction_enabled = 0;
+      ui_tab[EMBARK_PROMPT].enabled = 0;
     }
-  }
 
-  // Merchant Interaction
+    // Merchant Interaction
+    check_merchant_prompt(world_coords_char);
+  }
 }
 
 /*
