@@ -38,6 +38,7 @@ typedef struct exploration_enemy {
   vec2 direction;
   unsigned int crew_count;
   float speed;
+  bool on_path;
 } E_ENEMY;
 
 /*

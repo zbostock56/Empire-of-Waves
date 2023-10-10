@@ -146,13 +146,26 @@ void detect_enemy_ships() {
       cur_enemy = chunk->enemies + i;
       chunk_to_world(cur_enemy->chunk, cur_enemy->coords,
                      cur_enemy_world_coords);
-
+    
       if (circle_circle_collision(world_coords,
-                                  SHIP_COLLISION_RADIUS * T_WIDTH,
+                                  SHIP_COLLISION_RADIUS *20*T_WIDTH,
                                   cur_enemy_world_coords,
-                                  SHIP_COLLISION_RADIUS * T_WIDTH)) {
+                                  SHIP_COLLISION_RADIUS *20 *T_WIDTH)) {
+        // glm_vec2_zero(c_player.coords);
+        // glm_vec2_zero(c_player.direction);
+        // c_player.direction[0] = 1.0;
+        // mode = COMBAT;
+        cur_enemy->on_path = true;
+        pathfind_enemy(cur_enemy);
+        update_enemy_position(cur_enemy);
+      }
+      if (circle_circle_collision(world_coords,
+                                  SHIP_COLLISION_RADIUS *T_WIDTH,
+                                  cur_enemy_world_coords,
+                                  SHIP_COLLISION_RADIUS *T_WIDTH)) {
         glm_vec2_zero(c_player.coords);
         glm_vec2_zero(c_player.direction);
+        cur_enemy->on_path = false;
         c_player.direction[0] = 1.0;
         mode = COMBAT;
       }
