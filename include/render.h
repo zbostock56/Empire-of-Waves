@@ -53,7 +53,6 @@ vec3 Z = { 0.0, 0.0, 1.0 };
 TRADE_SHIP test_ts;
 MERCHANT test_merchant;
 UI_COMPONENT test_menu;
-C_UNIT test_unit;
 ISLAND test_island;
 unsigned int ocean_texture;
 // END TEST
@@ -74,6 +73,7 @@ void render_text(char *, mat4);
 void render_island(ISLAND *);
 void render_chunk(ivec2);
 void render_arena();
+void render_hitbox(vec2);
 //void render_tile(TILE, ivec2, vec2);
 
 unsigned int shader_init(const char *, const char *);

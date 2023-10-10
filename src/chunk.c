@@ -5,7 +5,7 @@ Implements the functionality for chunk loading and unloading, random chunk
 generation, and detection of which chunks to load/unload.
 */
 
-void init_chunks() {
+int init_chunks() {
   ivec2 player_chunk = { 0, 0 };
   if (e_player.embarked) {
     glm_ivec2_copy(e_player.ship_chunk, player_chunk);
@@ -17,18 +17,24 @@ void init_chunks() {
   ivec2 chunk_coords = { 0, 0 };
   for (int i = CHUNK_UPPER_LEFT; i <= CHUNK_LOWER_RIGHT; i++) {
     glm_ivec2_add(player_chunk, CHUNK_OFFSETS[i], chunk_coords);
-    printf("loading new: %s (%d) at (%d, %d)\n", index_to_str(i), i,
-           chunk_coords[X], chunk_coords[Y]);
-    fflush(stdout);
     status = load_chunk(chunk_coords, player_chunks + i);
     if (status) {
       glm_ivec2_copy(chunk_coords, player_chunks[i].coords);
-      generate_chunk(player_chunks + i);
+      status = generate_chunk(player_chunks + i);
+      if (status) {
+        return -1;
+      }
     }
   }
+
+  return 0;
 }
 
-void manage_chunks() {
+int manage_chunks() {
+  if (mode != EXPLORATION) {
+    return 0;
+  }
+
   ivec2 player_chunk = { 0, 0 };
   if (e_player.embarked) {
     glm_ivec2_copy(e_player.ship_chunk, player_chunk);
@@ -61,14 +67,14 @@ void manage_chunks() {
       // Check if the new chunk to load already exists in memory
       if (out_of_bounds(new_chunk_offset, 1, 1)) {
         // New chunk does not currently exist in memory, load it up
-//        printf("loading new: %s (%d) at (%d, %d)\n", index_to_str(i), i,
-//               new_chunk_coords[X], new_chunk_coords[Y]);
-//        fflush(stdout);
         status = load_chunk(new_chunk_coords, updated_chunks + i);
         if (status) {
           // Chunk also does not exist on disk, so generate it
           glm_ivec2_copy(new_chunk_coords, updated_chunks[i].coords);
-          generate_chunk(updated_chunks + i);
+          status = generate_chunk(updated_chunks + i);
+          if (status) {
+            return -1;
+          }
         }
       } else {
         int new_chunk_index = get_index(new_chunk_offset);
@@ -86,14 +92,13 @@ void manage_chunks() {
   // unused chunks to disk
   for (int i = CHUNK_UPPER_LEFT; i <= CHUNK_LOWER_RIGHT; i++) {
     if (to_serialize[i]) {
-//      printf("serializing: %s (%d)\n", index_to_str(i), i);
-//      fflush(stdout);
       save_chunk(player_chunks + i);
       free_chunk(player_chunks + i);
     }
-
     player_chunks[i] = updated_chunks[i];
   }
+
+  return 0;
 }
 
 void free_chunk(CHUNK *chunk) {
@@ -286,6 +291,7 @@ int generate_chunk(CHUNK *chunk) {
   chunk->num_enemies = 0;
   chunk->enemies = malloc(sizeof(E_ENEMY) * STARTING_BUFF_SIZE);
   if (chunk->enemies == NULL) {
+    fprintf(stderr, "chunk.c: failed to allocate chunk enemies buffer\n");
     return -1;
   }
 

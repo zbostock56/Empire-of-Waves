@@ -66,7 +66,7 @@ void spawn_enemy() {
           enemy->direction[0] = 0;
           enemy->direction[1] = 1;
           enemy->speed = 1.0;
-          enemy->crew_count = 1;
+          enemy->crew_count = 3;
           not_found = 0;
         }
       }

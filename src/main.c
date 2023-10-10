@@ -3,7 +3,12 @@
 int main() {
   GLFWwindow *window = init_gl();
 
-  init_chunks();
+  int status = 0;
+  status = init_chunks();
+  if (status) {
+    return -1;
+  }
+
   init_scene();
 
   while (!glfwWindowShouldClose(window)) {
@@ -14,10 +19,18 @@ int main() {
     // - pathfinding
     // - chunk serialization
     // - etc...
-    manage_chunks();
-    detect_collisions();
+    status = manage_chunks();
+    if (status) {
+      return -1;
+    }
+
+    status = detect_collisions();
+    if (status) {
+      return -1;
+    }
 
     render_scene(window);
+    update_combat_state();
     update_event_timer();
   }
 
