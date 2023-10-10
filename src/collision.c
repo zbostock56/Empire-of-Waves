@@ -157,7 +157,7 @@ void detect_enemy_ships() {
         // mode = COMBAT;
         cur_enemy->on_path = true;
         pathfind_enemy(cur_enemy);
-        update_enemy_position(cur_enemy);
+        
       }
       if (circle_circle_collision(world_coords,
                                   SHIP_COLLISION_RADIUS *T_WIDTH,

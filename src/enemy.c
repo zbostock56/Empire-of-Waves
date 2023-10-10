@@ -153,7 +153,12 @@ void update_enemy_position(E_ENEMY * enemy) {
 }
 
 void pathfind_enemy(E_ENEMY * enemy) {
+    /* If Enemy ship is not in player's current chunk, stop path finding*/
+    if (e_player.ship_chunk[0] != enemy->chunk[0] || e_player.ship_chunk[1] != enemy->chunk[1]) {
+        return;
+    }
     
+    /* If enemy ship is on path to the goal col, do the search */
     if (enemy->on_path) {
         int goal_col = (int) (e_player.ship_coords[0]);
         int goal_row = (int) (e_player.ship_coords[1]);
@@ -183,6 +188,17 @@ void pathfind_enemy(E_ENEMY * enemy) {
             if (next_col == goal_col && next_row == goal_row) {
                 enemy->on_path = false;
             }
+            vec2 enemy_world_coords = GLM_VEC2_ZERO_INIT;
+            vec2 movement = GLM_VEC2_ZERO_INIT;
+            printf("Enemy coords: X %f Y %f\n", enemy->coords[0], enemy->coords[1]);
+            printf("Enemy chunk coords: X %d y %d\n", enemy->chunk[0], enemy->chunk[1]);
+            chunk_to_world(enemy->chunk, enemy->coords, enemy_world_coords);
+            glm_vec2_scale(enemy->direction, enemy->speed, movement);
+            printf("movement : %f %f\n", movement[0], movement[1]);
+            glm_vec2_add(movement, enemy_world_coords, enemy_world_coords);
+            world_to_chunk(enemy_world_coords, enemy->chunk, enemy->coords);
+            // printf("My coords : X %f Y %f\n", e_player.ship_coords[0], e_player.ship_coords[1]);
+            printf("Updated Enemy coords: X %f Y %f\n\n", enemy->coords[0], enemy->coords[1]);
         }
         free(path_list);
         
@@ -202,7 +218,9 @@ void pathfind_enemy(E_ENEMY * enemy) {
 
 }
 
-
+/*
+    A* search algorithm
+*/
 int search (int start_col, int start_row, int goal_col, int goal_row, E_ENEMY * enemy, vector* path_list) {
     if (start_col >= C_WIDTH || start_col < 0 ||
         start_row >= C_WIDTH || start_row < 0 ||
@@ -213,7 +231,10 @@ int search (int start_col, int start_row, int goal_col, int goal_row, E_ENEMY * 
     }
 
     /*
-        Setting the nodes
+        Setting the nodes and arrays
+        tiles = returns 1 if the tile is an ocean in the given tile index
+        open = returns 1 if the tile is open in the given tile index
+        checked = returns 1 if the tile was checked before in the given tile index
     */
     int tiles[C_WIDTH][C_WIDTH] = {
         [0 ... C_WIDTH - 1] = { [0 ... C_WIDTH - 1] = 1 }
@@ -244,11 +265,13 @@ int search (int start_col, int start_row, int goal_col, int goal_row, E_ENEMY * 
     
     //Node goal_node = nodes[goal_col][goal_row];
 
+    /* Setting up the costs needed for A * algorithm on each node of the tilemap */
     for (int i = 0; i < C_WIDTH; i++) {
         for (int j = 0; j < C_WIDTH; j++) {
             get_cost(&nodes[i][j], i, j, start_col, start_row, goal_col, goal_row);
         }
     }
+
     Node start_node = nodes[start_col][start_row];
     Node cur_node = start_node;
     vector openList;
@@ -258,28 +281,32 @@ int search (int start_col, int start_row, int goal_col, int goal_row, E_ENEMY * 
     int goal_reached = 0;
     int step = 0;
     int best_node_idx = 0;
-    while (!goal_reached) {
+    while (!goal_reached && step < 600) {
         // printf("iteration %d\n", step);
         int col = cur_node.col;
         int row = cur_node.row;
         //printf ("cur node: X %d Y %d\n", col, row);
-        // check the current node
-        checked[col][row] = 1;
-        // Acts same as removing the current checking node from the openList
-        vector_delete(&openList, best_node_idx);
 
+        /* check the current node and remove it from the openList */
+        checked[col][row] = 1;
+        vector_delete(&openList, best_node_idx);
+        
+        /* Open the node UP if it's possible, and add to openList */
         if (row - 1 >= 0) {
             open_node(&nodes[col][row-1], &cur_node, open, checked, tiles, &openList);
         }
 
+        /* Open the node LEFT if it's possible, and add to openList */
         if (col - 1 >= 0) {
             open_node(&nodes[col-1][row], &cur_node, open, checked, tiles, &openList);
         }
         
+        /* Open the node DOWN if it's possible, and add to openList */
         if (row + 1 < C_WIDTH) {
             open_node(&nodes[col][row+1], &cur_node, open, checked, tiles, &openList);
         }
-
+        
+        /* Open the node RIGHT if it's possible, and add to openList */
         if (col + 1 < C_WIDTH) {
             open_node(&nodes[col+1][row], &cur_node, open, checked, tiles, &openList);
         }
@@ -290,11 +317,13 @@ int search (int start_col, int start_row, int goal_col, int goal_row, E_ENEMY * 
             // printf("Node we got in the open list[%d]: X %d Y %d gcost = %d fcost = %d\n\n", i, ((Node*)vector_get(&openList, i))->col, ((Node *)vector_get(&openList, i))->row,
             // ((Node*)vector_get(&openList, i))->g_cost, ((Node*)vector_get(&openList, i))->f_cost);
             // printf("Node we got in the open list[%d]: X %d Y %d fCost = %d\n\n", i, ((Node*)vector_get(&openList, i))->col, ((Node *)vector_get(&openList, i))->row, ((Node*)vector_get(&openList, i))->f_cost);
+            
+            /* Check if the openList's node we checking has a smaller F cost than the previous best and update */
             if (((Node *)vector_get(&openList, i))->f_cost < best_node_fCost) {
                 best_node_idx = i;
                 best_node_fCost = ((Node *)vector_get(&openList, i))->f_cost;
             }
-            // if F cost is equal, check the G cost
+            /* if F cost is equal, check the G cost and update */
             else if (((Node *)vector_get(&openList, i))->f_cost == best_node_fCost) {
                 if (((Node *)vector_get(&openList, i))->g_cost < ((Node *)vector_get(&openList, best_node_idx))->g_cost) {
                     best_node_idx = i;
@@ -302,7 +331,7 @@ int search (int start_col, int start_row, int goal_col, int goal_row, E_ENEMY * 
             }
         }
 
-        // If no more node, end the loop
+        /* If no more node in the openList, end the loop */
         if (vector_total(&openList) == 0) {
             break;
         }
@@ -327,6 +356,9 @@ int search (int start_col, int start_row, int goal_col, int goal_row, E_ENEMY * 
     return goal_reached;
 }
 
+/*
+    function for tracking the best path we got from A * search alg. by backtracking
+*/
 void track_path(Node nodes[C_WIDTH][C_WIDTH], vector *path_list, int start_col, int start_row, int goal_col, int goal_row) {
      Node *current = &nodes[goal_col][goal_row];
      while (current->col != start_col || current->row != start_row) {
@@ -336,6 +368,9 @@ void track_path(Node nodes[C_WIDTH][C_WIDTH], vector *path_list, int start_col, 
      }
 }
 
+/*
+    function for getting the cost needed for A * algorithm of the given node
+*/
 void get_cost(Node *node, int col, int row, int start_col, int start_row, int goal_col, int goal_row) {
     // G cost
     int x_distance = abs(col - start_col); 
@@ -351,11 +386,16 @@ void get_cost(Node *node, int col, int row, int start_col, int start_row, int go
     node->col = col;
 }
 
-// tiles = 1 mean it is ocean
+
+/*
+    Checks if we can open the given node
+    If so, add to the openList
+    tiles = 1 mean it is ocean
+*/
 void open_node(Node *node, Node *cur_node, int open[C_WIDTH][C_WIDTH], int checked[C_WIDTH][C_WIDTH], int tiles[C_WIDTH][C_WIDTH], vector *openList) {
-    printf("open[%d][%d] : %d\nchecked[%d][%d]: %d\ntiles[%d][%d] : %d\n\n", 
-            node->col, node->row, open[node->col][node->row], node->col, node->row, checked[node->col][node->row],
-            node->col, node->row, tiles[node->col][node->row]);
+    // printf("open[%d][%d] : %d\nchecked[%d][%d]: %d\ntiles[%d][%d] : %d\n\n", 
+    //         node->col, node->row, open[node->col][node->row], node->col, node->row, checked[node->col][node->row],
+    //         node->col, node->row, tiles[node->col][node->row]);
     if (open[node->col][node->row] == 0 && checked[node->col][node->row] == 0 && tiles[node->col][node->row] == 1) {
         open[node->col][node->row] = 1;
         node->parent_col = cur_node->col;
