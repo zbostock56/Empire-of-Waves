@@ -142,6 +142,14 @@ void render_scene(GLFWwindow *window) {
     if (npc_units) {
       for (int i = 0; i < num_npc_units; i++) {
         render_unit(npc_units + i);
+        if (npc_units[i].attack_active) {
+          vec2 hitbox_pos = GLM_VEC2_ZERO_INIT;
+          glm_vec2_scale(npc_units[i].coords, T_WIDTH, hitbox_pos);
+          vec2 hitbox_offset = GLM_VEC2_ZERO_INIT;
+          glm_vec2_scale_as(npc_units[i].direction, T_WIDTH, hitbox_offset);
+          glm_vec2_add(hitbox_pos, hitbox_offset, hitbox_pos);
+          render_hitbox(hitbox_pos);
+        }
       }
     }
 

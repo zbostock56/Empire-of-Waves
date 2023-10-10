@@ -7,4 +7,10 @@
 #define X (0)
 #define Y (1)
 
+// ======================= INTERNALLY DEFINED FUNCTIONS ======================
+
 float decrement_timer(float);
+
+// ======================= EXTERNALLY DEFINED FUNCTIONS ======================
+
+void c_enemy_pathfind(C_UNIT *, vec2);

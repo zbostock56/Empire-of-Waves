@@ -273,14 +273,23 @@ void attack_collision() {
 
   C_UNIT *unit = NULL;
   vec2 unit_coords = GLM_VEC2_ZERO_INIT;
-  //vec2 unit_attack_pos = GLM_VEC2_ZERO_INIT;
+  vec2 unit_attack_pos = GLM_VEC2_ZERO_INIT;
   for (unsigned int i = 0; i < num_npc_units; i++) {
     unit = npc_units + i;
     glm_vec2_scale(unit->coords, T_WIDTH, unit_coords);
     if (unit->type == ENEMY && unit->death_animation == -1.0) {
-      // TODO Check player collision with enemy hitbox
+      // Check player collision with enemy hitbox
+      glm_vec2_scale_as(npc_units[i].direction, T_WIDTH, unit_attack_pos);
+      glm_vec2_add(unit_attack_pos, unit_coords, unit_attack_pos);
+      glm_vec2_add(to_top_left, unit_attack_pos, unit_attack_pos);
+      if (c_player.invuln_timer == 0.0 && npc_units[i].attack_active &&
+          circle_aabb_collision(player_coords, hurt_radius, unit_attack_pos,
+                                T_WIDTH, T_WIDTH, collision_correction)) {
+        c_player.health -= 10.0;
+        c_player.invuln_timer = 0.5;
+      }
 
-      // Check collision with player hitbox
+      // Check enemy collision with player hitbox
       if (c_player.attack_active &&
           circle_aabb_collision(unit_coords, hurt_radius, player_attack_pos,
                                 T_WIDTH, T_WIDTH, collision_correction)) {
@@ -395,5 +404,4 @@ int check_tile(ISLAND *island, vec2 coords) {
 
   return island->tiles[tile_index];
 }
-
 

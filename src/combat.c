@@ -19,6 +19,7 @@ int to_combat_mode(unsigned int enemy_index) {
   c_player.attack_active = 0.0;
   c_player.attack_cooldown = 0.0;
   c_player.fire_rate = 1.0;
+  c_player.invuln_timer = 0.0;
   glm_vec2_zero(c_player.direction);
   glm_vec2_zero(c_player.coords);
   // Spawn player on left side of the arena
@@ -37,7 +38,7 @@ int to_combat_mode(unsigned int enemy_index) {
     npc_units[i].type = ENEMY;
     npc_units[i].weapon_type = MELEE;
     npc_units[i].ammo = 0;
-    npc_units[i].speed = 1.0;
+    npc_units[i].speed = 0.5;
     npc_units[i].death_animation = -1.0;
     npc_units[i].attack_active = 0.0;
     npc_units[i].attack_cooldown = 0.0;
@@ -71,8 +72,12 @@ void update_combat_state() {
 
   c_player.attack_cooldown = decrement_timer(c_player.attack_cooldown);
   c_player.attack_active = decrement_timer(c_player.attack_active);
+  c_player.invuln_timer = decrement_timer(c_player.invuln_timer);
 
   for (unsigned int i = 0; i < num_npc_units; i++) {
+    npc_units[i].attack_active = decrement_timer(npc_units[i].attack_active);
+    npc_units[i].attack_cooldown = decrement_timer(npc_units[i].
+                                                   attack_cooldown);
     if (npc_units[i].death_animation > 0.0) {
       // Npc currently in death animation
       npc_units[i].death_animation = decrement_timer(npc_units[i].
@@ -83,6 +88,9 @@ void update_combat_state() {
       // move last unit in buffer to position of deleted unit
       npc_units[i] = npc_units[num_npc_units];
       i--;
+    } else {
+      // NPC still alive, has not been hit
+      c_enemy_pathfind(npc_units + i, c_player.coords);
     }
   }
 

@@ -70,4 +70,5 @@ typedef struct combat_player {
   float attack_cooldown;
   // Value that attack_timer is set to once an attack is fired off
   float fire_rate;
+  float invuln_timer;
 } C_PLAYER;
