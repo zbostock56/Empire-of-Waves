@@ -138,6 +138,8 @@ void init_menus() {
   dialog = init_dialog();
   // Init trade menu
   trade = init_trade();
+  // Give Init Money
+  e_player.money = 100;
 }
 
 DIALOG * init_dialog() {
@@ -669,11 +671,22 @@ void on_click_ui_listing_0() {
     else if (e_player.money >= get_item_info_by_name(trade->ui_listing_0->text).value && get_merchant_listing_item_by_number(trade->merchant, 1)->quantity > 0) {
       get_merchant_listing_item_by_number(trade->merchant, 1)->quantity -= 1;
       e_player.money -= get_item_info_by_name(trade->ui_listing_0->text).value;
+      // INVENTORY ADD
+      I_SLOT * inventory_slot = search_player_inventory_with_ID(get_merchant_listing_item_by_number(trade->merchant, 1)->item_id);
+      if (inventory_slot) {
+        inventory_slot->quantity += 1;
+      } else if (get_player_first_empty_inventory_slot()) {
+        I_SLOT * emplty_inventory_slot = get_player_first_empty_inventory_slot();
+        emplty_inventory_slot->item_id = get_merchant_listing_item_by_number(trade->merchant, 1)->item_id;
+        emplty_inventory_slot->quantity = 1;
+      }
+
+      // Reset Listing UI Component
       if (get_merchant_listing_item_by_number(trade->merchant, 1)->quantity <= 0) {
         get_merchant_listing_item_by_number(trade->merchant, 1)->item_id = 0;
         trade->ui_listing_0->text = "SOLD";
       }
-      // TODO: INVENTORY ADD
+
       printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_0->text, get_merchant_listing_item_by_number(trade->merchant, 1)->quantity);
     }
   } else if (trade->type == SELL && get_player_inventory_slot_by_number(1)->quantity > 0) {
@@ -687,26 +700,290 @@ void on_click_ui_listing_0() {
   }
 }
 void on_click_ui_listing_1() {
-  get_ui_component_by_ID(TRADE_BUTTON_LISTING_1)->text = "HIT!";
+  if (trade->type == BUY) {
+    if (e_player.money < get_item_info_by_name(trade->ui_listing_1->text).value) {
+      printf("**** Do not have enough money ****\n");
+    }
+    else if (e_player.money >= get_item_info_by_name(trade->ui_listing_1->text).value && get_merchant_listing_item_by_number(trade->merchant, 2)->quantity > 0) {
+      get_merchant_listing_item_by_number(trade->merchant, 2)->quantity -= 1;
+      e_player.money -= get_item_info_by_name(trade->ui_listing_1->text).value;
+      // INVENTORY ADD
+      I_SLOT * inventory_slot = search_player_inventory_with_ID(get_merchant_listing_item_by_number(trade->merchant, 2)->item_id);
+      if (inventory_slot) {
+        inventory_slot->quantity += 1;
+      } else if (get_player_first_empty_inventory_slot()) {
+        I_SLOT * emplty_inventory_slot = get_player_first_empty_inventory_slot();
+        emplty_inventory_slot->item_id = get_merchant_listing_item_by_number(trade->merchant, 2)->item_id;
+        emplty_inventory_slot->quantity = 1;
+      }
+
+      // Reset Listing UI Component
+      if (get_merchant_listing_item_by_number(trade->merchant, 2)->quantity <= 0) {
+        get_merchant_listing_item_by_number(trade->merchant, 2)->item_id = 0;
+        trade->ui_listing_1->text = "SOLD";
+      }
+
+      printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_1->text, get_merchant_listing_item_by_number(trade->merchant, 2)->quantity);
+    }
+  } else if (trade->type == SELL && get_player_inventory_slot_by_number(2)->quantity > 0) {
+    get_player_inventory_slot_by_number(2)->quantity -= 1;
+    e_player.money += get_item_info_by_name(trade->ui_listing_1->text).value;
+    if (get_player_inventory_slot_by_number(2)->quantity <= 0) {
+      get_player_inventory_slot_by_number(2)->item_id = 0;
+      trade->ui_listing_1->text = "SOLD";
+    }
+    printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_1->text, get_player_inventory_slot_by_number(2)->quantity);
+  }
 }
 void on_click_ui_listing_2() {
-  get_ui_component_by_ID(TRADE_BUTTON_LISTING_2)->text = "HIT!";
+  if (trade->type == BUY) {
+    if (e_player.money < get_item_info_by_name(trade->ui_listing_2->text).value) {
+      printf("**** Do not have enough money ****\n");
+    }
+    else if (e_player.money >= get_item_info_by_name(trade->ui_listing_2->text).value && get_merchant_listing_item_by_number(trade->merchant, 3)->quantity > 0) {
+      get_merchant_listing_item_by_number(trade->merchant, 3)->quantity -= 1;
+      e_player.money -= get_item_info_by_name(trade->ui_listing_2->text).value;
+      // INVENTORY ADD
+      I_SLOT * inventory_slot = search_player_inventory_with_ID(get_merchant_listing_item_by_number(trade->merchant, 3)->item_id);
+      if (inventory_slot) {
+        inventory_slot->quantity += 1;
+      } else if (get_player_first_empty_inventory_slot()) {
+        I_SLOT * emplty_inventory_slot = get_player_first_empty_inventory_slot();
+        emplty_inventory_slot->item_id = get_merchant_listing_item_by_number(trade->merchant, 3)->item_id;
+        emplty_inventory_slot->quantity = 1;
+      }
+
+      // Reset Listing UI Component
+      if (get_merchant_listing_item_by_number(trade->merchant, 3)->quantity <= 0) {
+        get_merchant_listing_item_by_number(trade->merchant, 3)->item_id = 0;
+        trade->ui_listing_2->text = "SOLD";
+      }
+
+      printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_2->text, get_merchant_listing_item_by_number(trade->merchant, 3)->quantity);
+    }
+  } else if (trade->type == SELL && get_player_inventory_slot_by_number(3)->quantity > 0) {
+    get_player_inventory_slot_by_number(3)->quantity -= 1;
+    e_player.money += get_item_info_by_name(trade->ui_listing_2->text).value;
+    if (get_player_inventory_slot_by_number(3)->quantity <= 0) {
+      get_player_inventory_slot_by_number(3)->item_id = 0;
+      trade->ui_listing_2->text = "SOLD";
+    }
+    printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_2->text, get_player_inventory_slot_by_number(3)->quantity);
+  }
 }
 void on_click_ui_listing_3() {
-  get_ui_component_by_ID(TRADE_BUTTON_LISTING_3)->text = "HIT!";
+  if (trade->type == BUY) {
+    if (e_player.money < get_item_info_by_name(trade->ui_listing_3->text).value) {
+      printf("**** Do not have enough money ****\n");
+    }
+    else if (e_player.money >= get_item_info_by_name(trade->ui_listing_3->text).value && get_merchant_listing_item_by_number(trade->merchant, 4)->quantity > 0) {
+      get_merchant_listing_item_by_number(trade->merchant, 4)->quantity -= 1;
+      e_player.money -= get_item_info_by_name(trade->ui_listing_3->text).value;
+      // INVENTORY ADD
+      I_SLOT * inventory_slot = search_player_inventory_with_ID(get_merchant_listing_item_by_number(trade->merchant, 4)->item_id);
+      if (inventory_slot) {
+        inventory_slot->quantity += 1;
+      } else if (get_player_first_empty_inventory_slot()) {
+        I_SLOT * emplty_inventory_slot = get_player_first_empty_inventory_slot();
+        emplty_inventory_slot->item_id = get_merchant_listing_item_by_number(trade->merchant, 4)->item_id;
+        emplty_inventory_slot->quantity = 1;
+      }
+
+      // Reset Listing UI Component
+      if (get_merchant_listing_item_by_number(trade->merchant, 4)->quantity <= 0) {
+        get_merchant_listing_item_by_number(trade->merchant, 4)->item_id = 0;
+        trade->ui_listing_3->text = "SOLD";
+      }
+
+      printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_3->text, get_merchant_listing_item_by_number(trade->merchant, 4)->quantity);
+    }
+  } else if (trade->type == SELL && get_player_inventory_slot_by_number(4)->quantity > 0) {
+    get_player_inventory_slot_by_number(4)->quantity -= 1;
+    e_player.money += get_item_info_by_name(trade->ui_listing_3->text).value;
+    if (get_player_inventory_slot_by_number(4)->quantity <= 0) {
+      get_player_inventory_slot_by_number(4)->item_id = 0;
+      trade->ui_listing_3->text = "SOLD";
+    }
+    printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_3->text, get_player_inventory_slot_by_number(4)->quantity);
+  }
 }
 void on_click_ui_listing_4() {
-  get_ui_component_by_ID(TRADE_BUTTON_LISTING_4)->text = "HIT!";
+  if (trade->type == BUY) {
+    if (e_player.money < get_item_info_by_name(trade->ui_listing_4->text).value) {
+      printf("**** Do not have enough money ****\n");
+    }
+    else if (e_player.money >= get_item_info_by_name(trade->ui_listing_4->text).value && get_merchant_listing_item_by_number(trade->merchant, 5)->quantity > 0) {
+      get_merchant_listing_item_by_number(trade->merchant, 5)->quantity -= 1;
+      e_player.money -= get_item_info_by_name(trade->ui_listing_4->text).value;
+      // INVENTORY ADD
+      I_SLOT * inventory_slot = search_player_inventory_with_ID(get_merchant_listing_item_by_number(trade->merchant, 5)->item_id);
+      if (inventory_slot) {
+        inventory_slot->quantity += 1;
+      } else if (get_player_first_empty_inventory_slot()) {
+        I_SLOT * emplty_inventory_slot = get_player_first_empty_inventory_slot();
+        emplty_inventory_slot->item_id = get_merchant_listing_item_by_number(trade->merchant, 5)->item_id;
+        emplty_inventory_slot->quantity = 1;
+      }
+
+      // Reset Listing UI Component
+      if (get_merchant_listing_item_by_number(trade->merchant, 5)->quantity <= 0) {
+        get_merchant_listing_item_by_number(trade->merchant, 5)->item_id = 0;
+        trade->ui_listing_4->text = "SOLD";
+      }
+
+      printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_4->text, get_merchant_listing_item_by_number(trade->merchant, 5)->quantity);
+    }
+  } else if (trade->type == SELL && get_player_inventory_slot_by_number(5)->quantity > 0) {
+    get_player_inventory_slot_by_number(5)->quantity -= 1;
+    e_player.money += get_item_info_by_name(trade->ui_listing_4->text).value;
+    if (get_player_inventory_slot_by_number(5)->quantity <= 0) {
+      get_player_inventory_slot_by_number(5)->item_id = 0;
+      trade->ui_listing_4->text = "SOLD";
+    }
+    printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_4->text, get_player_inventory_slot_by_number(5)->quantity);
+  }
 }
 void on_click_ui_listing_5() {
-  get_ui_component_by_ID(TRADE_BUTTON_LISTING_5)->text = "HIT!";
+  if (trade->type == BUY) {
+    if (e_player.money < get_item_info_by_name(trade->ui_listing_5->text).value) {
+      printf("**** Do not have enough money ****\n");
+    }
+    else if (e_player.money >= get_item_info_by_name(trade->ui_listing_5->text).value && get_merchant_listing_item_by_number(trade->merchant, 6)->quantity > 0) {
+      get_merchant_listing_item_by_number(trade->merchant, 6)->quantity -= 1;
+      e_player.money -= get_item_info_by_name(trade->ui_listing_5->text).value;
+      // INVENTORY ADD
+      I_SLOT * inventory_slot = search_player_inventory_with_ID(get_merchant_listing_item_by_number(trade->merchant, 6)->item_id);
+      if (inventory_slot) {
+        inventory_slot->quantity += 1;
+      } else if (get_player_first_empty_inventory_slot()) {
+        I_SLOT * emplty_inventory_slot = get_player_first_empty_inventory_slot();
+        emplty_inventory_slot->item_id = get_merchant_listing_item_by_number(trade->merchant, 6)->item_id;
+        emplty_inventory_slot->quantity = 1;
+      }
+
+      // Reset Listing UI Component
+      if (get_merchant_listing_item_by_number(trade->merchant, 6)->quantity <= 0) {
+        get_merchant_listing_item_by_number(trade->merchant, 6)->item_id = 0;
+        trade->ui_listing_5->text = "SOLD";
+      }
+
+      printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_5->text, get_merchant_listing_item_by_number(trade->merchant, 6)->quantity);
+    }
+  } else if (trade->type == SELL && get_player_inventory_slot_by_number(6)->quantity > 0) {
+    get_player_inventory_slot_by_number(6)->quantity -= 1;
+    e_player.money += get_item_info_by_name(trade->ui_listing_5->text).value;
+    if (get_player_inventory_slot_by_number(6)->quantity <= 0) {
+      get_player_inventory_slot_by_number(6)->item_id = 0;
+      trade->ui_listing_5->text = "SOLD";
+    }
+    printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_5->text, get_player_inventory_slot_by_number(6)->quantity);
+  }
 }
 void on_click_ui_listing_6() {
-  get_ui_component_by_ID(TRADE_BUTTON_LISTING_6)->text = "HIT!";
+  if (trade->type == BUY) {
+    if (e_player.money < get_item_info_by_name(trade->ui_listing_6->text).value) {
+      printf("**** Do not have enough money ****\n");
+    }
+    else if (e_player.money >= get_item_info_by_name(trade->ui_listing_6->text).value && get_merchant_listing_item_by_number(trade->merchant, 7)->quantity > 0) {
+      get_merchant_listing_item_by_number(trade->merchant, 7)->quantity -= 1;
+      e_player.money -= get_item_info_by_name(trade->ui_listing_6->text).value;
+      // INVENTORY ADD
+      I_SLOT * inventory_slot = search_player_inventory_with_ID(get_merchant_listing_item_by_number(trade->merchant, 7)->item_id);
+      if (inventory_slot) {
+        inventory_slot->quantity += 1;
+      } else if (get_player_first_empty_inventory_slot()) {
+        I_SLOT * emplty_inventory_slot = get_player_first_empty_inventory_slot();
+        emplty_inventory_slot->item_id = get_merchant_listing_item_by_number(trade->merchant, 7)->item_id;
+        emplty_inventory_slot->quantity = 1;
+      }
+
+      // Reset Listing UI Component
+      if (get_merchant_listing_item_by_number(trade->merchant, 7)->quantity <= 0) {
+        get_merchant_listing_item_by_number(trade->merchant, 7)->item_id = 0;
+        trade->ui_listing_6->text = "SOLD";
+      }
+
+      printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_6->text, get_merchant_listing_item_by_number(trade->merchant, 7)->quantity);
+    }
+  } else if (trade->type == SELL && get_player_inventory_slot_by_number(7)->quantity > 0) {
+    get_player_inventory_slot_by_number(7)->quantity -= 1;
+    e_player.money += get_item_info_by_name(trade->ui_listing_6->text).value;
+    if (get_player_inventory_slot_by_number(7)->quantity <= 0) {
+      get_player_inventory_slot_by_number(7)->item_id = 0;
+      trade->ui_listing_6->text = "SOLD";
+    }
+    printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_6->text, get_player_inventory_slot_by_number(7)->quantity);
+  }
 }
 void on_click_ui_listing_7() {
-  get_ui_component_by_ID(TRADE_BUTTON_LISTING_7)->text = "HIT!";
+  if (trade->type == BUY) {
+    if (e_player.money < get_item_info_by_name(trade->ui_listing_7->text).value) {
+      printf("**** Do not have enough money ****\n");
+    }
+    else if (e_player.money >= get_item_info_by_name(trade->ui_listing_7->text).value && get_merchant_listing_item_by_number(trade->merchant, 8)->quantity > 0) {
+      get_merchant_listing_item_by_number(trade->merchant, 8)->quantity -= 1;
+      e_player.money -= get_item_info_by_name(trade->ui_listing_7->text).value;
+      // INVENTORY ADD
+      I_SLOT * inventory_slot = search_player_inventory_with_ID(get_merchant_listing_item_by_number(trade->merchant, 8)->item_id);
+      if (inventory_slot) {
+        inventory_slot->quantity += 1;
+      } else if (get_player_first_empty_inventory_slot()) {
+        I_SLOT * emplty_inventory_slot = get_player_first_empty_inventory_slot();
+        emplty_inventory_slot->item_id = get_merchant_listing_item_by_number(trade->merchant, 8)->item_id;
+        emplty_inventory_slot->quantity = 1;
+      }
+
+      // Reset Listing UI Component
+      if (get_merchant_listing_item_by_number(trade->merchant, 8)->quantity <= 0) {
+        get_merchant_listing_item_by_number(trade->merchant, 8)->item_id = 0;
+        trade->ui_listing_7->text = "SOLD";
+      }
+
+      printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_7->text, get_merchant_listing_item_by_number(trade->merchant, 8)->quantity);
+    }
+  } else if (trade->type == SELL && get_player_inventory_slot_by_number(8)->quantity > 0) {
+    get_player_inventory_slot_by_number(8)->quantity -= 1;
+    e_player.money += get_item_info_by_name(trade->ui_listing_7->text).value;
+    if (get_player_inventory_slot_by_number(8)->quantity <= 0) {
+      get_player_inventory_slot_by_number(8)->item_id = 0;
+      trade->ui_listing_7->text = "SOLD";
+    }
+    printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_7->text, get_player_inventory_slot_by_number(8)->quantity);
+  }
 }
 void on_click_ui_listing_8() {
-  get_ui_component_by_ID(TRADE_BUTTON_LISTING_8)->text = "HIT!";
+  if (trade->type == BUY) {
+    if (e_player.money < get_item_info_by_name(trade->ui_listing_8->text).value) {
+      printf("**** Do not have enough money ****\n");
+    }
+    else if (e_player.money >= get_item_info_by_name(trade->ui_listing_8->text).value && get_merchant_listing_item_by_number(trade->merchant, 9)->quantity > 0) {
+      get_merchant_listing_item_by_number(trade->merchant, 9)->quantity -= 1;
+      e_player.money -= get_item_info_by_name(trade->ui_listing_8->text).value;
+      // INVENTORY ADD
+      I_SLOT * inventory_slot = search_player_inventory_with_ID(get_merchant_listing_item_by_number(trade->merchant, 9)->item_id);
+      if (inventory_slot) {
+        inventory_slot->quantity += 1;
+      } else if (get_player_first_empty_inventory_slot()) {
+        I_SLOT * emplty_inventory_slot = get_player_first_empty_inventory_slot();
+        emplty_inventory_slot->item_id = get_merchant_listing_item_by_number(trade->merchant, 9)->item_id;
+        emplty_inventory_slot->quantity = 1;
+      }
+
+      // Reset Listing UI Component
+      if (get_merchant_listing_item_by_number(trade->merchant, 9)->quantity <= 0) {
+        get_merchant_listing_item_by_number(trade->merchant, 9)->item_id = 0;
+        trade->ui_listing_8->text = "SOLD";
+      }
+
+      printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_8->text, get_merchant_listing_item_by_number(trade->merchant, 9)->quantity);
+    }
+  } else if (trade->type == SELL && get_player_inventory_slot_by_number(9)->quantity > 0) {
+    get_player_inventory_slot_by_number(9)->quantity -= 1;
+    e_player.money += get_item_info_by_name(trade->ui_listing_8->text).value;
+    if (get_player_inventory_slot_by_number(9)->quantity <= 0) {
+      get_player_inventory_slot_by_number(9)->item_id = 0;
+      trade->ui_listing_8->text = "SOLD";
+    }
+    printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_8->text, get_player_inventory_slot_by_number(9)->quantity);
+  }
 }

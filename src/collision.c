@@ -137,6 +137,7 @@ void check_merchant_prompt(vec2 world_player_coords) {
   if (!found_merchant) {
     close_dialog();
     close_trade();
+    close_establish_trade_route();
   }
 }
 

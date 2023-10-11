@@ -3,6 +3,7 @@
 
 #include <cglm/vec2.h>
 #include <cglm/ivec2.h>
+#include <items.h>
 /*
                                 PLAYER_STR.h
 Describes the struct representing player state in exploration mode, and the
@@ -11,10 +12,6 @@ which reads/manipulates player state.
 */
 
 #define INV_SIZE (9)
-
-#ifndef NUM_RESOURCES
-#define NUM_RESOURCES (1) // Also defined in items.h
-#endif
 
 /*
   Enum describing weapon types
