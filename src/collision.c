@@ -287,6 +287,8 @@ void attack_collision() {
                                 T_WIDTH, T_WIDTH, collision_correction)) {
         c_player.health -= 10.0;
         c_player.invuln_timer = 0.5;
+        printf("Health: %f\n", c_player.health);
+        fflush(stdout);
       }
 
       // Check enemy collision with player hitbox
