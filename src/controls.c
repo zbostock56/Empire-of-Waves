@@ -1,4 +1,5 @@
 #include <controls.h>
+
 /*
                                   CONTROLS.c
 Implements the functionality for detecting and handling keyboard and mouse
@@ -20,23 +21,46 @@ void keyboard_input(GLFWwindow *window) {
 }
 
 void mouse_pos(GLFWwindow *window, double x_pos, double y_pos) {
-  double x = 2.0 * ((x_pos / RES_X) - 0.5);
-  double y = 2.0 * (((RES_Y - y_pos) / RES_Y) - 0.5);
+  mouse_position[0] = 2.0 * ((x_pos / RES_X) - 0.5);
+  mouse_position[1] = 2.0 * (((RES_Y - y_pos) / RES_Y) - 0.5);
 
   if (mode == EXPLORATION) {
     if (e_player.embarked) {
-      e_player.ship_direction[0] = x;
-      e_player.ship_direction[1] = y;
+      e_player.ship_direction[0] = mouse_position[0];
+      e_player.ship_direction[1] = mouse_position[1];
       glm_vec2_normalize(e_player.ship_direction);
     } else {
-      e_player.direction[0] = x;
-      e_player.direction[1] = y;
+      e_player.direction[0] = mouse_position[0];
+      e_player.direction[1] = mouse_position[1];
       glm_vec2_normalize(e_player.direction);
     }
   } else {
-    c_player.direction[0] = x;
-    c_player.direction[1] = y;
+    c_player.direction[0] = mouse_position[0];
+    c_player.direction[1] = mouse_position[1];
     glm_vec2_normalize(c_player.direction);
+  }
+}
+
+void mouse_click(GLFWwindow *window, int button, int action, int mods) {
+  if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+    ui_click_listener(mouse_position[0], mouse_position[1]);
+  }
+}
+
+void ui_click_listener(double x_pos, double y_pos) {
+  for (int i = 0; i < NUM_COMPONENTS; i++) {
+    if (!ui_tab[i].enabled || ui_tab[i].on_click == NULL) {
+      continue;
+    }
+
+    // { x_min, y_min, x_max, y_max }
+    vec4 min_max = GLM_VEC4_ZERO_INIT;
+    get_ui_min_max(ui_tab + i, min_max);
+
+    if (x_pos >= min_max[X_MIN] && x_pos <= min_max[X_MAX] &&
+        y_pos >= min_max[Y_MIN] && y_pos <= min_max[Y_MAX]) {
+      ui_tab[i].on_click(ui_tab[i].on_click_args);
+    }
   }
 }
 
@@ -108,6 +132,12 @@ void exploration_movement(GLFWwindow *window) {
         e_player.embarked = 1;
       }
     }
+    if (!e_player.embarked && get_ui_component_by_ID(INTERACT_PROMPT)->enabled) {
+      get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
+      if (set_dialog(MERCHANT_OPTION, "Merchant", "Hail, Captain! What brings you to my humble stall")) {
+        open_dialog();
+      }
+    }
     holding_interaction = 1;
   } else if (glfwGetKey(window, GLFW_KEY_E) != GLFW_PRESS) {
     holding_interaction = 0;
@@ -164,12 +194,29 @@ void exploration_movement(GLFWwindow *window) {
 
 void combat_movement(GLFWwindow *window) {
   vec2 movement = GLM_VEC2_ZERO_INIT;
-  glm_vec2_scale(c_player.direction, delta_time / T_WIDTH, movement);
+  glm_vec2_scale(c_player.direction, (delta_time * c_player.speed) / T_WIDTH,
+                 movement);
+  // Movement
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
     glm_vec2_add(movement, c_player.coords, c_player.coords);
   }
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
     glm_vec2_sub(c_player.coords, movement, c_player.coords);
+  }
+  // Attacking
+  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !holding_attack &&
+      c_player.attack_cooldown == 0.0) {
+    holding_attack = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_SPACE) != GLFW_PRESS &&
+                        holding_attack) {
+    c_player.attack_cooldown = c_player.fire_rate;
+    c_player.attack_active = 0.1;
+    holding_attack = 0;
+  }
+  if (holding_attack) {
+    c_player.speed = 0.5;
+  } else {
+    c_player.speed = 1.0;
   }
 }
 
@@ -192,12 +239,14 @@ void debug_keys(GLFWwindow *window) {
 
   if (glfwGetKey(window, GLFW_KEY_LEFT_BRACKET) == GLFW_PRESS && !holding_left_bracket) {
     if (mode == EXPLORATION) {
-      glm_vec2_zero(c_player.coords);
-      glm_vec2_zero(c_player.direction);
-      c_player.direction[0] = 1.0;
-      mode = COMBAT;
+      CHUNK *cur_chunk = player_chunks + PLAYER_CHUNK;
+      // Make a dummy enemy ship to fight
+      unsigned int new_enemy_index = cur_chunk->num_enemies;
+      cur_chunk->enemies[new_enemy_index].crew_count = 3;
+      cur_chunk->num_enemies++;
+      to_combat_mode(new_enemy_index);
     } else {
-      mode = EXPLORATION;
+      from_combat_mode();
     }
     holding_left_bracket = 1;
   } else if (glfwGetKey(window, GLFW_KEY_LEFT_BRACKET) != GLFW_PRESS) {
@@ -218,6 +267,15 @@ void debug_keys(GLFWwindow *window) {
     }
   } else if (glfwGetKey(window, GLFW_KEY_SLASH) != GLFW_PRESS) {
     holding_tilde = 0;
+  }
+
+  // Dialog debug
+  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+    if (dialog->ui_text_name->enabled) {
+      close_dialog();
+    } else {
+      open_dialog();
+    }
   }
 }
 

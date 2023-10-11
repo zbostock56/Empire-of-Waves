@@ -22,13 +22,15 @@ int console_enabled = 0;
 // EXPLORATION MODE STATE
 E_PLAYER e_player;
 CHUNK player_chunks[9];
-TRADE_SHIP *trade_ships;
-CHUNK *trade_ship_chunks;
-unsigned int num_trade_ships;
+TRADE_SHIP *trade_ships = NULL;
+vec2 home_island_coords = GLM_VEC2_ZERO_INIT;
+unsigned int num_trade_ships = 0;
+unsigned int trade_ship_buf_size = 0;
 float next_event;
 
 // COMBAT MODE STATE
 C_PLAYER c_player;
 C_UNIT *npc_units;
+unsigned int e_enemy_index;
 unsigned int num_npc_units;
 ivec2 arena_dimensions = { 50, 20 };

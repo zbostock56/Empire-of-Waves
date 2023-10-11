@@ -1,5 +1,6 @@
 /* INCLUDES */
 #include <stdio.h>
+#include <string.h>
 #include <glad/glad.h>
 #include <player_str.h>
 #include <chunk_str.h>
@@ -38,11 +39,15 @@ unsigned int texture_from_buffer(unsigned char *, int, int, int);
 /* NATIVE */
 void chunk_to_world(ivec2, vec2, vec2);
 void world_to_chunk(vec2, ivec2, vec2);
+int chunk_loaded_by_player(ivec2);
+
 int generate_chunk(CHUNK *chunk);
+int chunk_from_coords(ivec2, CHUNK *);
 void island_locator(ivec2 *locs, int num_islands);
 void bounds_check(ivec2 loc);
 
 void free_chunk(CHUNK *);
+int copy_chunk(CHUNK *, CHUNK *);
 
 int load_chunk(ivec2, CHUNK *);
 int load_island(FILE *, ISLAND *);

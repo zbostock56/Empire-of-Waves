@@ -3,9 +3,20 @@
 int main() {
   GLFWwindow *window = init_gl();
 
-  init_chunks();
+  init_menus();
+
+  int status = 0;
+  status = init_chunks();
+  if (status) {
+    return -1;
+  }
+
   init_scene();
   init_lexer();
+  status = init_trade_ship_buffers();
+  if (status) {
+    return -1;
+  }
 
   while (!glfwWindowShouldClose(window)) {
     keyboard_input(window);
@@ -15,10 +26,20 @@ int main() {
     // - pathfinding
     // - chunk serialization
     // - etc...
-    manage_chunks();
-    detect_collisions();
+    status = manage_chunks();
+    if (status) {
+      return -1;
+    }
+
+    update_trade_ships();
+    
+    status = detect_collisions();
+    if (status) {
+      return -1;
+    }
 
     render_scene(window);
+    update_combat_state();
     update_event_timer();
   }
 

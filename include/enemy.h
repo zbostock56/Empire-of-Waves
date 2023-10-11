@@ -1,6 +1,8 @@
+#include <stdio.h>
 #include <player_str.h>
 #include <chunk_str.h>
-#include <stdio.h>
+#include <trade_ship_str.h>
+#include <globals.h>
 
 /* GLOBALS  */
 extern CHUNK player_chunks[CHUNKS_SIMULATED];

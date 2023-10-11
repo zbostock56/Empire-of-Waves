@@ -1,3 +1,6 @@
+#ifndef __ENEMY_STR_H__
+#define __ENEMY_STR_H__
+
 #include <cglm/vec2.h>
 #include <cglm/ivec2.h>
 /*
@@ -50,5 +53,20 @@ typedef struct combat_unit {
   WEAPON_T weapon_type;
   unsigned int ammo;
   float speed;
+  // Indicates the current step in the death animation of the enemy in the case
+  // it collides with a player hitbox. If -1.0, the enemy has not yet been hit.
+  // If > 0.0, the death animation is currently active, and if 0.0, the enemy
+  // is ready for deletion
+  float death_animation;
+  // Indicates the current cool down of an enemy's active hitbox in seconds.
+  // When non-zero, the hitbox is currently active. When 0, the hitbox is not
+  // active
+  float attack_active;
+  // Indicates current cool down of an ememy's attack in seconds. Once at 0,
+  // the enemy can attack again
+  float attack_cooldown;
+  // Value that attack_timer is set to once an attack is fired off
   float fire_rate;
 } C_UNIT;
+
+#endif

@@ -10,3 +10,5 @@ tests/console/assets
 tests/console/bin/*
 tests/console/chunks
 tests/procedural_generation/assets
+tests/serialization/bin/*
+tests/serialization/assets
