@@ -1,6 +1,7 @@
 #include <menu.h>
 #include <stdio.h>
 #include <merchant.h>
+#include <player.h>
 #include <items.h>
 #include <globals.h>
 /*
@@ -345,7 +346,11 @@ void close_buy() {
 }
 
 void open_sell() {
-  get_ui_component_by_ID(DIALOG_BUTTON_SELL)->text = "HIT!";
+  // get_ui_component_by_ID(DIALOG_BUTTON_SELL)->text = "HIT!";
+  close_dialog();
+  if (set_trade(SELL, get_closest_merchant(e_player))) {
+    open_trade();
+  }
 }
 
 void close_sell() {
@@ -611,29 +616,74 @@ void close_trade() {
 
 int set_trade(T_TRADE dialog_type, MERCHANT * merchant) {
   if (trade && merchant) {
-    trade->type = INVALID_TRADE;
+    trade->type = dialog_type;
     trade->merchant = merchant;
-    trade->ui_listing_0->text = get_item_name_by_ID(get_listing_item_by_number(merchant, 1)->item_id);
-    trade->ui_listing_1->text = get_item_name_by_ID(get_listing_item_by_number(merchant, 2)->item_id);
-    trade->ui_listing_2->text = get_item_name_by_ID(get_listing_item_by_number(merchant, 3)->item_id);
-    trade->ui_listing_3->text = get_item_name_by_ID(get_listing_item_by_number(merchant, 4)->item_id);
-    trade->ui_listing_4->text = get_item_name_by_ID(get_listing_item_by_number(merchant, 5)->item_id);
-    trade->ui_listing_5->text = get_item_name_by_ID(get_listing_item_by_number(merchant, 6)->item_id);
-    trade->ui_listing_6->text = get_item_name_by_ID(get_listing_item_by_number(merchant, 7)->item_id);
-    trade->ui_listing_7->text = get_item_name_by_ID(get_listing_item_by_number(merchant, 8)->item_id);
-    trade->ui_listing_8->text = get_item_name_by_ID(get_listing_item_by_number(merchant, 9)->item_id);
-    return 1;
+    switch (dialog_type) {
+      case BUY: {
+        trade->ui_listing_0->text = get_item_name_by_ID(get_merchant_listing_item_by_number(merchant, 1)->item_id);
+        trade->ui_listing_1->text = get_item_name_by_ID(get_merchant_listing_item_by_number(merchant, 2)->item_id);
+        trade->ui_listing_2->text = get_item_name_by_ID(get_merchant_listing_item_by_number(merchant, 3)->item_id);
+        trade->ui_listing_3->text = get_item_name_by_ID(get_merchant_listing_item_by_number(merchant, 4)->item_id);
+        trade->ui_listing_4->text = get_item_name_by_ID(get_merchant_listing_item_by_number(merchant, 5)->item_id);
+        trade->ui_listing_5->text = get_item_name_by_ID(get_merchant_listing_item_by_number(merchant, 6)->item_id);
+        trade->ui_listing_6->text = get_item_name_by_ID(get_merchant_listing_item_by_number(merchant, 7)->item_id);
+        trade->ui_listing_7->text = get_item_name_by_ID(get_merchant_listing_item_by_number(merchant, 8)->item_id);
+        trade->ui_listing_8->text = get_item_name_by_ID(get_merchant_listing_item_by_number(merchant, 9)->item_id);
+        return 1;
+      }
+      case SELL: {
+        trade->ui_listing_0->text = get_item_name_by_ID(get_player_inventory_slot_by_number(1)->item_id);
+        trade->ui_listing_1->text = get_item_name_by_ID(get_player_inventory_slot_by_number(2)->item_id);
+        trade->ui_listing_2->text = get_item_name_by_ID(get_player_inventory_slot_by_number(3)->item_id);
+        trade->ui_listing_3->text = get_item_name_by_ID(get_player_inventory_slot_by_number(4)->item_id);
+        trade->ui_listing_4->text = get_item_name_by_ID(get_player_inventory_slot_by_number(5)->item_id);
+        trade->ui_listing_5->text = get_item_name_by_ID(get_player_inventory_slot_by_number(6)->item_id);
+        trade->ui_listing_6->text = get_item_name_by_ID(get_player_inventory_slot_by_number(7)->item_id);
+        trade->ui_listing_7->text = get_item_name_by_ID(get_player_inventory_slot_by_number(8)->item_id);
+        trade->ui_listing_8->text = get_item_name_by_ID(get_player_inventory_slot_by_number(9)->item_id);
+        return 1;
+      }
+      default: {
+        trade->ui_listing_0->text = "default";
+        trade->ui_listing_1->text = "default";
+        trade->ui_listing_2->text = "default";
+        trade->ui_listing_3->text = "default";
+        trade->ui_listing_4->text = "default";
+        trade->ui_listing_5->text = "default";
+        trade->ui_listing_6->text = "default";
+        trade->ui_listing_7->text = "default";
+        trade->ui_listing_8->text = "default";
+        return 1;
+      }
+    }
+    
   }
   return 0;
 }
 
 void on_click_ui_listing_0() {
   if (trade->type == BUY) {
-    if (e_player.money >= get_item_info_by_name(trade->ui_listing_0->text).value) {
-      get_listing_item_by_number(trade->merchant, 1)->quantity -= 1;
-      e_player.money -= get_item_info_by_name(trade->ui_listing_0->text).value;
-      // TODO: INVENTORY ADD
+    if (e_player.money < get_item_info_by_name(trade->ui_listing_0->text).value) {
+      printf("**** Do not have enough money ****\n");
     }
+    else if (e_player.money >= get_item_info_by_name(trade->ui_listing_0->text).value && get_merchant_listing_item_by_number(trade->merchant, 1)->quantity > 0) {
+      get_merchant_listing_item_by_number(trade->merchant, 1)->quantity -= 1;
+      e_player.money -= get_item_info_by_name(trade->ui_listing_0->text).value;
+      if (get_merchant_listing_item_by_number(trade->merchant, 1)->quantity <= 0) {
+        get_merchant_listing_item_by_number(trade->merchant, 1)->item_id = 0;
+        trade->ui_listing_0->text = "SOLD";
+      }
+      // TODO: INVENTORY ADD
+      printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_0->text, get_merchant_listing_item_by_number(trade->merchant, 1)->quantity);
+    }
+  } else if (trade->type == SELL && get_player_inventory_slot_by_number(1)->quantity > 0) {
+    get_player_inventory_slot_by_number(1)->quantity -= 1;
+    e_player.money += get_item_info_by_name(trade->ui_listing_0->text).value;
+    if (get_player_inventory_slot_by_number(1)->quantity <= 0) {
+      get_player_inventory_slot_by_number(1)->item_id = 0;
+      trade->ui_listing_0->text = "SOLD";
+    }
+    printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_0->text, get_player_inventory_slot_by_number(1)->quantity);
   }
 }
 void on_click_ui_listing_1() {

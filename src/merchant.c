@@ -36,11 +36,11 @@ MERCHANT * get_closest_merchant(E_PLAYER e_player) {
     return closest_merchant;
 }
 
-LISTING * get_listing_item_by_number(MERCHANT * merchant, unsigned int item_number) {
-    if (item_number > 0 || item_number < 10) {
-        if (merchant) {
+LISTING * get_merchant_listing_item_by_number(MERCHANT * merchant, unsigned int item_number) {
+    if (merchant) { // Argument validate
+        if (item_number > 0 || item_number < merchant->num_listings) { // Argument validate
             if (merchant->listings) {
-                return ((merchant->listings) + (item_number - 1));
+                return &merchant->listings[item_number - 1];
             }
         }
     }

@@ -28,8 +28,8 @@ ITEM item_tab[NUM_ITEMS] = {
   // INVALID_ITEM
   {0, 0, 0, 0.0, 0.0, 0.0, 0.0},
 
-  // COIN
-  {1, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  // EMPTY
+  {0, 0, 0, 0.0, 0.0, 0.0, 0.0},
   
   // CITRUS
   {10, 1, 0, 20.0, 0.0, 0.0, 0.0},
@@ -118,7 +118,7 @@ unsigned int get_resource_value_by_ID(REC_IDS resource_id) {
 
 ITEM get_item_info_by_ID(ITEM_IDS item_id) {
   // Check for invalid resource_id
-  if (item_id < COIN || item_id > PLATE_ARMOR) {
+  if (item_id < EMPTY || item_id > PLATE_ARMOR) {
     return item_tab[0];
   }
   return item_tab[item_id + 1]; // +1 to account for INVALID_ITEM being -1
@@ -126,10 +126,10 @@ ITEM get_item_info_by_ID(ITEM_IDS item_id) {
 
 char * get_item_name_by_ID(int item_id) {
   if (item_id < 0 || item_id > 17) {
-    return NULL;
+    return "INVALID_ITEM";
   }
   switch (item_id) {
-    case 0: return "COIN";
+    case 0: return "EMPTY";
     case 1: return "CITRUS";
     case 2: return "RUM";
     case 3: return "LIFE_POTION";
@@ -153,7 +153,7 @@ char * get_item_name_by_ID(int item_id) {
 
 ITEM get_item_info_by_name(char * item_name) {
   if (item_name) {
-    if (strcmp(item_name, "COIN") == 0) return get_item_info_by_ID(COIN);
+    if (strcmp(item_name, "EMPTY") == 0) return get_item_info_by_ID(EMPTY);
     else if (strcmp(item_name, "CITRUS") == 0) return get_item_info_by_ID(CITRUS);
     else if (strcmp(item_name, "RUM") == 0) return get_item_info_by_ID(RUM);
     else if (strcmp(item_name, "LIFE_POTION") == 0) return get_item_info_by_ID(LIFE_POTION);

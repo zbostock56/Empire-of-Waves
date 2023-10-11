@@ -38,8 +38,8 @@ typedef enum resource_ids {
 */
 typedef enum item_ids {
   INVALID_ITEM = -1,
-  // Currency
-  COIN = 0,
+  // Empty
+  EMPTY = 0,
   // Foods and Drinks
   CITRUS = 1,
   RUM = 2,
