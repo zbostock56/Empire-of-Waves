@@ -129,6 +129,12 @@ void exploration_movement(GLFWwindow *window) {
         e_player.embarked = 1;
       }
     }
+    if (!e_player.embarked && get_ui_component_by_ID(INTERACT_PROMPT)->enabled) {
+      get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
+      if (set_dialog(MERCHANT_OPTION, "Merchant", "Hail, Captain! What brings you to my humble stall")) {
+        open_dialog();
+      }
+    }
     holding_interaction = 1;
   } else if (glfwGetKey(window, GLFW_KEY_E) != GLFW_PRESS) {
     holding_interaction = 0;

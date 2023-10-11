@@ -1,7 +1,7 @@
 #include <ui_component.h>
 #include <merchant_str.h>
 
-#define NUM_COMPONENTS (17)
+#define NUM_COMPONENTS (18)
 #define MAX_NAME (16) // DIALOG :: Max string length of name
 #define MAX_CONTENT (256) // DIALOG :: Max string length of content
 #define MAX_DIALOGS (16) // DIALOG :: Max number of dialogs

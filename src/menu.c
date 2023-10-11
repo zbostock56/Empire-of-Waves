@@ -1,5 +1,8 @@
 #include <menu.h>
 #include <stdio.h>
+#include <merchant.h>
+#include <items.h>
+#include <globals.h>
 /*
                                      MENU.c
 Defines the table of all global ui components that are used across the game,
@@ -10,13 +13,14 @@ any file which enables/disabled ui components.
 
 // Init global variables
 DIALOG * dialog;
+TRADE * trade;
 
 // UI component table definition
 UI_COMPONENT ui_tab[NUM_COMPONENTS];
 
 UI_COMPONENT * get_ui_component_by_ID(UI_ID ui_id) {
   // Check for invalid ui_id
-  if (ui_id < TEST_MENU || ui_id > TRADE_BUTTON_LISTING_8) {
+  if (ui_id < TEST_MENU || ui_id > INTERACT_PROMPT) {
     return &ui_tab[0];
   }
   return &ui_tab[ui_id + 1]; // +1 to account for INVALID_MENU being -1
@@ -109,7 +113,7 @@ void init_menus() {
     0.0,
     PIVOT_CENTER,
     T_CENTER,
-    ui_tab + EMBARK_PROMPT
+    get_ui_component_by_ID(EMBARK_PROMPT)
   );
 
   // Interaction prompt
@@ -126,19 +130,13 @@ void init_menus() {
     0.0,
     PIVOT_CENTER,
     T_CENTER,
-    ui_tab + INTERACT_PROMPT
+    get_ui_component_by_ID(INTERACT_PROMPT)
   );
 
-  // Init Dialog menu
+  // Init dialog menu
   dialog = init_dialog();
-  // Dialog merchant menu mesting
-  if (set_dialog(MERCHANT_OPTION, "Merchant", "Hail, Captain! What brings you to my humble stall")) {
-    open_dialog();
-  }
+  // Init trade menu
   trade = init_trade();
-  if (set_trade(BUY, NULL)) {
-    open_trade();
-  }
 }
 
 DIALOG * init_dialog() {
@@ -335,7 +333,11 @@ int set_dialog(T_DIALOG dialog_type, char *name, char *content) {
 }
 
 void open_buy() {
-  get_ui_component_by_ID(DIALOG_BUTTON_BUY)->text = "HIT!";
+  // get_ui_component_by_ID(DIALOG_BUTTON_BUY)->text = "HIT!";
+  close_dialog();
+  if (set_trade(BUY, get_closest_merchant(e_player))) {
+    open_trade();
+  }
 }
 
 void close_buy() {
@@ -378,22 +380,166 @@ TRADE * init_trade() {
   trade->ui_listing_8 = get_ui_component_by_ID(TRADE_BUTTON_LISTING_8);
   
   // Init listings
-  vec2 listing_0_position = { -1.0, -0.75 };
+  vec2 listing_0_position = { -0.5, 0.5 };
   init_menu(
     listing_0_position, // position
     on_click_ui_listing_0, // on_click
     (void *) 0xBAADF00D, // on_click_args
-    "1", // text
+    "UI_L_1", // text
     0, // enabled
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.5, // text_scale
-    0, // width
-    0, // height
-    PIVOT_BOTTOM_LEFT, // pivot
-    T_LEFT, // text_anchor
+    1.0, // text_scale
+    0.5, // width
+    0.5, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
     trade->ui_listing_0 // dest
+  );
+
+  vec2 listing_1_position = { 0.0, 0.5 };
+  init_menu(
+    listing_1_position, // position
+    on_click_ui_listing_1, // on_click
+    (void *) 0xBAADF00D, // on_click_args
+    "UI_L_2", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    1.0, // text_scale
+    0.5, // width
+    0.5, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    trade->ui_listing_1 // dest
+  );
+
+  vec2 listing_2_position = { 0.5, 0.5 };
+  init_menu(
+    listing_2_position, // position
+    on_click_ui_listing_2, // on_click
+    (void *) 0xBAADF00D, // on_click_args
+    "UI_L_3", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    1.0, // text_scale
+    0.5, // width
+    0.5, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    trade->ui_listing_2 // dest
+  );
+
+  vec2 listing_3_position = { -0.5, 0.0 };
+  init_menu(
+    listing_3_position, // position
+    on_click_ui_listing_3, // on_click
+    (void *) 0xBAADF00D, // on_click_args
+    "UI_L_4", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    1.0, // text_scale
+    0.5, // width
+    0.5, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    trade->ui_listing_3 // dest
+  );
+
+  vec2 listing_4_position = { 0.0, 0.0 };
+  init_menu(
+    listing_4_position, // position
+    on_click_ui_listing_4, // on_click
+    (void *) 0xBAADF00D, // on_click_args
+    "UI_L_5", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    1.0, // text_scale
+    0.5, // width
+    0.5, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    trade->ui_listing_4 // dest
+  );
+
+  vec2 listing_5_position = { 0.5, 0.0 };
+  init_menu(
+    listing_5_position, // position
+    on_click_ui_listing_5, // on_click
+    (void *) 0xBAADF00D, // on_click_args
+    "UI_L_6", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    1.0, // text_scale
+    0.5, // width
+    0.5, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    trade->ui_listing_5 // dest
+  );
+
+  vec2 listing_6_position = { -0.5, -0.5 };
+  init_menu(
+    listing_6_position, // position
+    on_click_ui_listing_6, // on_click
+    (void *) 0xBAADF00D, // on_click_args
+    "UI_L_7", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    1.0, // text_scale
+    0.5, // width
+    0.5, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    trade->ui_listing_6 // dest
+  );
+
+  vec2 listing_7_position = { 0.0, -0.5 };
+  init_menu(
+    listing_7_position, // position
+    on_click_ui_listing_7, // on_click
+    (void *) 0xBAADF00D, // on_click_args
+    "UI_L_8", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    1.0, // text_scale
+    0.5, // width
+    0.5, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    trade->ui_listing_7 // dest
+  );
+
+  vec2 listing_8_position = { 0.5, -0.5 };
+  init_menu(
+    listing_8_position, // position
+    on_click_ui_listing_8, // on_click
+    (void *) 0xBAADF00D, // on_click_args
+    "UI_L_9", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    1.0, // text_scale
+    0.5, // width
+    0.5, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    trade->ui_listing_8 // dest
   );
 
   return trade;
@@ -467,20 +613,28 @@ int set_trade(T_TRADE dialog_type, MERCHANT * merchant) {
   if (trade && merchant) {
     trade->type = INVALID_TRADE;
     trade->merchant = merchant;
-    trade->ui_listing_0->text = merchant->listings[0]->item_id;
-    trade->ui_listing_1->text = merchant->listings[1]->item_id;
-    trade->ui_listing_2->text = merchant->listings[2]->item_id;
-    trade->ui_listing_3->text = merchant->listings[3]->item_id;
-    trade->ui_listing_4->text = merchant->listings[4]->item_id;
-    trade->ui_listing_5->text = merchant->listings[5]->item_id;
-    trade->ui_listing_6->text = merchant->listings[6]->item_id;
-    trade->ui_listing_7->text = merchant->listings[7]->item_id;
-    trade->ui_listing_8->text = merchant->listings[8]->item_id;
+    trade->ui_listing_0->text = get_item_name_by_ID(get_listing_item_by_number(merchant, 1)->item_id);
+    trade->ui_listing_1->text = get_item_name_by_ID(get_listing_item_by_number(merchant, 2)->item_id);
+    trade->ui_listing_2->text = get_item_name_by_ID(get_listing_item_by_number(merchant, 3)->item_id);
+    trade->ui_listing_3->text = get_item_name_by_ID(get_listing_item_by_number(merchant, 4)->item_id);
+    trade->ui_listing_4->text = get_item_name_by_ID(get_listing_item_by_number(merchant, 5)->item_id);
+    trade->ui_listing_5->text = get_item_name_by_ID(get_listing_item_by_number(merchant, 6)->item_id);
+    trade->ui_listing_6->text = get_item_name_by_ID(get_listing_item_by_number(merchant, 7)->item_id);
+    trade->ui_listing_7->text = get_item_name_by_ID(get_listing_item_by_number(merchant, 8)->item_id);
+    trade->ui_listing_8->text = get_item_name_by_ID(get_listing_item_by_number(merchant, 9)->item_id);
+    return 1;
   }
+  return 0;
 }
 
 void on_click_ui_listing_0() {
-  get_ui_component_by_ID(TRADE_BUTTON_LISTING_0)->text = "HIT!";
+  if (trade->type == BUY) {
+    if (e_player.money >= get_item_info_by_name(trade->ui_listing_0->text).value) {
+      get_listing_item_by_number(trade->merchant, 1)->quantity -= 1;
+      e_player.money -= get_item_info_by_name(trade->ui_listing_0->text).value;
+      // TODO: INVENTORY ADD
+    }
+  }
 }
 void on_click_ui_listing_1() {
   get_ui_component_by_ID(TRADE_BUTTON_LISTING_1)->text = "HIT!";

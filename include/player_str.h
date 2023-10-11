@@ -1,3 +1,6 @@
+#ifndef __PLAYER_STR_H__
+#define __PLAYER_STR_H__
+
 #include <cglm/vec2.h>
 #include <cglm/ivec2.h>
 /*
@@ -7,7 +10,7 @@ struct representing player state in combat mode. Can be included by any file
 which reads/manipulates player state.
 */
 
-#define INV_SIZE (1)
+#define INV_SIZE (9)
 
 #ifndef NUM_RESOURCES
 #define NUM_RESOURCES (1) // Also defined in items.h
@@ -63,3 +66,5 @@ typedef struct combat_player {
   float speed;
   float firerate;
 } C_PLAYER;
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef __CHUNK_STR_H__
+#define __CHUNK_STR_H__
+
 #include <cglm/ivec2.h>
 #include <merchant_str.h>
 #include <enemy_str.h>
@@ -57,3 +60,5 @@ typedef struct chunk {
   unsigned int num_islands;
   unsigned int num_enemies;
 } CHUNK;
+
+#endif

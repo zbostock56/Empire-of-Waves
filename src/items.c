@@ -1,4 +1,6 @@
 #include <items.h>
+#include <stdio.h>
+#include <string.h>
 /*
                                      ITEMS.c
 Defines a global table of items and resources. items.h defines the item and
@@ -120,4 +122,55 @@ ITEM get_item_info_by_ID(ITEM_IDS item_id) {
     return item_tab[0];
   }
   return item_tab[item_id + 1]; // +1 to account for INVALID_ITEM being -1
+}
+
+char * get_item_name_by_ID(unsigned int item_id) {
+  if (item_id < 0 || item_id > 17) {
+    return NULL;
+  }
+  switch (item_id) {
+    case 0: return "COIN";
+    case 1: return "CITRUS";
+    case 2: return "RUM";
+    case 3: return "LIFE_POTION";
+    case 4: return "FIRERATE_POTION";
+    case 5: return "SPEED_POTION";
+    case 6: return "KNIVE";
+    case 7: return "SWROD";
+    case 8: return "AXE";
+    case 9: return "BOW";
+    case 10: return "CROSSBOW";
+    case 11: return "FLINTLOCK";
+    case 12: return "CLOTH_ARMOR";
+    case 13: return "LEATHER_ARMOR";
+    case 14: return "LIGHT_ARMOR";
+    case 15: return "MIDIUM_ARMOR";
+    case 16: return "HEAVY_ARMOR";
+    case 17: return "PLATE_ARMOR";
+    default: return "INVALID_ITEM";
+  }
+}
+
+ITEM get_item_info_by_name(char * item_name) {
+  if (item_name) {
+    if (strcmp(item_name, "COIN") == 0) return get_item_info_by_ID(COIN);
+    else if (strcmp(item_name, "CITRUS") == 0) return get_item_info_by_ID(CITRUS);
+    else if (strcmp(item_name, "RUM") == 0) return get_item_info_by_ID(RUM);
+    else if (strcmp(item_name, "LIFE_POTION") == 0) return get_item_info_by_ID(LIFE_POTION);
+    else if (strcmp(item_name, "FIRERATE_POTION") == 0) return get_item_info_by_ID(FIRERATE_POTION);
+    else if (strcmp(item_name, "SPEED_POTION") == 0) return get_item_info_by_ID(SPEED_POTION);
+    else if (strcmp(item_name, "KNIVE") == 0) return get_item_info_by_ID(KNIVE);
+    else if (strcmp(item_name, "SWROD") == 0) return get_item_info_by_ID(SWROD);
+    else if (strcmp(item_name, "AXE") == 0) return get_item_info_by_ID(AXE);
+    else if (strcmp(item_name, "BOW") == 0) return get_item_info_by_ID(BOW);
+    else if (strcmp(item_name, "CROSSBOW") == 0) return get_item_info_by_ID(CROSSBOW);
+    else if (strcmp(item_name, "FLINTLOCK") == 0) return get_item_info_by_ID(FLINTLOCK);
+    else if (strcmp(item_name, "CLOTH_ARMOR") == 0) return get_item_info_by_ID(CLOTH_ARMOR);
+    else if (strcmp(item_name, "LEATHER_ARMOR") == 0) return get_item_info_by_ID(LEATHER_ARMOR);
+    else if (strcmp(item_name, "LIGHT_ARMOR") == 0) return get_item_info_by_ID(LIGHT_ARMOR);
+    else if (strcmp(item_name, "MIDIUM_ARMOR") == 0) return get_item_info_by_ID(MIDIUM_ARMOR);
+    else if (strcmp(item_name, "HEAVY_ARMOR") == 0) return get_item_info_by_ID(HEAVY_ARMOR);
+    else if (strcmp(item_name, "PLATE_ARMOR") == 0) return get_item_info_by_ID(PLATE_ARMOR);
+  }
+  return get_item_info_by_ID(INVALID_ITEM);
 }

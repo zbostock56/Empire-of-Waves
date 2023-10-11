@@ -1,3 +1,6 @@
+#ifndef __MERCHANT_STR_H__
+#define __MERCHANT_STR_H__
+
 #include <cglm/vec2.h>
 #include <cglm/ivec2.h>
 
@@ -25,3 +28,5 @@ typedef struct merchant {
   unsigned int num_listings;
   float relationship;
 } MERCHANT;
+
+#endif

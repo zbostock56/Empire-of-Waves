@@ -86,3 +86,5 @@ extern unsigned int resource_tab[NUM_RESOURCES];
 
 unsigned int get_resource_value_by_ID(REC_IDS resource_id);
 ITEM get_item_info_by_ID(ITEM_IDS item_id);
+char * get_item_name_by_ID(unsigned int item_id);
+ITEM get_item_info_by_name(char *item_name);
