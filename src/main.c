@@ -10,6 +10,10 @@ int main() {
   }
 
   init_scene();
+  status = init_trade_ship_buffers();
+  if (status) {
+    return -1;
+  }
 
   while (!glfwWindowShouldClose(window)) {
     keyboard_input(window);
@@ -24,6 +28,8 @@ int main() {
       return -1;
     }
 
+    update_trade_ships();
+    
     status = detect_collisions();
     if (status) {
       return -1;

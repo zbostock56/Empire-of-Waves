@@ -5,8 +5,8 @@
 #include <shader_code.h>
 #include <model_str.h>
 #include <player_str.h>
-#include <trade_ship_str.h>
 #include <chunk_str.h>
+#include <trade_ship_str.h>
 #include <ui_component.h>
 #include <globals.h>
 
@@ -50,8 +50,6 @@ mat4 ortho_proj;
 vec3 Z = { 0.0, 0.0, 1.0 };
 
 // TEST ENTITIES
-TRADE_SHIP test_ts;
-MERCHANT test_merchant;
 UI_COMPONENT test_menu;
 ISLAND test_island;
 unsigned int ocean_texture;

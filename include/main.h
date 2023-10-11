@@ -13,4 +13,6 @@ void render_scene(GLFWwindow *);
 void cleanup_scene();
 void update_event_timer();
 int detect_collisions();
+int init_trade_ship_buffers();
+void update_trade_ships();
 void update_combat_state();
