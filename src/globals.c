@@ -30,5 +30,6 @@ float next_event;
 // COMBAT MODE STATE
 C_PLAYER c_player;
 C_UNIT *npc_units;
+unsigned int e_enemy_index;
 unsigned int num_npc_units;
 ivec2 arena_dimensions = { 50, 20 };

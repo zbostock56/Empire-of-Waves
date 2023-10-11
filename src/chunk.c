@@ -5,7 +5,7 @@ Implements the functionality for chunk loading and unloading, random chunk
 generation, and detection of which chunks to load/unload.
 */
 
-void init_chunks() {
+int init_chunks() {
   ivec2 player_chunk = { 0, 0 };
   if (e_player.embarked) {
     glm_ivec2_copy(e_player.ship_chunk, player_chunk);
@@ -20,7 +20,10 @@ void init_chunks() {
     status = load_chunk(chunk_coords, player_chunks + i);
     if (status) {
       glm_ivec2_copy(chunk_coords, player_chunks[i].coords);
-      generate_chunk(player_chunks + i);
+      status = generate_chunk(player_chunks + i);
+      if (status) {
+        return -1;
+      }
     }
   }
 
@@ -31,9 +34,14 @@ void init_chunks() {
     };
     glm_vec2_copy(home_coords, home_island_coords);
   }
+  return 0;
 }
 
-void manage_chunks() {
+int manage_chunks() {
+  if (mode != EXPLORATION) {
+    return 0;
+  }
+
   ivec2 player_chunk = { 0, 0 };
   if (e_player.embarked) {
     glm_ivec2_copy(e_player.ship_chunk, player_chunk);
@@ -50,7 +58,7 @@ void manage_chunks() {
     player_to_serialize[i] = 1;
   }
 
-  //int status = 0;
+  int status = 0;
   ivec2 new_chunk_coords = { 0, 0 };
 
   // Detect updated player chunks
@@ -64,7 +72,10 @@ void manage_chunks() {
       player_to_serialize[loaded_by_player] = 0;
     } else {
       // New chunk does not currently exist in memory, load it up
-      chunk_from_coords(new_chunk_coords, updated_chunks + i);
+      status = chunk_from_coords(new_chunk_coords, updated_chunks + i);
+      if (status) {
+        return -1;
+      }
     }
   }
 
@@ -91,8 +102,13 @@ void manage_chunks() {
     free_chunk(&trade_ships[i].chunk);
 
     // Attempt to load new chunk from disk
-    chunk_from_coords(trade_ships[i].chunk_coords, &trade_ships[i].chunk);
+    status = chunk_from_coords(trade_ships[i].chunk_coords, &trade_ships[i].chunk);
+    if (status) {
+      return -1;
+    }
   }
+
+  return 0;
 }
 
 void free_chunk(CHUNK *chunk) {
@@ -111,7 +127,7 @@ int chunk_from_coords(ivec2 coords, CHUNK *dest) {
   if (status) {
     // Chunk also does not exist on disk, so generate it
     glm_ivec2_copy(coords, dest->coords);
-    generate_chunk(dest);
+    return generate_chunk(dest);
   }
 
   return 0;
@@ -297,6 +313,7 @@ int generate_chunk(CHUNK *chunk) {
   chunk->num_enemies = 0;
   chunk->enemies = malloc(sizeof(E_ENEMY) * STARTING_BUFF_SIZE);
   if (chunk->enemies == NULL) {
+    fprintf(stderr, "chunk.c: failed to allocate chunk enemies buffer\n");
     return -1;
   }
 

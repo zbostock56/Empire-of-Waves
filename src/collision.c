@@ -6,116 +6,10 @@ Implements the functionality for detecting and handling collisions across the
 various other systems in the application.
 */
 
-/* Checks collision between two bounding boxes */
-int aabb_collision(float *p1, float w1, float h1, float *p2, float w2,
-                   float h2) {
-  float box1_top = p1[Y]+h1/2;
-  float box2_top = p2[Y]+h2/2;
-  float box1_bot = p1[Y]-h1/2;
-  float box2_bot = p2[Y]-h2/2;
-  float box1_left = p1[X]-w1/2;
-  float box2_left = p2[X]-w2/1;
-  float box1_right = p1[X]+w1/2;
-  float box2_right = p2[X]+w2/2;
-
-  if (box1_right >= box2_left &&
-      box1_left <= box2_right &&
-      box1_top >= box2_bot &&
-      box1_bot <= box2_top)
-  {
-    return true;
-  }
-
-  return false;
-}
-
-int circle_aabb_collision(vec2 a_center, float a_radius, vec2 b_top_left,
-                          float b_width, float b_height, vec2 correction) {
-  float by_max = b_top_left[Y];
-  float by_min = b_top_left[Y] - b_height;
-  float bx_max = b_top_left[X] + b_width;
-  float bx_min = b_top_left[X];
-
-  // Calculate closest point on aabb to circle
-  vec2 closest_aabb_point = {
-    fmax(bx_min, fmin(bx_max, a_center[X])), // Clamp x value of circle's
-                                             // center between max and min x
-                                             // value of aabb
-    fmax(by_min, fmin(by_max, a_center[Y])) // Clamp y value of circle's center
-                                            // between max and min y value of
-                                            // aabb
-  };
-
-  float dist_circle_to_closest = glm_vec2_distance(closest_aabb_point,
-                                                   a_center);
-  // If the distance from the circle's center to the closest point on the aabb
-  // is less than the radius of the circle, a collision has occured which can
-  // be corrected along the vector from the circle to the closest point
-  float correction_distance = a_radius - dist_circle_to_closest;
-  if (correction_distance > 0.0) {
-    glm_vec2_sub(a_center, closest_aabb_point, correction);
-    glm_vec2_scale_as(correction, correction_distance, correction);
-    return 1;
-  }
-
-  return 0;
-}
-
-// Performs collision detection of two circles
-int circle_circle_collision(vec2 a_center, float a_radius, vec2 b_center,
-                            float b_radius) {
-  // If the distance from circle a's center to circle b's center is less than
-  // the sum of their radii, then a collision has occured
-  float ab_dist = glm_vec2_distance(a_center, b_center);
-  if (ab_dist < a_radius + b_radius) {
-    return 1;
-  }
-  return 0;
-}
-
-/*
-   helper function for getting the island player's currently on
-*/
-ISLAND *cur_island(CHUNK *chunk, vec2 world_coords, float radius) {
-  /* Finds which island the the player is on by checking if they collide */
-  for (int i = 0; i < chunk->num_islands; i++) {
-    vec2 island_coords = { chunk->islands[i].coords[X],
-                           chunk->islands[i].coords[Y] };
-    vec2 island_coords_world = GLM_VEC2_ZERO_INIT;
-    chunk_to_world(chunk->coords, island_coords, island_coords_world);
-    vec2 correction = GLM_VEC2_ZERO_INIT;
-    if (circle_aabb_collision(world_coords, radius, island_coords_world,
-                              I_WIDTH * T_WIDTH, I_WIDTH * T_WIDTH,
-                              correction)) {
-      return chunk->islands + i;
-    }
-  }
-
-  return NULL;
-}
-
-/*
-    Helper function for checking the tile's type of a given local coordinate
-
-    - coords is given in chunk space
-*/
-int check_tile(ISLAND *island, vec2 coords) {
-  ivec2 tile_coords = { coords[X], coords[Y] };
-  glm_ivec2_sub(tile_coords, island->coords, tile_coords);
-  int tile_index = tile_coords[Y] * I_WIDTH + tile_coords[X];
-  if (tile_index < 0 || tile_index >= I_WIDTH * I_WIDTH) {
-    return OCEAN;
-  }
-
-  return island->tiles[tile_index];
-}
-
-// Exploration mode collision:
-
-void detect_collisions() {
+int detect_collisions() {
+  // Player
   if (mode == EXPLORATION) {
     // Collision with world
-    // Player
     if (e_player.embarked) {
       ship_collisions(player_chunks + PLAYER_CHUNK, e_player.ship_chunk,
                       e_player.ship_coords);
@@ -137,35 +31,42 @@ void detect_collisions() {
     detect_context_interaction();
   } else {
     unit_collision(c_player.coords);
+    attack_collision();
   }
+
+  return 0;
 }
 
-void detect_enemy_ships() {
+// ===================== EXPLORATION MODE COLLISION ==========================
+
+int detect_enemy_ships() {
   vec2 world_coords = GLM_VEC2_ZERO_INIT;
   chunk_to_world(e_player.ship_chunk, e_player.ship_coords, world_coords);
 
   CHUNK *chunk = player_chunks + PLAYER_CHUNK;
   E_ENEMY *cur_enemy = NULL;
   vec2 cur_enemy_world_coords = GLM_VEC2_ZERO_INIT;
-  if (chunk->enemies) {
-    for (int i = 0; i < chunk->num_enemies; i++) {
-      cur_enemy = chunk->enemies + i;
-      chunk_to_world(cur_enemy->chunk, cur_enemy->coords,
-                     cur_enemy_world_coords);
+  int status = 0;
+  for (int i = 0; i < chunk->num_enemies; i++) {
+    cur_enemy = chunk->enemies + i;
+    chunk_to_world(cur_enemy->chunk, cur_enemy->coords,
+                   cur_enemy_world_coords);
 
-      if (circle_circle_collision(world_coords,
-                                  SHIP_COLLISION_RADIUS * T_WIDTH,
-                                  cur_enemy_world_coords,
-                                  SHIP_COLLISION_RADIUS * T_WIDTH)) {
-        glm_vec2_zero(c_player.coords);
-        glm_vec2_zero(c_player.direction);
-        c_player.direction[0] = 1.0;
-        mode = COMBAT;
+    if (circle_circle_collision(world_coords,
+                                SHIP_COLLISION_RADIUS * T_WIDTH,
+                                cur_enemy_world_coords,
+                                SHIP_COLLISION_RADIUS * T_WIDTH)) {
+      status = to_combat_mode(i);
+      if (status) {
+        return -1;
       }
     }
   }
+
+  return 0;
 }
 
+// Detects collision with shore, player ship, merchants, etc for prompts
 void detect_context_interaction() {
   // Disembark / embark
   vec2 world_coords_ship = GLM_VEC2_ZERO_INIT;
@@ -207,7 +108,7 @@ void detect_context_interaction() {
 }
 
 /*
-    Handles the collision of a character
+    Handles the collision of a character with ocean tiles
 
     - chunk_coords and coords are given in chunk space
 */
@@ -248,7 +149,7 @@ void character_collisions(CHUNK *chunk, ivec2 chunk_coords, vec2 coords) {
 }
 
 /*
-    Handles the collision of a ship
+    Handles the collision of a ship with land tiles
 
     - chunk_coords and coords are given in chunk space
 */
@@ -392,12 +293,14 @@ void trade_ship_collision(TRADE_SHIP *trade_ship) {
       }
     }
   }
-
 }
 
-// Combat mode collision:
-// Performs collision detection and resolution for combat units
-// - coords are given as tile coordinates
+// ======================== COMBAT MODE COLLISIONS ===========================
+
+/*
+  Performs collision detection and resolution for combat units
+  - coords are given as tile coordinates
+*/
 void unit_collision(vec2 coords) {
   float radius = CHARACTER_COLLISION_RADIUS * T_WIDTH;
   vec2 collision_correction = GLM_VEC2_ZERO_INIT;
@@ -463,4 +366,154 @@ void unit_collision(vec2 coords) {
     collision_correction[Y] /= T_WIDTH;
     glm_vec2_add(coords, collision_correction, coords);
   }
+}
+
+void attack_collision() {
+  float hurt_radius = CHARACTER_COLLISION_RADIUS * T_WIDTH;
+  vec2 collision_correction = GLM_VEC2_ZERO_INIT;
+  vec2 player_coords = GLM_VEC2_ZERO_INIT;
+  glm_vec2_scale(c_player.coords, T_WIDTH, player_coords);
+  vec2 player_attack_pos = GLM_VEC2_ZERO_INIT;
+  glm_vec2_scale_as(c_player.direction, T_WIDTH, player_attack_pos);
+  glm_vec2_add(player_attack_pos, player_coords, player_attack_pos);
+  // Because circle_aabb_collision utilizes the top left corner of the aabb,
+  // we must calculate the top left corner of the hitbox, since
+  // player_attack_pos currently contains the middle of the hitbox
+  vec2 to_top_left = { -0.5 * T_WIDTH, 0.5 * T_WIDTH };
+  glm_vec2_add(to_top_left, player_attack_pos, player_attack_pos);
+
+  C_UNIT *unit = NULL;
+  vec2 unit_coords = GLM_VEC2_ZERO_INIT;
+  vec2 unit_attack_pos = GLM_VEC2_ZERO_INIT;
+  for (unsigned int i = 0; i < num_npc_units; i++) {
+    unit = npc_units + i;
+    glm_vec2_scale(unit->coords, T_WIDTH, unit_coords);
+    if (unit->type == ENEMY && unit->death_animation == -1.0) {
+      // Check player collision with enemy hitbox
+      glm_vec2_scale_as(npc_units[i].direction, T_WIDTH, unit_attack_pos);
+      glm_vec2_add(unit_attack_pos, unit_coords, unit_attack_pos);
+      glm_vec2_add(to_top_left, unit_attack_pos, unit_attack_pos);
+      if (c_player.invuln_timer == 0.0 && npc_units[i].attack_active &&
+          circle_aabb_collision(player_coords, hurt_radius, unit_attack_pos,
+                                T_WIDTH, T_WIDTH, collision_correction)) {
+        c_player.health -= 10.0;
+        c_player.invuln_timer = 0.5;
+        printf("Health: %f\n", c_player.health);
+        fflush(stdout);
+      }
+
+      // Check enemy collision with player hitbox
+      if (c_player.attack_active &&
+          circle_aabb_collision(unit_coords, hurt_radius, player_attack_pos,
+                                T_WIDTH, T_WIDTH, collision_correction)) {
+        unit->death_animation = 1.0;
+      }
+    }
+  }
+}
+
+// ========================== COLLISION HELPERS ==============================
+
+/* Checks collision between two bounding boxes */
+int aabb_collision(float *p1, float w1, float h1, float *p2, float w2,
+                   float h2) {
+  float box1_top = p1[Y]+h1/2;
+  float box2_top = p2[Y]+h2/2;
+  float box1_bot = p1[Y]-h1/2;
+  float box2_bot = p2[Y]-h2/2;
+  float box1_left = p1[X]-w1/2;
+  float box2_left = p2[X]-w2/1;
+  float box1_right = p1[X]+w1/2;
+  float box2_right = p2[X]+w2/2;
+
+  if (box1_right >= box2_left &&
+      box1_left <= box2_right &&
+      box1_top >= box2_bot &&
+      box1_bot <= box2_top)
+  {
+    return true;
+  }
+
+  return false;
+}
+
+int circle_aabb_collision(vec2 a_center, float a_radius, vec2 b_top_left,
+                          float b_width, float b_height, vec2 correction) {
+  float by_max = b_top_left[Y];
+  float by_min = b_top_left[Y] - b_height;
+  float bx_max = b_top_left[X] + b_width;
+  float bx_min = b_top_left[X];
+
+  // Calculate closest point on aabb to circle
+  vec2 closest_aabb_point = {
+    fmax(bx_min, fmin(bx_max, a_center[X])), // Clamp x value of circle's
+                                             // center between max and min x
+                                             // value of aabb
+    fmax(by_min, fmin(by_max, a_center[Y])) // Clamp y value of circle's center
+                                            // between max and min y value of
+                                            // aabb
+  };
+
+  float dist_circle_to_closest = glm_vec2_distance(closest_aabb_point,
+                                                   a_center);
+  // If the distance from the circle's center to the closest point on the aabb
+  // is less than the radius of the circle, a collision has occured which can
+  // be corrected along the vector from the circle to the closest point
+  float correction_distance = a_radius - dist_circle_to_closest;
+  if (correction_distance > 0.0) {
+    glm_vec2_sub(a_center, closest_aabb_point, correction);
+    glm_vec2_scale_as(correction, correction_distance, correction);
+    return 1;
+  }
+
+  return 0;
+}
+
+// Performs collision detection of two circles
+int circle_circle_collision(vec2 a_center, float a_radius, vec2 b_center,
+                            float b_radius) {
+  // If the distance from circle a's center to circle b's center is less than
+  // the sum of their radii, then a collision has occured
+  float ab_dist = glm_vec2_distance(a_center, b_center);
+  if (ab_dist < a_radius + b_radius) {
+    return 1;
+  }
+  return 0;
+}
+
+/*
+   helper function for getting the island player's currently on
+*/
+ISLAND *cur_island(CHUNK *chunk, vec2 world_coords, float radius) {
+  /* Finds which island the the player is on by checking if they collide */
+  for (int i = 0; i < chunk->num_islands; i++) {
+    vec2 island_coords = { chunk->islands[i].coords[X],
+                           chunk->islands[i].coords[Y] };
+    vec2 island_coords_world = GLM_VEC2_ZERO_INIT;
+    chunk_to_world(chunk->coords, island_coords, island_coords_world);
+    vec2 correction = GLM_VEC2_ZERO_INIT;
+    if (circle_aabb_collision(world_coords, radius, island_coords_world,
+                              I_WIDTH * T_WIDTH, I_WIDTH * T_WIDTH,
+                              correction)) {
+      return chunk->islands + i;
+    }
+  }
+
+  return NULL;
+}
+
+/*
+    Helper function for checking the tile's type of a given local coordinate
+
+    - coords is given in chunk space
+*/
+int check_tile(ISLAND *island, vec2 coords) {
+  ivec2 tile_coords = { coords[X], coords[Y] };
+  glm_ivec2_sub(tile_coords, island->coords, tile_coords);
+  int tile_index = tile_coords[Y] * I_WIDTH + tile_coords[X];
+  if (tile_index < 0 || tile_index >= I_WIDTH * I_WIDTH) {
+    return OCEAN;
+  }
+
+  return island->tiles[tile_index];
 }

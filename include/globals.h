@@ -19,6 +19,9 @@ extern float next_event;
 // COMBAT MODE STATE
 extern C_PLAYER c_player;
 extern C_UNIT *npc_units;
+// Index of enemy ship in chunk buffer which is currently engaged in combat
+// with player
+extern unsigned int e_enemy_index;
 extern unsigned int num_npc_units;
-extern ivec2 arena_dimensions; // Specifies width and height of game arena in
-                               // tiles
+// Specifies width and height of game arena in tiles
+extern ivec2 arena_dimensions;
