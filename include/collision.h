@@ -10,6 +10,7 @@
 
 #define INTERACTION_RADIUS (3.0)
 #define SHIP_COLLISION_RADIUS (1.0)
+#define SHIP_PATHFIND_RADIUS (10.0)
 #define CHARACTER_COLLISION_RADIUS (0.5)
 
 int shore_interaction_enabled = 0;
@@ -23,6 +24,7 @@ void character_collisions(CHUNK *, ivec2, vec2);
 void ship_collisions(CHUNK *, ivec2, vec2);
 void unit_collision(vec2);
 void detect_enemy_ships();
+void trade_ship_collision(TRADE_SHIP *);
 
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 void chunk_to_world(ivec2, vec2, vec2);

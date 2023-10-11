@@ -113,9 +113,9 @@ int check_tile(ISLAND *island, vec2 coords) {
 // Exploration mode collision:
 
 void detect_collisions() {
-  // Player
   if (mode == EXPLORATION) {
     // Collision with world
+    // Player
     if (e_player.embarked) {
       ship_collisions(player_chunks + PLAYER_CHUNK, e_player.ship_chunk,
                       e_player.ship_coords);
@@ -125,6 +125,12 @@ void detect_collisions() {
     } else {
       character_collisions(player_chunks + PLAYER_CHUNK, e_player.chunk,
                            e_player.coords);
+    }
+
+    for (int i = 0; i < num_trade_ships; i++) {
+      ship_collisions(&trade_ships[i].chunk, trade_ships[i].chunk_coords,
+                      trade_ships[i].coords);
+      trade_ship_collision(trade_ships + i);
     }
 
     // Disembark / embark contexts
@@ -277,6 +283,112 @@ void ship_collisions(CHUNK *chunk, ivec2 chunk_coords, vec2 coords) {
                                 T_WIDTH, T_WIDTH, collision_correction)) {
         glm_vec2_add(world_coords, collision_correction, world_coords);
         world_to_chunk(world_coords, chunk_coords, coords);
+      }
+    }
+  }
+}
+
+// Steer trade ship away from obstructive tiles of non-target islands
+void trade_ship_steering(TRADE_SHIP *trade_ship, vec2 direction) {
+  vec2 world_coords = GLM_VEC2_ZERO_INIT;
+  chunk_to_world(trade_ship->chunk_coords, trade_ship->coords, world_coords);
+
+  float radius = T_WIDTH * SHIP_COLLISION_RADIUS;
+  ISLAND *target_island = trade_ship->target_chunk.islands +
+                          trade_ship->target_island;
+  ISLAND *island = cur_island(&trade_ship->chunk, world_coords, radius);
+  if (!island) {
+    return;
+  }
+
+  vec2 search_world_coords = GLM_VEC2_ZERO_INIT;
+  vec2 search_tile = GLM_VEC2_ZERO_INIT;
+  vec2 from_tile = GLM_VEC2_ZERO_INIT;
+  float tile_dist = 0.0;
+  vec2 steer_dir = GLM_VEC2_ZERO_INIT;
+  int cur_tile = OCEAN;
+
+  int search_min_x = ((int) trade_ship->coords[X]) -
+                     ceil(SHIP_PATHFIND_RADIUS);
+  int search_max_x = ((int) trade_ship->coords[X]) +
+                     ceil(SHIP_PATHFIND_RADIUS);
+  int search_min_y = ((int) trade_ship->coords[Y]) -
+                     ceil(SHIP_PATHFIND_RADIUS);
+  int search_max_y = ((int) trade_ship->coords[Y]) +
+                     ceil(SHIP_PATHFIND_RADIUS);
+  for (int cur_y = search_min_y; cur_y <= search_max_y; cur_y++) {
+    for (int cur_x = search_min_x; cur_x <= search_max_x; cur_x++) {
+      search_tile[X] = cur_x;
+      search_tile[Y] = cur_y;
+      chunk_to_world(trade_ship->chunk_coords, search_tile,
+                     search_world_coords);
+      tile_dist = glm_vec2_distance(world_coords, search_world_coords);
+      glm_vec2_sub(world_coords, search_world_coords, from_tile);
+      glm_vec2_normalize(from_tile);
+      glm_vec2_scale(from_tile, tile_dist / SHIP_PATHFIND_RADIUS, from_tile);
+      cur_tile = check_tile(island, search_tile);
+
+      if (island == target_island) {
+        if (cur_tile != SHORE) {
+          glm_vec2_add(from_tile, steer_dir, steer_dir);
+        } else {
+          glm_vec2_sub(steer_dir, from_tile, steer_dir);
+        }
+      } else {
+        if (cur_tile != OCEAN) {
+          glm_vec2_add(from_tile, steer_dir, steer_dir);
+        } else {
+          glm_vec2_sub(steer_dir, from_tile, steer_dir);
+        }
+      }
+    }
+  }
+
+  glm_vec2_normalize(steer_dir);
+  //glm_vec2_scale(steer_dir, delta_time, steer_dir);
+  glm_vec2_add(steer_dir, direction, direction);
+}
+
+// Detect if trade ship completed its route
+void trade_ship_collision(TRADE_SHIP *trade_ship) {
+  vec2 world_coords = GLM_VEC2_ZERO_INIT;
+  chunk_to_world(trade_ship->chunk_coords, trade_ship->coords, world_coords);
+
+  float radius = T_WIDTH * SHIP_COLLISION_RADIUS;
+  ISLAND *target_island = trade_ship->target_chunk.islands +
+                          trade_ship->target_island;
+  ISLAND *island = cur_island(&trade_ship->chunk, world_coords, radius);
+  if (
+    !island ||
+    target_island->chunk[X] != island->chunk[X] ||
+    target_island->chunk[Y] != island->chunk[Y] ||
+    target_island->coords[X] != island->coords[X] ||
+    target_island->coords[Y] != island->coords[Y]
+  ) {
+    return;
+  }
+
+  vec2 search_tile = GLM_VEC2_ZERO_INIT;
+  int cur_tile = OCEAN;
+
+  int search_min_x = ((int) trade_ship->coords[X]) -
+                     ceil(SHIP_COLLISION_RADIUS);
+  int search_max_x = ((int) trade_ship->coords[X]) +
+                     ceil(SHIP_COLLISION_RADIUS);
+  int search_min_y = ((int) trade_ship->coords[Y]) -
+                     ceil(SHIP_COLLISION_RADIUS);
+  int search_max_y = ((int) trade_ship->coords[Y]) +
+                     ceil(SHIP_COLLISION_RADIUS);
+  for (int cur_y = search_min_y; cur_y <= search_max_y; cur_y++) {
+    for (int cur_x = search_min_x; cur_x <= search_max_x; cur_x++) {
+      search_tile[X] = cur_x;
+      search_tile[Y] = cur_y;
+      cur_tile = check_tile(island, search_tile);
+
+      if (cur_tile == SHORE) {
+        // Finished route
+        glm_ivec2_zero(trade_ship->chunk_coords);
+        glm_vec2_copy(home_island_coords, trade_ship->coords);
       }
     }
   }

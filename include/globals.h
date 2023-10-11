@@ -10,12 +10,10 @@ extern float last_frame;
 // EXPLORATION MODE STATE
 extern E_PLAYER e_player;
 extern CHUNK player_chunks[9];
+extern vec2 home_island_coords;
 extern TRADE_SHIP *trade_ships;
-// Each trade ship contains a single loaded chunk
-// Each chunk corresponds to the trade ship of the same
-// index in trade_ships
-extern CHUNK *trade_ship_chunks;
 extern unsigned int num_trade_ships;
+extern unsigned int trade_ship_buf_size;
 extern float next_event;
 
 // COMBAT MODE STATE

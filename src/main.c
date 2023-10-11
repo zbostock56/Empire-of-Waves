@@ -3,8 +3,13 @@
 int main() {
   GLFWwindow *window = init_gl();
 
+  int status = 0;
   init_chunks();
   init_scene();
+  status = init_trade_ship_buffers();
+  if (status) {
+    return -1;
+  }
 
   while (!glfwWindowShouldClose(window)) {
     keyboard_input(window);
@@ -15,6 +20,7 @@ int main() {
     // - chunk serialization
     // - etc...
     manage_chunks();
+    update_trade_ships();
     detect_collisions();
 
     render_scene(window);

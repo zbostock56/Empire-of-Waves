@@ -2,8 +2,9 @@
 #include <cglm/ivec2.h>
 
 typedef struct trade_ship {
-  ivec2 chunk;
-  ivec2 target_chunk;
+  CHUNK chunk;
+  CHUNK target_chunk;
+  ivec2 chunk_coords;
   vec2 coords;
   vec2 direction;
   unsigned int export_rec;
