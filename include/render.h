@@ -5,10 +5,10 @@
 #include <shader_code.h>
 #include <model_str.h>
 #include <player_str.h>
-#include <trade_ship_str.h>
 #include <chunk_str.h>
 #include <menu.h>
 #include <items.h>
+#include <trade_ship_str.h>
 #include <globals.h>
 
 #define RES_X (640.0f)
@@ -74,8 +74,6 @@ mat4 ortho_proj;
 vec3 Z = { 0.0, 0.0, 1.0 };
 
 // TEST ENTITIES
-TRADE_SHIP test_ts;
-C_UNIT test_unit;
 unsigned int ocean_texture;
 // END TEST
 
@@ -95,6 +93,7 @@ void render_text(char *, int, mat4);
 void render_island(ISLAND *);
 void render_chunk(ivec2);
 void render_arena();
+void render_hitbox(vec2);
 //void render_tile(TILE, ivec2, vec2);
 
 unsigned int shader_init(const char *, const char *);

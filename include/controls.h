@@ -24,6 +24,7 @@ extern int shore_interaction_enabled;
 int holding_equals = 0;
 int holding_minus = 0;
 int holding_interaction = 0;
+int holding_attack = 0;
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 
@@ -39,3 +40,6 @@ void detect_context_interaction();
 void chunk_to_world(ivec2, vec2, vec2);
 void world_to_chunk(vec2, ivec2, vec2);
 void get_ui_min_max(UI_COMPONENT *, vec4);
+
+int to_combat_mode(unsigned int);
+void from_combat_mode();

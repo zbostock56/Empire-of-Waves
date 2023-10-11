@@ -6,11 +6,14 @@
 
 GLFWwindow *init_gl();
 void init_scene();
-void init_chunks();
+int init_chunks();
 void keyboard_input(GLFWwindow *);
-void manage_chunks();
+int manage_chunks();
 void render_scene(GLFWwindow *);
 void cleanup_scene();
 void init_menus();
 void update_event_timer();
-void detect_collisions();
+int detect_collisions();
+int init_trade_ship_buffers();
+void update_trade_ships();
+void update_combat_state();

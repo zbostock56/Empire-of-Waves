@@ -61,7 +61,16 @@ typedef struct combat_player {
   float max_health;
   float health;
   float speed;
-  float firerate;
+  // Indicates the current cool down of a players active hitbox in seconds.
+  // When non-zero, the hitbox is currently active. When 0, the hitbox is not
+  // active
+  float attack_active;
+  // Indicates current cool down of players attack in seconds. Once at 0, the
+  // player can attack again
+  float attack_cooldown;
+  // Value that attack_timer is set to once an attack is fired off
+  float fire_rate;
+  float invuln_timer;
 } C_PLAYER;
 
 #endif

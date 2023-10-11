@@ -17,17 +17,6 @@ void init_scene() {
   e_player.inventory[2].quantity = 1;
 
   // TEST MODELS
-  vec2 ts_coords = { 0.0f, 0.0f };
-  world_to_chunk(ts_coords, test_ts.chunk, test_ts.coords);
-  glm_vec2_zero(test_ts.direction);
-  test_ts.direction[0] = 1.0;
-  trade_ships = (TRADE_SHIP * )malloc(sizeof(TRADE_SHIP));
-
-  vec2 tu_coords = { -1.0f, 0.0f };
-  glm_vec2_copy(tu_coords, test_unit.coords);
-  vec2 tu_dir = { 0.0, -1.0};
-  glm_vec2_copy(tu_dir, test_unit.direction);
-
   unsigned char ocean_buffer[3] = { 3, 157, 252 };
   ocean_texture = texture_from_buffer(ocean_buffer, 1, 1, GL_RGB);
   // END TEST
@@ -112,9 +101,6 @@ void render_scene(GLFWwindow *window) {
 
   render_player();
   if (mode == EXPLORATION) {
-    // TODO: render chunk enemies
-
-    // TEST RENDERING
     for (int i = 0; i < 5; i++) {
       for (int j = 0; j < 5; j++) {
         ivec2 chunk = {
@@ -126,38 +112,53 @@ void render_scene(GLFWwindow *window) {
     }
 
     render_player_ship();
-    render_trade_ship(&test_ts);
+
     for (int i = 0; i < NUM_COMPONENTS; i++) {
       if (ui_tab[i].enabled) {
         render_ui(ui_tab + i);
       }
     }
 
-    // Render islands and merchants
+    for (unsigned int i = 0; i < num_trade_ships; i++) {
+      render_trade_ship(trade_ships + i);
+    }
+
     for (int i = 0; i < 9; i++) {
+      for (int j = 0; j < player_chunks[i].num_enemies; j++) {
+        render_enemy_ship(player_chunks[i].enemies + j);
+      }
       for (int j = 0; j < player_chunks[i].num_islands; j++) {
         if (player_chunks[i].islands[j].has_merchant) {
           render_merchant(&player_chunks[i].islands[j].merchant);
         }
         render_island(player_chunks[i].islands + j);
       }
-      for (int j = 0; j < player_chunks[i].num_enemies; j++) {
-        render_enemy_ship(player_chunks[i].enemies + j);
-      }
     }
-    //render_island(&test_island);
   } else {
-    // TEST RENDERING
-    render_unit(&test_unit);
-    // END TEST
-
     if (npc_units) {
       for (int i = 0; i < num_npc_units; i++) {
         render_unit(npc_units + i);
+        if (npc_units[i].attack_active) {
+          vec2 hitbox_pos = GLM_VEC2_ZERO_INIT;
+          glm_vec2_scale(npc_units[i].coords, T_WIDTH, hitbox_pos);
+          vec2 hitbox_offset = GLM_VEC2_ZERO_INIT;
+          glm_vec2_scale_as(npc_units[i].direction, T_WIDTH, hitbox_offset);
+          glm_vec2_add(hitbox_pos, hitbox_offset, hitbox_pos);
+          render_hitbox(hitbox_pos);
+        }
       }
     }
 
     render_arena();
+
+    if (c_player.attack_active) {
+      vec2 hitbox_pos = GLM_VEC2_ZERO_INIT;
+      glm_vec2_scale(c_player.coords, T_WIDTH, hitbox_pos);
+      vec2 hitbox_offset = GLM_VEC2_ZERO_INIT;
+      glm_vec2_scale_as(c_player.direction, T_WIDTH, hitbox_offset);
+      glm_vec2_add(hitbox_pos, hitbox_offset, hitbox_pos);
+      render_hitbox(hitbox_pos);
+    }
   }
 
   /*
@@ -179,7 +180,6 @@ void render_player_ship() {
                       e_player.ship_direction[1], 0.0f };
   calc_rot_mat(player_dir, player_rot);
   glm_scale_uni(fbo_model_mat, 0.5);
-  glm_translate_y(fbo_model_mat, -0.5);
   glm_rotate_x(fbo_model_mat, glm_rad(-25.0), fbo_model_mat);
   glm_mat4_mul(fbo_model_mat, player_rot, fbo_model_mat);
 
@@ -215,7 +215,7 @@ void render_enemy_ship(E_ENEMY *es) {
 }
 
 void render_trade_ship(TRADE_SHIP *ts) {
-  render_e_npc(trade_ship, ts->chunk, ts->coords, ts->direction, 0.50);
+  render_e_npc(trade_ship, ts->chunk_coords, ts->coords, ts->direction, 0.50);
 }
 
 void render_player() {
@@ -254,7 +254,11 @@ void render_player() {
 
 void render_unit(C_UNIT *unit) {
   // TODO Sprint 2: render allies here as well
-  render_c_npc(enemy, unit->coords, unit->direction, 0.25);
+  float scale = 0.25;
+  if (unit->death_animation >= 0.0) {
+    scale = scale * unit->death_animation;
+  }
+  render_c_npc(enemy, unit->coords, unit->direction, scale);
 }
 
 void render_merchant(MERCHANT *m) {
@@ -561,8 +565,9 @@ void render_arena() {
     0.5 * T_WIDTH * arena_dimensions[1],
     1.0
   };
+  vec3 floor_pos = { 0.0, 0.0, OBSTACLE_DEPTH };
+  glm_translate(model_mat, floor_pos);
   glm_scale(model_mat, scale);
-  glm_translate_z(model_mat, OBSTACLE_DEPTH);
 
   vec3 player_coords = GLM_VEC3_ZERO_INIT;
   glm_vec2_scale(c_player.coords, T_WIDTH, player_coords);
@@ -582,14 +587,37 @@ void render_arena() {
   glm_mat4_identity(model_mat);
   scale[1] *= 0.25;
   glm_translate_y(model_mat, 0.625 * T_WIDTH * arena_dimensions[1]);
-  glm_scale(model_mat, scale);
   glm_translate_z(model_mat, OBSTACLE_DEPTH);
+  glm_scale(model_mat, scale);
 
   vec3 wall_col = { 235.0, 206.0, 129.0 };
   glm_vec3_normalize(wall_col);
 
   set_mat4("model", model_mat, color_shader);
   set_vec3("color", wall_col, color_shader);
+  draw_model(quad, color_shader);
+}
+
+void render_hitbox(vec2 world_coords) {
+  mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+  mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+
+  vec3 hitbox_pos = { 0.0, 0.0, AVATAR_DEPTH };
+  glm_vec2_copy(world_coords, hitbox_pos);
+  glm_translate(model_mat, hitbox_pos);
+  glm_scale_uni(model_mat, T_WIDTH);
+
+  vec3 player_coords = GLM_VEC3_ZERO_INIT;
+  glm_vec2_scale(c_player.coords, T_WIDTH, player_coords);
+  glm_vec2_negate(player_coords);
+  glm_translate(view_mat, player_coords);
+
+  vec3 hit_box_col = { 1.0, 0.0, 0.0 };
+  glUseProgram(color_shader);
+  set_mat4("model", model_mat, color_shader);
+  set_mat4("view", view_mat, color_shader);
+  set_mat4("proj", ortho_proj, color_shader);
+  set_vec3("color", hit_box_col, color_shader);
   draw_model(quad, color_shader);
 }
 
