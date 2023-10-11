@@ -161,12 +161,29 @@ void exploration_movement(GLFWwindow *window) {
 
 void combat_movement(GLFWwindow *window) {
   vec2 movement = GLM_VEC2_ZERO_INIT;
-  glm_vec2_scale(c_player.direction, delta_time / T_WIDTH, movement);
+  glm_vec2_scale(c_player.direction, (delta_time * c_player.speed) / T_WIDTH,
+                 movement);
+  // Movement
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
     glm_vec2_add(movement, c_player.coords, c_player.coords);
   }
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
     glm_vec2_sub(c_player.coords, movement, c_player.coords);
+  }
+  // Attacking
+  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !holding_attack &&
+      c_player.attack_cooldown == 0.0) {
+    holding_attack = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_SPACE) != GLFW_PRESS &&
+                        holding_attack) {
+    c_player.attack_cooldown = c_player.fire_rate;
+    c_player.attack_active = 0.1;
+    holding_attack = 0;
+  }
+  if (holding_attack) {
+    c_player.speed = 0.5;
+  } else {
+    c_player.speed = 1.0;
   }
 }
 
@@ -189,12 +206,14 @@ void debug_keys(GLFWwindow *window) {
 
   if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS && !holding_minus) {
     if (mode == EXPLORATION) {
-      glm_vec2_zero(c_player.coords);
-      glm_vec2_zero(c_player.direction);
-      c_player.direction[0] = 1.0;
-      mode = COMBAT;
+      CHUNK *cur_chunk = player_chunks + PLAYER_CHUNK;
+      // Make a dummy enemy ship to fight
+      unsigned int new_enemy_index = cur_chunk->num_enemies;
+      cur_chunk->enemies[new_enemy_index].crew_count = 3;
+      cur_chunk->num_enemies++;
+      to_combat_mode(new_enemy_index);
     } else {
-      mode = EXPLORATION;
+      from_combat_mode();
     }
     holding_minus = 1;
   } else if (glfwGetKey(window, GLFW_KEY_MINUS) != GLFW_PRESS) {
