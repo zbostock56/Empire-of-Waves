@@ -20,6 +20,7 @@ GLFWwindow *init_gl() {
   }
 
   glfwSetFramebufferSizeCallback(window, fb_size_callback);
+  glfwSetMouseButtonCallback(window, mouse_click);
   glfwSetCursorPosCallback(window, mouse_pos);
   glfwSetScrollCallback(window, mouse_scroll);
 

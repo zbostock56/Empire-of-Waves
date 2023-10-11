@@ -1,3 +1,7 @@
+#include <player_str.h>
+#include <chunk_str.h>
+#include <trade_ship_str.h>
+
 // GLOBAL GAME STATE
 typedef enum game_mode {
   EXPLORATION,

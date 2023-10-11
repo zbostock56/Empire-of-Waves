@@ -17,7 +17,7 @@ int init_trade_ship_buffers() {
 
   // TRADE SHIP TESTING
   num_trade_ships = 1;
-  ivec2 target_chunk = { 2, 0 };
+  ivec2 target_chunk = { 1, 0 };
   ivec2 cur_chunk = { 0, 0 };
   vec2 trade_ship_coords = {
     player_chunks[PLAYER_CHUNK].islands[0].coords[0],

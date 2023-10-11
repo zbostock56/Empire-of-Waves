@@ -57,4 +57,3 @@ void save_merchant(FILE *, MERCHANT *);
 char *index_to_str(int);
 int get_index(ivec2);
 int out_of_bounds(ivec2, int, int);
-

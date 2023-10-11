@@ -3,6 +3,8 @@
 int main() {
   GLFWwindow *window = init_gl();
 
+  init_menus();
+
   int status = 0;
   status = init_chunks();
   if (status) {

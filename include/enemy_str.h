@@ -1,3 +1,6 @@
+#ifndef __ENEMY_STR_H__
+#define __ENEMY_STR_H__
+
 #include <cglm/vec2.h>
 #include <cglm/ivec2.h>
 /*
@@ -65,3 +68,5 @@ typedef struct combat_unit {
   // Value that attack_timer is set to once an attack is fired off
   float fire_rate;
 } C_UNIT;
+
+#endif
