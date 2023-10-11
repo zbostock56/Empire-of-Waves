@@ -8,6 +8,7 @@
 #include <trade_ship_str.h>
 #include <chunk_str.h>
 #include <menu.h>
+#include <items.h>
 #include <globals.h>
 
 #define RES_X (640.0f)

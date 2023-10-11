@@ -31,13 +31,23 @@ int generate_island(ISLAND *island) {
   merchant_generate(&(island->merchant), island);
 
   if (island->has_merchant) {
-    island->merchant.num_listings = 0;
     island->merchant.listings = malloc(sizeof(LISTING) * STARTING_BUFF_SIZE);
     island->merchant.listings_buf_size = STARTING_BUFF_SIZE;
     if (island->merchant.listings == NULL) {
       fprintf(stderr,
               "generate_island: unabled to allocate merchant listings buffer");
       return -1;
+    }
+
+    island->merchant.num_listings = 9;
+    // List of items to be populated in merchant
+    ITEM_IDS ids[9] = { CITRUS, RUM, LIFE_POTION, SPEED_POTION, BOW, CLOTH_ARMOR,
+                   CROSSBOW, LIGHT_ARMOR, PLATE_ARMOR };
+    for (int i = 0; i < 9; i++) {
+      island->merchant.listings[i].item_id = ids[i];
+      island->merchant.listings[i].quantity = 1;
+      island->merchant.listings[i].base_price = 1;
+      island->merchant.listings[i].barter_range = 1;
     }
   } else {
     island->merchant.listings = NULL;

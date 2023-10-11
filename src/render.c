@@ -9,6 +9,12 @@ void init_scene() {
   e_player.direction[1] = 1.0;
   e_player.ship_direction[1] = 1.0;
   e_player.embarked = 1;
+  e_player.inventory[0].item_id = RUM;
+  e_player.inventory[0].quantity = 1;
+  e_player.inventory[1].item_id = CITRUS;
+  e_player.inventory[1].quantity = 1;
+  e_player.inventory[2].item_id = KNIVE;
+  e_player.inventory[2].quantity = 1;
 
   // TEST MODELS
   vec2 ts_coords = { 0.0f, 0.0f };

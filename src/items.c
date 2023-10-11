@@ -124,7 +124,7 @@ ITEM get_item_info_by_ID(ITEM_IDS item_id) {
   return item_tab[item_id + 1]; // +1 to account for INVALID_ITEM being -1
 }
 
-char * get_item_name_by_ID(unsigned int item_id) {
+char * get_item_name_by_ID(int item_id) {
   if (item_id < 0 || item_id > 17) {
     return NULL;
   }

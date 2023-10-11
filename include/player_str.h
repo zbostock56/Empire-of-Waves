@@ -29,7 +29,7 @@ typedef enum weapon_t {
 #endif
 
 typedef struct inventory_slot {
-  unsigned int item_id;
+  int item_id;
   unsigned int quantity;
 } I_SLOT;
 

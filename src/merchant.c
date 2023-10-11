@@ -40,7 +40,7 @@ LISTING * get_listing_item_by_number(MERCHANT * merchant, unsigned int item_numb
     if (item_number > 0 || item_number < 10) {
         if (merchant) {
             if (merchant->listings) {
-                return ((merchant->listings) + sizeof(LISTING) * (item_number - 1));
+                return ((merchant->listings) + (item_number - 1));
             }
         }
     }
