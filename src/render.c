@@ -130,11 +130,11 @@ void render_scene(GLFWwindow *window) {
     // END TEST
 
     for (int i = 0; i < 9; i++) {
-      for (int j = 0; j < player_chunks[i].num_islands; j++) {
-        render_island(player_chunks[i].islands + j);
-      }
       for (int j = 0; j < player_chunks[i].num_enemies; j++) {
         render_enemy_ship(player_chunks[i].enemies + j);
+      }
+      for (int j = 0; j < player_chunks[i].num_islands; j++) {
+        render_island(player_chunks[i].islands + j);
       }
     }
     //render_island(&test_island);
