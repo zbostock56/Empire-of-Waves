@@ -10,12 +10,12 @@ void keyboard_input(GLFWwindow *window) {
   if (mode == EXPLORATION) {
     // Exploration mode keyboard handlers here
     exploration_movement(window);
+    close_merchant_menu(window);
   } else {
     // Combat mode keyboard handlers here
     combat_movement(window);
   }
   debug_keys(window);
-  close_merchant_menu(window);
 }
 
 void mouse_pos(GLFWwindow *window, double x_pos, double y_pos) {
