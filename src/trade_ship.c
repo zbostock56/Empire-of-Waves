@@ -41,6 +41,7 @@ void trade_ship_pathfind(TRADE_SHIP *ship) {
   chunk_to_world(ship->chunk.coords, ship->coords, ship_world);
   glm_vec2_sub(target_world, ship_world, to_target);
   glm_vec2_normalize(to_target);
+  glm_vec2_scale(to_target, delta_time, to_target);
   glm_vec2_add(to_target, ship->direction, ship->direction);
 
   // Steer away from non-target island tiles

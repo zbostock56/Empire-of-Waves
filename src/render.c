@@ -1,9 +1,8 @@
 #include <render.h>
 
 void init_scene() {
-  vec2 player_coords = { 0.0f, 0.0f };
-  world_to_chunk(player_coords, e_player.ship_chunk, e_player.ship_coords);
-  world_to_chunk(player_coords, e_player.chunk, e_player.coords);
+  glm_vec2_zero(e_player.coords);
+  glm_ivec2_zero(e_player.chunk);
   glm_vec2_zero(e_player.direction);
   glm_vec2_zero(e_player.ship_direction);
   e_player.direction[1] = 1.0;
@@ -45,6 +44,87 @@ void init_scene() {
     if (cur == '/') {
       load_character("assets/Dinklebitmap/fs.bin",
                      "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '$') {
+      load_character("assets/Dinklebitmap/dollar.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '!') {
+      load_character("assets/Dinklebitmap/e_mark.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '#') {
+      load_character("assets/Dinklebitmap/pound.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '%') {
+      load_character("assets/Dinklebitmap/percent.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '&') {
+      load_character("assets/Dinklebitmap/amper.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '\'') {
+      load_character("assets/Dinklebitmap/s_quote.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '(') {
+      load_character("assets/Dinklebitmap/l_paren.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == ')') {
+      load_character("assets/Dinklebitmap/r_paren.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == ',') {
+      load_character("assets/Dinklebitmap/comma.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '-') {
+      load_character("assets/Dinklebitmap/minus.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '+') {
+      load_character("assets/Dinklebitmap/plus.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == ':') {
+      load_character("assets/Dinklebitmap/colon.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == ';') {
+      load_character("assets/Dinklebitmap/s_colon.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '<') {
+      load_character("assets/Dinklebitmap/lt.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '=') {
+      load_character("assets/Dinklebitmap/eq.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '>') {
+      load_character("assets/Dinklebitmap/gt.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '?') {
+      load_character("assets/Dinklebitmap/q_mark.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '@') {
+      load_character("assets/Dinklebitmap/at.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '[') {
+      load_character("assets/Dinklebitmap/l_brac.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == ']') {
+      load_character("assets/Dinklebitmap/r_brac.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '^') {
+      load_character("assets/Dinklebitmap/carrot.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '_') {
+      load_character("assets/Dinklebitmap/u_score.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '`') {
+      load_character("assets/Dinklebitmap/grave.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '{') {
+      load_character("assets/Dinklebitmap/lc_brac.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '|') {
+      load_character("assets/Dinklebitmap/pipe.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '}') {
+      load_character("assets/Dinklebitmap/rc_brac.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '~') {
+      load_character("assets/Dinklebitmap/tilde.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
     } else if (cur == ' ') {
       load_character("assets/Dinklebitmap/space.bin",
                      "assets/Dinklebitmap/font.png", font + index);
@@ -56,6 +136,9 @@ void init_scene() {
                      "assets/Dinklebitmap/font.png", font + index);
     } else if (cur == '"') {
       load_character("assets/Dinklebitmap/quote.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '*') {
+      load_character("assets/Dinklebitmap/asterisk.bin",
                      "assets/Dinklebitmap/font.png", font + index);
     } else if (cur >= 'a' && cur <= 'z') {
       lowercase_path[20] = cur;
