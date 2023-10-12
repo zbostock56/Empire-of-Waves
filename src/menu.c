@@ -14,6 +14,7 @@ any file which enables/disabled ui components.
 
 int double_buffer(void **, unsigned int *, unsigned int);
 void chunk_from_coords(ivec2, CHUNK *);
+float time_schdule_trade_toute_prompt;
 
 // Init global variables
 DIALOG * dialog;
@@ -190,6 +191,7 @@ DIALOG * init_dialog() {
   dialog->ui_button_buy = get_ui_component_by_ID(DIALOG_BUTTON_BUY);
   dialog->ui_button_sell = get_ui_component_by_ID(DIALOG_BUTTON_SELL);
   dialog->ui_button_establish_trade_route = get_ui_component_by_ID(DIALOG_BUTTON_ESTABLISH_TRADE_ROUTE);
+  dialog->ui_text_schedule_trade_route_prompt = get_ui_component_by_ID(SCHEDULED_TRADE_ROUTE_PROMPT);
 
   // Init content
   vec2 content_position = { -1.0, -0.75 };
@@ -305,6 +307,25 @@ DIALOG * init_dialog() {
     dialog->ui_button_establish_trade_route // dest
   );
 
+  // Init schdule trade route prompt
+  vec2 establish_trade_route_prompt_position = { 0.0, 0.0 };
+  init_menu(
+    establish_trade_route_prompt_position, // position
+    NULL, // on_click
+    (void *) 0xBAADF00D, // on_click_args
+    "TRADE_ROUTE_PROMPT", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.1, // text_padding
+    1.5, // text_scale
+    0, // width
+    0, // heights
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    dialog->ui_text_schedule_trade_route_prompt // dest
+  );
+
   return dialog;
 }
 
@@ -326,19 +347,18 @@ void free_dialog() {
 
 void open_dialog() {
   if (dialog) {
-    MERCHANT *target_merch = dialog->merchant;
-    int found = 0;
-    for (int i = 0; i < num_trade_ships; i++) {
-      if (trade_ships[i].target_chunk.coords[0] == target_merch->chunk[0] &&
-          trade_ships[i].target_chunk.coords[1] == target_merch->chunk[1]) {
-        dialog->ui_button_establish_trade_route->text = "Already Established";
-        found = 1;
-      }
-    }
-    if (!found) {
-      dialog->ui_button_establish_trade_route->text = "3. Establish trade route";
-    }
-
+    // MERCHANT *target_merch = dialog->merchant;
+    // int found = 0;
+    // for (int i = 0; i < num_trade_ships; i++) {
+    //   if (trade_ships[i].target_chunk.coords[0] == target_merch->chunk[0] &&
+    //       trade_ships[i].target_chunk.coords[1] == target_merch->chunk[1]) {
+    //     dialog->ui_button_establish_trade_route->text = "Already Established";
+    //     found = 1;
+    //   }
+    // }
+    // if (!found) {
+    //   dialog->ui_button_establish_trade_route->text = "3. Establish trade route";
+    // }
     switch (dialog->type) {
       case TALK: {
         dialog->ui_text_content->enabled = 1;
@@ -379,7 +399,9 @@ void close_dialog() {
     dialog->ui_button_buy->enabled = 0;
     dialog->ui_button_sell->enabled = 0;
     dialog->ui_button_establish_trade_route->enabled = 0;
+    dialog->ui_text_schedule_trade_route_prompt->enabled = 0;
     dialog->merchant = NULL;
+    time_schdule_trade_toute_prompt = 2.0;
   }
 }
 
@@ -422,17 +444,23 @@ void close_sell() {
 }
 
 void open_establish_trade_route() {
-  UI_COMPONENT *trade_route_button = get_ui_component_by_ID(
-                                       DIALOG_BUTTON_ESTABLISH_TRADE_ROUTE
-                                     );
+  // UI_COMPONENT *trade_route_button = get_ui_component_by_ID(
+  //                                      DIALOG_BUTTON_ESTABLISH_TRADE_ROUTE
+  //                                    );
   MERCHANT *target_merch = dialog->merchant;
   for (int i = 0; i < num_trade_ships; i++) {
     if (trade_ships[i].target_chunk.coords[0] == target_merch->chunk[0] &&
         trade_ships[i].target_chunk.coords[1] == target_merch->chunk[1]) {
+      dialog->ui_text_schedule_trade_route_prompt->text = "You Already Have a Trade Route";
+      dialog->ui_text_schedule_trade_route_prompt->enabled = 1;
       return;
     }
   }
-  trade_route_button->text = "Already Established";
+  // trade_route_button->text = "Already Established";
+  dialog->ui_text_schedule_trade_route_prompt->text = "Trade Route Established";
+  dialog->ui_text_schedule_trade_route_prompt->enabled = 1;
+  time_schdule_trade_toute_prompt = 2.0;
+  // delay
 
   ivec2 target_chunk = { 0, 0 };
   glm_ivec2_copy(dialog->merchant->chunk, target_chunk);
