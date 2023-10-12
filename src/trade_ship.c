@@ -14,27 +14,7 @@ int init_trade_ship_buffers() {
   }
 
   trade_ship_buf_size = TRADE_SHIP_BUF_START_LEN;
-
-  // TRADE SHIP TESTING
-  num_trade_ships = 1;
-  ivec2 target_chunk = { 2, 0 };
-  ivec2 cur_chunk = { 0, 0 };
-  vec2 trade_ship_coords = {
-    player_chunks[PLAYER_CHUNK].islands[0].coords[0],
-    player_chunks[PLAYER_CHUNK].islands[0].coords[1]
-  };
-  chunk_from_coords(target_chunk, &trade_ships[0].target_chunk);
-  chunk_from_coords(cur_chunk, &trade_ships[0].chunk);
-  glm_ivec2_copy(cur_chunk, trade_ships[0].chunk_coords);
-  glm_vec2_copy(trade_ship_coords, trade_ships[0].coords);
-  glm_vec2_zero(trade_ships[0].direction);
-  trade_ships[0].direction[0] = 1.0;
-  trade_ships[0].export_rec = 0;
-  trade_ships[0].import_rec = 0;
-  trade_ships[0].target_island = 0;
-  trade_ships[0].num_mercenaries = 0;
-  trade_ships[0].speed = 10.0;
-  // END TEST
+  num_trade_ships = 0;
 
   return 0;
 }

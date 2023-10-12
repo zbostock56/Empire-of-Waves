@@ -121,8 +121,8 @@ void check_merchant_prompt(vec2 world_player_coords) {
   ISLAND *cur_island = NULL;
   vec2 world_merchant_coords = GLM_VEC2_ZERO_INIT;
   float dist_to_merchant = 0.0;
-  int found_merchant = 0;
-  for (int i = 0; i < cur_chunk->num_islands && !found_merchant; i++) {
+  cur_merchant = NULL;
+  for (int i = 0; i < cur_chunk->num_islands && !cur_merchant; i++) {
     cur_island = cur_chunk->islands + i;
     if (cur_island->has_merchant) {
       chunk_to_world(cur_island->merchant.chunk, cur_island->merchant.coords,
@@ -131,14 +131,15 @@ void check_merchant_prompt(vec2 world_player_coords) {
                                            world_player_coords);
       if (dist_to_merchant <= INTERACTION_RADIUS * T_WIDTH) {
         get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 1;
-        found_merchant = 1;
+        cur_merchant = &cur_island->merchant;
       }
     }
   }
-  if (!found_merchant || dialog->ui_text_name->enabled || trade->ui_listing_0->enabled) {
+  if (!cur_merchant || dialog->ui_text_name->enabled ||
+      trade->ui_listing_0->enabled) {
     get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
   }
-  if (!found_merchant) {
+  if (!cur_merchant) {
     close_dialog();
     close_trade();
     close_establish_trade_route();
@@ -311,13 +312,13 @@ void trade_ship_collision(TRADE_SHIP *trade_ship) {
   int cur_tile = OCEAN;
 
   int search_min_x = ((int) trade_ship->coords[X]) -
-                     ceil(SHIP_COLLISION_RADIUS);
+                     ceil(SHIP_COMPLETION_RADIUS);
   int search_max_x = ((int) trade_ship->coords[X]) +
-                     ceil(SHIP_COLLISION_RADIUS);
+                     ceil(SHIP_COMPLETION_RADIUS);
   int search_min_y = ((int) trade_ship->coords[Y]) -
-                     ceil(SHIP_COLLISION_RADIUS);
+                     ceil(SHIP_COMPLETION_RADIUS);
   int search_max_y = ((int) trade_ship->coords[Y]) +
-                     ceil(SHIP_COLLISION_RADIUS);
+                     ceil(SHIP_COMPLETION_RADIUS);
   for (int cur_y = search_min_y; cur_y <= search_max_y; cur_y++) {
     for (int cur_x = search_min_x; cur_x <= search_max_x; cur_x++) {
       search_tile[X] = cur_x;
@@ -326,8 +327,28 @@ void trade_ship_collision(TRADE_SHIP *trade_ship) {
 
       if (cur_tile == SHORE) {
         // Finished route
+        target_island->merchant.relationship += 10.0;
+        if (target_island->merchant.relationship > 100.0) {
+          target_island->merchant.relationship = 100.0;
+        }
+        // Sync with player chunks
+        for (int i = 0; i < 9; i++) {
+          if (player_chunks[i].coords[X] == trade_ship->chunk_coords[X] &&
+              player_chunks[i].coords[Y] == trade_ship->chunk_coords[Y]) {
+            for (int j = 0; j < player_chunks[i].num_islands; j++) {
+              ISLAND *p_island = player_chunks[i].islands + j;
+              if (p_island->coords[X] == target_island->coords[X] &&
+                  p_island->coords[Y] == target_island->coords[Y]) {
+                p_island->merchant.relationship = target_island->merchant.relationship;
+              }
+            }
+          }
+        }
+        e_player.money += 10;
+
         glm_ivec2_zero(trade_ship->chunk_coords);
         glm_vec2_copy(home_island_coords, trade_ship->coords);
+        return;
       }
     }
   }
@@ -436,8 +457,6 @@ void attack_collision() {
                                 T_WIDTH, T_WIDTH, collision_correction)) {
         c_player.health -= 10.0;
         c_player.invuln_timer = 0.5;
-        printf("Health: %f\n", c_player.health);
-        fflush(stdout);
       }
 
       // Check enemy collision with player hitbox

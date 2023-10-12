@@ -3,6 +3,7 @@
 #include <chunk_str.h>
 #include <trade_ship_str.h>
 #include <globals.h>
+#include <menu.h>
 
 #define X (0)
 #define Y (1)

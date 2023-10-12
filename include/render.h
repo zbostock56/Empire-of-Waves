@@ -45,6 +45,8 @@ vec3 UI_PIVOT_OFFSETS[9] = {
   {-1.0,  1.0, 0.0}  // BOTTOM RIGHT
 };
 
+extern DIALOG *dialog;
+
 // ========================== GLOBAL DECLARATIONS ============================
 
 // Insert declarations of global render elemements:

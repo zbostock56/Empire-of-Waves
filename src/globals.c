@@ -26,6 +26,7 @@ vec2 home_island_coords = GLM_VEC2_ZERO_INIT;
 unsigned int num_trade_ships = 0;
 unsigned int trade_ship_buf_size = 0;
 float next_event;
+MERCHANT *cur_merchant = NULL;
 
 // COMBAT MODE STATE
 C_PLAYER c_player;

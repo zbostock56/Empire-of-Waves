@@ -1,10 +1,13 @@
 #include <ui_component.h>
 #include <merchant_str.h>
 
-#define NUM_COMPONENTS (18)
-#define MAX_NAME (16) // DIALOG :: Max string length of name
-#define MAX_CONTENT (256) // DIALOG :: Max string length of content
+#define NUM_COMPONENTS (21) // UI COMPONENT:: Max number of UI component
+#define MAX_NAME_STR_LENGTH (16) // DIALOG :: Max string length of name
+#define MAX_CONTENT_STR_LENGTH (256) // DIALOG :: Max string length of content
 #define MAX_DIALOGS (16) // DIALOG :: Max number of dialogs
+#define MAX_LISTING_STR_LENGTH (16) // TRADE :: Max length of listing string
+#define MAX_STATUS_STR_LENGTH (16) // STATUS :: Max length of status string
+#define TEXT_BUFFER_LEN (50)
 
 /*
   Enum mapping human-readable component names to the index of the ui component
@@ -14,21 +17,24 @@ typedef enum component_ids {
   INVALID_MENU = -1,
   TEST_MENU = 0,
   DIALOG_NAME = 1,
-  DIALOG_CONTENT = 2,
-  DIALOG_BUTTON_BUY = 3,
-  DIALOG_BUTTON_SELL = 4,
-  DIALOG_BUTTON_ESTABLISH_TRADE_ROUTE = 5,
-  TRADE_BUTTON_LISTING_0 = 6,
-  TRADE_BUTTON_LISTING_1 = 7,
-  TRADE_BUTTON_LISTING_2 = 8,
-  TRADE_BUTTON_LISTING_3 = 9,
-  TRADE_BUTTON_LISTING_4 = 10,
-  TRADE_BUTTON_LISTING_5 = 11,
-  TRADE_BUTTON_LISTING_6 = 12,
-  TRADE_BUTTON_LISTING_7 = 13,
-  TRADE_BUTTON_LISTING_8 = 14,
-  EMBARK_PROMPT = 15,
-  INTERACT_PROMPT = 16
+  DIALOG_RELATION = 2,
+  DIALOG_CONTENT = 3,
+  DIALOG_BUTTON_BUY = 4,
+  DIALOG_BUTTON_SELL = 5,
+  DIALOG_BUTTON_ESTABLISH_TRADE_ROUTE = 6,
+  TRADE_BUTTON_LISTING_0 = 7,
+  TRADE_BUTTON_LISTING_1 = 8,
+  TRADE_BUTTON_LISTING_2 = 9,
+  TRADE_BUTTON_LISTING_3 = 10,
+  TRADE_BUTTON_LISTING_4 = 11,
+  TRADE_BUTTON_LISTING_5 = 12,
+  TRADE_BUTTON_LISTING_6 = 13,
+  TRADE_BUTTON_LISTING_7 = 14,
+  TRADE_BUTTON_LISTING_8 = 15,
+  EMBARK_PROMPT = 16,
+  INTERACT_PROMPT = 17,
+  STATUS_HEALTH = 18,
+  STATUS_MONEY = 19
   // Populate as more components are added
 } UI_ID;
 
@@ -39,7 +45,7 @@ UI_COMPONENT * get_ui_component_by_ID(UI_ID ui_id);
 
 /*
                                    DIALOG
-Implements the functionality for opening and closing a dialog menu. Could be 
+Implements the functionality for opening and closing a dialog menu. Could be
 used for conversation with merchants or other places that need a dialog box.
 */
 
@@ -51,9 +57,12 @@ typedef enum dialog_type {
 
 typedef struct dialog {
   T_DIALOG type;
+  MERCHANT *merchant;
   char *name;
+  char *relationship;
   char *content;
   UI_COMPONENT *ui_text_name;
+  UI_COMPONENT *ui_text_relationship;
   UI_COMPONENT *ui_text_content;
   UI_COMPONENT *ui_button_buy;
   UI_COMPONENT *ui_button_sell;
@@ -66,7 +75,7 @@ DIALOG * init_dialog();
 void free_dialog();
 void open_dialog();
 void close_dialog();
-int set_dialog(T_DIALOG dialog_type, char *name, char *content);
+int set_dialog(T_DIALOG, MERCHANT *, char *, char *);
 
 void open_buy();
 void close_buy();
@@ -79,7 +88,7 @@ void close_establish_trade_route();
 
 /*
                                    TRADING
-Implements the functionality for buying and selling. Could be used for 
+Implements the functionality for buying and selling. Could be used for
 interaction with merchants.
 */
 
@@ -120,3 +129,21 @@ void on_click_ui_listing_5();
 void on_click_ui_listing_6();
 void on_click_ui_listing_7();
 void on_click_ui_listing_8();
+
+/*
+                                   STATUS
+Implements the functionality for shows player status.
+*/
+
+typedef struct status {
+  UI_COMPONENT *ui_health_status;
+  UI_COMPONENT *ui_money_status;
+} STATUS;
+
+extern STATUS * status;
+
+STATUS * init_status_bar();
+void free_status();
+void update_status_bar();
+void open_status_bar();
+void close_status_bar();
