@@ -2,6 +2,9 @@
 #include <chunk_str.h>
 #include <vector.h>
 #include <stdio.h>
+#include <string.h>
+#include <trade_ship_str.h>
+#include <globals.h>
 
 /* GLOBALS  */
 extern CHUNK player_chunks[CHUNKS_SIMULATED];
@@ -30,6 +33,7 @@ int search(int,int, int, int, E_ENEMY*, vector *);
 void track_path(Node[C_WIDTH][C_WIDTH], vector*, int, int, int, int);
 void get_cost(Node *, int, int, int, int, int, int);
 void open_node(Node *, Node *, int[C_WIDTH][C_WIDTH], int[C_WIDTH][C_WIDTH], int[C_WIDTH][C_WIDTH], vector*);
+void update_enemy_chunk(E_ENEMY*, CHUNK*, int);
 /* =================== EXTERNALLY DEFINED FUNCTIONS =================== */
 
 int double_buffer(void **, unsigned int *, unsigned int);

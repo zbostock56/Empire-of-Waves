@@ -11,6 +11,7 @@
 #define INTERACTION_RADIUS (3.0)
 #define SHIP_COLLISION_RADIUS (1.0)
 #define CHARACTER_COLLISION_RADIUS (0.5)
+#define SHIP_CHASE_RADIUS (20)
 
 int shore_interaction_enabled = 0;
 
@@ -29,3 +30,5 @@ void chunk_to_world(ivec2, vec2, vec2);
 void world_to_chunk(vec2, ivec2, vec2);
 void update_enemy_position(E_ENEMY *);
 void pathfind_enemy(E_ENEMY *);
+int double_buffer(void **, unsigned int *, unsigned int);
+void update_enemy_chunk(E_ENEMY*, CHUNK*, int);

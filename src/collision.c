@@ -141,36 +141,39 @@ void detect_enemy_ships() {
   CHUNK *chunk = player_chunks + PLAYER_CHUNK;
   E_ENEMY *cur_enemy = NULL;
   vec2 cur_enemy_world_coords = GLM_VEC2_ZERO_INIT;
-  if (chunk->enemies) {
-    for (int i = 0; i < chunk->num_enemies; i++) {
-      cur_enemy = chunk->enemies + i;
-      chunk_to_world(cur_enemy->chunk, cur_enemy->coords,
-                     cur_enemy_world_coords);
-    
-      if (circle_circle_collision(world_coords,
-                                  SHIP_COLLISION_RADIUS *20*T_WIDTH,
-                                  cur_enemy_world_coords,
-                                  SHIP_COLLISION_RADIUS *20 *T_WIDTH)) {
-        // glm_vec2_zero(c_player.coords);
-        // glm_vec2_zero(c_player.direction);
-        // c_player.direction[0] = 1.0;
-        // mode = COMBAT;
-        cur_enemy->on_path = true;
-        pathfind_enemy(cur_enemy);
-        
-      }
-      if (circle_circle_collision(world_coords,
-                                  SHIP_COLLISION_RADIUS *T_WIDTH,
-                                  cur_enemy_world_coords,
-                                  SHIP_COLLISION_RADIUS *T_WIDTH)) {
-        glm_vec2_zero(c_player.coords);
-        glm_vec2_zero(c_player.direction);
-        cur_enemy->on_path = false;
-        c_player.direction[0] = 1.0;
-        mode = COMBAT;
+  for (int i = CHUNK_UPPER_LEFT; i <= CHUNK_LOWER_RIGHT; i++) {
+    chunk = player_chunks+i;
+    if (chunk->enemies) {
+      for (int i = 0; i < chunk->num_enemies; i++) {
+        cur_enemy = chunk->enemies + i;
+        chunk_to_world(cur_enemy->chunk, cur_enemy->coords,
+                      cur_enemy_world_coords);
+
+        if (circle_circle_collision(world_coords,
+                                    SHIP_COLLISION_RADIUS *SHIP_CHASE_RADIUS*T_WIDTH,
+                                    cur_enemy_world_coords,
+                                    SHIP_COLLISION_RADIUS *SHIP_CHASE_RADIUS*T_WIDTH)) {
+          cur_enemy->on_path = true;
+          pathfind_enemy(cur_enemy);
+          update_enemy_chunk(cur_enemy, chunk, i);
+        }
+        if (circle_circle_collision(world_coords,
+                                    SHIP_COLLISION_RADIUS *T_WIDTH,
+                                    cur_enemy_world_coords,
+                                    SHIP_COLLISION_RADIUS *T_WIDTH)) {
+          glm_vec2_zero(c_player.coords);
+          glm_vec2_zero(c_player.direction);
+          cur_enemy->on_path = false;
+          c_player.direction[0] = 1.0;
+          mode = COMBAT;
+        }
+        /*
+          if enemy's chunk is changed, update the chunk's info
+        */
       }
     }
   }
+  
 }
 
 void detect_context_interaction() {
