@@ -185,6 +185,10 @@ void populate_tile_pixel_buffer(ISLAND *island,
       tile_colors[i][0] = 3;
       tile_colors[i][1] = 157;
       tile_colors[i][2] = 252;
+    } else if (island->tiles[texture_index] == HOME) {
+      tile_colors[i][0] = 255;
+      tile_colors[i][1] = 0;
+      tile_colors[i][2] = 255;
     }
   }
 }

@@ -40,7 +40,8 @@ typedef enum tile {
   SAND = 2,
   GRASS = 3,
   ROCK = 4,
-  MERCH = 5
+  MERCH = 5,
+  HOME = 6
 } TILE;
 
 typedef struct island {
