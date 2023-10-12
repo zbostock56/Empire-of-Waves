@@ -46,13 +46,14 @@ int generate_island(ISLAND *island) {
     for (int i = 0; i < 9; i++) {
       island->merchant.listings[i].item_id = ids[i];
       island->merchant.listings[i].quantity = 1;
-      island->merchant.listings[i].base_price = 1;
       island->merchant.listings[i].barter_range = 1;
     }
+    island->merchant.relationship = 0.0;
   } else {
     island->merchant.listings = NULL;
     island->merchant.num_listings = 0;
     island->merchant.listings_buf_size = 0;
+    island->merchant.relationship = 0.0;
   }
 
   // TODO Create island texture buffer from preloaded tile texture buffers

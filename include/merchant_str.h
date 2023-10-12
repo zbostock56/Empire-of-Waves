@@ -12,7 +12,6 @@ any file which needs to read/manipulate merchant state.
 typedef struct listing {
   int item_id;
   unsigned int quantity;
-  int base_price;
   int barter_range;
 } LISTING;
 
