@@ -15,6 +15,7 @@ void keyboard_input(GLFWwindow *window) {
     combat_movement(window);
   }
   debug_keys(window);
+  close_merchant_menu(window);
 }
 
 void mouse_pos(GLFWwindow *window, double x_pos, double y_pos) {
@@ -251,13 +252,16 @@ void debug_keys(GLFWwindow *window) {
   } else if (glfwGetKey(window, GLFW_KEY_MINUS) != GLFW_PRESS) {
     holding_minus = 0;
   }
+}
 
+void close_merchant_menu(GLFWwindow *window) {
   // Dialog debug
-  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-    if (dialog->ui_text_name->enabled) {
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+     if (dialog->ui_text_name->enabled) {
       close_dialog();
-    } else {
-      open_dialog();
+    }
+    if (trade->ui_listing_0->enabled) {
+      close_trade();
     }
   }
 }
