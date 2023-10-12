@@ -68,6 +68,7 @@ MODEL *merchant;
 MODEL *player_ship;
 MODEL *enemy_ship;
 MODEL *trade_ship;
+MODEL *house;
 MODEL *quad;
 CHARACTER font[FONT_LEN];
 

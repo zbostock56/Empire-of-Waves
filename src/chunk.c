@@ -37,7 +37,7 @@ int init_chunks() {
       player_chunks[PLAYER_CHUNK].islands[0].coords[Y]
     };
     glm_vec2_copy(home_coords, home_island_coords);
-      } else {
+  } else {
     player_chunks[PLAYER_CHUNK].num_islands++;
     generate_island(&player_chunks[PLAYER_CHUNK].islands[0]);
     place_home(&player_chunks[PLAYER_CHUNK].islands[0]);
@@ -57,6 +57,8 @@ void place_home(ISLAND *island) {
   while (!not_found) {
     if (player_chunks[PLAYER_CHUNK].islands[0].tiles[rand_tile] == GRASS) {
       player_chunks[PLAYER_CHUNK].islands[0].tiles[rand_tile] = HOME;
+      house_tile[0] = (rand_tile % I_WIDTH) + island->coords[0];
+      house_tile[1] = (rand_tile / I_WIDTH) + island->coords[1];
       not_found = 1;
     }
     rand_tile = rand() % (I_WIDTH * I_WIDTH);

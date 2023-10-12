@@ -23,6 +23,7 @@ E_PLAYER e_player;
 CHUNK player_chunks[9];
 TRADE_SHIP *trade_ships = NULL;
 vec2 home_island_coords = GLM_VEC2_ZERO_INIT;
+vec2 house_tile = GLM_VEC2_ZERO_INIT;
 unsigned int num_trade_ships = 0;
 unsigned int trade_ship_buf_size = 0;
 float next_event;
