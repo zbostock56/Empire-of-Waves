@@ -284,7 +284,7 @@ void trade_ship_steering(TRADE_SHIP *trade_ship, vec2 direction) {
   }
 
   glm_vec2_normalize(steer_dir);
-  //glm_vec2_scale(steer_dir, delta_time, steer_dir);
+  glm_vec2_scale(steer_dir, delta_time, steer_dir);
   glm_vec2_add(steer_dir, direction, direction);
 }
 

@@ -1,9 +1,8 @@
 #include <render.h>
 
 void init_scene() {
-  vec2 player_coords = { 0.0f, 0.0f };
-  world_to_chunk(player_coords, e_player.ship_chunk, e_player.ship_coords);
-  world_to_chunk(player_coords, e_player.chunk, e_player.coords);
+  glm_vec2_zero(e_player.coords);
+  glm_ivec2_zero(e_player.chunk);
   glm_vec2_zero(e_player.direction);
   glm_vec2_zero(e_player.ship_direction);
   e_player.direction[1] = 1.0;
