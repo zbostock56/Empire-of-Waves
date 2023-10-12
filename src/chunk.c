@@ -66,7 +66,7 @@ void place_home(ISLAND *island) {
   populate_tile_pixel_buffer(&player_chunks[PLAYER_CHUNK].islands[0], tile_colors);
   player_chunks[PLAYER_CHUNK].islands[0].texture = texture_from_buffer((unsigned char *) tile_colors,
                                       I_WIDTH, I_WIDTH, GL_RGB);
-
+  island->has_merchant = 0;
 }
 
 int manage_chunks() {
