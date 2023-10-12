@@ -19,6 +19,7 @@ extern TRADE_SHIP *trade_ships;
 extern unsigned int num_trade_ships;
 extern unsigned int trade_ship_buf_size;
 extern float next_event;
+extern MERCHANT *cur_merchant;
 
 // COMBAT MODE STATE
 extern C_PLAYER c_player;
