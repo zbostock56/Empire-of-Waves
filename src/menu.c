@@ -1096,3 +1096,5 @@ void close_status_bar() {
     status->ui_money_status->enabled = 0;
   }
 }
+
+//
