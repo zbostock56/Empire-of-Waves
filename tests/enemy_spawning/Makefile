@@ -3,6 +3,7 @@ FILES += $(PREVSRC)globals.c $(PREVSRC)merchant.c $(PREVSRC)player.c $(PREVSRC)i
 FILES += $(PREVSRC)collision.c  $(PREVSRC)model.c $(PREVSRC)render.c
 FILES += $(PREVSRC)controls.c $(PREVSRC)glad.c $(PREVSRC)menu.c $(PREVSRC)perlin.c
 FILES += $(PREVSRC)trade_ship.c ./src/*.c $(PREVSRC)chunk.c
+FILES += $(PREVSRC)combat.c $(PREVSRC)items.c 
 LIBS += -L usr/lib/x86_64-linux-gnu/
 INCLUDE += -I ../../include -I ./include
 LINK += -l:libglfw.so.3.3 -lGL -lX11 -l:libXrandr.so.2 -l:libXi.so.6
