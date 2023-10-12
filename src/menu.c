@@ -15,13 +15,14 @@ any file which enables/disabled ui components.
 // Init global variables
 DIALOG * dialog;
 TRADE * trade;
+STATUS * status;
 
 // UI component table definition
 UI_COMPONENT ui_tab[NUM_COMPONENTS];
 
 UI_COMPONENT * get_ui_component_by_ID(UI_ID ui_id) {
   // Check for invalid ui_id
-  if (ui_id < TEST_MENU || ui_id > INTERACT_PROMPT) {
+  if (ui_id < TEST_MENU || ui_id > NUM_COMPONENTS - 2) {
     return &ui_tab[0];
   }
   return &ui_tab[ui_id + 1]; // +1 to account for INVALID_MENU being -1
@@ -61,6 +62,7 @@ void init_menu(
   dest->on_click = on_click;
   dest->on_click_args = on_click_args;
   dest->text = text;
+  // sprintf(dest->text, "%s", text);
   dest->enabled = enabled;
   dest->textured = textured;
   dest->texture = texture;
@@ -140,6 +142,10 @@ void init_menus() {
   trade = init_trade();
   // Give Init Money
   e_player.money = 100;
+  // Init status bar
+  status = init_status_bar();
+  // close_status_bar();
+  open_status_bar();
 }
 
 DIALOG * init_dialog() {
@@ -149,20 +155,20 @@ DIALOG * init_dialog() {
     return NULL;
   }
   
-  dialog->name = malloc(MAX_NAME * sizeof(char));
+  dialog->name = malloc(MAX_NAME_STR_LENGTH * sizeof(char));
   if (!dialog->name) {
     free(dialog);
     return NULL;
   }
-  dialog->name[MAX_NAME - 1] = '\0'; // Ensures null termination
+  dialog->name[MAX_NAME_STR_LENGTH - 1] = '\0'; // Ensures null termination
 
-  dialog->content = malloc(MAX_CONTENT * sizeof(char));
+  dialog->content = malloc(MAX_CONTENT_STR_LENGTH * sizeof(char));
   if (!dialog->content) {
     free(dialog->name);
     free(dialog);
     return NULL;
   }
-  dialog->content[MAX_CONTENT - 1] = '\0'; // Ensures null termination
+  dialog->content[MAX_CONTENT_STR_LENGTH - 1] = '\0'; // Ensures null termination
 
   dialog->type = INVALID_DIALOG;
   dialog->ui_text_name = get_ui_component_by_ID(DIALOG_NAME);
@@ -324,12 +330,12 @@ void close_dialog() {
 }
 
 int set_dialog(T_DIALOG dialog_type, char *name, char *content) {
-  if (dialog && strlen(name) < MAX_NAME && strlen(content) < MAX_CONTENT) {
+  if (dialog && strlen(name) < MAX_NAME_STR_LENGTH && strlen(content) < MAX_CONTENT_STR_LENGTH) {
     dialog->type = dialog_type;
-    strncpy(dialog->name, name, MAX_NAME);
-    dialog->name[MAX_NAME - 1] = '\0'; // Ensures null termination
-    strncpy(dialog->content, content, MAX_CONTENT);
-    dialog->content[MAX_CONTENT - 1] = '\0'; // Ensures null termination
+    strncpy(dialog->name, name, MAX_NAME_STR_LENGTH);
+    dialog->name[MAX_NAME_STR_LENGTH - 1] = '\0'; // Ensures null termination
+    strncpy(dialog->content, content, MAX_CONTENT_STR_LENGTH);
+    dialog->content[MAX_CONTENT_STR_LENGTH - 1] = '\0'; // Ensures null termination
     return 1;
   }
   return 0;
@@ -555,7 +561,7 @@ TRADE * init_trade() {
 void free_trade() {
   if (trade) {
     free(trade);
-    trade = NULL;  // Set the global dialog to NULL
+    trade = NULL;  // Set the global trade to NULL
   }
 }
 
@@ -985,5 +991,108 @@ void on_click_ui_listing_8() {
       trade->ui_listing_8->text = "SOLD";
     }
     printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_8->text, get_player_inventory_slot_by_number(9)->quantity);
+  }
+}
+
+/*
+                                   STATUS
+Implements the functionality for shows player status.
+*/
+
+STATUS * init_status_bar() {
+  STATUS *status = malloc(sizeof(STATUS));
+  if (!status) {
+    // Handle memory allocation failure, e.g., return NULL or exit
+    return NULL;
+  }
+
+  status->ui_health_status = get_ui_component_by_ID(STATUS_HEALTH);
+  status->ui_money_status = get_ui_component_by_ID(STATUS_MONEY);
+
+  vec2 healh_position = { -1.0, 1.0 };
+  init_menu(
+    healh_position, // position
+    NULL, // on_click
+    (void *) 0xBAADF00D, // on_click_args
+    NULL, // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    1.5, // text_scale
+    0.6, // width
+    0, // height
+    PIVOT_TOP_LEFT, // pivot
+    T_LEFT, // text_anchor
+    status->ui_health_status // dest
+  );
+
+  status->ui_health_status->text = malloc(MAX_STATUS_STR_LENGTH * sizeof(char));
+  if (!status->ui_health_status->text) {
+    free(status);
+    return NULL;
+  }
+  status->ui_health_status->text[MAX_NAME_STR_LENGTH - 1] = '\0'; // Ensures null termination
+
+
+  vec2 moeny_position = { -0.4, 1.0 };
+  init_menu(
+    moeny_position, // position
+    NULL, // on_click
+    (void *) 0xBAADF00D, // on_click_args
+    NULL, // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    1.5, // text_scale
+    0.6, // width
+    0, // height
+    PIVOT_TOP_LEFT, // pivot
+    T_LEFT, // text_anchor
+    status->ui_money_status // dest
+  );
+
+  status->ui_money_status->text = malloc(MAX_STATUS_STR_LENGTH * sizeof(char));
+  if (!status->ui_money_status->text) {
+    free(status);
+    return NULL;
+  }
+  status->ui_money_status->text[MAX_NAME_STR_LENGTH - 1] = '\0'; // Ensures null termination
+
+  return status;
+}
+
+void free_status_bar() {
+  if (status) {
+    free(status->ui_health_status);
+    status->ui_health_status=NULL;
+
+    free(status->ui_money_status);
+    status->ui_money_status=NULL;
+
+    free(status);
+    status = NULL;  // Set the global status to NULL
+  }
+}
+
+void update_status_bar() {
+  if (status) {
+    sprintf(status->ui_health_status->text, " HEALTH %.2f", e_player.health);
+    sprintf(status->ui_money_status->text, " MONEY %d", e_player.money);
+  }
+}
+
+void open_status_bar() {
+  if (status) {
+    status->ui_health_status->enabled = 1;
+    status->ui_money_status->enabled = 1;
+  }
+}
+
+void close_status_bar() {
+  if (status) {
+    status->ui_health_status->enabled = 0;
+    status->ui_money_status->enabled = 0;
   }
 }

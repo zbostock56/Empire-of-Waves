@@ -113,11 +113,12 @@ void render_scene(GLFWwindow *window) {
 
     render_player_ship();
 
-    for (int i = 0; i < NUM_COMPONENTS; i++) {
+    for (int i = 0; i <= NUM_COMPONENTS; i++) {
       if (ui_tab[i].enabled) {
         render_ui(ui_tab + i);
       }
     }
+    update_status_bar();
 
     for (unsigned int i = 0; i < num_trade_ships; i++) {
       render_trade_ship(trade_ships + i);

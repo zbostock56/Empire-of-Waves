@@ -1,10 +1,12 @@
 #include <ui_component.h>
 #include <merchant_str.h>
 
-#define NUM_COMPONENTS (18)
-#define MAX_NAME (16) // DIALOG :: Max string length of name
-#define MAX_CONTENT (256) // DIALOG :: Max string length of content
+#define NUM_COMPONENTS (20) // UI COMPONENT:: Max number of UI component
+#define MAX_NAME_STR_LENGTH (16) // DIALOG :: Max string length of name
+#define MAX_CONTENT_STR_LENGTH (256) // DIALOG :: Max string length of content
 #define MAX_DIALOGS (16) // DIALOG :: Max number of dialogs
+#define MAX_LISTING_STR_LENGTH (16) // TRADE :: Max length of listing string
+#define MAX_STATUS_STR_LENGTH (16) // STATUS :: Max length of status string
 
 /*
   Enum mapping human-readable component names to the index of the ui component
@@ -28,7 +30,9 @@ typedef enum component_ids {
   TRADE_BUTTON_LISTING_7 = 13,
   TRADE_BUTTON_LISTING_8 = 14,
   EMBARK_PROMPT = 15,
-  INTERACT_PROMPT = 16
+  INTERACT_PROMPT = 16,
+  STATUS_HEALTH = 17,
+  STATUS_MONEY = 18
   // Populate as more components are added
 } UI_ID;
 
@@ -120,3 +124,21 @@ void on_click_ui_listing_5();
 void on_click_ui_listing_6();
 void on_click_ui_listing_7();
 void on_click_ui_listing_8();
+
+/*
+                                   STATUS
+Implements the functionality for shows player status.
+*/
+
+typedef struct status {
+  UI_COMPONENT *ui_health_status;
+  UI_COMPONENT *ui_money_status;
+} STATUS;
+
+extern STATUS * status;
+
+STATUS * init_status_bar();
+void free_status();
+void update_status_bar();
+void open_status_bar();
+void close_status_bar();
