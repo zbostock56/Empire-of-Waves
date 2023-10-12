@@ -36,6 +36,7 @@ void init_scene() {
   player_ship = load_model("assets/player_ship.bin", "assets/1A.png");
   enemy_ship = load_model("assets/enemy_ship.bin", "assets/1B.png");
   trade_ship = load_model("assets/trade_ship.bin", "assets/2A.png");
+  house = load_model("assets/quad.bin", "assets/House.png");
   quad = load_model("assets/quad.bin", NULL);
   char default_path[50] = "assets/Dinklebitmap/x.bin";
   char lowercase_path[50] = "assets/Dinklebitmap/x_lower.bin";
@@ -636,6 +637,20 @@ void render_island(ISLAND *island) {
   set_mat4("proj", ortho_proj, std_shader);
   quad->texture = island->texture;
   draw_model(quad, std_shader);
+
+  glm_mat4_identity(model_mat);
+  vec3 house_coords = { 0.0, 0.0, OBSTACLE_DEPTH };
+  chunk_to_world(island->chunk, house_tile, house_coords);
+  glm_translate(model_mat, house_coords);
+  glm_translate_x(model_mat, 2.0 * T_WIDTH);
+  glm_translate_y(model_mat, 4.0 * T_WIDTH);
+  glm_scale_uni(model_mat, T_WIDTH * 5.0);
+
+  glUseProgram(pixel_shader);
+  set_mat4("model", model_mat, pixel_shader);
+  set_mat4("view", view_mat, pixel_shader);
+  set_mat4("proj", ortho_proj, pixel_shader);
+  draw_model(house, pixel_shader);
 }
 
 void render_arena() {

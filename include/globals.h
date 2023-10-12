@@ -15,6 +15,7 @@ extern float last_frame;
 extern E_PLAYER e_player;
 extern CHUNK player_chunks[9];
 extern vec2 home_island_coords;
+extern vec2 house_tile;
 extern TRADE_SHIP *trade_ships;
 extern unsigned int num_trade_ships;
 extern unsigned int trade_ship_buf_size;
