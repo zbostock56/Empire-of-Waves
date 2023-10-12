@@ -1,7 +1,7 @@
 #include <ui_component.h>
 #include <merchant_str.h>
 
-#define NUM_COMPONENTS (21) // UI COMPONENT:: Max number of UI component
+#define NUM_COMPONENTS (22) // UI COMPONENT:: Max number of UI component
 #define MAX_NAME_STR_LENGTH (16) // DIALOG :: Max string length of name
 #define MAX_CONTENT_STR_LENGTH (256) // DIALOG :: Max string length of content
 #define MAX_DIALOGS (16) // DIALOG :: Max number of dialogs
@@ -33,8 +33,9 @@ typedef enum component_ids {
   TRADE_BUTTON_LISTING_8 = 15,
   EMBARK_PROMPT = 16,
   INTERACT_PROMPT = 17,
-  STATUS_HEALTH = 18,
-  STATUS_MONEY = 19
+  SCHEDULED_TRADE_ROUTE_PROMPT = 18,
+  STATUS_HEALTH = 19,
+  STATUS_MONEY = 20
   // Populate as more components are added
 } UI_ID;
 
@@ -67,9 +68,11 @@ typedef struct dialog {
   UI_COMPONENT *ui_button_buy;
   UI_COMPONENT *ui_button_sell;
   UI_COMPONENT *ui_button_establish_trade_route;
+  UI_COMPONENT *ui_text_schedule_trade_route_prompt;
 } DIALOG;
 
 extern DIALOG * dialog;
+extern float time_schdule_trade_toute_prompt;
 
 DIALOG * init_dialog();
 void free_dialog();
