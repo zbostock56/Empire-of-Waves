@@ -8,7 +8,8 @@
 
 int to_combat_mode(unsigned int enemy_index) {
   mode = COMBAT;
-  E_ENEMY *enemy_ship = player_chunks[PLAYER_CHUNK].enemies + enemy_index;
+  CHUNK *cur_chunk = chunk_buffer + player_chunks[PLAYER_CHUNK];
+  E_ENEMY *enemy_ship = cur_chunk->enemies + enemy_index;
 
   // Initialize combat mode player
   c_player.weapon_type = MELEE;
@@ -57,7 +58,7 @@ int to_combat_mode(unsigned int enemy_index) {
 void from_combat_mode() {
   mode = EXPLORATION;
   free(npc_units);
-  CHUNK *cur_chunk = player_chunks + PLAYER_CHUNK;
+  CHUNK *cur_chunk = chunk_buffer + player_chunks[PLAYER_CHUNK];
   // Remove enemy ship from exploration mode
   cur_chunk->num_enemies--;
   unsigned int last_enemy_index = cur_chunk->num_enemies;

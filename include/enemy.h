@@ -6,10 +6,6 @@
 #include <trade_ship_str.h>
 #include <globals.h>
 
-/* GLOBALS  */
-extern CHUNK player_chunks[CHUNKS_SIMULATED];
-extern E_PLAYER e_player;
-
 /* DEFINES */
 #define CURRENT_CHUNK (4)
 

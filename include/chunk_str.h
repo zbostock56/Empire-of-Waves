@@ -60,6 +60,7 @@ typedef struct chunk {
   unsigned int enemy_buf_size;
   unsigned int num_islands;
   unsigned int num_enemies;
+  unsigned int ref_count;
 } CHUNK;
 
 #endif

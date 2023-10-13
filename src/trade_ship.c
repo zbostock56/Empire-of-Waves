@@ -26,7 +26,9 @@ void update_trade_ships() {
 }
 
 void trade_ship_pathfind(TRADE_SHIP *ship) {
-  ISLAND *target_island = ship->target_chunk.islands + ship->target_island;
+  CHUNK *target_chunk = chunk_buffer + ship->target_chunk_index;
+  CHUNK *cur_chunk = chunk_buffer + ship->cur_chunk_index;
+  ISLAND *target_island = target_chunk->islands + ship->target_island;
   vec2 target_world = { target_island->coords[0], target_island->coords[1] };
   vec2 to_center_target = {
     T_WIDTH * I_WIDTH * 0.5,
@@ -36,9 +38,9 @@ void trade_ship_pathfind(TRADE_SHIP *ship) {
   vec2 to_target = GLM_VEC2_ZERO_INIT;
 
   // Steer toward target island
-  chunk_to_world(ship->target_chunk.coords, target_world, target_world);
+  chunk_to_world(target_chunk->coords, target_world, target_world);
   glm_vec2_add(to_center_target, target_world, target_world);
-  chunk_to_world(ship->chunk.coords, ship->coords, ship_world);
+  chunk_to_world(cur_chunk->coords, ship->coords, ship_world);
   glm_vec2_sub(target_world, ship_world, to_target);
   glm_vec2_normalize(to_target);
   glm_vec2_scale(to_target, delta_time, to_target);

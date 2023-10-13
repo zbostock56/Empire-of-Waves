@@ -233,7 +233,7 @@ void debug_keys(GLFWwindow *window) {
 
   if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS && !holding_minus) {
     if (mode == EXPLORATION) {
-      CHUNK *cur_chunk = player_chunks + PLAYER_CHUNK;
+      CHUNK *cur_chunk = chunk_buffer + player_chunks[PLAYER_CHUNK];
       // Make a dummy enemy ship to fight
       unsigned int new_enemy_index = cur_chunk->num_enemies;
       cur_chunk->enemies[new_enemy_index].crew_count = 3;

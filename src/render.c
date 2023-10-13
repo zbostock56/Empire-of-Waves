@@ -28,6 +28,7 @@ void init_scene() {
   color_shader = shader_init(vertex_shader, fragment_shader_color);
   pixel_shader = shader_init(vertex_shader, fragment_shader_pixelated);
   text_shader = shader_init(vertex_shader, fragment_shader_text);
+  chunk_shader = shader_init(vertex_shader, fragment_shader_chunk);
 
   // Initialize models
   player = load_model("assets/player.bin", "assets/3A.png");
@@ -207,14 +208,15 @@ void render_scene(GLFWwindow *window) {
     }
 
     for (int i = 0; i < 9; i++) {
-      for (int j = 0; j < player_chunks[i].num_enemies; j++) {
-        render_enemy_ship(player_chunks[i].enemies + j);
+      CHUNK *cur_chunk = chunk_buffer + player_chunks[i];
+      for (int j = 0; j < cur_chunk->num_enemies; j++) {
+        render_enemy_ship(cur_chunk->enemies + j);
       }
-      for (int j = 0; j < player_chunks[i].num_islands; j++) {
-        if (player_chunks[i].islands[j].has_merchant) {
-          render_merchant(&player_chunks[i].islands[j].merchant);
+      for (int j = 0; j < cur_chunk->num_islands; j++) {
+        if (cur_chunk->islands[j].has_merchant) {
+          render_merchant(&cur_chunk->islands[j].merchant);
         }
-        render_island(player_chunks[i].islands + j);
+        render_island(cur_chunk->islands + j);
       }
     }
   } else {
@@ -559,23 +561,20 @@ void render_chunk(ivec2 chunk) {
   world_coords[0] = world_coords[0] + (T_WIDTH * C_WIDTH * 0.5);
   world_coords[1] = world_coords[1] - (T_WIDTH * C_WIDTH * 0.5);
 
-  /*
   float c_val = 0.0f;
   if (chunk[0] % 2 == 0) {
     if (chunk[1] % 2 == 0) {
       c_val = 1.0;
     } else {
-      c_val = 0.0;
+      c_val = 0.5;
     }
   } else {
     if (chunk[1] % 2 == 0) {
-      c_val = 0.0;
+      c_val = 0.5;
     } else {
       c_val = 1.0;
     }
   }
-  vec3 color = { c_val, c_val, c_val };
-  */
 
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   glm_translate(model_mat, world_coords);
@@ -605,8 +604,15 @@ void render_chunk(ivec2 chunk) {
   set_mat4("model", model_mat, std_shader);
   set_mat4("view", view_mat, std_shader);
   set_mat4("proj", ortho_proj, std_shader);
+  /*
+  glUseProgram(chunk_shader);
+  set_mat4("model", model_mat, chunk_shader);
+  set_mat4("view", view_mat, chunk_shader);
+  set_mat4("proj", ortho_proj, chunk_shader);
+  glUniform1f(glGetUniformLocation(chunk_shader, "chunk"), c_val);
+  */
   quad->texture = ocean_texture;
-  draw_model(quad, std_shader);
+  draw_model(quad, chunk_shader);
 }
 
 void render_island(ISLAND *island) {
@@ -645,7 +651,8 @@ void render_island(ISLAND *island) {
   glm_translate_x(model_mat, 2.0 * T_WIDTH);
   glm_translate_y(model_mat, 4.0 * T_WIDTH);
   glm_scale_uni(model_mat, T_WIDTH * 5.0);
-  
+
+  /*
   if (island->chunk[0] == 0 && island->chunk[1] == 0) {
     glUseProgram(pixel_shader);
     set_mat4("model", model_mat, pixel_shader);
@@ -653,6 +660,7 @@ void render_island(ISLAND *island) {
     set_mat4("proj", ortho_proj, pixel_shader);
     draw_model(house, pixel_shader);
   }
+  */
 }
 
 void render_arena() {

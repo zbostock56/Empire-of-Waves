@@ -38,7 +38,8 @@ void spawn_enemy() {
     [0 ... C_WIDTH - 1] = { [0 ... C_WIDTH - 1] = 1 }
   };
   /* Set up chunk tileset */
-  generate_chunk_tiles(chunk_tiles, player_chunks[chunk_pos]);
+  CHUNK *chunk = chunk_buffer + player_chunks[chunk_pos];
+  generate_chunk_tiles(chunk_tiles, *chunk);
   while (not_found) {
     posx = rand() % C_WIDTH;
     posy = rand() % C_WIDTH;
@@ -47,19 +48,18 @@ void spawn_enemy() {
          e_player.ship_coords[1] != posy) || !in_player_chunk) {
       if (tile == 1) {
         /* Sets up base enemy */
-        unsigned int insert_index = player_chunks[chunk_pos].num_enemies;
-        player_chunks[chunk_pos].num_enemies++;
+        unsigned int insert_index = chunk->num_enemies;
+        chunk->num_enemies++;
 
         int status = 0;
-        if (player_chunks[chunk_pos].num_enemies ==
-            player_chunks[chunk_pos].enemy_buf_size) {
-          status = double_buffer((void **) &player_chunks[chunk_pos].enemies,
-                                 &player_chunks[chunk_pos].enemy_buf_size,
+        if (chunk->num_enemies == chunk->enemy_buf_size) {
+          status = double_buffer((void **) &chunk->enemies,
+                                 &chunk->enemy_buf_size,
                                  sizeof(E_ENEMY));
         }
 
         if (status == 0) {
-          E_ENEMY *enemy = &player_chunks[chunk_pos].enemies[insert_index];
+          E_ENEMY *enemy = &chunk->enemies[insert_index];
           enemy->chunk[0] = chosen_chunk[0];
           enemy->chunk[1] = chosen_chunk[1];
           enemy->coords[0] = posx;
@@ -123,8 +123,10 @@ in them
 */
 int find_avail_chunks(int avail_chunks[CHUNKS_SIMULATED]) {
   int num_avail = 0;
+  CHUNK *cur_chunk = NULL;
   for (int i = 0; i < CHUNKS_SIMULATED; i++) {
-    if (player_chunks[i].num_enemies < MAX_ENEMIES) {
+    cur_chunk = chunk_buffer + player_chunks[i];
+    if (cur_chunk->num_enemies < MAX_ENEMIES) {
       avail_chunks[i] = 1;
       num_avail++;
     } else {
@@ -249,7 +251,7 @@ int search(int start_col, int start_row, int goal_col, int goal_row, E_ENEMY *en
   glm_ivec2_sub(enemy->chunk, e_player.ship_chunk, chunk_offset);
   CHUNK *enemy_chunk;
   int chunk_index = (chunk_offset[0] + 1) + 3 * (1 - chunk_offset[1]);
-  enemy_chunk = &player_chunks[chunk_index];
+  enemy_chunk = chunk_buffer + player_chunks[chunk_index];
   int in_player_chunk = chunk_index == CURRENT_CHUNK ? 1 : 0;
   if (!in_player_chunk) {
     printf("Not in player chunk\n\n");
@@ -413,7 +415,7 @@ void update_enemy_chunk(E_ENEMY *cur_enemy, CHUNK *chunk, int i) {
     glm_ivec2_sub(cur_enemy->chunk, e_player.ship_chunk, chunk_offset);
     CHUNK *new_enemy_chunk;
     int chunk_index = (chunk_offset[0] + 1) + 3 * (1 - chunk_offset[1]);
-    new_enemy_chunk = &player_chunks[chunk_index];
+    new_enemy_chunk = chunk_buffer + player_chunks[chunk_index];
     memcpy(&new_enemy_chunk->enemies[new_enemy_chunk->num_enemies], cur_enemy, sizeof(E_ENEMY));
     new_enemy_chunk->num_enemies++;
 

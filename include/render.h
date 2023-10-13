@@ -59,6 +59,7 @@ unsigned int std_shader;
 unsigned int color_shader;
 unsigned int pixel_shader;
 unsigned int text_shader;
+unsigned int chunk_shader;
 
 FRAMEBUFFER entity_framebuffer;
 

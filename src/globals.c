@@ -19,8 +19,13 @@ float delta_time = 0.0;
 float last_frame = 0.0;
 
 // EXPLORATION MODE STATE
+CHUNK *chunk_buffer = NULL;
+unsigned int chunk_buff_size = 0;
+unsigned int chunk_buff_len = 0;
+
 E_PLAYER e_player;
-CHUNK player_chunks[9];
+unsigned int player_chunks[9];
+unsigned int updated_chunks[9];
 TRADE_SHIP *trade_ships = NULL;
 vec2 home_island_coords = GLM_VEC2_ZERO_INIT;
 vec2 house_tile = GLM_VEC2_ZERO_INIT;
