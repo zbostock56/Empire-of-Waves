@@ -12,8 +12,17 @@ extern float delta_time;
 extern float last_frame;
 
 // EXPLORATION MODE STATE
+extern CHUNK *chunk_buffer;
+extern unsigned int chunk_buff_size;
+extern unsigned int chunk_buff_len;
+
 extern E_PLAYER e_player;
-extern CHUNK player_chunks[9];
+// Indexs to chunks in chunk_buffer which represent the chunks loaded by the
+// player
+extern unsigned int player_chunks[9];
+// Utility buffer for tracking updated indices of chunks in chunk_buffer, which
+// represent the loaded player chunks
+extern unsigned int updated_chunks[9];
 extern vec2 home_island_coords;
 extern vec2 house_tile;
 extern TRADE_SHIP *trade_ships;

@@ -15,6 +15,7 @@ any file which enables/disabled ui components.
 int double_buffer(void **, unsigned int *, unsigned int);
 void chunk_from_coords(ivec2, CHUNK *);
 float time_schdule_trade_toute_prompt;
+int add_chunk(ivec2);
 
 // Init global variables
 DIALOG * dialog;
@@ -158,7 +159,7 @@ DIALOG * init_dialog() {
     // Handle memory allocation failure, e.g., return NULL or exit
     return NULL;
   }
-  
+
   dialog->name = malloc(MAX_NAME_STR_LENGTH * sizeof(char));
   if (!dialog->name) {
     free(dialog);
@@ -448,9 +449,11 @@ void open_establish_trade_route() {
   //                                      DIALOG_BUTTON_ESTABLISH_TRADE_ROUTE
   //                                    );
   MERCHANT *target_merch = dialog->merchant;
+  CHUNK *target_chunk = NULL;
   for (int i = 0; i < num_trade_ships; i++) {
-    if (trade_ships[i].target_chunk.coords[0] == target_merch->chunk[0] &&
-        trade_ships[i].target_chunk.coords[1] == target_merch->chunk[1]) {
+    target_chunk = chunk_buffer + trade_ships[i].target_chunk_index;
+    if (target_chunk->coords[0] == target_merch->chunk[0] &&
+        target_chunk->coords[1] == target_merch->chunk[1]) {
       dialog->ui_text_schedule_trade_route_prompt->text = "You Already Have a Trade Route";
       dialog->ui_text_schedule_trade_route_prompt->enabled = 1;
       return;
@@ -462,6 +465,18 @@ void open_establish_trade_route() {
   time_schdule_trade_toute_prompt = 2.0;
   // delay
 
+  TRADE_SHIP *trade_ship = trade_ships + num_trade_ships;
+
+  ivec2 target_chunk_coords = { 0, 0 };
+  glm_ivec2_copy(dialog->merchant->chunk, target_chunk_coords);
+  trade_ship->target_chunk_index = add_chunk(target_chunk_coords);
+
+  ivec2 cur_chunk_coords = { 0, 0 };
+  trade_ship->cur_chunk_index = add_chunk(cur_chunk_coords);
+
+  glm_vec2_copy(home_island_coords, trade_ship->coords);
+  glm_ivec2_copy(cur_chunk_coords, trade_ship->chunk_coords);
+  /*
   ivec2 target_chunk = { 0, 0 };
   glm_ivec2_copy(dialog->merchant->chunk, target_chunk);
   chunk_from_coords(target_chunk, &trade_ships[num_trade_ships].target_chunk);
@@ -476,6 +491,7 @@ void open_establish_trade_route() {
   }
   glm_ivec2_copy(cur_chunk, trade_ships[num_trade_ships].chunk_coords);
   glm_vec2_copy(trade_ship_coords, trade_ships[num_trade_ships].coords);
+  */
   glm_vec2_zero(trade_ships[num_trade_ships].direction);
   trade_ships[num_trade_ships].direction[0] = 1.0;
   trade_ships[num_trade_ships].export_rec = 0;

@@ -75,3 +75,14 @@ const char *fragment_shader_color = " \
   }\n \
 ";
 
+const char *fragment_shader_chunk = " \
+  #version 430 core\n \
+  out vec4 FragColor;\n \
+  in vec2 tex_coords;\n \
+  uniform sampler2D tex;\n \
+  uniform float chunk;\n \
+  void main() {\n \
+    FragColor = chunk *texture(tex, tex_coords);\n \
+  }\n \
+";
+

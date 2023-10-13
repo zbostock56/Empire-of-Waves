@@ -6,6 +6,13 @@ generation, and detection of which chunks to load/unload.
 */
 
 int init_chunks() {
+  chunk_buffer = malloc(sizeof(CHUNK) * CHUNK_BUFF_STARTING_LEN);
+  if (chunk_buffer == NULL) {
+    return -1;
+  }
+  chunk_buff_size = CHUNK_BUFF_STARTING_LEN;
+  chunk_buff_len = 0;
+
   ivec2 player_chunk = { 0, 0 };
   if (e_player.embarked) {
     glm_ivec2_copy(e_player.ship_chunk, player_chunk);
@@ -17,51 +24,41 @@ int init_chunks() {
   ivec2 chunk_coords = { 0, 0 };
   for (int i = CHUNK_UPPER_LEFT; i <= CHUNK_LOWER_RIGHT; i++) {
     glm_ivec2_add(player_chunk, CHUNK_OFFSETS[i], chunk_coords);
-//    printf("loading new: %s (%d) at (%d, %d)\n", index_to_str(i), i,
-//           chunk_coords[X], chunk_coords[Y]);
-//    fflush(stdout);
-    status = load_chunk(chunk_coords, player_chunks + i);
-    if (status) {
-      glm_ivec2_copy(chunk_coords, player_chunks[i].coords);
-      status = generate_chunk(player_chunks + i);
-      if (status) {
-        return -1;
-      }
-      if (i == PLAYER_CHUNK) {
-        player_chunks[PLAYER_CHUNK].islands[0].coords[0] = 0;
-        player_chunks[PLAYER_CHUNK].islands[0].coords[1] = 0;
-        player_chunks[PLAYER_CHUNK].islands[0].chunk[0] = 0;
-        player_chunks[PLAYER_CHUNK].islands[0].chunk[1] = 0;
-        generate_island(&player_chunks[PLAYER_CHUNK].islands[0]);
-        place_home(&player_chunks[PLAYER_CHUNK].islands[0]);
-        vec2 home_coords = {
-          player_chunks[PLAYER_CHUNK].islands[0].coords[X],
-          player_chunks[PLAYER_CHUNK].islands[0].coords[Y]
-        };
-        glm_vec2_copy(home_coords, home_island_coords);
-        if (!player_chunks[PLAYER_CHUNK].num_islands) {
-          player_chunks[PLAYER_CHUNK].num_islands++;
-        }
-      }
+    status = add_chunk(chunk_coords);
+    if (status == -1) {
+      return -1;
     }
+
+    player_chunks[i] = status;
   }
-  
   return 0;
 }
 
-void place_home(ISLAND *island) {
+void print_refs() {
+  printf("buff_len: %d\n", chunk_buff_len);
+  for (int i = 0; i < CHUNKS_SIMULATED; i++) {
+    printf("coords: (%d, %d), ref_count: %d\n",
+           chunk_buffer[player_chunks[i]].coords[0],
+           chunk_buffer[player_chunks[i]].coords[1],
+           chunk_buffer[player_chunks[i]].ref_count);
+  }
+  fflush(stdout);
+  return;
+}
+
+void place_home(ISLAND *island, CHUNK *home_chunk) {
   for (int i = (I_WIDTH * I_WIDTH) / 2 + (I_WIDTH / 2); i < (I_WIDTH * I_WIDTH); i++) {
-    if (player_chunks[PLAYER_CHUNK].islands[0].tiles[i] == GRASS) {
-      player_chunks[PLAYER_CHUNK].islands[0].tiles[i] = HOME;
+    if (home_chunk->islands[0].tiles[i] == GRASS) {
+      home_chunk->islands[0].tiles[i] = HOME;
       house_tile[0] = (i % I_WIDTH) + island->coords[0];
       house_tile[1] = (i / I_WIDTH) + island->coords[1];
       break;
     }
   }
   unsigned char tile_colors[I_WIDTH * I_WIDTH][3];
-  populate_tile_pixel_buffer(&player_chunks[PLAYER_CHUNK].islands[0], tile_colors);
-  player_chunks[PLAYER_CHUNK].islands[0].texture = texture_from_buffer((unsigned char *) tile_colors,
-                                      I_WIDTH, I_WIDTH, GL_RGB);
+  populate_tile_pixel_buffer(&home_chunk->islands[0], tile_colors);
+  home_chunk->islands[0].texture = texture_from_buffer((unsigned char *) tile_colors,
+                                                      I_WIDTH, I_WIDTH, GL_RGB);
   island->has_merchant = 0;
 }
 
@@ -77,72 +74,50 @@ int manage_chunks() {
     glm_ivec2_copy(e_player.chunk, player_chunk);
   }
 
-  // Updated list of player chunks
-  CHUNK updated_chunks[CHUNKS_SIMULATED];
-  // Array specifying which of the current chunks are no longer in use, and
-  // thus must be saved to disk
-  unsigned int player_to_serialize[CHUNKS_SIMULATED];
-  for (int i = 0; i < CHUNKS_SIMULATED; i++) {
-    player_to_serialize[i] = 1;
-  }
-
-  int status = 0;
   ivec2 new_chunk_coords = { 0, 0 };
-
   // Detect updated player chunks
-  for (int i = CHUNK_UPPER_LEFT; i <= CHUNK_LOWER_RIGHT; i++) {
+  for (int i = 0; i < CHUNKS_SIMULATED; i++) {
     // Get chunk coordinates of chunk to load in index i
     glm_ivec2_add(player_chunk, CHUNK_OFFSETS[i], new_chunk_coords);
-    int loaded_by_player = chunk_loaded_by_player(new_chunk_coords);
-    if (loaded_by_player != -1) {
-      // New chunk does exist in memory, relocate it to the correct index
-      updated_chunks[i] = player_chunks[loaded_by_player];
-      player_to_serialize[loaded_by_player] = 0;
-    } else {
-      // New chunk does not currently exist in memory, load it up
-      status = chunk_from_coords(new_chunk_coords, updated_chunks + i);
-      if (status) {
-        return -1;
-      }
+    int new_chunk = add_chunk(new_chunk_coords);
+    if (new_chunk == -1) {
+      return -1;
     }
+    updated_chunks[i] = new_chunk;
   }
 
-  // Update global player chunk state with newly loaded/ordered chunks, and
-  // save all unused player chunks to disk
-  for (int i = CHUNK_UPPER_LEFT; i <= CHUNK_LOWER_RIGHT; i++) {
-    if (player_to_serialize[i]) {
-      save_chunk(player_chunks + i);
-      free_chunk(player_chunks + i);
-    }
+  // Write updated chunks to tracked player chunks
+  for (int i = 0; i < CHUNKS_SIMULATED; i++) {
+    remove_chunk(player_chunks[i]);
     player_chunks[i] = updated_chunks[i];
   }
 
+  TRADE_SHIP *trade_ship = NULL;
   // Detect updated trade ship chunks
   for (int i = 0; i < num_trade_ships; i++) {
-    if (trade_ships[i].chunk.coords[X] == trade_ships[i].chunk_coords[X] &&
-        trade_ships[i].chunk.coords[Y] == trade_ships[i].chunk_coords[Y]) {
-      // Chunk does not need to update
-      continue;
-    }
-
-    // Serialize and free old chunk
-    save_chunk(&trade_ships[i].chunk);
-    free_chunk(&trade_ships[i].chunk);
-
-    // Attempt to load new chunk from disk
-    status = chunk_from_coords(trade_ships[i].chunk_coords, &trade_ships[i].chunk);
-    if (status) {
+    trade_ship = trade_ships + i;
+    int new_chunk = add_chunk(trade_ship->chunk_coords);
+    if (new_chunk == -1) {
       return -1;
     }
+
+    trade_ship->updated_chunk_index = new_chunk;
+  }
+
+  // Write updated chunks to trade ship chunks
+  for (int i = 0; i < num_trade_ships; i++) {
+    remove_chunk(trade_ships[i].cur_chunk_index);
+    trade_ships[i].cur_chunk_index = trade_ships[i].updated_chunk_index;
   }
 
   if (!house_tile[0] && !house_tile[1]) {
     /* Home asset rendering */
     /* Check if rendering the home chunk */
     for (int j = 0; j < CHUNKS_SIMULATED; j++) {
-      if (player_chunks[j].coords[0] == 0 &&
-          player_chunks[j].coords[1] == 0) {
-        ISLAND *island = &player_chunks[j].islands[0];
+      CHUNK *cur_chunk = chunk_buffer + player_chunks[j];
+      if (cur_chunk->coords[0] == 0 &&
+          cur_chunk->coords[1] == 0) {
+        ISLAND *island = &cur_chunk->islands[0];
         for (int i = 0; i < I_WIDTH * I_WIDTH; i++) {
           if (island->tiles[i] == HOME) {
             house_tile[0] = (i % I_WIDTH) + island->coords[0];
@@ -164,6 +139,9 @@ void free_chunk(CHUNK *chunk) {
     glDeleteTextures(1, &chunk->islands[i].texture);
   }
   free(chunk->enemies);
+  chunk->coords[0] = 0xBAADF00D;
+  chunk->coords[1] = 0xBAADF00D;
+  chunk->ref_count = 0xBAADF00D;
 }
 
 int chunk_from_coords(ivec2 coords, CHUNK *dest) {
@@ -172,7 +150,113 @@ int chunk_from_coords(ivec2 coords, CHUNK *dest) {
   if (status) {
     // Chunk also does not exist on disk, so generate it
     glm_ivec2_copy(coords, dest->coords);
-    return generate_chunk(dest);
+    status = generate_chunk(dest);
+    if (status) {
+      return -1;
+    }
+
+    if (coords[0] == 0 && coords[1] == 0) {
+      dest->islands[0].coords[0] = 0;
+      dest->islands[0].coords[1] = 0;
+      dest->islands[0].chunk[0] = 0;
+      dest->islands[0].chunk[1] = 0;
+      generate_island(&dest->islands[0]);
+      place_home(&dest->islands[0], dest);
+      vec2 home_coords = {
+        dest->islands[0].coords[X],
+        dest->islands[0].coords[Y]
+      };
+      glm_vec2_copy(home_coords, home_island_coords);
+      if (!dest->num_islands) {
+        dest->num_islands++;
+      }
+    }
+  }
+
+  return 0;
+}
+
+int add_chunk (ivec2 coords) {
+  int chunk_exists = -1;
+  for (unsigned int i = 0; i < chunk_buff_len; i++) {
+    if (chunk_buffer[i].coords[0] == coords[0] &&
+        chunk_buffer[i].coords[1] == coords[1]) {
+      chunk_exists = i;
+      break;
+    }
+  }
+
+  // Chunk already exists in buffer, return its index
+  if (chunk_exists != -1) {
+    chunk_buffer[chunk_exists].ref_count++;
+    return chunk_exists;
+  }
+
+  // Chunk does not exist in buffer, generate it / read it from disk
+  int status = chunk_from_coords(coords, chunk_buffer + chunk_buff_len);
+  if (status) {
+    return -1;
+  }
+  int new_index = chunk_buff_len;
+
+  chunk_buff_len++;
+  if (chunk_buff_len == chunk_buff_size) {
+    status = double_buffer((void **) &chunk_buffer, &chunk_buff_size,
+                           sizeof(CHUNK));
+    if (status) {
+      return -1;
+    }
+  }
+
+  chunk_buffer[new_index].ref_count = 1;
+  return new_index;
+}
+
+int remove_chunk(unsigned int index) {
+  if (index >= chunk_buff_len) {
+    return -1;
+  }
+
+  // Decrement chunk ref count
+  chunk_buffer[index].ref_count--;
+
+  if (chunk_buffer[index].ref_count) {
+    return 0;
+  }
+
+  // Remove chunk from memory if it's ref count is zero
+  save_chunk(chunk_buffer + index);
+  free_chunk(chunk_buffer + index);
+  chunk_buff_len--;
+
+  // Swap last chunk in buffer to replace spot of deleted chunk
+  chunk_buffer[index] = chunk_buffer[chunk_buff_len];
+
+  // Update chunk index for player and trade ships referring to the swapped
+  // chunk
+  for (int i = 0; i < CHUNKS_SIMULATED; i++) {
+    if (player_chunks[i] == chunk_buff_len) {
+      player_chunks[i] = index;
+    }
+  }
+
+  for (int i = 0; i < CHUNKS_SIMULATED; i++) {
+    if (updated_chunks[i] == chunk_buff_len) {
+      updated_chunks[i] = index;
+    }
+  }
+
+  // Update ref for trade ship chunk
+  for (int i = 0; i < num_trade_ships; i++) {
+    if (trade_ships[i].cur_chunk_index == chunk_buff_len) {
+      trade_ships[i].cur_chunk_index = index;
+    }
+    if (trade_ships[i].target_chunk_index == chunk_buff_len) {
+      trade_ships[i].target_chunk_index = index;
+    }
+    if (trade_ships[i].updated_chunk_index == chunk_buff_len) {
+      trade_ships[i].updated_chunk_index = index;
+    }
   }
 
   return 0;
@@ -489,16 +573,6 @@ void world_to_chunk(vec2 world, ivec2 chunk, vec2 chunk_coords) {
   chunk_coords[1] = chunk_origin[1] - (world[1] / T_WIDTH);
 }
 
-int chunk_loaded_by_player(ivec2 chunk_coords) {
-  ivec2 new_chunk_offset = { 0, 0 };
-  glm_ivec2_sub(chunk_coords, player_chunks[PLAYER_CHUNK].coords,
-                new_chunk_offset);
-  if (out_of_bounds(new_chunk_offset, 1, 1)) {
-    return -1;
-  }
-  return get_index(new_chunk_offset);
-}
-
 char *index_to_str(int index) {
   if (index == CHUNK_UPPER_LEFT) {
     return "UPPER_LEFT";
@@ -521,12 +595,6 @@ char *index_to_str(int index) {
   } else {
     return "INVALID";
   }
-}
-
-int get_index(ivec2 offset) {
-  int x = offset[X] + 1;
-  int y = 1 - offset[Y];
-  return x + (3 * y);
 }
 
 int out_of_bounds(ivec2 coords, int max_x, int max_y) {
