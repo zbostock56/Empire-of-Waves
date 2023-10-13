@@ -1,5 +1,5 @@
 #include <ui_component.h>
-#include <merchant_str.h>
+#include <trade.h>
 
 #define NUM_COMPONENTS (22) // UI COMPONENT:: Max number of UI component
 #define MAX_NAME_STR_LENGTH (16) // DIALOG :: Max string length of name
@@ -88,50 +88,6 @@ void close_sell();
 
 void open_establish_trade_route();
 void close_establish_trade_route();
-
-/*
-                                   TRADING
-Implements the functionality for buying and selling. Could be used for
-interaction with merchants.
-*/
-
-typedef enum trade_type {
-  INVALID_TRADE = 0,
-  BUY = 1,
-  SELL = 2
-} T_TRADE;
-
-typedef struct trade {
-  T_TRADE type;
-  MERCHANT * merchant;
-  UI_COMPONENT *ui_listing_0;
-  UI_COMPONENT *ui_listing_1;
-  UI_COMPONENT *ui_listing_2;
-  UI_COMPONENT *ui_listing_3;
-  UI_COMPONENT *ui_listing_4;
-  UI_COMPONENT *ui_listing_5;
-  UI_COMPONENT *ui_listing_6;
-  UI_COMPONENT *ui_listing_7;
-  UI_COMPONENT *ui_listing_8;
-} TRADE;
-
-extern TRADE * trade;
-
-TRADE * init_trade();
-void free_trade();
-void open_trade();
-void close_trade();
-int set_trade(T_TRADE dialog_type, MERCHANT * merchant);
-
-void on_click_ui_listing_0();
-void on_click_ui_listing_1();
-void on_click_ui_listing_2();
-void on_click_ui_listing_3();
-void on_click_ui_listing_4();
-void on_click_ui_listing_5();
-void on_click_ui_listing_6();
-void on_click_ui_listing_7();
-void on_click_ui_listing_8();
 
 /*
                                    STATUS

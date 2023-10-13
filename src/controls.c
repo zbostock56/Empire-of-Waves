@@ -260,7 +260,7 @@ void close_merchant_menu(GLFWwindow *window) {
      if (dialog->ui_text_name->enabled) {
       close_dialog();
     }
-    if (trade->ui_listing_0->enabled) {
+    if (trade->ui_listing[0]->enabled) {
       close_trade();
     }
   }

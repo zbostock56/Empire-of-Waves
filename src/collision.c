@@ -136,7 +136,7 @@ void check_merchant_prompt(vec2 world_player_coords) {
     }
   }
   if (!cur_merchant || dialog->ui_text_name->enabled ||
-      trade->ui_listing_0->enabled) {
+      trade->ui_listing[0]->enabled) {
     get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
   }
   if (!cur_merchant) {
