@@ -40,6 +40,15 @@ void mouse_pos(GLFWwindow *window, double x_pos, double y_pos) {
 }
 
 void mouse_click(GLFWwindow *window, int button, int action, int mods) {
+  if (mode == COMBAT) {
+    if (action == GLFW_PRESS && c_player.attack_cooldown == 0.0) {
+      c_player.speed = 0.5;
+    } else if (action != GLFW_PRESS && c_player.attack_cooldown == 0.0) {
+      c_player.attack_cooldown = c_player.fire_rate;
+      c_player.attack_active = 0.1;
+      c_player.speed = 1.0;
+    } 
+  }
   if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
     ui_click_listener(mouse_position[0], mouse_position[1]);
   }
@@ -202,21 +211,6 @@ void combat_movement(GLFWwindow *window) {
   }
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
     glm_vec2_sub(c_player.coords, movement, c_player.coords);
-  }
-  // Attacking
-  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !holding_attack &&
-      c_player.attack_cooldown == 0.0) {
-    holding_attack = 1;
-  } else if (glfwGetKey(window, GLFW_KEY_SPACE) != GLFW_PRESS &&
-                        holding_attack) {
-    c_player.attack_cooldown = c_player.fire_rate;
-    c_player.attack_active = 0.1;
-    holding_attack = 0;
-  }
-  if (holding_attack) {
-    c_player.speed = 0.5;
-  } else {
-    c_player.speed = 1.0;
   }
 }
 
