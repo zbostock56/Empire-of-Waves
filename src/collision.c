@@ -150,14 +150,6 @@ void detect_enemy_ships() {
                       cur_enemy_world_coords);
 
         if (circle_circle_collision(world_coords,
-                                    SHIP_COLLISION_RADIUS *SHIP_CHASE_RADIUS*T_WIDTH,
-                                    cur_enemy_world_coords,
-                                    SHIP_COLLISION_RADIUS *SHIP_CHASE_RADIUS*T_WIDTH)) {
-          cur_enemy->on_path = true;
-          pathfind_enemy(cur_enemy);
-          update_enemy_chunk(cur_enemy, chunk, i);
-        }
-        if (circle_circle_collision(world_coords,
                                     SHIP_COLLISION_RADIUS *T_WIDTH,
                                     cur_enemy_world_coords,
                                     SHIP_COLLISION_RADIUS *T_WIDTH)) {
@@ -167,13 +159,20 @@ void detect_enemy_ships() {
           c_player.direction[0] = 1.0;
           mode = COMBAT;
         }
+        if (circle_circle_collision(world_coords,
+                                    SHIP_COLLISION_RADIUS *SHIP_CHASE_RADIUS*T_WIDTH,
+                                    cur_enemy_world_coords,
+                                    SHIP_COLLISION_RADIUS *SHIP_CHASE_RADIUS*T_WIDTH)) {
+          cur_enemy->on_path = true;
+          pathfind_enemy(cur_enemy);
+          update_enemy_chunk(cur_enemy, chunk, i);
+        }
         /*
           if enemy's chunk is changed, update the chunk's info
         */
       }
     }
   }
-  
 }
 
 void detect_context_interaction() {

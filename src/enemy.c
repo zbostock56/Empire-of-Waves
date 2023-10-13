@@ -88,7 +88,7 @@ void generate_chunk_tiles(int chunk_tiles[C_WIDTH][C_WIDTH], CHUNK chunk) {
     for (int j = 0; j < I_WIDTH * I_WIDTH; j++) {
       chunkx = xoffset + (j % I_WIDTH);
       chunky = yoffset + (j / I_WIDTH);
-      if (island.tiles[j] != OCEAN) {
+      if (island.tiles[j] != OCEAN && island.tiles[j] != SHORE) {
         chunk_tiles[chunkx][chunky] = 0;
       }
     }
@@ -149,33 +149,28 @@ void update_enemy_position(E_ENEMY *enemy) {
 void pathfind_enemy(E_ENEMY *enemy) {
   /* If Enemy ship is not in player's current chunk, manually move it to our chunk*/
   if (e_player.ship_chunk[0] != enemy->chunk[0] || e_player.ship_chunk[1] != enemy->chunk[1]) {
-
+    vec2 target_dir = GLM_VEC2_ZERO_INIT;
     /* If the enemy is in the left chunk of the player. */
     if (enemy->chunk[0] == e_player.ship_chunk[0] - 1 && enemy->chunk[1] == e_player.ship_chunk[1]) {
-      enemy->direction[0] = 1.0;
-      enemy->direction[1] = 0.0;
-      update_enemy_position(enemy);
+      target_dir[0] = 1.0;
     }
     /* If the enemy is in the upper chunk of the player*/
     else if (enemy->chunk[0] == e_player.ship_chunk[0] && enemy->chunk[1] == e_player.ship_chunk[1] + 1) {
-      enemy->direction[0] = 0.0;
-      enemy->direction[1] = -1.0;
-      update_enemy_position(enemy);
+      target_dir[1] = -1.0;
     }
     else if (enemy->chunk[0] == e_player.ship_chunk[0] + 1 && enemy->chunk[1] == e_player.ship_chunk[1]) {
-      enemy->direction[0] = -1.0;
-      enemy->direction[1] = 0.0;
-      update_enemy_position(enemy);
+      target_dir[0] = -1.0;
     }
     else if (enemy->chunk[0] == e_player.ship_chunk[0] && enemy->chunk[1] == e_player.ship_chunk[1] - 1) {
-      enemy->direction[0] = 0.0;
-      enemy->direction[1] = 1.0;
-      update_enemy_position(enemy);
+      target_dir[1] = 1.0;
+    } else {
+      /*If the enemy on diagonal*/
     }
-    /*If the enemy on diagonal*/
-    else {
+    update_enemy_position(enemy);
 
-    }
+    glm_vec2_scale(target_dir, delta_time, target_dir);
+    glm_vec2_add(target_dir, enemy->direction, enemy->direction);
+    glm_vec2_normalize(enemy->direction);
     enemy->on_path = false;
     return;
   }
@@ -191,8 +186,9 @@ void pathfind_enemy(E_ENEMY *enemy) {
     vector *path_list = (vector *)malloc(sizeof(vector));
     if (search(start_col, start_row, goal_col, goal_row, enemy, path_list)) {
 
-      int next_x = ((Node *)vector_get(path_list, vector_total(path_list) - 1))->col;
-      int next_y = ((Node *)vector_get(path_list, vector_total(path_list) - 1))->row;
+      Node *n = ((Node *)vector_get(path_list, vector_total(path_list) - 1));
+      int next_x = n->col;
+      int next_y = n->row;
 
       // printf("next_x : %d next_y : %d\n\n", next_x, next_y);
       vec2 next_tile = {next_x, next_y};
@@ -200,8 +196,10 @@ void pathfind_enemy(E_ENEMY *enemy) {
       vec2 enemy_coords = {(int)enemy->coords[0], (int)enemy->coords[1]};
       glm_vec2_sub(next_tile, enemy_coords, difference);
       glm_vec2_normalize(difference);
-      enemy->direction[0] = difference[0];
-      enemy->direction[1] = -difference[1];
+      difference[1] *= -1;
+      glm_vec2_scale(difference, delta_time, difference);
+      glm_vec2_add(difference, enemy->direction, enemy->direction);
+      glm_vec2_normalize(enemy->direction);
       int next_col = ((Node *)vector_get(path_list, vector_total(path_list) - 1))->col;
       int next_row = ((Node *)vector_get(path_list, vector_total(path_list) - 1))->row;
 
@@ -244,6 +242,7 @@ int search(int start_col, int start_row, int goal_col, int goal_row, E_ENEMY *en
   int checked[C_WIDTH][C_WIDTH] = {
       [0 ... C_WIDTH - 1] = {[0 ... C_WIDTH - 1] = 0}};
   Node nodes[C_WIDTH][C_WIDTH];
+  //Node (*nodes)[C_WIDTH] = malloc(sizeof(Node) * C_WIDTH * C_WIDTH);
 
   /* getting the chunk of the enemy and creating a tilemap to check which objects are able/unable to pass through*/
   ivec2 chunk_offset = GLM_VEC2_ZERO_INIT;
@@ -355,7 +354,7 @@ int search(int start_col, int start_row, int goal_col, int goal_row, E_ENEMY *en
     step++;
   }
   vector_free(&openList);
-  vector_free(path_list);
+  //vector_free(path_list);
   return goal_reached;
 }
 
@@ -418,12 +417,9 @@ void update_enemy_chunk(E_ENEMY *cur_enemy, CHUNK *chunk, int i) {
     memcpy(&new_enemy_chunk->enemies[new_enemy_chunk->num_enemies], cur_enemy, sizeof(E_ENEMY));
     new_enemy_chunk->num_enemies++;
 
-    /* Removing the enemy from the original chunk by shifting left. */
-    for (int j = i; j < chunk->num_enemies - 1; j++) {
-      chunk->enemies[j] = chunk->enemies[j + 1];
-    }
-
     chunk->num_enemies--;
+    // Swap last enemy in buffer to replace deleted enemy
+    chunk->enemies[i] = chunk->enemies[chunk->num_enemies];
 
     /* Buffer adjustments if needed*/
     int status = 0;

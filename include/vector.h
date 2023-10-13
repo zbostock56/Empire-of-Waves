@@ -8,7 +8,7 @@ typedef struct vector {
     void **items;
     int capacity;
     int total;
-} vector;  
+} vector;
 
 void vector_init(vector *);
 int vector_total(vector *);
