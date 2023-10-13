@@ -37,6 +37,9 @@ int detect_collisions() {
     detect_context_interaction();
   } else {
     unit_collision(c_player.coords);
+    for (int i = 0; i < num_npc_units; i++) {
+      unit_collision(npc_units[i].coords);
+    }
     attack_collision();
   }
 
@@ -285,7 +288,11 @@ void trade_ship_steering(TRADE_SHIP *trade_ship, vec2 direction) {
       tile_dist = glm_vec2_distance(world_coords, search_world_coords);
       glm_vec2_sub(world_coords, search_world_coords, from_tile);
       glm_vec2_normalize(from_tile);
-      glm_vec2_scale(from_tile, tile_dist / SHIP_PATHFIND_RADIUS, from_tile);
+      float magnitude = SHIP_PATHFIND_RADIUS;
+      if (tile_dist) {
+        magnitude /= tile_dist;
+      }
+      glm_vec2_scale(from_tile, magnitude, from_tile);
       cur_tile = check_tile(island, search_tile);
 
       if (island == target_island) {

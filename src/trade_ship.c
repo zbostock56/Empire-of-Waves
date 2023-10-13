@@ -22,6 +22,14 @@ int init_trade_ship_buffers() {
 void update_trade_ships() {
   for (unsigned int i = 0; i < num_trade_ships; i++) {
     trade_ship_pathfind(trade_ships + i);
+    /*
+    vec2 c = GLM_VEC2_ZERO_INIT;
+    chunk_to_world(trade_ships[i].chunk_coords, trade_ships[i].coords, c);
+    printf("TRADE SHIP: %d with chunk (%d, %d), and world coords (%f, %f)\n",
+            i, trade_ships[i].chunk_coords[0], trade_ships[i].chunk_coords[1],
+            c[0], c[1]);
+    fflush(stdout);
+    */
   }
 }
 

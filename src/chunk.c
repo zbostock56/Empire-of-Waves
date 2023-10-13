@@ -122,10 +122,10 @@ int manage_chunks() {
           if (island->tiles[i] == HOME) {
             house_tile[0] = (i % I_WIDTH) + island->coords[0];
             house_tile[1] = (i / I_WIDTH) + island->coords[1];
-            printf("House tile: %f | %f\n", house_tile[0], house_tile[1]);
           }
         }
       }
+
     }
   }
   return 0;
@@ -265,7 +265,8 @@ int remove_chunk(unsigned int index) {
 int load_chunk(ivec2 coords, CHUNK *dest) {
   // Must have some sort of max chunk to guarentee chunk file path is limited
   if (out_of_bounds(coords, MAX_CHUNK_COORD, MAX_CHUNK_COORD)) {
-    fprintf(stderr, "chunk.c: Chunk exceeds max chunk coordinates\n");
+    fprintf(stderr, "chunk.c: Chunk (%d, %d) exceeds max chunk coordinates\n",
+            coords[0], coords[1]);
     return -1;
   }
 
