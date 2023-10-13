@@ -27,42 +27,36 @@ int init_chunks() {
       if (status) {
         return -1;
       }
+      if (i == PLAYER_CHUNK) {
+        player_chunks[PLAYER_CHUNK].islands[0].coords[0] = 0;
+        player_chunks[PLAYER_CHUNK].islands[0].coords[1] = 0;
+        player_chunks[PLAYER_CHUNK].islands[0].chunk[0] = 0;
+        player_chunks[PLAYER_CHUNK].islands[0].chunk[1] = 0;
+        generate_island(&player_chunks[PLAYER_CHUNK].islands[0]);
+        place_home(&player_chunks[PLAYER_CHUNK].islands[0]);
+        vec2 home_coords = {
+          player_chunks[PLAYER_CHUNK].islands[0].coords[X],
+          player_chunks[PLAYER_CHUNK].islands[0].coords[Y]
+        };
+        glm_vec2_copy(home_coords, home_island_coords);
+        if (!player_chunks[PLAYER_CHUNK].num_islands) {
+          player_chunks[PLAYER_CHUNK].num_islands++;
+        }
+      }
     }
   }
-
-  if (player_chunks[PLAYER_CHUNK].num_islands) {
-    place_home(&player_chunks[PLAYER_CHUNK].islands[0]);
-    vec2 home_coords = {
-      player_chunks[PLAYER_CHUNK].islands[0].coords[X],
-      player_chunks[PLAYER_CHUNK].islands[0].coords[Y]
-    };
-    glm_vec2_copy(home_coords, home_island_coords);
-  } else {
-    player_chunks[PLAYER_CHUNK].num_islands++;
-    generate_island(&player_chunks[PLAYER_CHUNK].islands[0]);
-    place_home(&player_chunks[PLAYER_CHUNK].islands[0]);
-    vec2 home_coords = {
-      player_chunks[PLAYER_CHUNK].islands[0].coords[X],
-      player_chunks[PLAYER_CHUNK].islands[0].coords[Y]
-    };
-    glm_vec2_copy(home_coords, home_island_coords);
-  }
+  
   return 0;
 }
 
 void place_home(ISLAND *island) {
-  int rand_tile = rand() % (I_WIDTH * I_WIDTH);
-  rand_tile < 0 ? rand_tile *= -1 : rand_tile;
-  int not_found = 0;
-  while (!not_found) {
-    if (player_chunks[PLAYER_CHUNK].islands[0].tiles[rand_tile] == GRASS) {
-      player_chunks[PLAYER_CHUNK].islands[0].tiles[rand_tile] = HOME;
-      house_tile[0] = (rand_tile % I_WIDTH) + island->coords[0];
-      house_tile[1] = (rand_tile / I_WIDTH) + island->coords[1];
-      not_found = 1;
+  for (int i = (I_WIDTH * I_WIDTH) / 2 + (I_WIDTH / 2); i < (I_WIDTH * I_WIDTH); i++) {
+    if (player_chunks[PLAYER_CHUNK].islands[0].tiles[i] == GRASS) {
+      player_chunks[PLAYER_CHUNK].islands[0].tiles[i] = HOME;
+      house_tile[0] = (i % I_WIDTH) + island->coords[0];
+      house_tile[1] = (i / I_WIDTH) + island->coords[1];
+      break;
     }
-    rand_tile = rand() % (I_WIDTH * I_WIDTH);
-    rand_tile < 0 ? rand_tile *= -1 : rand_tile;
   }
   unsigned char tile_colors[I_WIDTH * I_WIDTH][3];
   populate_tile_pixel_buffer(&player_chunks[PLAYER_CHUNK].islands[0], tile_colors);
@@ -142,6 +136,23 @@ int manage_chunks() {
     }
   }
 
+  if (!house_tile[0] && !house_tile[1]) {
+    /* Home asset rendering */
+    /* Check if rendering the home chunk */
+    for (int j = 0; j < CHUNKS_SIMULATED; j++) {
+      if (player_chunks[j].coords[0] == 0 &&
+          player_chunks[j].coords[1] == 0) {
+        ISLAND *island = &player_chunks[j].islands[0];
+        for (int i = 0; i < I_WIDTH * I_WIDTH; i++) {
+          if (island->tiles[i] == HOME) {
+            house_tile[0] = (i % I_WIDTH) + island->coords[0];
+            house_tile[1] = (i / I_WIDTH) + island->coords[1];
+            printf("House tile: %f | %f\n", house_tile[0], house_tile[1]);
+          }
+        }
+      }
+    }
+  }
   return 0;
 }
 
