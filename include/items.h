@@ -1,7 +1,8 @@
+#ifndef __ITEMS_H__
+#define __ITEMS_H__
+
 #define NUM_ITEMS (19)
-#ifndef NUM_RESOURCES
-#define NUM_RESOURCES (21) // Also defined in items.h
-#endif
+#define NUM_RESOURCES (21)
 
 /*
   Enum mapping human-readable resource names to the index of the resource in
@@ -36,8 +37,8 @@ typedef enum resource_ids {
 */
 typedef enum item_ids {
   INVALID_ITEM = -1,
-  // Currency
-  COIN = 0,
+  // Empty
+  EMPTY = 0,
   // Foods and Drinks
   CITRUS = 1,
   RUM = 2,
@@ -86,3 +87,7 @@ extern unsigned int resource_tab[NUM_RESOURCES];
 
 unsigned int get_resource_value_by_ID(REC_IDS resource_id);
 ITEM get_item_info_by_ID(ITEM_IDS item_id);
+char * get_item_name_by_ID(int item_id);
+ITEM get_item_info_by_name(char *item_name);
+
+#endif

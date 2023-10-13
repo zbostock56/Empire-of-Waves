@@ -67,7 +67,7 @@ void spawn_enemy() {
           enemy->direction[0] = 0;
           enemy->direction[1] = 1;
           enemy->speed = 10.0;
-          enemy->crew_count = 1;
+          enemy->crew_count = 3;
           not_found = 0;
         }
       }
@@ -432,5 +432,48 @@ void update_enemy_chunk(E_ENEMY *cur_enemy, CHUNK *chunk, int i) {
     if (status == 0) {
       // printf("Old chunk's num_enemies : %d\n", chunk->num_enemies);
     }
+  }
+}
+
+// ============================= COMBAT MODE =================================
+
+void c_enemy_pathfind(C_UNIT *enemy, vec2 target_coords) {
+  float target_dist = glm_vec2_distance(target_coords, enemy->coords);
+  if (target_dist <= 1.5 && enemy->attack_cooldown == 0.0) {
+    enemy->attack_cooldown = enemy->fire_rate;
+    enemy->attack_active = 0.1;
+  }
+
+  vec2 movement = GLM_VEC2_ZERO_INIT;
+  int move = 0;
+  if (target_dist >= 1.5) {
+    glm_vec2_sub(target_coords, enemy->coords, enemy->direction);
+    glm_vec2_normalize(enemy->direction);
+    move = 1;
+  }
+
+  // Distance from enemy to its allies
+  float ally_dist = 0.0;
+  vec2 steer_direction = GLM_VEC2_ZERO_INIT;
+  // Move enemy away from allies so they don't cluster together
+  for (unsigned int i = 0; i < num_npc_units; i++) {
+    if (npc_units + i != enemy) {
+      ally_dist = glm_vec2_distance(enemy->coords, npc_units[i].coords);
+      if (ally_dist <= 2.0) {
+        glm_vec2_sub(enemy->coords, npc_units[i].coords, steer_direction);
+        glm_vec2_normalize(steer_direction);
+        glm_vec2_scale(steer_direction, 0.5, steer_direction);
+        glm_vec2_add(steer_direction, enemy->direction, enemy->direction);
+        glm_vec2_normalize(enemy->direction);
+
+        move = 1;
+      }
+    }
+  }
+
+  if (move) {
+    glm_vec2_scale(enemy->direction, (delta_time * enemy->speed) / T_WIDTH,
+                   movement);
+    glm_vec2_add(movement, enemy->coords, enemy->coords);
   }
 }

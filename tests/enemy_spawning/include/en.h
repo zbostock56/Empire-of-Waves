@@ -1,6 +1,7 @@
 #include <player_str.h>
 #include <chunk_str.h>
 #include <stdio.h>
+#include <globals.h>
 
 /* GLOBALS  */
 extern CHUNK player_chunks[CHUNKS_SIMULATED];
@@ -46,5 +47,6 @@ void spawn_enemy();
 int find_avail_chunks();
 void generate_chunk_tiles(int [C_WIDTH][C_WIDTH], CHUNK);
 void check_enemy_positions();
+
 
 /* =================== EXTERNALLY DEFINED FUNCTIONS =================== */

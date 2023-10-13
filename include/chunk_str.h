@@ -1,3 +1,6 @@
+#ifndef __CHUNK_STR_H__
+#define __CHUNK_STR_H__
+
 #include <cglm/ivec2.h>
 #include <merchant_str.h>
 #include <enemy_str.h>
@@ -12,7 +15,7 @@ reads/manipulates chunks and/or islands.
 #define I_WIDTH (96) // Width of an island in tiles
 #define MAX_ISLANDS (2) // Max islands per chunk
 #define CHUNKS_SIMULATED (9)
-#define STARTING_BUFF_SIZE (5)
+#define STARTING_BUFF_SIZE (10)
 
 // Macros specifying index names for player_chunks
 #define CHUNK_UPPER_LEFT (0)
@@ -37,7 +40,8 @@ typedef enum tile {
   SAND = 2,
   GRASS = 3,
   ROCK = 4,
-  MERCH = 5
+  MERCH = 5,
+  HOME = 6
 } TILE;
 
 typedef struct island {
@@ -57,3 +61,5 @@ typedef struct chunk {
   unsigned int num_islands;
   unsigned int num_enemies;
 } CHUNK;
+
+#endif

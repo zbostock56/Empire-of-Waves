@@ -59,8 +59,9 @@ const char *fragment_shader_text = " \
     float col = texture(tex, tex_coords).r;\n \
     if (col == 0.0) {\n \
       discard;\n \
+    } else {\n \
+      FragColor = vec4(vec3(col), 1.0);\n \
     }\n \
-    FragColor = vec4(vec3(col), 1.0);\n \
   }\n \
 ";
 

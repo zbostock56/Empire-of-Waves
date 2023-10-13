@@ -6,3 +6,5 @@ chunks/*
 tests/procedural_generation/*.bmp
 tests/enemy_spawning/bin/*
 tests/enemy_spawning/assets
+tests/serialization/bin/*
+tests/serialization/assets

@@ -14,6 +14,7 @@ so that the graphics side can render the islands in the viewport.
 #include <math.h>
 #include <glad/glad.h>
 #include <chunk_str.h>
+#include <items.h>
 
 /* DEFINES */
 #define FREQ          (0.05)
