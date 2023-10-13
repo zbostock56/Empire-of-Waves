@@ -645,12 +645,14 @@ void render_island(ISLAND *island) {
   glm_translate_x(model_mat, 2.0 * T_WIDTH);
   glm_translate_y(model_mat, 4.0 * T_WIDTH);
   glm_scale_uni(model_mat, T_WIDTH * 5.0);
-
-  glUseProgram(pixel_shader);
-  set_mat4("model", model_mat, pixel_shader);
-  set_mat4("view", view_mat, pixel_shader);
-  set_mat4("proj", ortho_proj, pixel_shader);
-  draw_model(house, pixel_shader);
+  
+  if (island->chunk[0] == 0 && island->chunk[1] == 0) {
+    glUseProgram(pixel_shader);
+    set_mat4("model", model_mat, pixel_shader);
+    set_mat4("view", view_mat, pixel_shader);
+    set_mat4("proj", ortho_proj, pixel_shader);
+    draw_model(house, pixel_shader);
+  }
 }
 
 void render_arena() {
