@@ -31,32 +31,6 @@ int init_chunks() {
 
     player_chunks[i] = status;
   }
-
-  if (player_chunks[PLAYER_CHUNK].num_islands) {
-    place_home(&player_chunks[PLAYER_CHUNK].islands[0]);
-    vec2 home_coords = {
-      player_chunks[PLAYER_CHUNK].islands[0].coords[X],
-      player_chunks[PLAYER_CHUNK].islands[0].coords[Y]
-    };
-    glm_vec2_copy(home_coords, home_island_coords);
-  } else {
-    player_chunks[PLAYER_CHUNK].num_islands++;
-    generate_island(&player_chunks[PLAYER_CHUNK].islands[0]);
-    place_home(&player_chunks[PLAYER_CHUNK].islands[0]);
-    vec2 home_coords = {
-      player_chunks[PLAYER_CHUNK].islands[0].coords[X],
-      player_chunks[PLAYER_CHUNK].islands[0].coords[Y]
-    };
-    glm_vec2_copy(home_coords, home_island_coords);
-  }
-  unsigned int home_chunk = player_chunks[PLAYER_CHUNK];
-  if (chunk_buffer[home_chunk].num_islands) {
-    vec2 home_coords = {
-      chunk_buffer[home_chunk].islands[0].coords[X],
-      chunk_buffer[home_chunk].islands[0].coords[Y]
-    };
-    glm_vec2_copy(home_coords, home_island_coords);
-  }
   return 0;
 }
 
@@ -72,24 +46,18 @@ void print_refs() {
   return;
 }
 
-void place_home(ISLAND *island) {
-  int rand_tile = rand() % (I_WIDTH * I_WIDTH);
-  rand_tile < 0 ? rand_tile *= -1 : rand_tile;
-  int not_found = 0;
-  CHUNK *cur_chunk = chunk_buffer + player_chunks[PLAYER_CHUNK];
-  while (!not_found) {
-    if (cur_chunk->islands[0].tiles[rand_tile] == GRASS) {
-      cur_chunk->islands[0].tiles[rand_tile] = HOME;
-      house_tile[0] = (rand_tile % I_WIDTH) + island->coords[0];
-      house_tile[1] = (rand_tile / I_WIDTH) + island->coords[1];
-      not_found = 1;
+void place_home(ISLAND *island, CHUNK *home_chunk) {
+  for (int i = (I_WIDTH * I_WIDTH) / 2 + (I_WIDTH / 2); i < (I_WIDTH * I_WIDTH); i++) {
+    if (home_chunk->islands[0].tiles[i] == GRASS) {
+      home_chunk->islands[0].tiles[i] = HOME;
+      house_tile[0] = (i % I_WIDTH) + island->coords[0];
+      house_tile[1] = (i / I_WIDTH) + island->coords[1];
+      break;
     }
-    rand_tile = rand() % (I_WIDTH * I_WIDTH);
-    rand_tile < 0 ? rand_tile *= -1 : rand_tile;
   }
   unsigned char tile_colors[I_WIDTH * I_WIDTH][3];
-  populate_tile_pixel_buffer(&chunk_buffer->islands[0], tile_colors);
-  cur_chunk->islands[0].texture = texture_from_buffer((unsigned char *) tile_colors,
+  populate_tile_pixel_buffer(&home_chunk->islands[0], tile_colors);
+  home_chunk->islands[0].texture = texture_from_buffer((unsigned char *) tile_colors,
                                                       I_WIDTH, I_WIDTH, GL_RGB);
   island->has_merchant = 0;
 }
@@ -142,8 +110,24 @@ int manage_chunks() {
     trade_ships[i].cur_chunk_index = trade_ships[i].updated_chunk_index;
   }
 
-  //print_refs();
-  //fflush(stdout);
+  if (!house_tile[0] && !house_tile[1]) {
+    /* Home asset rendering */
+    /* Check if rendering the home chunk */
+    for (int j = 0; j < CHUNKS_SIMULATED; j++) {
+      CHUNK *cur_chunk = chunk_buffer + player_chunks[j];
+      if (cur_chunk->coords[0] == 0 &&
+          cur_chunk->coords[1] == 0) {
+        ISLAND *island = &cur_chunk->islands[0];
+        for (int i = 0; i < I_WIDTH * I_WIDTH; i++) {
+          if (island->tiles[i] == HOME) {
+            house_tile[0] = (i % I_WIDTH) + island->coords[0];
+            house_tile[1] = (i / I_WIDTH) + island->coords[1];
+            printf("House tile: %f | %f\n", house_tile[0], house_tile[1]);
+          }
+        }
+      }
+    }
+  }
   return 0;
 }
 
@@ -166,7 +150,27 @@ int chunk_from_coords(ivec2 coords, CHUNK *dest) {
   if (status) {
     // Chunk also does not exist on disk, so generate it
     glm_ivec2_copy(coords, dest->coords);
-    return generate_chunk(dest);
+    status = generate_chunk(dest);
+    if (status) {
+      return -1;
+    }
+
+    if (coords[0] == 0 && coords[1] == 0) {
+      dest->islands[0].coords[0] = 0;
+      dest->islands[0].coords[1] = 0;
+      dest->islands[0].chunk[0] = 0;
+      dest->islands[0].chunk[1] = 0;
+      generate_island(&dest->islands[0]);
+      place_home(&dest->islands[0], dest);
+      vec2 home_coords = {
+        dest->islands[0].coords[X],
+        dest->islands[0].coords[Y]
+      };
+      glm_vec2_copy(home_coords, home_island_coords);
+      if (!dest->num_islands) {
+        dest->num_islands++;
+      }
+    }
   }
 
   return 0;

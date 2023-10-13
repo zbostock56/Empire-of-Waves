@@ -520,22 +520,22 @@ TRADE * init_trade() {
 
   trade->type = INVALID_TRADE;
   trade->merchant = NULL;
-  trade->ui_listing_0 = get_ui_component_by_ID(TRADE_BUTTON_LISTING_0);
-  trade->ui_listing_1 = get_ui_component_by_ID(TRADE_BUTTON_LISTING_1);
-  trade->ui_listing_2 = get_ui_component_by_ID(TRADE_BUTTON_LISTING_2);
-  trade->ui_listing_3 = get_ui_component_by_ID(TRADE_BUTTON_LISTING_3);
-  trade->ui_listing_4 = get_ui_component_by_ID(TRADE_BUTTON_LISTING_4);
-  trade->ui_listing_5 = get_ui_component_by_ID(TRADE_BUTTON_LISTING_5);
-  trade->ui_listing_6 = get_ui_component_by_ID(TRADE_BUTTON_LISTING_6);
-  trade->ui_listing_7 = get_ui_component_by_ID(TRADE_BUTTON_LISTING_7);
-  trade->ui_listing_8 = get_ui_component_by_ID(TRADE_BUTTON_LISTING_8);
+  trade->ui_listing[0] = get_ui_component_by_ID(TRADE_BUTTON_LISTING_0);
+  trade->ui_listing[1] = get_ui_component_by_ID(TRADE_BUTTON_LISTING_1);
+  trade->ui_listing[2] = get_ui_component_by_ID(TRADE_BUTTON_LISTING_2);
+  trade->ui_listing[3] = get_ui_component_by_ID(TRADE_BUTTON_LISTING_3);
+  trade->ui_listing[4] = get_ui_component_by_ID(TRADE_BUTTON_LISTING_4);
+  trade->ui_listing[5] = get_ui_component_by_ID(TRADE_BUTTON_LISTING_5);
+  trade->ui_listing[6] = get_ui_component_by_ID(TRADE_BUTTON_LISTING_6);
+  trade->ui_listing[7] = get_ui_component_by_ID(TRADE_BUTTON_LISTING_7);
+  trade->ui_listing[8] = get_ui_component_by_ID(TRADE_BUTTON_LISTING_8);
 
   // Init listings
   vec2 listing_0_position = { -0.5, 0.5 };
   init_menu(
     listing_0_position, // position
-    on_click_ui_listing_0, // on_click
-    (void *) 0xBAADF00D, // on_click_args
+    on_click_ui_listing, // on_click
+    (void *) 0, // on_click_args
     "UI_L_1", // text
     0, // enabled
     1, // textured
@@ -546,14 +546,14 @@ TRADE * init_trade() {
     0.5, // height
     PIVOT_CENTER, // pivot
     T_CENTER, // text_anchor
-    trade->ui_listing_0 // dest
+    trade->ui_listing[0] // dest
   );
 
   vec2 listing_1_position = { 0.0, 0.5 };
   init_menu(
     listing_1_position, // position
-    on_click_ui_listing_1, // on_click
-    (void *) 0xBAADF00D, // on_click_args
+    on_click_ui_listing, // on_click
+    (void *) 1, // on_click_args
     "UI_L_2", // text
     0, // enabled
     1, // textured
@@ -564,14 +564,14 @@ TRADE * init_trade() {
     0.5, // height
     PIVOT_CENTER, // pivot
     T_CENTER, // text_anchor
-    trade->ui_listing_1 // dest
+    trade->ui_listing[1] // dest
   );
 
   vec2 listing_2_position = { 0.5, 0.5 };
   init_menu(
     listing_2_position, // position
-    on_click_ui_listing_2, // on_click
-    (void *) 0xBAADF00D, // on_click_args
+    on_click_ui_listing, // on_click
+    (void *) 2, // on_click_args
     "UI_L_3", // text
     0, // enabled
     1, // textured
@@ -582,14 +582,14 @@ TRADE * init_trade() {
     0.5, // height
     PIVOT_CENTER, // pivot
     T_CENTER, // text_anchor
-    trade->ui_listing_2 // dest
+    trade->ui_listing[2]// dest
   );
 
   vec2 listing_3_position = { -0.5, 0.0 };
   init_menu(
     listing_3_position, // position
-    on_click_ui_listing_3, // on_click
-    (void *) 0xBAADF00D, // on_click_args
+    on_click_ui_listing, // on_click
+    (void *) 3, // on_click_args
     "UI_L_4", // text
     0, // enabled
     1, // textured
@@ -600,14 +600,14 @@ TRADE * init_trade() {
     0.5, // height
     PIVOT_CENTER, // pivot
     T_CENTER, // text_anchor
-    trade->ui_listing_3 // dest
+    trade->ui_listing[3] // dest
   );
 
   vec2 listing_4_position = { 0.0, 0.0 };
   init_menu(
     listing_4_position, // position
-    on_click_ui_listing_4, // on_click
-    (void *) 0xBAADF00D, // on_click_args
+    on_click_ui_listing, // on_click
+    (void *) 4, // on_click_args
     "UI_L_5", // text
     0, // enabled
     1, // textured
@@ -618,14 +618,14 @@ TRADE * init_trade() {
     0.5, // height
     PIVOT_CENTER, // pivot
     T_CENTER, // text_anchor
-    trade->ui_listing_4 // dest
+    trade->ui_listing[4] // dest
   );
 
   vec2 listing_5_position = { 0.5, 0.0 };
   init_menu(
     listing_5_position, // position
-    on_click_ui_listing_5, // on_click
-    (void *) 0xBAADF00D, // on_click_args
+    on_click_ui_listing, // on_click
+    (void *) 5, // on_click_args
     "UI_L_6", // text
     0, // enabled
     1, // textured
@@ -636,14 +636,14 @@ TRADE * init_trade() {
     0.5, // height
     PIVOT_CENTER, // pivot
     T_CENTER, // text_anchor
-    trade->ui_listing_5 // dest
+    trade->ui_listing[5] // dest
   );
 
   vec2 listing_6_position = { -0.5, -0.5 };
   init_menu(
     listing_6_position, // position
-    on_click_ui_listing_6, // on_click
-    (void *) 0xBAADF00D, // on_click_args
+    on_click_ui_listing, // on_click
+    (void *) 6, // on_click_args
     "UI_L_7", // text
     0, // enabled
     1, // textured
@@ -654,14 +654,14 @@ TRADE * init_trade() {
     0.5, // height
     PIVOT_CENTER, // pivot
     T_CENTER, // text_anchor
-    trade->ui_listing_6 // dest
+    trade->ui_listing[6] // dest
   );
 
   vec2 listing_7_position = { 0.0, -0.5 };
   init_menu(
     listing_7_position, // position
-    on_click_ui_listing_7, // on_click
-    (void *) 0xBAADF00D, // on_click_args
+    on_click_ui_listing, // on_click
+    (void *) 7, // on_click_args
     "UI_L_8", // text
     0, // enabled
     1, // textured
@@ -672,14 +672,14 @@ TRADE * init_trade() {
     0.5, // height
     PIVOT_CENTER, // pivot
     T_CENTER, // text_anchor
-    trade->ui_listing_7 // dest
+    trade->ui_listing[7] // dest
   );
 
   vec2 listing_8_position = { 0.5, -0.5 };
   init_menu(
     listing_8_position, // position
-    on_click_ui_listing_8, // on_click
-    (void *) 0xBAADF00D, // on_click_args
+    on_click_ui_listing, // on_click
+    (void *) 8, // on_click_args
     "UI_L_9", // text
     0, // enabled
     1, // textured
@@ -690,7 +690,7 @@ TRADE * init_trade() {
     0.5, // height
     PIVOT_CENTER, // pivot
     T_CENTER, // text_anchor
-    trade->ui_listing_8 // dest
+    trade->ui_listing[8] // dest
   );
 
   return trade;
@@ -707,39 +707,21 @@ void open_trade() {
   if (trade) {
     switch (trade->type) {
       case BUY: {
-        trade->ui_listing_0->enabled = 1;
-        trade->ui_listing_1->enabled = 1;
-        trade->ui_listing_2->enabled = 1;
-        trade->ui_listing_3->enabled = 1;
-        trade->ui_listing_4->enabled = 1;
-        trade->ui_listing_5->enabled = 1;
-        trade->ui_listing_6->enabled = 1;
-        trade->ui_listing_7->enabled = 1;
-        trade->ui_listing_8->enabled = 1;
+        for (int i = 0; i < 9; i++) {
+          trade->ui_listing[i]->enabled = 1;
+        }
         break;
       }
       case SELL: {
-        trade->ui_listing_0->enabled = 1;
-        trade->ui_listing_1->enabled = 1;
-        trade->ui_listing_2->enabled = 1;
-        trade->ui_listing_3->enabled = 1;
-        trade->ui_listing_4->enabled = 1;
-        trade->ui_listing_5->enabled = 1;
-        trade->ui_listing_6->enabled = 1;
-        trade->ui_listing_7->enabled = 1;
-        trade->ui_listing_8->enabled = 1;
+        for (int i = 0; i < 9; i++) {
+          trade->ui_listing[i]->enabled = 1;
+        }
         break;
       }
       default: {
-        trade->ui_listing_0->enabled = 1;
-        trade->ui_listing_1->enabled = 1;
-        trade->ui_listing_2->enabled = 1;
-        trade->ui_listing_3->enabled = 1;
-        trade->ui_listing_4->enabled = 1;
-        trade->ui_listing_5->enabled = 1;
-        trade->ui_listing_6->enabled = 1;
-        trade->ui_listing_7->enabled = 1;
-        trade->ui_listing_8->enabled = 1;
+        for (int i = 0; i < 9; i++) {
+          trade->ui_listing[i]->enabled = 1;
+        }
         break;
       }
     }
@@ -748,15 +730,9 @@ void open_trade() {
 
 void close_trade() {
   if (trade) {
-    trade->ui_listing_0->enabled = 0;
-    trade->ui_listing_1->enabled = 0;
-    trade->ui_listing_2->enabled = 0;
-    trade->ui_listing_3->enabled = 0;
-    trade->ui_listing_4->enabled = 0;
-    trade->ui_listing_5->enabled = 0;
-    trade->ui_listing_6->enabled = 0;
-    trade->ui_listing_7->enabled = 0;
-    trade->ui_listing_8->enabled = 0;
+    for (int i = 0; i < 9; i++) {
+      trade->ui_listing[i]->enabled = 0;
+    }
   }
 }
 
@@ -766,39 +742,22 @@ int set_trade(T_TRADE dialog_type, MERCHANT * merchant) {
     trade->merchant = merchant;
     switch (dialog_type) {
       case BUY: {
-        trade->ui_listing_0->text = get_item_name_by_ID(get_merchant_listing_item_by_number(merchant, 1)->item_id);
-        trade->ui_listing_1->text = get_item_name_by_ID(get_merchant_listing_item_by_number(merchant, 2)->item_id);
-        trade->ui_listing_2->text = get_item_name_by_ID(get_merchant_listing_item_by_number(merchant, 3)->item_id);
-        trade->ui_listing_3->text = get_item_name_by_ID(get_merchant_listing_item_by_number(merchant, 4)->item_id);
-        trade->ui_listing_4->text = get_item_name_by_ID(get_merchant_listing_item_by_number(merchant, 5)->item_id);
-        trade->ui_listing_5->text = get_item_name_by_ID(get_merchant_listing_item_by_number(merchant, 6)->item_id);
-        trade->ui_listing_6->text = get_item_name_by_ID(get_merchant_listing_item_by_number(merchant, 7)->item_id);
-        trade->ui_listing_7->text = get_item_name_by_ID(get_merchant_listing_item_by_number(merchant, 8)->item_id);
-        trade->ui_listing_8->text = get_item_name_by_ID(get_merchant_listing_item_by_number(merchant, 9)->item_id);
+        for (int i = 0; i < 9; i++) {
+          trade->ui_listing[i]->text = get_item_name_by_ID(get_merchant_listing_item_by_number(merchant, i + 1)->item_id);
+        }
         return 1;
       }
+  // Attacking
       case SELL: {
-        trade->ui_listing_0->text = get_item_name_by_ID(get_player_inventory_slot_by_number(1)->item_id);
-        trade->ui_listing_1->text = get_item_name_by_ID(get_player_inventory_slot_by_number(2)->item_id);
-        trade->ui_listing_2->text = get_item_name_by_ID(get_player_inventory_slot_by_number(3)->item_id);
-        trade->ui_listing_3->text = get_item_name_by_ID(get_player_inventory_slot_by_number(4)->item_id);
-        trade->ui_listing_4->text = get_item_name_by_ID(get_player_inventory_slot_by_number(5)->item_id);
-        trade->ui_listing_5->text = get_item_name_by_ID(get_player_inventory_slot_by_number(6)->item_id);
-        trade->ui_listing_6->text = get_item_name_by_ID(get_player_inventory_slot_by_number(7)->item_id);
-        trade->ui_listing_7->text = get_item_name_by_ID(get_player_inventory_slot_by_number(8)->item_id);
-        trade->ui_listing_8->text = get_item_name_by_ID(get_player_inventory_slot_by_number(9)->item_id);
+        for (int i = 0; i < 9; i++) {
+          trade->ui_listing[i]->text = get_item_name_by_ID(get_player_inventory_slot_by_number(i + 1)->item_id);
+        }
         return 1;
       }
       default: {
-        trade->ui_listing_0->text = "default";
-        trade->ui_listing_1->text = "default";
-        trade->ui_listing_2->text = "default";
-        trade->ui_listing_3->text = "default";
-        trade->ui_listing_4->text = "default";
-        trade->ui_listing_5->text = "default";
-        trade->ui_listing_6->text = "default";
-        trade->ui_listing_7->text = "default";
-        trade->ui_listing_8->text = "default";
+        for (int i = 0; i < 9; i++) {
+          trade->ui_listing[i]->text = "default";
+        }
         return 1;
       }
     }
@@ -806,421 +765,72 @@ int set_trade(T_TRADE dialog_type, MERCHANT * merchant) {
   return 0;
 }
 
-void on_click_ui_listing_0() {
+void on_click_ui_listing(void *listing_index) {
+  long listing = (long) listing_index;
+  LISTING *listing_slot;
+  I_SLOT *slot;
+  ITEM item;
   if (trade->type == BUY) {
-    if (e_player.money < get_item_info_by_name(trade->ui_listing_0->text).value) {
+    item = get_item_info_by_name(trade->ui_listing[listing]->text);
+    listing_slot = get_merchant_listing_item_by_number(trade->merchant, listing + 1); 
+    if (e_player.money < item.value) {
       printf("**** Do not have enough money ****\n");
-    }
-    else if (e_player.money >= get_item_info_by_name(trade->ui_listing_0->text).value && get_merchant_listing_item_by_number(trade->merchant, 1)->quantity > 0) {
-      get_merchant_listing_item_by_number(trade->merchant, 1)->quantity -= 1;
-      e_player.money -= get_item_info_by_name(trade->ui_listing_0->text).value;
+    } else if (e_player.money >= item.value && listing_slot->quantity > 0) {
+      listing_slot->quantity -= 1;
+      e_player.money -= item.value;
       // INVENTORY ADD
-      I_SLOT * inventory_slot = search_player_inventory_with_ID(get_merchant_listing_item_by_number(trade->merchant, 1)->item_id);
-      if (inventory_slot) {
-        inventory_slot->quantity += 1;
+      slot = search_player_inventory_with_ID(
+                                get_merchant_listing_item_by_number(
+                                trade->merchant, listing + 1)->item_id);
+      if (slot) {
+        slot->quantity += 1;
       } else if (get_player_first_empty_inventory_slot()) {
-        I_SLOT * emplty_inventory_slot = get_player_first_empty_inventory_slot();
-        emplty_inventory_slot->item_id = get_merchant_listing_item_by_number(trade->merchant, 1)->item_id;
-        emplty_inventory_slot->quantity = 1;
+        I_SLOT *empty_inventory_slot = get_player_first_empty_inventory_slot();
+        empty_inventory_slot->item_id = get_merchant_listing_item_by_number(trade->merchant, listing + 1)->item_id;
+        empty_inventory_slot->quantity = 1;
       }
 
       // Reset Listing UI Component
-      if (get_merchant_listing_item_by_number(trade->merchant, 1)->quantity <= 0) {
-        get_merchant_listing_item_by_number(trade->merchant, 1)->item_id = 0;
-        trade->ui_listing_0->text = "SOLD";
+      if (listing_slot->quantity <= 0) {
+        listing_slot->item_id = 0;
+        trade->ui_listing[listing]->text = "SOLD";
       }
 
-      printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_0->text, get_merchant_listing_item_by_number(trade->merchant, 1)->quantity);
+      printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing[listing]->text, 
+             get_merchant_listing_item_by_number(trade->merchant, listing + 1)->quantity);
 
       trade->merchant->relationship += 10.0;
       if (trade->merchant->relationship > 100.0) {
         trade->merchant->relationship = 100.0;
       }
     }
-  } else if (trade->type == SELL && get_player_inventory_slot_by_number(1)->quantity > 0) {
-    get_player_inventory_slot_by_number(1)->quantity -= 1;
-    e_player.money += get_item_info_by_name(trade->ui_listing_0->text).value;
-    if (get_player_inventory_slot_by_number(1)->quantity <= 0) {
-      get_player_inventory_slot_by_number(1)->item_id = 0;
-      trade->ui_listing_0->text = "SOLD";
+  } else if (trade->type == SELL && get_player_inventory_slot_by_number(listing + 1)->quantity > 0) {
+    slot = get_player_inventory_slot_by_number(listing + 1); 
+    slot->quantity -= 1;
+    int item_identifier = slot->item_id;
+    item = get_item_info_by_name(trade->ui_listing[listing]->text);
+    e_player.money += item.value;
+    if (slot->quantity <= 0) {
+      slot->item_id = 0;
+      trade->ui_listing[listing]->text = "SOLD";
     }
-    printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_0->text, get_player_inventory_slot_by_number(1)->quantity);
 
-    trade->merchant->relationship += 10.0;
-    if (trade->merchant->relationship > 100.0) {
-      trade->merchant->relationship = 100.0;
-    }
-  }
-}
-
-void on_click_ui_listing_1() {
-  if (trade->type == BUY) {
-    if (e_player.money < get_item_info_by_name(trade->ui_listing_1->text).value) {
-      printf("**** Do not have enough money ****\n");
-    }
-    else if (e_player.money >= get_item_info_by_name(trade->ui_listing_1->text).value && get_merchant_listing_item_by_number(trade->merchant, 2)->quantity > 0) {
-      get_merchant_listing_item_by_number(trade->merchant, 2)->quantity -= 1;
-      e_player.money -= get_item_info_by_name(trade->ui_listing_1->text).value;
-      // INVENTORY ADD
-      I_SLOT * inventory_slot = search_player_inventory_with_ID(get_merchant_listing_item_by_number(trade->merchant, 2)->item_id);
-      if (inventory_slot) {
-        inventory_slot->quantity += 1;
-      } else if (get_player_first_empty_inventory_slot()) {
-        I_SLOT * emplty_inventory_slot = get_player_first_empty_inventory_slot();
-        emplty_inventory_slot->item_id = get_merchant_listing_item_by_number(trade->merchant, 2)->item_id;
-        emplty_inventory_slot->quantity = 1;
-      }
-
-      // Reset Listing UI Component
-      if (get_merchant_listing_item_by_number(trade->merchant, 2)->quantity <= 0) {
-        get_merchant_listing_item_by_number(trade->merchant, 2)->item_id = 0;
-        trade->ui_listing_1->text = "SOLD";
-      }
-
-      printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_1->text, get_merchant_listing_item_by_number(trade->merchant, 2)->quantity);
-
-      trade->merchant->relationship += 10.0;
-      if (trade->merchant->relationship > 100.0) {
-        trade->merchant->relationship = 100.0;
+    /* Find the first available listing location in the merchant inventory and populate */
+    /* with item that was just sold to it */
+    for (int i = 0; i < 9; i++) {
+      listing_slot = get_merchant_listing_item_by_number(trade->merchant, i + 1); 
+      if (listing_slot->item_id == item_identifier) {
+        listing_slot->quantity++; 
+        break;
+      } else if (listing_slot->quantity == 0) {
+        listing_slot->quantity++;
+        listing_slot->item_id = item_identifier;
+        break;
       }
     }
-  } else if (trade->type == SELL && get_player_inventory_slot_by_number(2)->quantity > 0) {
-    get_player_inventory_slot_by_number(2)->quantity -= 1;
-    e_player.money += get_item_info_by_name(trade->ui_listing_1->text).value;
-    if (get_player_inventory_slot_by_number(2)->quantity <= 0) {
-      get_player_inventory_slot_by_number(2)->item_id = 0;
-      trade->ui_listing_1->text = "SOLD";
-    }
-    printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_1->text, get_player_inventory_slot_by_number(2)->quantity);
 
-    trade->merchant->relationship += 10.0;
-    if (trade->merchant->relationship > 100.0) {
-      trade->merchant->relationship = 100.0;
-    }
-  }
-}
-
-void on_click_ui_listing_2() {
-  if (trade->type == BUY) {
-    if (e_player.money < get_item_info_by_name(trade->ui_listing_2->text).value) {
-      printf("**** Do not have enough money ****\n");
-    }
-    else if (e_player.money >= get_item_info_by_name(trade->ui_listing_2->text).value && get_merchant_listing_item_by_number(trade->merchant, 3)->quantity > 0) {
-      get_merchant_listing_item_by_number(trade->merchant, 3)->quantity -= 1;
-      e_player.money -= get_item_info_by_name(trade->ui_listing_2->text).value;
-      // INVENTORY ADD
-      I_SLOT * inventory_slot = search_player_inventory_with_ID(get_merchant_listing_item_by_number(trade->merchant, 3)->item_id);
-      if (inventory_slot) {
-        inventory_slot->quantity += 1;
-      } else if (get_player_first_empty_inventory_slot()) {
-        I_SLOT * emplty_inventory_slot = get_player_first_empty_inventory_slot();
-        emplty_inventory_slot->item_id = get_merchant_listing_item_by_number(trade->merchant, 3)->item_id;
-        emplty_inventory_slot->quantity = 1;
-      }
-
-      // Reset Listing UI Component
-      if (get_merchant_listing_item_by_number(trade->merchant, 3)->quantity <= 0) {
-        get_merchant_listing_item_by_number(trade->merchant, 3)->item_id = 0;
-        trade->ui_listing_2->text = "SOLD";
-      }
-
-      printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_2->text, get_merchant_listing_item_by_number(trade->merchant, 3)->quantity);
-
-      trade->merchant->relationship += 10.0;
-      if (trade->merchant->relationship > 100.0) {
-        trade->merchant->relationship = 100.0;
-      }
-    }
-  } else if (trade->type == SELL && get_player_inventory_slot_by_number(3)->quantity > 0) {
-    get_player_inventory_slot_by_number(3)->quantity -= 1;
-    e_player.money += get_item_info_by_name(trade->ui_listing_2->text).value;
-    if (get_player_inventory_slot_by_number(3)->quantity <= 0) {
-      get_player_inventory_slot_by_number(3)->item_id = 0;
-      trade->ui_listing_2->text = "SOLD";
-    }
-    printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_2->text, get_player_inventory_slot_by_number(3)->quantity);
-
-    trade->merchant->relationship += 10.0;
-    if (trade->merchant->relationship > 100.0) {
-      trade->merchant->relationship = 100.0;
-    }
-  }
-}
-
-void on_click_ui_listing_3() {
-  if (trade->type == BUY) {
-    if (e_player.money < get_item_info_by_name(trade->ui_listing_3->text).value) {
-      printf("**** Do not have enough money ****\n");
-    }
-    else if (e_player.money >= get_item_info_by_name(trade->ui_listing_3->text).value && get_merchant_listing_item_by_number(trade->merchant, 4)->quantity > 0) {
-      get_merchant_listing_item_by_number(trade->merchant, 4)->quantity -= 1;
-      e_player.money -= get_item_info_by_name(trade->ui_listing_3->text).value;
-      // INVENTORY ADD
-      I_SLOT * inventory_slot = search_player_inventory_with_ID(get_merchant_listing_item_by_number(trade->merchant, 4)->item_id);
-      if (inventory_slot) {
-        inventory_slot->quantity += 1;
-      } else if (get_player_first_empty_inventory_slot()) {
-        I_SLOT * emplty_inventory_slot = get_player_first_empty_inventory_slot();
-        emplty_inventory_slot->item_id = get_merchant_listing_item_by_number(trade->merchant, 4)->item_id;
-        emplty_inventory_slot->quantity = 1;
-      }
-
-      // Reset Listing UI Component
-      if (get_merchant_listing_item_by_number(trade->merchant, 4)->quantity <= 0) {
-        get_merchant_listing_item_by_number(trade->merchant, 4)->item_id = 0;
-        trade->ui_listing_3->text = "SOLD";
-      }
-
-      printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_3->text, get_merchant_listing_item_by_number(trade->merchant, 4)->quantity);
-
-      trade->merchant->relationship += 10.0;
-      if (trade->merchant->relationship > 100.0) {
-        trade->merchant->relationship = 100.0;
-      }
-    }
-  } else if (trade->type == SELL && get_player_inventory_slot_by_number(4)->quantity > 0) {
-    get_player_inventory_slot_by_number(4)->quantity -= 1;
-    e_player.money += get_item_info_by_name(trade->ui_listing_3->text).value;
-    if (get_player_inventory_slot_by_number(4)->quantity <= 0) {
-      get_player_inventory_slot_by_number(4)->item_id = 0;
-      trade->ui_listing_3->text = "SOLD";
-    }
-    printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_3->text, get_player_inventory_slot_by_number(4)->quantity);
-
-    trade->merchant->relationship += 10.0;
-    if (trade->merchant->relationship > 100.0) {
-      trade->merchant->relationship = 100.0;
-    }
-  }
-}
-
-void on_click_ui_listing_4() {
-  if (trade->type == BUY) {
-    if (e_player.money < get_item_info_by_name(trade->ui_listing_4->text).value) {
-      printf("**** Do not have enough money ****\n");
-    }
-    else if (e_player.money >= get_item_info_by_name(trade->ui_listing_4->text).value && get_merchant_listing_item_by_number(trade->merchant, 5)->quantity > 0) {
-      get_merchant_listing_item_by_number(trade->merchant, 5)->quantity -= 1;
-      e_player.money -= get_item_info_by_name(trade->ui_listing_4->text).value;
-      // INVENTORY ADD
-      I_SLOT * inventory_slot = search_player_inventory_with_ID(get_merchant_listing_item_by_number(trade->merchant, 5)->item_id);
-      if (inventory_slot) {
-        inventory_slot->quantity += 1;
-      } else if (get_player_first_empty_inventory_slot()) {
-        I_SLOT * emplty_inventory_slot = get_player_first_empty_inventory_slot();
-        emplty_inventory_slot->item_id = get_merchant_listing_item_by_number(trade->merchant, 5)->item_id;
-        emplty_inventory_slot->quantity = 1;
-      }
-
-      // Reset Listing UI Component
-      if (get_merchant_listing_item_by_number(trade->merchant, 5)->quantity <= 0) {
-        get_merchant_listing_item_by_number(trade->merchant, 5)->item_id = 0;
-        trade->ui_listing_4->text = "SOLD";
-      }
-
-      printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_4->text, get_merchant_listing_item_by_number(trade->merchant, 5)->quantity);
-
-      trade->merchant->relationship += 10.0;
-      if (trade->merchant->relationship > 100.0) {
-        trade->merchant->relationship = 100.0;
-      }
-    }
-  } else if (trade->type == SELL && get_player_inventory_slot_by_number(5)->quantity > 0) {
-    get_player_inventory_slot_by_number(5)->quantity -= 1;
-    e_player.money += get_item_info_by_name(trade->ui_listing_4->text).value;
-    if (get_player_inventory_slot_by_number(5)->quantity <= 0) {
-      get_player_inventory_slot_by_number(5)->item_id = 0;
-      trade->ui_listing_4->text = "SOLD";
-    }
-    printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_4->text, get_player_inventory_slot_by_number(5)->quantity);
-
-    trade->merchant->relationship += 10.0;
-    if (trade->merchant->relationship > 100.0) {
-      trade->merchant->relationship = 100.0;
-    }
-  }
-}
-
-void on_click_ui_listing_5() {
-  if (trade->type == BUY) {
-    if (e_player.money < get_item_info_by_name(trade->ui_listing_5->text).value) {
-      printf("**** Do not have enough money ****\n");
-    }
-    else if (e_player.money >= get_item_info_by_name(trade->ui_listing_5->text).value && get_merchant_listing_item_by_number(trade->merchant, 6)->quantity > 0) {
-      get_merchant_listing_item_by_number(trade->merchant, 6)->quantity -= 1;
-      e_player.money -= get_item_info_by_name(trade->ui_listing_5->text).value;
-      // INVENTORY ADD
-      I_SLOT * inventory_slot = search_player_inventory_with_ID(get_merchant_listing_item_by_number(trade->merchant, 6)->item_id);
-      if (inventory_slot) {
-        inventory_slot->quantity += 1;
-      } else if (get_player_first_empty_inventory_slot()) {
-        I_SLOT * emplty_inventory_slot = get_player_first_empty_inventory_slot();
-        emplty_inventory_slot->item_id = get_merchant_listing_item_by_number(trade->merchant, 6)->item_id;
-        emplty_inventory_slot->quantity = 1;
-      }
-
-      // Reset Listing UI Component
-      if (get_merchant_listing_item_by_number(trade->merchant, 6)->quantity <= 0) {
-        get_merchant_listing_item_by_number(trade->merchant, 6)->item_id = 0;
-        trade->ui_listing_5->text = "SOLD";
-      }
-
-      printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_5->text, get_merchant_listing_item_by_number(trade->merchant, 6)->quantity);
-
-      trade->merchant->relationship += 10.0;
-      if (trade->merchant->relationship > 100.0) {
-        trade->merchant->relationship = 100.0;
-      }
-    }
-  } else if (trade->type == SELL && get_player_inventory_slot_by_number(6)->quantity > 0) {
-    get_player_inventory_slot_by_number(6)->quantity -= 1;
-    e_player.money += get_item_info_by_name(trade->ui_listing_5->text).value;
-    if (get_player_inventory_slot_by_number(6)->quantity <= 0) {
-      get_player_inventory_slot_by_number(6)->item_id = 0;
-      trade->ui_listing_5->text = "SOLD";
-    }
-    printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_5->text, get_player_inventory_slot_by_number(6)->quantity);
-
-    trade->merchant->relationship += 10.0;
-    if (trade->merchant->relationship > 100.0) {
-      trade->merchant->relationship = 100.0;
-    }
-  }
-}
-
-void on_click_ui_listing_6() {
-  if (trade->type == BUY) {
-    if (e_player.money < get_item_info_by_name(trade->ui_listing_6->text).value) {
-      printf("**** Do not have enough money ****\n");
-    }
-    else if (e_player.money >= get_item_info_by_name(trade->ui_listing_6->text).value && get_merchant_listing_item_by_number(trade->merchant, 7)->quantity > 0) {
-      get_merchant_listing_item_by_number(trade->merchant, 7)->quantity -= 1;
-      e_player.money -= get_item_info_by_name(trade->ui_listing_6->text).value;
-      // INVENTORY ADD
-      I_SLOT * inventory_slot = search_player_inventory_with_ID(get_merchant_listing_item_by_number(trade->merchant, 7)->item_id);
-      if (inventory_slot) {
-        inventory_slot->quantity += 1;
-      } else if (get_player_first_empty_inventory_slot()) {
-        I_SLOT * emplty_inventory_slot = get_player_first_empty_inventory_slot();
-        emplty_inventory_slot->item_id = get_merchant_listing_item_by_number(trade->merchant, 7)->item_id;
-        emplty_inventory_slot->quantity = 1;
-      }
-
-      // Reset Listing UI Component
-      if (get_merchant_listing_item_by_number(trade->merchant, 7)->quantity <= 0) {
-        get_merchant_listing_item_by_number(trade->merchant, 7)->item_id = 0;
-        trade->ui_listing_6->text = "SOLD";
-      }
-
-      printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_6->text, get_merchant_listing_item_by_number(trade->merchant, 7)->quantity);
-
-      trade->merchant->relationship += 10.0;
-      if (trade->merchant->relationship > 100.0) {
-        trade->merchant->relationship = 100.0;
-      }
-    }
-  } else if (trade->type == SELL && get_player_inventory_slot_by_number(7)->quantity > 0) {
-    get_player_inventory_slot_by_number(7)->quantity -= 1;
-    e_player.money += get_item_info_by_name(trade->ui_listing_6->text).value;
-    if (get_player_inventory_slot_by_number(7)->quantity <= 0) {
-      get_player_inventory_slot_by_number(7)->item_id = 0;
-      trade->ui_listing_6->text = "SOLD";
-    }
-    printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_6->text, get_player_inventory_slot_by_number(7)->quantity);
-
-    trade->merchant->relationship += 10.0;
-    if (trade->merchant->relationship > 100.0) {
-      trade->merchant->relationship = 100.0;
-    }
-  }
-}
-
-void on_click_ui_listing_7() {
-  if (trade->type == BUY) {
-    if (e_player.money < get_item_info_by_name(trade->ui_listing_7->text).value) {
-      printf("**** Do not have enough money ****\n");
-    }
-    else if (e_player.money >= get_item_info_by_name(trade->ui_listing_7->text).value && get_merchant_listing_item_by_number(trade->merchant, 8)->quantity > 0) {
-      get_merchant_listing_item_by_number(trade->merchant, 8)->quantity -= 1;
-      e_player.money -= get_item_info_by_name(trade->ui_listing_7->text).value;
-      // INVENTORY ADD
-      I_SLOT * inventory_slot = search_player_inventory_with_ID(get_merchant_listing_item_by_number(trade->merchant, 8)->item_id);
-      if (inventory_slot) {
-        inventory_slot->quantity += 1;
-      } else if (get_player_first_empty_inventory_slot()) {
-        I_SLOT * emplty_inventory_slot = get_player_first_empty_inventory_slot();
-        emplty_inventory_slot->item_id = get_merchant_listing_item_by_number(trade->merchant, 8)->item_id;
-        emplty_inventory_slot->quantity = 1;
-      }
-
-      // Reset Listing UI Component
-      if (get_merchant_listing_item_by_number(trade->merchant, 8)->quantity <= 0) {
-        get_merchant_listing_item_by_number(trade->merchant, 8)->item_id = 0;
-        trade->ui_listing_7->text = "SOLD";
-      }
-
-      printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_7->text, get_merchant_listing_item_by_number(trade->merchant, 8)->quantity);
-
-      trade->merchant->relationship += 10.0;
-      if (trade->merchant->relationship > 100.0) {
-        trade->merchant->relationship = 100.0;
-      }
-    }
-  } else if (trade->type == SELL && get_player_inventory_slot_by_number(8)->quantity > 0) {
-    get_player_inventory_slot_by_number(8)->quantity -= 1;
-    e_player.money += get_item_info_by_name(trade->ui_listing_7->text).value;
-    if (get_player_inventory_slot_by_number(8)->quantity <= 0) {
-      get_player_inventory_slot_by_number(8)->item_id = 0;
-      trade->ui_listing_7->text = "SOLD";
-    }
-    printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_7->text, get_player_inventory_slot_by_number(8)->quantity);
-
-    trade->merchant->relationship += 10.0;
-    if (trade->merchant->relationship > 100.0) {
-      trade->merchant->relationship = 100.0;
-    }
-  }
-}
-
-void on_click_ui_listing_8() {
-  if (trade->type == BUY) {
-    if (e_player.money < get_item_info_by_name(trade->ui_listing_8->text).value) {
-      printf("**** Do not have enough money ****\n");
-    }
-    else if (e_player.money >= get_item_info_by_name(trade->ui_listing_8->text).value && get_merchant_listing_item_by_number(trade->merchant, 9)->quantity > 0) {
-      get_merchant_listing_item_by_number(trade->merchant, 9)->quantity -= 1;
-      e_player.money -= get_item_info_by_name(trade->ui_listing_8->text).value;
-      // INVENTORY ADD
-      I_SLOT * inventory_slot = search_player_inventory_with_ID(get_merchant_listing_item_by_number(trade->merchant, 9)->item_id);
-      if (inventory_slot) {
-        inventory_slot->quantity += 1;
-      } else if (get_player_first_empty_inventory_slot()) {
-        I_SLOT * emplty_inventory_slot = get_player_first_empty_inventory_slot();
-        emplty_inventory_slot->item_id = get_merchant_listing_item_by_number(trade->merchant, 9)->item_id;
-        emplty_inventory_slot->quantity = 1;
-      }
-
-      // Reset Listing UI Component
-      if (get_merchant_listing_item_by_number(trade->merchant, 9)->quantity <= 0) {
-        get_merchant_listing_item_by_number(trade->merchant, 9)->item_id = 0;
-        trade->ui_listing_8->text = "SOLD";
-      }
-
-      printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_8->text, get_merchant_listing_item_by_number(trade->merchant, 9)->quantity);
-
-      trade->merchant->relationship += 10.0;
-      if (trade->merchant->relationship > 100.0) {
-        trade->merchant->relationship = 100.0;
-      }
-    }
-  } else if (trade->type == SELL && get_player_inventory_slot_by_number(9)->quantity > 0) {
-    get_player_inventory_slot_by_number(9)->quantity -= 1;
-    e_player.money += get_item_info_by_name(trade->ui_listing_8->text).value;
-    if (get_player_inventory_slot_by_number(9)->quantity <= 0) {
-      get_player_inventory_slot_by_number(9)->item_id = 0;
-      trade->ui_listing_8->text = "SOLD";
-    }
-    printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing_8->text, get_player_inventory_slot_by_number(9)->quantity);
+    printf("**** Money = %d, %s quatity = %d ****\n", e_player.money, trade->ui_listing[listing]->text,
+           get_player_inventory_slot_by_number(listing + 1)->quantity);
 
     trade->merchant->relationship += 10.0;
     if (trade->merchant->relationship > 100.0) {
@@ -1323,6 +933,7 @@ void open_status_bar() {
       status->ui_health_status->enabled = 0;
       status->ui_money_status->enabled = 1;
     } else {
+  // Attacking
       status->ui_health_status->enabled = 1;
       status->ui_money_status->enabled = 0;
     }

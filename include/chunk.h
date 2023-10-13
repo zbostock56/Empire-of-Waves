@@ -35,7 +35,7 @@ void populate_tile_pixel_buffer(ISLAND *, unsigned char (*)[3]);
 unsigned int texture_from_buffer(unsigned char *, int, int, int);
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
-void place_home(ISLAND *);
+void place_home(ISLAND *, CHUNK *);
 
 int generate_chunk(CHUNK *chunk);
 int chunk_from_coords(ivec2, CHUNK *);

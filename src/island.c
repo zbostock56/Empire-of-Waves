@@ -162,9 +162,15 @@ void populate_tile_pixel_buffer(ISLAND *island,
     texel_y = (I_WIDTH - 1) - (i / I_WIDTH);
     texture_index = (I_WIDTH * texel_y) + (i % I_WIDTH);
     if (island->tiles[texture_index] == MERCH) {
+      /*
       tile_colors[i][0] = 255;
       tile_colors[i][1] = 0;
       tile_colors[i][2] = 0;
+      */
+      /* NOTE: Not rendering merchant debug tile */
+      tile_colors[i][0] = 4;
+      tile_colors[i][1] = 209;
+      tile_colors[i][2] = 38;
     } else if (island->tiles[texture_index] == ROCK) {
       tile_colors[i][0] = 99;
       tile_colors[i][1] = 87;

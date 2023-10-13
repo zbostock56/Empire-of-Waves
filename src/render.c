@@ -561,6 +561,7 @@ void render_chunk(ivec2 chunk) {
   world_coords[0] = world_coords[0] + (T_WIDTH * C_WIDTH * 0.5);
   world_coords[1] = world_coords[1] - (T_WIDTH * C_WIDTH * 0.5);
 
+  /*
   float c_val = 0.0f;
   if (chunk[0] % 2 == 0) {
     if (chunk[1] % 2 == 0) {
@@ -575,6 +576,7 @@ void render_chunk(ivec2 chunk) {
       c_val = 1.0;
     }
   }
+  */
 
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   glm_translate(model_mat, world_coords);
@@ -610,9 +612,11 @@ void render_chunk(ivec2 chunk) {
   set_mat4("view", view_mat, chunk_shader);
   set_mat4("proj", ortho_proj, chunk_shader);
   glUniform1f(glGetUniformLocation(chunk_shader, "chunk"), c_val);
-  */
   quad->texture = ocean_texture;
   draw_model(quad, chunk_shader);
+  */
+  quad->texture = ocean_texture;
+  draw_model(quad, std_shader);
 }
 
 void render_island(ISLAND *island) {
@@ -652,7 +656,6 @@ void render_island(ISLAND *island) {
   glm_translate_y(model_mat, 4.0 * T_WIDTH);
   glm_scale_uni(model_mat, T_WIDTH * 5.0);
 
-  /*
   if (island->chunk[0] == 0 && island->chunk[1] == 0) {
     glUseProgram(pixel_shader);
     set_mat4("model", model_mat, pixel_shader);
@@ -660,7 +663,6 @@ void render_island(ISLAND *island) {
     set_mat4("proj", ortho_proj, pixel_shader);
     draw_model(house, pixel_shader);
   }
-  */
 }
 
 void render_arena() {
