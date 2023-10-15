@@ -14,27 +14,7 @@ int init_trade_ship_buffers() {
   }
 
   trade_ship_buf_size = TRADE_SHIP_BUF_START_LEN;
-
-  // TRADE SHIP TESTING
-  num_trade_ships = 1;
-  ivec2 target_chunk = { 1, 0 };
-  ivec2 cur_chunk = { 0, 0 };
-  vec2 trade_ship_coords = {
-    player_chunks[PLAYER_CHUNK].islands[0].coords[0],
-    player_chunks[PLAYER_CHUNK].islands[0].coords[1]
-  };
-  chunk_from_coords(target_chunk, &trade_ships[0].target_chunk);
-  chunk_from_coords(cur_chunk, &trade_ships[0].chunk);
-  glm_ivec2_copy(cur_chunk, trade_ships[0].chunk_coords);
-  glm_vec2_copy(trade_ship_coords, trade_ships[0].coords);
-  glm_vec2_zero(trade_ships[0].direction);
-  trade_ships[0].direction[0] = 1.0;
-  trade_ships[0].export_rec = 0;
-  trade_ships[0].import_rec = 0;
-  trade_ships[0].target_island = 0;
-  trade_ships[0].num_mercenaries = 0;
-  trade_ships[0].speed = 10.0;
-  // END TEST
+  num_trade_ships = 0;
 
   return 0;
 }
@@ -42,11 +22,21 @@ int init_trade_ship_buffers() {
 void update_trade_ships() {
   for (unsigned int i = 0; i < num_trade_ships; i++) {
     trade_ship_pathfind(trade_ships + i);
+    /*
+    vec2 c = GLM_VEC2_ZERO_INIT;
+    chunk_to_world(trade_ships[i].chunk_coords, trade_ships[i].coords, c);
+    printf("TRADE SHIP: %d with chunk (%d, %d), and world coords (%f, %f)\n",
+            i, trade_ships[i].chunk_coords[0], trade_ships[i].chunk_coords[1],
+            c[0], c[1]);
+    fflush(stdout);
+    */
   }
 }
 
 void trade_ship_pathfind(TRADE_SHIP *ship) {
-  ISLAND *target_island = ship->target_chunk.islands + ship->target_island;
+  CHUNK *target_chunk = chunk_buffer + ship->target_chunk_index;
+  CHUNK *cur_chunk = chunk_buffer + ship->cur_chunk_index;
+  ISLAND *target_island = target_chunk->islands + ship->target_island;
   vec2 target_world = { target_island->coords[0], target_island->coords[1] };
   vec2 to_center_target = {
     T_WIDTH * I_WIDTH * 0.5,
@@ -56,11 +46,12 @@ void trade_ship_pathfind(TRADE_SHIP *ship) {
   vec2 to_target = GLM_VEC2_ZERO_INIT;
 
   // Steer toward target island
-  chunk_to_world(ship->target_chunk.coords, target_world, target_world);
+  chunk_to_world(target_chunk->coords, target_world, target_world);
   glm_vec2_add(to_center_target, target_world, target_world);
-  chunk_to_world(ship->chunk.coords, ship->coords, ship_world);
+  chunk_to_world(cur_chunk->coords, ship->coords, ship_world);
   glm_vec2_sub(target_world, ship_world, to_target);
   glm_vec2_normalize(to_target);
+  glm_vec2_scale(to_target, delta_time, to_target);
   glm_vec2_add(to_target, ship->direction, ship->direction);
 
   // Steer away from non-target island tiles

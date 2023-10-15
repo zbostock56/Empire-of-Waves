@@ -1,54 +1,8 @@
 #include <console.h>
 
-
-/*
-Command List:
--> give
--> teleport
--> spawn_enemy
--> spawn_trade_ship
-
-Assumptions:
-  -> cmd is delimited by null terminator ('\0')
-*/
-void handle_command(char *cmd) {
-  char *buffer[MAX_TOKENS];
-  int cmd_len = strlen(cmd);
-  char *cur_tok = cmd;
-  int num_tokens = 0;
-  for (int i = 0; i < cmd_len && num_tokens < MAX_TOKENS; i++) {
-    if (cmd[i] == ' ') {
-      cmd[i] = '\0';
-      buffer[num_tokens] = cur_tok;
-      cur_tok = cmd + i + 1;
-      num_tokens++;
-    } else if (i == cmd_len - 1) {
-      buffer[num_tokens] = cur_tok;
-      num_tokens++;
-    }
-  }
-  if (num_tokens >= 1) {
-    if (strncmp(buffer[0], GIVE, strlen(GIVE) + 1) == 0) {
-      printf("GIVE\n");
-    } else if (strncmp(buffer[0], TELEPORT, strlen(TELEPORT) + 1) == 0 && num_tokens == 3) {
-      ivec2 pos = { atoi(buffer[1]), atoi(buffer[2]) };
-      teleport(pos);
-    } else if (strncmp(buffer[0], SPAWN_ENEMY, strlen(SPAWN_ENEMY) + 1) == 0) {
-      printf("SPAWN_ENEMY\n");
-      //spawn_enemy();
-    } else if (strncmp(buffer[0], SPAWN_TRADE_SHIP, strlen(SPAWN_TRADE_SHIP) + 1) == 0) {
-      printf("SPAWN_TRADE_SHIP\n");
-    } else if (strncmp(buffer[0], SET_SPEED, strlen(SET_SPEED) + 1) == 0 && num_tokens == 2) {
-      float speed = atof(buffer[1]);
-      set_speed(speed);
-    } else if (strncmp(buffer[0], TELEPORT_NEAREST_ISLAND, strlen(TELEPORT_NEAREST_ISLAND) + 1) == 0
-               && num_tokens == 1) {
-      teleport_nearest_island();
-    } else {
-      printf("%s: command not found\nEOW CONSOLE $ ", cmd);
-    }
-    fflush(stdout);
-  }
+void command_not_found() {
+  printf("Command not found\nEOW-CONSOLE $ ");
+  fflush(stdout);
 }
 
 /*
@@ -56,6 +10,7 @@ Teleports the player to the nearest island within the chunks that
 are currently being rendered
 */
 void teleport_nearest_island() {
+#if 0
   if (mode != EXPLORATION) {
     printf("ERROR: Not in exploration mode!\nEOW-CONSOLE $ ");
     return;
@@ -129,6 +84,7 @@ void teleport_nearest_island() {
   printf("\nNEW CHUNK: %d | %d\nNEW WORLD COORDINATES %f | %f\nEOW-CONSOLE $ ",
           dist[shortest].island.chunk[0], dist[shortest].island.chunk[1],
           island_coords_float[0], island_coords_float[1]);
+  #endif
 }
 
 void teleport(ivec2 pos) {

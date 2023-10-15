@@ -40,7 +40,8 @@ typedef enum tile {
   SAND = 2,
   GRASS = 3,
   ROCK = 4,
-  MERCH = 5
+  MERCH = 5,
+  HOME = 6
 } TILE;
 
 typedef struct island {
@@ -59,6 +60,7 @@ typedef struct chunk {
   unsigned int enemy_buf_size;
   unsigned int num_islands;
   unsigned int num_enemies;
+  unsigned int ref_count;
 } CHUNK;
 
 #endif

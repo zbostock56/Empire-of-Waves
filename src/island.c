@@ -46,13 +46,14 @@ int generate_island(ISLAND *island) {
     for (int i = 0; i < 9; i++) {
       island->merchant.listings[i].item_id = ids[i];
       island->merchant.listings[i].quantity = 1;
-      island->merchant.listings[i].base_price = 1;
       island->merchant.listings[i].barter_range = 1;
     }
+    island->merchant.relationship = 0.0;
   } else {
     island->merchant.listings = NULL;
     island->merchant.num_listings = 0;
     island->merchant.listings_buf_size = 0;
+    island->merchant.relationship = 0.0;
   }
 
   // TODO Create island texture buffer from preloaded tile texture buffers
@@ -161,9 +162,15 @@ void populate_tile_pixel_buffer(ISLAND *island,
     texel_y = (I_WIDTH - 1) - (i / I_WIDTH);
     texture_index = (I_WIDTH * texel_y) + (i % I_WIDTH);
     if (island->tiles[texture_index] == MERCH) {
+      /*
       tile_colors[i][0] = 255;
       tile_colors[i][1] = 0;
       tile_colors[i][2] = 0;
+      */
+      /* NOTE: Not rendering merchant debug tile */
+      tile_colors[i][0] = 4;
+      tile_colors[i][1] = 209;
+      tile_colors[i][2] = 38;
     } else if (island->tiles[texture_index] == ROCK) {
       tile_colors[i][0] = 99;
       tile_colors[i][1] = 87;
@@ -184,6 +191,10 @@ void populate_tile_pixel_buffer(ISLAND *island,
       tile_colors[i][0] = 3;
       tile_colors[i][1] = 157;
       tile_colors[i][2] = 252;
+    } else if (island->tiles[texture_index] == HOME) {
+      tile_colors[i][0] = 255;
+      tile_colors[i][1] = 0;
+      tile_colors[i][2] = 255;
     }
   }
 }

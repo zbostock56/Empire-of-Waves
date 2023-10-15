@@ -10,8 +10,8 @@ void keyboard_input(GLFWwindow *window) {
   if (mode == EXPLORATION && !console_enabled) {
     // Exploration mode keyboard handlers here
     exploration_movement(window);
+    close_merchant_menu(window);
   } else if (mode == COMBAT && !console_enabled) {
-    // Combat mode keyboard handlers here
     combat_movement(window);
   }
   debug_keys(window);
@@ -42,6 +42,15 @@ void mouse_pos(GLFWwindow *window, double x_pos, double y_pos) {
 }
 
 void mouse_click(GLFWwindow *window, int button, int action, int mods) {
+  if (mode == COMBAT) {
+    if (action == GLFW_PRESS && c_player.attack_cooldown == 0.0) {
+      c_player.speed = 0.5;
+    } else if (action != GLFW_PRESS && c_player.attack_cooldown == 0.0) {
+      c_player.attack_cooldown = c_player.fire_rate;
+      c_player.attack_active = 0.1;
+      c_player.speed = 1.0;
+    } 
+  }
   if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
     ui_click_listener(mouse_position[0], mouse_position[1]);
   }
@@ -132,11 +141,13 @@ void exploration_movement(GLFWwindow *window) {
         e_player.embarked = 1;
       }
     }
-    if (!e_player.embarked && get_ui_component_by_ID(INTERACT_PROMPT)->enabled) {
-      get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
-      if (set_dialog(MERCHANT_OPTION, "Merchant", "Hail, Captain! What brings you to my humble stall")) {
+    if (!e_player.embarked && cur_merchant) {
+      if (set_dialog(MERCHANT_OPTION, cur_merchant, "Merchant",
+                     "Hail, Captain! What brings you to my humble stall")) {
         open_dialog();
       }
+      get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
+      cur_merchant = NULL;
     }
     holding_interaction = 1;
   } else if (glfwGetKey(window, GLFW_KEY_E) != GLFW_PRESS) {
@@ -203,21 +214,6 @@ void combat_movement(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
     glm_vec2_sub(c_player.coords, movement, c_player.coords);
   }
-  // Attacking
-  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !holding_attack &&
-      c_player.attack_cooldown == 0.0) {
-    holding_attack = 1;
-  } else if (glfwGetKey(window, GLFW_KEY_SPACE) != GLFW_PRESS &&
-                        holding_attack) {
-    c_player.attack_cooldown = c_player.fire_rate;
-    c_player.attack_active = 0.1;
-    holding_attack = 0;
-  }
-  if (holding_attack) {
-    c_player.speed = 0.5;
-  } else {
-    c_player.speed = 1.0;
-  }
 }
 
 void debug_keys(GLFWwindow *window) {
@@ -239,7 +235,7 @@ void debug_keys(GLFWwindow *window) {
 
   if (glfwGetKey(window, GLFW_KEY_LEFT_BRACKET) == GLFW_PRESS && !holding_left_bracket) {
     if (mode == EXPLORATION) {
-      CHUNK *cur_chunk = player_chunks + PLAYER_CHUNK;
+      CHUNK *cur_chunk = chunk_buffer + player_chunks[PLAYER_CHUNK];
       // Make a dummy enemy ship to fight
       unsigned int new_enemy_index = cur_chunk->num_enemies;
       cur_chunk->enemies[new_enemy_index].crew_count = 3;
@@ -268,13 +264,16 @@ void debug_keys(GLFWwindow *window) {
   } else if (glfwGetKey(window, GLFW_KEY_SLASH) != GLFW_PRESS) {
     holding_tilde = 0;
   }
+}
 
+void close_merchant_menu(GLFWwindow *window) {
   // Dialog debug
-  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-    if (dialog->ui_text_name->enabled) {
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+     if (dialog->ui_text_name->enabled) {
       close_dialog();
-    } else {
-      open_dialog();
+    }
+    if (trade->ui_listing[0]->enabled) {
+      close_trade();
     }
   }
 }

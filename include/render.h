@@ -45,6 +45,8 @@ vec3 UI_PIVOT_OFFSETS[9] = {
   {-1.0,  1.0, 0.0}  // BOTTOM RIGHT
 };
 
+extern DIALOG *dialog;
+
 // ========================== GLOBAL DECLARATIONS ============================
 
 // Insert declarations of global render elemements:
@@ -57,6 +59,7 @@ unsigned int std_shader;
 unsigned int color_shader;
 unsigned int pixel_shader;
 unsigned int text_shader;
+unsigned int chunk_shader;
 
 FRAMEBUFFER entity_framebuffer;
 
@@ -66,6 +69,7 @@ MODEL *merchant;
 MODEL *player_ship;
 MODEL *enemy_ship;
 MODEL *trade_ship;
+MODEL *house;
 MODEL *quad;
 CHARACTER font[FONT_LEN];
 

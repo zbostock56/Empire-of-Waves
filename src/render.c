@@ -1,9 +1,8 @@
 #include <render.h>
 
 void init_scene() {
-  vec2 player_coords = { 0.0f, 0.0f };
-  world_to_chunk(player_coords, e_player.ship_chunk, e_player.ship_coords);
-  world_to_chunk(player_coords, e_player.chunk, e_player.coords);
+  glm_vec2_zero(e_player.coords);
+  glm_ivec2_zero(e_player.chunk);
   glm_vec2_zero(e_player.direction);
   glm_vec2_zero(e_player.ship_direction);
   e_player.direction[1] = 1.0;
@@ -29,6 +28,7 @@ void init_scene() {
   color_shader = shader_init(vertex_shader, fragment_shader_color);
   pixel_shader = shader_init(vertex_shader, fragment_shader_pixelated);
   text_shader = shader_init(vertex_shader, fragment_shader_text);
+  chunk_shader = shader_init(vertex_shader, fragment_shader_chunk);
 
   // Initialize models
   player = load_model("assets/player.bin", "assets/3A.png");
@@ -37,6 +37,7 @@ void init_scene() {
   player_ship = load_model("assets/player_ship.bin", "assets/1A.png");
   enemy_ship = load_model("assets/enemy_ship.bin", "assets/1B.png");
   trade_ship = load_model("assets/trade_ship.bin", "assets/2A.png");
+  house = load_model("assets/quad.bin", "assets/House.png");
   quad = load_model("assets/quad.bin", NULL);
   char default_path[50] = "assets/Dinklebitmap/x.bin";
   char lowercase_path[50] = "assets/Dinklebitmap/x_lower.bin";
@@ -44,6 +45,87 @@ void init_scene() {
     int index = cur - ' ';
     if (cur == '/') {
       load_character("assets/Dinklebitmap/fs.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '$') {
+      load_character("assets/Dinklebitmap/dollar.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '!') {
+      load_character("assets/Dinklebitmap/e_mark.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '#') {
+      load_character("assets/Dinklebitmap/pound.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '%') {
+      load_character("assets/Dinklebitmap/percent.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '&') {
+      load_character("assets/Dinklebitmap/amper.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '\'') {
+      load_character("assets/Dinklebitmap/s_quote.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '(') {
+      load_character("assets/Dinklebitmap/l_paren.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == ')') {
+      load_character("assets/Dinklebitmap/r_paren.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == ',') {
+      load_character("assets/Dinklebitmap/comma.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '-') {
+      load_character("assets/Dinklebitmap/minus.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '+') {
+      load_character("assets/Dinklebitmap/plus.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == ':') {
+      load_character("assets/Dinklebitmap/colon.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == ';') {
+      load_character("assets/Dinklebitmap/s_colon.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '<') {
+      load_character("assets/Dinklebitmap/lt.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '=') {
+      load_character("assets/Dinklebitmap/eq.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '>') {
+      load_character("assets/Dinklebitmap/gt.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '?') {
+      load_character("assets/Dinklebitmap/q_mark.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '@') {
+      load_character("assets/Dinklebitmap/at.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '[') {
+      load_character("assets/Dinklebitmap/l_brac.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == ']') {
+      load_character("assets/Dinklebitmap/r_brac.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '^') {
+      load_character("assets/Dinklebitmap/carrot.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '_') {
+      load_character("assets/Dinklebitmap/u_score.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '`') {
+      load_character("assets/Dinklebitmap/grave.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '{') {
+      load_character("assets/Dinklebitmap/lc_brac.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '|') {
+      load_character("assets/Dinklebitmap/pipe.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '}') {
+      load_character("assets/Dinklebitmap/rc_brac.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '~') {
+      load_character("assets/Dinklebitmap/tilde.bin",
                      "assets/Dinklebitmap/font.png", font + index);
     } else if (cur == ' ') {
       load_character("assets/Dinklebitmap/space.bin",
@@ -56,6 +138,9 @@ void init_scene() {
                      "assets/Dinklebitmap/font.png", font + index);
     } else if (cur == '"') {
       load_character("assets/Dinklebitmap/quote.bin",
+                     "assets/Dinklebitmap/font.png", font + index);
+    } else if (cur == '*') {
+      load_character("assets/Dinklebitmap/asterisk.bin",
                      "assets/Dinklebitmap/font.png", font + index);
     } else if (cur >= 'a' && cur <= 'z') {
       lowercase_path[20] = cur;
@@ -101,6 +186,11 @@ void render_scene(GLFWwindow *window) {
 
   render_player();
   if (mode == EXPLORATION) {
+    if (dialog->merchant) {
+      snprintf(dialog->ui_text_relationship->text, TEXT_BUFFER_LEN,
+               "Relationship: %.1f", dialog->merchant->relationship);
+    }
+
     for (int i = 0; i < 5; i++) {
       for (int j = 0; j < 5; j++) {
         ivec2 chunk = {
@@ -113,25 +203,20 @@ void render_scene(GLFWwindow *window) {
 
     render_player_ship();
 
-    for (int i = 0; i < NUM_COMPONENTS; i++) {
-      if (ui_tab[i].enabled) {
-        render_ui(ui_tab + i);
-      }
-    }
-
     for (unsigned int i = 0; i < num_trade_ships; i++) {
       render_trade_ship(trade_ships + i);
     }
 
     for (int i = 0; i < 9; i++) {
-      for (int j = 0; j < player_chunks[i].num_enemies; j++) {
-        render_enemy_ship(player_chunks[i].enemies + j);
+      CHUNK *cur_chunk = chunk_buffer + player_chunks[i];
+      for (int j = 0; j < cur_chunk->num_enemies; j++) {
+        render_enemy_ship(cur_chunk->enemies + j);
       }
-      for (int j = 0; j < player_chunks[i].num_islands; j++) {
-        if (player_chunks[i].islands[j].has_merchant) {
-          render_merchant(&player_chunks[i].islands[j].merchant);
+      for (int j = 0; j < cur_chunk->num_islands; j++) {
+        if (cur_chunk->islands[j].has_merchant) {
+          render_merchant(&cur_chunk->islands[j].merchant);
         }
-        render_island(player_chunks[i].islands + j);
+        render_island(cur_chunk->islands + j);
       }
     }
   } else {
@@ -159,6 +244,20 @@ void render_scene(GLFWwindow *window) {
       glm_vec2_add(hitbox_pos, hitbox_offset, hitbox_pos);
       render_hitbox(hitbox_pos);
     }
+  }
+
+  for (int i = 0; i < NUM_COMPONENTS; i++) {
+    if (ui_tab[i].enabled) {
+      render_ui(ui_tab + i);
+    }
+  }
+  update_status_bar();
+  // Schedule trade route prompt delay
+  if (time_schdule_trade_toute_prompt < 0) {
+    dialog->ui_text_schedule_trade_route_prompt->enabled = 0;
+    time_schdule_trade_toute_prompt = 2.0;
+  } else {
+    time_schdule_trade_toute_prompt -= delta_time;
   }
 
   /*
@@ -468,16 +567,15 @@ void render_chunk(ivec2 chunk) {
     if (chunk[1] % 2 == 0) {
       c_val = 1.0;
     } else {
-      c_val = 0.0;
+      c_val = 0.5;
     }
   } else {
     if (chunk[1] % 2 == 0) {
-      c_val = 0.0;
+      c_val = 0.5;
     } else {
       c_val = 1.0;
     }
   }
-  vec3 color = { c_val, c_val, c_val };
   */
 
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
@@ -508,6 +606,15 @@ void render_chunk(ivec2 chunk) {
   set_mat4("model", model_mat, std_shader);
   set_mat4("view", view_mat, std_shader);
   set_mat4("proj", ortho_proj, std_shader);
+  /*
+  glUseProgram(chunk_shader);
+  set_mat4("model", model_mat, chunk_shader);
+  set_mat4("view", view_mat, chunk_shader);
+  set_mat4("proj", ortho_proj, chunk_shader);
+  glUniform1f(glGetUniformLocation(chunk_shader, "chunk"), c_val);
+  quad->texture = ocean_texture;
+  draw_model(quad, chunk_shader);
+  */
   quad->texture = ocean_texture;
   draw_model(quad, std_shader);
 }
@@ -540,6 +647,22 @@ void render_island(ISLAND *island) {
   set_mat4("proj", ortho_proj, std_shader);
   quad->texture = island->texture;
   draw_model(quad, std_shader);
+
+  glm_mat4_identity(model_mat);
+  vec3 house_coords = { 0.0, 0.0, OBSTACLE_DEPTH };
+  chunk_to_world(island->chunk, house_tile, house_coords);
+  glm_translate(model_mat, house_coords);
+  glm_translate_x(model_mat, 2.0 * T_WIDTH);
+  glm_translate_y(model_mat, 4.0 * T_WIDTH);
+  glm_scale_uni(model_mat, T_WIDTH * 5.0);
+
+  if (island->chunk[0] == 0 && island->chunk[1] == 0) {
+    glUseProgram(pixel_shader);
+    set_mat4("model", model_mat, pixel_shader);
+    set_mat4("view", view_mat, pixel_shader);
+    set_mat4("proj", ortho_proj, pixel_shader);
+    draw_model(house, pixel_shader);
+  }
 }
 
 void render_arena() {

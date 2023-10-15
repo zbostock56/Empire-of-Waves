@@ -11,8 +11,10 @@
 
 #define INTERACTION_RADIUS (3.0)
 #define SHIP_COLLISION_RADIUS (1.0)
-#define SHIP_PATHFIND_RADIUS (10.0)
+#define SHIP_COMPLETION_RADIUS (5.0)
+#define SHIP_PATHFIND_RADIUS (40.0)
 #define CHARACTER_COLLISION_RADIUS (0.5)
+#define SHIP_CHASE_RADIUS (20)
 
 extern float T_WIDTH;
 
@@ -40,6 +42,10 @@ int circle_circle_collision(vec2, float, vec2, float);
 
 void chunk_to_world(ivec2, vec2, vec2);
 void world_to_chunk(vec2, ivec2, vec2);
+void update_enemy_position(E_ENEMY *);
+void pathfind_enemy(E_ENEMY *);
+int double_buffer(void **, unsigned int *, unsigned int);
+void update_enemy_chunk(E_ENEMY*, CHUNK*, int);
 
 int to_combat_mode(unsigned int);
 void from_combat_mode();
