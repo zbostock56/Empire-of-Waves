@@ -26,3 +26,6 @@ void slash_or_comment(TOKEN *, char);
 void init_lexer();
 void tokenize(char *, int);
 void print_tokens();
+
+/* ======================= INTERNALLY DEFINED FUNCTIONS ==================== */
+void parse();

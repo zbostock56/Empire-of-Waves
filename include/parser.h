@@ -25,6 +25,8 @@ void parse();
 TOKEN get_token();
 enum KIND peek_token();
 void console_dispatcher();
+void init_parse_table();
+void print_parse_table();
 
 /* ================ EXTERNALLY DEFINED FUNCTIONS ===================*/
 void print_tokens();

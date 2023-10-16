@@ -334,9 +334,19 @@ void console_keys(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS && !holding_enter) {
     holding_enter = 1;
     printf("\nEOW CONSOLE $ ");
-    cons_cmd[cons_cmd_len] = '\0';
+    cons_cmd[cons_cmd_len++] = '\0';
+    /*
+    printf("|");
+    for (int i = 0; i < cons_cmd_len; i++) {
+      if (cons_cmd[i] == '\0') {
+        printf(" ");
+        continue;
+      }
+      printf("%c", cons_cmd[i]);
+    }
+    printf("|\n");\
+    */
     tokenize(cons_cmd, cons_cmd_len);
-    //handle_command(cons_cmd);
     cons_cmd_len = 0;
   } else if (glfwGetKey(window, GLFW_KEY_ENTER) != GLFW_PRESS) {
     holding_enter = 0;

@@ -135,10 +135,9 @@ void next(LEXER *lexer) {
       lexer->lines[lines].tokens[toks].kind = END;
       lexer->lines[lines].tokens[toks].tok[characters] = c;
       lexer->lines[lines].tokens[toks].num_chars++;
-      lexer->lines[lines].num_tokens++; 
+      lexer->lines[lines].num_tokens++;
       /* Line has been ended, increase number of lines */
       lexer->num_lines++;
-      return;
       break;
     case 'a':
     case 'b':
@@ -294,7 +293,7 @@ void next(LEXER *lexer) {
       exit(1);
   }
   lexer->lines[lines].tokens[toks].num_chars++;
-  lexer->lines[lines].num_tokens++; 
+  lexer->lines[lines].num_tokens++;
 }
 
 /* Outputs the whole of a string as */
@@ -418,7 +417,7 @@ void tokenize(char *buffer, int buffer_size) {
     next(&lexer);
   }
   free(temp);
-  return;
+  parse();
 }
 
 void print_tokens() {

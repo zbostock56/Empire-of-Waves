@@ -7,6 +7,7 @@ simple_command := identifier | identifier argument
 argument := (identifier)* | (number)*
 */
 void parse() {
+  init_parse_table();
   current.line = 0;
   current.token = 0;
   int cur_tok = 0;
@@ -33,6 +34,7 @@ void parse() {
   /* END: argument */
   /* END: simple_command */
   /* END: command */
+  print_parse_table();
   console_dispatcher();
 }
 
@@ -78,4 +80,112 @@ enum KIND peek_token() {
     exit(1);
   }
   return lexer.lines[current.line].tokens[current.token].kind;
+}
+
+void print_parse_table() {
+  TOKEN cur;
+  printf("\n");
+  for (int i = 0; i < MAX_TOKS; i++) {
+    cur = command[i];
+    printf("TOKEN: %d\t(", i);
+      switch (cur.kind) {
+        case NUMBER:
+          printf("NUMBER      |");
+          break;
+        case IDENTIFIER:
+          printf("IDENTIFIER  |");
+          break;
+        case LEFTPAREN:
+          printf("LEFTPAREN   |");
+          break;
+        case RIGHTPAREN:
+          printf("RIGHTPAREN  |");
+          break;
+        case LEFTSQUARE:
+          printf("LEFTSQUARE  |");
+          break;
+        case RIGHTSQUARE:
+          printf("RIGHTSQUARE |");
+          break;
+        case LEFTCURLY:
+          printf("LEFTCURLY   |");
+          break;
+        case RIGHTCURLY:
+          printf("RIGHTCURLY  |");
+          break;
+        case LESSTHAN:
+          printf("LESSTHAN    |");
+          break;
+        case GREATERTHAN:
+          printf("GREATERTHAN |");
+          break;
+        case EQUAL:
+          printf("EQUAL       |");
+          break;
+        case PLUS:
+          printf("PLUS        |");
+          break;
+        case MINUS:
+          printf("MINUS       |");
+          break;
+        case ASTERISK:
+          printf("ASTERISK    |");
+          break;
+        case SLASH:
+          printf("SLASH       |");
+          break;
+        case HASH:
+          printf("HASH        |");
+          break;
+        case DOT:
+          printf("DOT         |");
+          break;
+        case COMMA:
+          printf("COMMA       |");
+          break;
+        case COLON:
+          printf("COLON       |");
+          break;
+        case SEMICOLON:
+          printf("SEMICOLON   |");
+          break;
+        case SINGLEQUOTE:
+          printf("SINGLEQUOTE |");
+          break;
+        case DOUBLEQUOTE:
+          printf("DOUBLEQUOTE |");
+          break;
+        case COMMENT:
+          printf("COMMENT     |");
+          break;
+        case PIPE:
+          printf("PIPE        |");
+          break;
+        case END:
+          printf("END         |");
+          break;
+        case UNEXPECTED:
+          printf("UNEXPECTED  |");
+          break;
+      }
+    for (int j = 0; j < cur.num_chars; j++) {
+      if (cur.tok[j] == '\0') {
+        printf(" ");
+        continue;
+      }
+      printf("%c", cur.tok[j]);
+    }
+    printf("|)\n");
+  }
+}
+
+void init_parse_table() {
+  TOKEN dummy = {
+    UNEXPECTED,
+    "",
+    0,
+  };
+  for (int i = 0; i < MAX_TOKS; i++) {
+    command[i] = dummy;
+  }
 }
