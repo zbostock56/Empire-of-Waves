@@ -4,6 +4,9 @@
 #include <player_str.h>
 #include <trade_ship_str.h>
 #include <globals.h>
+#include <ui_component.h>
+#include <dialog_str.h>
+#include <trade_str.h>
 #include <menu.h>
 
 #define X (0)
@@ -17,6 +20,8 @@
 #define SHIP_CHASE_RADIUS (20)
 
 extern float T_WIDTH;
+extern DIALOG dialog;
+extern TRADE trade;
 
 int shore_interaction_enabled = 0;
 
@@ -49,3 +54,4 @@ void update_enemy_chunk(E_ENEMY*, CHUNK*, int);
 
 int to_combat_mode(unsigned int);
 void from_combat_mode();
+void close_dialog();

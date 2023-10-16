@@ -186,9 +186,9 @@ void render_scene(GLFWwindow *window) {
 
   render_player();
   if (mode == EXPLORATION) {
-    if (dialog->merchant) {
-      snprintf(dialog->ui_text_relationship->text, TEXT_BUFFER_LEN,
-               "Relationship: %.1f", dialog->merchant->relationship);
+    if (dialog.merchant) {
+      snprintf(dialog.ui_text_relationship->text, TEXT_BUFFER_LEN,
+               "Relationship: %.1f", dialog.merchant->relationship);
     }
 
     for (int i = 0; i < 5; i++) {
@@ -254,7 +254,7 @@ void render_scene(GLFWwindow *window) {
   update_status_bar();
   // Schedule trade route prompt delay
   if (time_schdule_trade_toute_prompt < 0) {
-    dialog->ui_text_schedule_trade_route_prompt->enabled = 0;
+    dialog.ui_text_schedule_trade_route_prompt->enabled = 0;
     time_schdule_trade_toute_prompt = 2.0;
   } else {
     time_schdule_trade_toute_prompt -= delta_time;

@@ -249,12 +249,11 @@ void debug_keys(GLFWwindow *window) {
 }
 
 void close_merchant_menu(GLFWwindow *window) {
-  // Dialog debug
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-     if (dialog->ui_text_name->enabled) {
+     if (dialog.ui_text_name->enabled) {
       close_dialog();
     }
-    if (trade->ui_listing[0]->enabled) {
+    if (trade.ui_listing[0]->enabled) {
       close_trade();
     }
   }
