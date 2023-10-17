@@ -157,8 +157,10 @@ void init_scene() {
   // TODO: Initiallize tile texture buffers
 
   // Setup perspective matrices
+  //float aspect_ratio = ((float) RES_X) / ((float) RES_Y);
   glm_ortho(-1.0, 1.0, -1.0, 1.0, 0.0, 100.0, ortho_proj);
-  glm_perspective(glm_rad(45.0f), RES_X / RES_Y, 0.1, 100.0, persp_proj);
+  glm_perspective(glm_rad(45.0f), ((float) RES_X) / ((float) RES_Y), 0.1,
+                  100.0, persp_proj);
 
   glEnable(GL_DEPTH_TEST);
 }
@@ -182,14 +184,16 @@ void render_scene(GLFWwindow *window) {
   delta_time = current_frame - last_frame;
   last_frame = current_frame;
 
+  calc_screen_scale();
+
   glClearColor(1.0, 0.0, 0.0, 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   render_player();
   if (mode == EXPLORATION) {
-    if (dialog->merchant) {
-      snprintf(dialog->ui_text_relationship->text, TEXT_BUFFER_LEN,
-               "Relationship: %.1f", dialog->merchant->relationship);
+    if (cur_merchant) {
+      snprintf(dialog.ui_text_relationship->text, TEXT_BUFFER_LEN,
+               "Relationship: %.1f", cur_merchant->relationship);
     }
 
     for (int i = 0; i < 5; i++) {
@@ -255,7 +259,7 @@ void render_scene(GLFWwindow *window) {
   update_status_bar();
   // Schedule trade route prompt delay
   if (time_schdule_trade_toute_prompt < 0) {
-    dialog->ui_text_schedule_trade_route_prompt->enabled = 0;
+    dialog.ui_text_schedule_trade_route_prompt->enabled = 0;
     time_schdule_trade_toute_prompt = 2.0;
   } else {
     time_schdule_trade_toute_prompt -= delta_time;
@@ -304,7 +308,7 @@ void render_player_ship() {
     glm_vec3_negate(player_world_coords);
     glm_translate(view_mat, player_world_coords);
   }
-  glm_scale_uni(model_mat, 0.75);
+  glm_scale_uni(model_mat, FBO_QUAD_WIDTH * T_WIDTH / 2.0);
 
   render_fbo_entity(player_ship, fbo_model_mat, model_mat, fbo_view_mat,
                     view_mat, persp_proj, ortho_proj);
@@ -332,7 +336,6 @@ void render_player() {
     }
     calc_rot_mat(player_dir, player_rot);
     glm_scale_uni(fbo_model_mat, 0.25);
-    glm_translate_y(fbo_model_mat, -0.5);
     glm_rotate_x(fbo_model_mat, glm_rad(-50.0), fbo_model_mat);
     glm_mat4_mul(fbo_model_mat, player_rot, fbo_model_mat);
 
@@ -342,8 +345,8 @@ void render_player() {
     mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
     vec3 depth_offset = { 0.0, 0.0, AVATAR_DEPTH };
     glm_translate(model_mat, depth_offset);
+    glm_scale_uni(model_mat, FBO_QUAD_WIDTH * T_WIDTH / 2.0);
     glm_translate_y(model_mat, 0.1);
-    glm_scale_uni(model_mat, 0.75);
 
     mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
 
@@ -373,7 +376,6 @@ void render_e_npc(MODEL *model, ivec2 chunk, vec2 coords, vec2 direction,
   vec3 npc_dir = { direction[0], direction[1], 0.0f };
   calc_rot_mat(npc_dir, npc_rot);
   glm_scale_uni(fbo_model_mat, scale);
-  glm_translate_y(fbo_model_mat, -0.5);
   glm_rotate_x(fbo_model_mat, glm_rad(-50.0), fbo_model_mat);
   glm_mat4_mul(fbo_model_mat, npc_rot, fbo_model_mat);
 
@@ -383,9 +385,9 @@ void render_e_npc(MODEL *model, ivec2 chunk, vec2 coords, vec2 direction,
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   vec3 world_coords = { 0.0, 0.0, AVATAR_DEPTH };
   chunk_to_world(chunk, coords, world_coords);
-  glm_translate_y(model_mat, 0.1);
   glm_translate(model_mat, world_coords);
-  glm_scale_uni(model_mat, 0.75);
+  glm_scale_uni(model_mat, FBO_QUAD_WIDTH * T_WIDTH / 2.0);
+  glm_translate_y(model_mat, 0.1);
 
   mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
   vec3 player_world_coords = GLM_VEC2_ZERO_INIT;
@@ -408,7 +410,6 @@ void render_c_npc(MODEL *model, vec2 coords, vec2 direction, float scale) {
   vec3 npc_dir = { direction[0], direction[1], 0.0f };
   calc_rot_mat(npc_dir, npc_rot);
   glm_scale_uni(fbo_model_mat, scale);
-  glm_translate_y(fbo_model_mat, -0.5);
   glm_rotate_x(fbo_model_mat, glm_rad(-50.0), fbo_model_mat);
   glm_mat4_mul(fbo_model_mat, npc_rot, fbo_model_mat);
 
@@ -418,9 +419,9 @@ void render_c_npc(MODEL *model, vec2 coords, vec2 direction, float scale) {
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   vec3 npc_coords = { 0.0, 0.0, AVATAR_DEPTH };
   glm_vec2_scale(coords, T_WIDTH, npc_coords);
-  glm_translate_y(model_mat, 0.1);
   glm_translate(model_mat, npc_coords);
-  glm_scale_uni(model_mat, 0.75);
+  glm_scale_uni(model_mat, FBO_QUAD_WIDTH * T_WIDTH / 2.0);
+  glm_translate_y(model_mat, 0.1);
 
   mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
   vec3 player_coords = GLM_VEC2_ZERO_INIT;
@@ -435,7 +436,8 @@ void render_c_npc(MODEL *model, vec2 coords, vec2 direction, float scale) {
 void render_ui(UI_COMPONENT *comp) {
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   // Dimensions of UI component (width, height)
-  vec3 comp_scale = { 0.5 * comp->width, 0.5 * comp->height, 0.0 };
+  vec3 comp_scale = { 0.5 * screen_scale[0] * comp->width,
+                      0.5 * screen_scale[1] * comp->height, 0.0 };
   // Location of "pivot" point of ui component
   vec3 comp_pivot = { 0.0, 0.0, UI_DEPTH };
   // Number of characters in ui component text
@@ -459,11 +461,20 @@ void render_ui(UI_COMPONENT *comp) {
     comp_scale[1] = (text_height * 0.5) + comp->text_padding;
   }
 
+  vec2 screen_space_pos = {
+    comp->position[0] * screen_scale[0],
+    comp->position[1] * screen_scale[1]
+  };
+
+  vec2 screen_space_offset = {
+    UI_PIVOT_OFFSETS[comp->pivot][0],
+    UI_PIVOT_OFFSETS[comp->pivot][1]
+  };
+
   // Adjust comp position based on pivot point
-  vec3 comp_offset = { UI_PIVOT_OFFSETS[comp->pivot][0] * comp_scale[0],
-                       UI_PIVOT_OFFSETS[comp->pivot][1] * comp_scale[1],
-                       0.0 };
-  glm_vec2_add(comp->position, comp_offset, comp_pivot);
+  vec3 comp_offset = { screen_space_offset[0] * comp_scale[0],
+                       screen_space_offset[1] * comp_scale[1], 0.0 };
+  glm_vec2_add(screen_space_pos, comp_offset, comp_pivot);
 
   glm_translate(model_mat, comp_pivot);
   glm_scale(model_mat, comp_scale);
@@ -823,6 +834,13 @@ FRAMEBUFFER framebuffer_init() {
   return fb;
 }
 
+void refresh_framebuffers() {
+  glDeleteTextures(1, &entity_framebuffer.color_texture);
+  glDeleteRenderbuffers(1, &entity_framebuffer.depth_stencil_rbo);
+  glDeleteFramebuffers(1, &entity_framebuffer.FBO);
+  entity_framebuffer = framebuffer_init();
+}
+
 void calc_rot_mat(vec3 dir, mat4 dest) {
   vec3 z_cross_dir = GLM_VEC3_ZERO_INIT;
   glm_vec3_cross(Z, dir, z_cross_dir);
@@ -832,6 +850,18 @@ void calc_rot_mat(vec3 dir, mat4 dest) {
   glm_vec3_copy(Z, rot[2]);
   glm_mat4_identity(dest);
   glm_mat4_ins3(rot, dest);
+}
+
+void calc_screen_scale() {
+  vec3 screen_res = {
+    ((float) RES_X) / BASE_RES_X,
+    ((float) RES_Y) / BASE_RES_Y,
+    1.0
+  };
+  glm_ortho(-screen_res[0], screen_res[0], -screen_res[1], screen_res[1], 0.0,
+            100.0, ortho_proj);
+
+  glm_vec2_copy(screen_res, screen_scale);
 }
 
 float get_text_width(char *text, int text_len) {
@@ -901,4 +931,8 @@ void set_vec4(char *name, vec4 matrix, unsigned int shader) {
 
 void set_vec3(char *name, vec3 matrix, unsigned int shader) {
   glUniform3fv(glGetUniformLocation(shader, name), 1, (float *) matrix);
+}
+
+void set_float(char *name, float val, unsigned int shader) {
+  glUniform1f(glGetUniformLocation(shader, name), val);
 }

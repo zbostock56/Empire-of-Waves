@@ -29,6 +29,7 @@ int init_chunks() {
       return -1;
     }
 
+    save_chunk(chunk_buffer + status);
     player_chunks[i] = status;
   }
   return 0;

@@ -18,3 +18,7 @@ int detect_collisions();
 int init_trade_ship_buffers();
 void update_trade_ships();
 void update_combat_state();
+void init_dialog();
+void init_trade();
+void init_status_bar();
+void open_status_bar();

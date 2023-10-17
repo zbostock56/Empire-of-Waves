@@ -1,13 +1,6 @@
-#include <ui_component.h>
-#include <trade.h>
 
+/* DEFINES  */
 #define NUM_COMPONENTS (22) // UI COMPONENT:: Max number of UI component
-#define MAX_NAME_STR_LENGTH (16) // DIALOG :: Max string length of name
-#define MAX_CONTENT_STR_LENGTH (256) // DIALOG :: Max string length of content
-#define MAX_DIALOGS (16) // DIALOG :: Max number of dialogs
-#define MAX_LISTING_STR_LENGTH (16) // TRADE :: Max length of listing string
-#define MAX_STATUS_STR_LENGTH (16) // STATUS :: Max length of status string
-#define TEXT_BUFFER_LEN (50)
 
 /*
   Enum mapping human-readable component names to the index of the ui component
@@ -39,70 +32,10 @@ typedef enum component_ids {
   // Populate as more components are added
 } UI_ID;
 
+/* GLOBALS */
 // Index: item id, Element: Item struct for that item id
 extern UI_COMPONENT ui_tab[NUM_COMPONENTS];
 
-UI_COMPONENT * get_ui_component_by_ID(UI_ID ui_id);
 
-/*
-                                   DIALOG
-Implements the functionality for opening and closing a dialog menu. Could be
-used for conversation with merchants or other places that need a dialog box.
-*/
-
-typedef enum dialog_type {
-  INVALID_DIALOG = 0,
-  TALK = 1,
-  MERCHANT_OPTION = 2
-} T_DIALOG;
-
-typedef struct dialog {
-  T_DIALOG type;
-  MERCHANT *merchant;
-  char *name;
-  char *relationship;
-  char *content;
-  UI_COMPONENT *ui_text_name;
-  UI_COMPONENT *ui_text_relationship;
-  UI_COMPONENT *ui_text_content;
-  UI_COMPONENT *ui_button_buy;
-  UI_COMPONENT *ui_button_sell;
-  UI_COMPONENT *ui_button_establish_trade_route;
-  UI_COMPONENT *ui_text_schedule_trade_route_prompt;
-} DIALOG;
-
-extern DIALOG * dialog;
-extern float time_schdule_trade_toute_prompt;
-
-DIALOG * init_dialog();
-void free_dialog();
-void open_dialog();
-void close_dialog();
-int set_dialog(T_DIALOG, MERCHANT *, char *, char *);
-
-void open_buy();
-void close_buy();
-
-void open_sell();
-void close_sell();
-
-void open_establish_trade_route();
-void close_establish_trade_route();
-
-/*
-                                   STATUS
-Implements the functionality for shows player status.
-*/
-
-typedef struct status {
-  UI_COMPONENT *ui_health_status;
-  UI_COMPONENT *ui_money_status;
-} STATUS;
-
-extern STATUS * status;
-
-STATUS * init_status_bar();
-void free_status();
-void update_status_bar();
-void open_status_bar();
-void close_status_bar();
+/* UTILITIES  */
+UI_COMPONENT *get_ui_component_by_ID(UI_ID ui_id);

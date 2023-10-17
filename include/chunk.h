@@ -48,7 +48,6 @@ void island_locator(ivec2 *locs, int num_islands);
 void bounds_check(ivec2 loc);
 
 void free_chunk(CHUNK *);
-//int copy_chunk(CHUNK *, CHUNK *);
 int add_chunk(ivec2);
 int remove_chunk(unsigned int);
 
@@ -61,6 +60,5 @@ void save_island(FILE *, ISLAND *);
 void save_merchant(FILE *, MERCHANT *);
 
 char *index_to_str(int);
-//int get_index(ivec2);
 int out_of_bounds(ivec2, int, int);
 int double_buffer(void **, unsigned int *, unsigned int);

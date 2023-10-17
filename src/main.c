@@ -4,6 +4,10 @@ int main() {
   GLFWwindow *window = init_gl();
 
   init_menus();
+  init_dialog();
+  init_trade();
+  init_status_bar();
+  open_status_bar();
 
   int status = 0;
   status = init_chunks();
