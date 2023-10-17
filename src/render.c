@@ -5,6 +5,7 @@ void init_scene() {
   glm_ivec2_zero(e_player.chunk);
   glm_vec2_zero(e_player.direction);
   glm_vec2_zero(e_player.ship_direction);
+  e_player.speed = 1.0;
   e_player.direction[1] = 1.0;
   e_player.ship_direction[1] = 1.0;
   e_player.embarked = 1;

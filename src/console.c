@@ -31,7 +31,7 @@ void teleport_nearest_island() {
   vec2 world_coords = { 0.0, 0.0 };
   vec2 player_coords = { 0.0, 0.0};
   for (int i = 0; i < MAX_CHUNKS; i++) {
-    chunk = player_chunks[i];
+    chunk = chunk_buffer[player_chunks[i]];
     for (int j = 0; j < chunk.num_islands; j++) {
       dist[tot_num_islands].island = chunk.islands[j];
       glm_ivec2_copy(dist[tot_num_islands].island.chunk, chunk_coords);
@@ -106,4 +106,5 @@ void set_speed(float speed) {
   } else if (mode == COMBAT) {
     c_player.speed = speed;
   }
+  fprintf(stderr, "Operation completed successfully\n");
 }

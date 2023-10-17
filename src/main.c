@@ -12,7 +12,6 @@ int main() {
   }
 
   init_scene();
-  init_lexer();
   status = init_trade_ship_buffers();
   if (status) {
     return -1;

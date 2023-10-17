@@ -192,6 +192,7 @@ void next(LEXER *lexer) {
     case 'Y':
     case 'Z':
       identifier(&(lexer->lines[lines].tokens[toks]), c);
+      lexer->lines[lines].num_tokens++;
       break;
     case '0':
     case '1':
@@ -204,96 +205,136 @@ void next(LEXER *lexer) {
     case '8':
     case '9':
       number(&(lexer->lines[lines].tokens[toks]), c);
+      lexer->lines[lines].num_tokens++;
       break;
     case '(':
       lexer->lines[lines].tokens[toks].kind = LEFTPAREN;
       lexer->lines[lines].tokens[toks].tok[characters] = c;
+      lexer->lines[lines].tokens[toks].num_chars++;
+      lexer->lines[lines].num_tokens++;
       break;
     case ')':
       lexer->lines[lines].tokens[toks].kind = RIGHTPAREN;
       lexer->lines[lines].tokens[toks].tok[characters] = c;
+      lexer->lines[lines].tokens[toks].num_chars++;
+      lexer->lines[lines].num_tokens++;
       break;
     case '[':
       lexer->lines[lines].tokens[toks].kind = LEFTSQUARE;
       lexer->lines[lines].tokens[toks].tok[characters] = c;
+      lexer->lines[lines].tokens[toks].num_chars++;
+      lexer->lines[lines].num_tokens++;
       break;
     case ']':
       lexer->lines[lines].tokens[toks].kind = RIGHTSQUARE;
       lexer->lines[lines].tokens[toks].tok[characters] = c;
+      lexer->lines[lines].tokens[toks].num_chars++;
+      lexer->lines[lines].num_tokens++;
       break;
     case '{':
       lexer->lines[lines].tokens[toks].kind = LEFTCURLY;
       lexer->lines[lines].tokens[toks].tok[characters] = c;
+      lexer->lines[lines].tokens[toks].num_chars++;
+      lexer->lines[lines].num_tokens++;
       break;
     case '}':
       lexer->lines[lines].tokens[toks].kind = RIGHTCURLY;
       lexer->lines[lines].tokens[toks].tok[characters] = c;
+      lexer->lines[lines].tokens[toks].num_chars++;
+      lexer->lines[lines].num_tokens++;
       break;
     case '<':
       lexer->lines[lines].tokens[toks].kind = LESSTHAN;
       lexer->lines[lines].tokens[toks].tok[characters] = c;
+      lexer->lines[lines].tokens[toks].num_chars++;
+      lexer->lines[lines].num_tokens++;
       break;
     case '>':
       lexer->lines[lines].tokens[toks].kind = GREATERTHAN;
       lexer->lines[lines].tokens[toks].tok[characters] = c;
+      lexer->lines[lines].tokens[toks].num_chars++;
+      lexer->lines[lines].num_tokens++;
       break;
     case '=':
       lexer->lines[lines].tokens[toks].kind = EQUAL;
       lexer->lines[lines].tokens[toks].tok[characters] = c;
+      lexer->lines[lines].tokens[toks].num_chars++;
+      lexer->lines[lines].num_tokens++;
       break;
     case '+':
       lexer->lines[lines].tokens[toks].kind = PLUS;
       lexer->lines[lines].tokens[toks].tok[characters] = c;
+      lexer->lines[lines].tokens[toks].num_chars++;
+      lexer->lines[lines].num_tokens++;
       break;
     case '-':
       lexer->lines[lines].tokens[toks].kind = MINUS;
       lexer->lines[lines].tokens[toks].tok[characters] = c;
+      lexer->lines[lines].tokens[toks].num_chars++;
+      lexer->lines[lines].num_tokens++;
       break;
     case '*':
       lexer->lines[lines].tokens[toks].kind = ASTERISK;
       lexer->lines[lines].tokens[toks].tok[characters] = c;
+      lexer->lines[lines].tokens[toks].num_chars++;
+      lexer->lines[lines].num_tokens++;
       break;
     case '/':
       slash_or_comment(&(lexer->lines[lines].tokens[toks]), c);
+      lexer->lines[lines].num_tokens++;
       break;
     case '#':
       lexer->lines[lines].tokens[toks].kind = HASH;
       lexer->lines[lines].tokens[toks].tok[characters] = c;
+      lexer->lines[lines].tokens[toks].num_chars++;
+      lexer->lines[lines].num_tokens++;
       break;
     case '.':
       lexer->lines[lines].tokens[toks].kind = DOT;
       lexer->lines[lines].tokens[toks].tok[characters] = c;
+      lexer->lines[lines].tokens[toks].num_chars++;
+      lexer->lines[lines].num_tokens++;
       break;
     case ',':
       lexer->lines[lines].tokens[toks].kind = COMMA;
       lexer->lines[lines].tokens[toks].tok[characters] = c;
+      lexer->lines[lines].tokens[toks].num_chars++;
+      lexer->lines[lines].num_tokens++;
       break;
     case ':':
       lexer->lines[lines].tokens[toks].kind = COLON;
       lexer->lines[lines].tokens[toks].tok[characters] = c;
+      lexer->lines[lines].tokens[toks].num_chars++;
+      lexer->lines[lines].num_tokens++;
       break;
     case ';':
       lexer->lines[lines].tokens[toks].kind = SEMICOLON;
       lexer->lines[lines].tokens[toks].tok[characters] = c;
+      lexer->lines[lines].tokens[toks].num_chars++;
+      lexer->lines[lines].num_tokens++;
       break;
     case '\'':
       lexer->lines[lines].tokens[toks].kind = SINGLEQUOTE;
       lexer->lines[lines].tokens[toks].tok[characters] = c;
+      lexer->lines[lines].tokens[toks].num_chars++;
+      lexer->lines[lines].num_tokens++;
       break;
     case '"':
       lexer->lines[lines].tokens[toks].kind = DOUBLEQUOTE;
       lexer->lines[lines].tokens[toks].tok[characters] = c;
+      lexer->lines[lines].tokens[toks].num_chars++;
+      lexer->lines[lines].num_tokens++;
       break;
     case '|':
       lexer->lines[lines].tokens[toks].kind = PIPE;
       lexer->lines[lines].tokens[toks].tok[characters] = c;
+      lexer->lines[lines].tokens[toks].num_chars++;
+      lexer->lines[lines].num_tokens++;
       break;
     default:
       fprintf(stderr, "UNEXPECTED TOKEN %c\n", peek());
       exit(1);
   }
-  lexer->lines[lines].tokens[toks].num_chars++;
-  lexer->lines[lines].num_tokens++;
 }
 
 /* Outputs the whole of a string as */
@@ -316,6 +357,7 @@ void identifier(TOKEN *token, char c) {
     toks = lexer.lines[lines].num_tokens;
     characters = token->num_chars;
   }
+  token->tok[token->num_chars] = '\0';
 }
 
 /* Outputs the whole of a number as */
@@ -384,7 +426,7 @@ char get() {
     exit(1);
   }
   input.input_size--;
-  char c = *input.in++;
+  char c = *(input.in++);
   return c;
 }
 
@@ -407,6 +449,7 @@ void tokenize(char *buffer, int buffer_size) {
     fprintf(stderr, "COMMAND INPUT TOO LARGE\n");
     exit(1);
   }
+  init_lexer();
   input.in = malloc(buffer_size);
   char *temp = input.in;
   for (int i = 0; i < buffer_size; i++) {
@@ -417,10 +460,12 @@ void tokenize(char *buffer, int buffer_size) {
     next(&lexer);
   }
   free(temp);
+  //print_tokens();
   parse();
 }
 
 void print_tokens() {
+  printf("\n");
   for (int i = 0; i < lexer.num_lines; i++) {
     LINE l = lexer.lines[i];
     for (int j = 0; j < l.num_tokens; j++) {
