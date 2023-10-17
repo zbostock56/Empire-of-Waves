@@ -19,7 +19,7 @@ void init_status_bar() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.5, // text_scale
+    0.5, // text_scale
     0, // width
     0, // height
     PIVOT_TOP_LEFT, // pivot
@@ -42,7 +42,7 @@ void init_status_bar() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.5, // text_scale
+    0.5, // text_scale
     0, // width
     0, // height
     PIVOT_TOP_LEFT, // pivot
