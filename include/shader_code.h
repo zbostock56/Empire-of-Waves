@@ -20,7 +20,6 @@ const char *vertex_shader = " \
   }\n \
 ";
 
-
 const char *fragment_shader_texture = " \
   #version 430 core\n \
   out vec4 FragColor;\n \
@@ -37,8 +36,7 @@ const char *fragment_shader_pixelated = " \
   in vec2 tex_coords;\n \
   uniform sampler2D tex;\n \
   void main() {\n \
-    //float num_pixels = 1024.0;\n \
-    float num_pixels = 1424.0;\n \
+    float num_pixels = 1024.0;\n \
     float pix_size = 10 * (1.0 / num_pixels);\n \
     vec2 coord = vec2(pix_size * floor(tex_coords.x / pix_size),\n \
                       pix_size * floor(tex_coords.y / pix_size));\n \
