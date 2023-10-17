@@ -47,7 +47,7 @@ void mouse_click(GLFWwindow *window, int button, int action, int mods) {
       c_player.attack_cooldown = c_player.fire_rate;
       c_player.attack_active = 0.1;
       c_player.speed = 1.0;
-    } 
+    }
   }
   if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
     ui_click_listener(mouse_position[0], mouse_position[1]);
@@ -87,7 +87,10 @@ void mouse_scroll(GLFWwindow *window, double x_offset, double y_offset) {
 }
 
 void fb_size_callback(GLFWwindow *window, int width, int height) {
-  glViewport(0, 0, width, height);
+  RES_X = width;
+  RES_Y = height;
+  glViewport(0, 0, RES_X, RES_Y);
+  refresh_framebuffers();
 }
 
 void exploration_movement(GLFWwindow *window) {
@@ -140,7 +143,7 @@ void exploration_movement(GLFWwindow *window) {
       }
     }
     if (!e_player.embarked && cur_merchant) {
-      if (set_dialog(MERCHANT_OPTION, cur_merchant, "Merchant",
+      if (set_dialog(MERCHANT_OPTION, "Merchant",
                      "Hail, Captain! What brings you to my humble stall")) {
         open_dialog();
       }
@@ -151,54 +154,6 @@ void exploration_movement(GLFWwindow *window) {
   } else if (glfwGetKey(window, GLFW_KEY_E) != GLFW_PRESS) {
     holding_interaction = 0;
   }
-  /*
-  if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS && !holding_equals) {
-    printf("Pressing \n");
-    vec2 movement = GLM_VEC2_ZERO_INIT;
-    vec2 world_coords = GLM_VEC2_ZERO_INIT;
-    vec2 predicted_coords = GLM_VEC2_ZERO_INIT;
-
-    chunk_to_world(trade_ships[0].chunk, trade_ships[0].coords,
-                    world_coords);
-
-    glm_vec2_scale(trade_ships[0].direction, delta_time, movement);
-    glm_vec2_add(world_coords, movement, predicted_coords);
-    world_to_chunk(predicted_coords, trade_ships[0].chunk, predicted_coords);
-    if (!ship_collisions(predicted_coords)) {
-      glm_vec2_add(world_coords, movement, world_coords);
-      world_to_chunk(world_coords, trade_ships[0].chunk,
-                     trade_ships[0].coords);
-    } else {
-      glm_vec2_rotate(trade_ships[0].direction,  90.0, trade_ships[0].direction);
-    }
-    holding_equals = 1;
-  } else if (glfwGetKey(window, GLFW_KEY_0) != GLFW_PRESS) {
-    holding_equals = 0;
-  }
-
-  if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS && !holding_equals) {
-    printf("Pressing \n");
-    vec2 movement = GLM_VEC2_ZERO_INIT;
-    vec2 world_coords = GLM_VEC2_ZERO_INIT;
-    vec2 predicted_coords = GLM_VEC2_ZERO_INIT;
-    chunk_to_world(player_chunks[4].enemies[0].chunk, player_chunks[4].enemies[0].coords,
-                    world_coords);
-
-    glm_vec2_scale(player_chunks[4].enemies[0].direction, delta_time, movement);
-    glm_vec2_add(world_coords, movement, predicted_coords);
-    world_to_chunk(predicted_coords, player_chunks[4].enemies[0].chunk, predicted_coords);
-    if (!ship_collisions(predicted_coords)) {
-      glm_vec2_add(world_coords, movement, world_coords);
-      world_to_chunk(world_coords, player_chunks[4].enemies[0].chunk,
-                     player_chunks[4].enemies[0].coords);
-    } else {
-      glm_vec2_rotate(player_chunks[4].enemies[0].direction,  90.0, player_chunks[4].enemies[0].direction);
-    }
-    holding_equals = 1;
-  } else if (glfwGetKey(window, GLFW_KEY_0) != GLFW_PRESS) {
-    holding_equals = 0;
-  }
-  */
 }
 
 void combat_movement(GLFWwindow *window) {

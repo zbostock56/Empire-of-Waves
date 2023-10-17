@@ -13,8 +13,9 @@
 #include <trade_ship_str.h>
 #include <globals.h>
 
-#define RES_X (640.0f)
-#define RES_Y (640.0f)
+#define BASE_RES_X (640.0)
+#define BASE_RES_Y (640.0)
+#define FBO_QUAD_WIDTH (18.0)
 #define FONT_LEN (95)
 #define INVALID_SHADER (0xBEEFBEEF)
 #define X_MIN (0)
@@ -50,18 +51,23 @@ vec3 UI_PIVOT_OFFSETS[9] = {
 
 // ========================== GLOBAL DECLARATIONS ============================
 
+extern DIALOG dialog;
+extern float time_schdule_trade_toute_prompt;
+
 // Insert declarations of global render elemements:
 // - models
 // - matrices
 // - shaders
 // - framebuffers
 // - etc...
-extern DIALOG dialog;
-extern float time_schdule_trade_toute_prompt;
+int RES_X = 640;
+int RES_Y = 640;
+
 unsigned int std_shader;
 unsigned int color_shader;
 unsigned int pixel_shader;
 unsigned int text_shader;
+unsigned int menu_shader;
 unsigned int chunk_shader;
 
 FRAMEBUFFER entity_framebuffer;
@@ -78,6 +84,7 @@ CHARACTER font[FONT_LEN];
 
 mat4 persp_proj;
 mat4 ortho_proj;
+vec2 screen_scale;
 vec3 Z = { 0.0, 0.0, 1.0 };
 
 // TEST ENTITIES
@@ -101,10 +108,12 @@ void render_island(ISLAND *);
 void render_chunk(ivec2);
 void render_arena();
 void render_hitbox(vec2);
-//void render_tile(TILE, ivec2, vec2);
+
+void calc_screen_scale();
 
 unsigned int shader_init(const char *, const char *);
 FRAMEBUFFER framebuffer_init();
+void refresh_framebuffers();
 
 void calc_rot_mat(vec3, mat4);
 
@@ -114,7 +123,7 @@ void set_mat4(char *, mat4, unsigned int);
 void set_mat3(char *, mat3, unsigned int);
 void set_vec4(char *, vec4, unsigned int);
 void set_vec3(char *, vec3, unsigned int);
-
+void set_float(char *, float, unsigned int);
 
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 

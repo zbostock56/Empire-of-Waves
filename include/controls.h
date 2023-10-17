@@ -10,8 +10,6 @@
 #include <trade_str.h>
 #include <menu.h>
 
-#define RES_X (640.0f)
-#define RES_Y (640.0f)
 #define X_MIN (0)
 #define Y_MIN (1)
 #define X_MAX (2)
@@ -31,6 +29,8 @@ int holding_attack = 0;
 
 extern DIALOG dialog;
 extern TRADE trade;
+extern int RES_X;
+extern int RES_Y;
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 
@@ -48,7 +48,8 @@ void get_ui_min_max(UI_COMPONENT *, vec4);
 int to_combat_mode(unsigned int);
 void from_combat_mode();
 void open_dialog();
-int set_dialog(T_DIALOG, MERCHANT *, char *, char *);
+int set_dialog(T_DIALOG, char *, char *);
 void close_dialog();
 void close_trade();
+void refresh_framebuffers();
 

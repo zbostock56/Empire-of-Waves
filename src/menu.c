@@ -105,20 +105,20 @@ void test_callback(void *args) {
 void init_menus() {
   // Populate ui_tab
   // TEMPORARY TEST UI COMPONENT -- TO BE DELETED
-  vec2 test_position = { 0.0, -0.75 };
+  vec2 test_position = { -1.0, 0.0 };
   init_menu(
     test_position, // position
     test_callback, // on_click
     (void *) 0xBAADF00D, // on_click_args
-    "Hello, this is a merchant!", // text
+    "", // text
     0, // enabled
     1, // textured
     0, // texture
     0, // text_padding
     2.0, // text_scale
-    0, // width
-    0, // height
-    PIVOT_CENTER, // pivot
+    1.0, // width
+    1.0, // height
+    PIVOT_LEFT, // pivot
     T_RIGHT, // text_anchor
     get_ui_component_by_ID(TEST_MENU) // dest
   );

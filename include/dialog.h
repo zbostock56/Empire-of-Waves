@@ -19,7 +19,7 @@ void init_dialog();
 void free_dialog();
 void open_dialog();
 void close_dialog();
-int set_dialog(T_DIALOG, MERCHANT *, char *, char *);
+int set_dialog(T_DIALOG, char *, char *);
 
 /* ================= EXTERNALLY DEFINED FUNCTIONS ================ */
 void init_menu(vec2 position, void (*on_click)(void *), void *on_click_args,

@@ -23,7 +23,6 @@ void init_dialog() {
   dialog.content[MAX_CONTENT_STR_LENGTH - 1] = '\0'; // Ensures null termination
 
   dialog.type = INVALID_DIALOG;
-  dialog.merchant = NULL;
   dialog.ui_text_name = get_ui_component_by_ID(DIALOG_NAME);
   dialog.ui_text_relationship = get_ui_component_by_ID(DIALOG_RELATION);
   dialog.ui_text_content = get_ui_component_by_ID(DIALOG_CONTENT);
@@ -44,15 +43,15 @@ void init_dialog() {
     0, // texture
     0.05, // text_padding
     1.5, // text_scale
-    0, // width
-    0, // height
+    2.0, // width
+    0.3, // height
     PIVOT_BOTTOM_LEFT, // pivot
     T_LEFT, // text_anchor
     dialog.ui_text_content // dest
   );
 
   // Init name
-  vec2 name_position = { -1.0, -0.5 };
+  vec2 name_position = { -1.0, -0.45 };
   init_menu(
     name_position, // position
     NULL, // on_click
@@ -71,7 +70,7 @@ void init_dialog() {
   );
 
   // Init relationship
-  vec2 relationship_position = { 1.0, -0.5 };
+  vec2 relationship_position = { 1.0, -0.45 };
   init_menu(
     relationship_position, // position
     NULL, // on_click
@@ -102,7 +101,7 @@ void init_dialog() {
     0.05, // text_padding
     1.5, // text_scale
     0.5, // width
-    0, // heights
+    0.25, // heights
     PIVOT_BOTTOM_LEFT, // pivot
     T_LEFT, // text_anchor
     dialog.ui_button_buy // dest
@@ -121,7 +120,7 @@ void init_dialog() {
     0.05, // text_padding
     1.5, // text_scale
     0.5, // width
-    0, // heights
+    0.25, // heights
     PIVOT_BOTTOM_LEFT, // pivot
     T_LEFT, // text_anchor
     dialog.ui_button_sell // dest
@@ -140,7 +139,7 @@ void init_dialog() {
     0.05, // text_padding
     1.5, // text_scale
     1.0, // width
-    0, // heights
+    0.25, // heights
     PIVOT_BOTTOM_LEFT, // pivot
     T_LEFT, // text_anchor
     dialog.ui_button_establish_trade_route // dest
@@ -217,19 +216,16 @@ void close_dialog() {
   dialog.ui_button_sell->enabled = 0;
   dialog.ui_button_establish_trade_route->enabled = 0;
   dialog.ui_text_schedule_trade_route_prompt->enabled = 0;
-  dialog.merchant = NULL;
   time_schdule_trade_toute_prompt = 2.0;
 }
 
-int set_dialog(T_DIALOG dialog_type, MERCHANT *merchant, char *name,
-               char *content) {
+int set_dialog(T_DIALOG dialog_type, char *name, char *content) {
   if (strlen(name) < MAX_NAME_STR_LENGTH && strlen(content) < MAX_CONTENT_STR_LENGTH) {
     dialog.type = dialog_type;
     strncpy(dialog.name, name, MAX_NAME_STR_LENGTH);
     dialog.name[MAX_NAME_STR_LENGTH - 1] = '\0'; // Ensures null termination
     strncpy(dialog.content, content, MAX_CONTENT_STR_LENGTH);
     dialog.content[MAX_CONTENT_STR_LENGTH - 1] = '\0'; // Ensures null termination
-    dialog.merchant = merchant;
     return 1;
   }
   return 0;

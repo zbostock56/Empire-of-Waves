@@ -2,7 +2,6 @@
 
 void init_trade() {
   trade.type = INVALID_TRADE;
-  trade.merchant = NULL;
   trade.ui_listing[0] = get_ui_component_by_ID(TRADE_BUTTON_LISTING_0);
   trade.ui_listing[1] = get_ui_component_by_ID(TRADE_BUTTON_LISTING_1);
   trade.ui_listing[2] = get_ui_component_by_ID(TRADE_BUTTON_LISTING_2);
@@ -210,16 +209,15 @@ void close_trade() {
   }
 }
 
-int set_trade(T_TRADE dialog_type, MERCHANT * merchant) {
-  if (merchant) {
+int set_trade(T_TRADE dialog_type) {
+  if (cur_merchant) {
     trade.type = dialog_type;
-    trade.merchant = merchant;
     switch (dialog_type) {
       case BUY: {
         for (int i = 0; i < 9; i++) {
           trade.ui_listing[i]->text = get_item_name_by_ID(
                                        get_merchant_listing_item_by_number(
-                                       merchant, i + 1)->item_id);
+                                       cur_merchant, i + 1)->item_id);
         }
         return 1;
       }
@@ -250,7 +248,8 @@ void on_click_ui_listing(void *listing_index) {
   ITEM item;
   if (trade.type == BUY) {
     item = get_item_info_by_name(trade.ui_listing[listing]->text);
-    listing_slot = get_merchant_listing_item_by_number(trade.merchant, listing + 1); 
+    listing_slot = get_merchant_listing_item_by_number(cur_merchant,
+                                                       listing + 1);
     // TODO: NOT ENOUGH MONEY PROMPT
     if (e_player.money >= item.value && listing_slot->quantity > 0) {
       listing_slot->quantity -= 1;
@@ -258,13 +257,13 @@ void on_click_ui_listing(void *listing_index) {
       // INVENTORY ADD
       slot = search_player_inventory_with_ID(
                                 get_merchant_listing_item_by_number(
-                                trade.merchant, listing + 1)->item_id);
+                                cur_merchant, listing + 1)->item_id);
       if (slot) {
         slot->quantity += 1;
       } else if (get_player_first_empty_inventory_slot()) {
         I_SLOT *empty_inventory_slot = get_player_first_empty_inventory_slot();
         empty_inventory_slot->item_id = get_merchant_listing_item_by_number(
-                                        trade.merchant, listing + 1)->item_id;
+                                        cur_merchant, listing + 1)->item_id;
         empty_inventory_slot->quantity = 1;
       }
 
@@ -273,13 +272,14 @@ void on_click_ui_listing(void *listing_index) {
         listing_slot->item_id = 0;
         trade.ui_listing[listing]->text = "SOLD";
       }
-      trade.merchant->relationship += 10.0;
-      if (trade.merchant->relationship > 100.0) {
-        trade.merchant->relationship = 100.0;
+
+      cur_merchant->relationship += 10.0;
+      if (cur_merchant->relationship > 100.0) {
+        cur_merchant->relationship = 100.0;
       }
     }
   } else if (trade.type == SELL && get_player_inventory_slot_by_number(listing + 1)->quantity > 0) {
-    slot = get_player_inventory_slot_by_number(listing + 1); 
+    slot = get_player_inventory_slot_by_number(listing + 1);
     slot->quantity -= 1;
     int item_identifier = slot->item_id;
     item = get_item_info_by_name(trade.ui_listing[listing]->text);
@@ -292,7 +292,7 @@ void on_click_ui_listing(void *listing_index) {
     /* Find the first available listing location in the merchant inventory and populate */
     /* with item that was just sold to it */
     for (int i = 0; i < 9; i++) {
-      listing_slot = get_merchant_listing_item_by_number(trade.merchant, i + 1); 
+      listing_slot = get_merchant_listing_item_by_number(cur_merchant, i + 1);
       if (listing_slot->item_id == item_identifier) {
         listing_slot->quantity++;
         break;
@@ -303,29 +303,29 @@ void on_click_ui_listing(void *listing_index) {
       }
     }
 
-    trade.merchant->relationship += 10.0;
-    if (trade.merchant->relationship > 100.0) {
-      trade.merchant->relationship = 100.0;
+    cur_merchant->relationship += 10.0;
+    if (cur_merchant->relationship > 100.0) {
+      cur_merchant->relationship = 100.0;
     }
   }
 }
 
 void open_buy() {
   close_dialog();
-  if (set_trade(BUY, get_closest_merchant(e_player))) {
+  if (set_trade(BUY)) {
     open_trade();
   }
 }
 
 void open_sell() {
   close_dialog();
-  if (set_trade(SELL, get_closest_merchant(e_player))) {
+  if (set_trade(SELL)) {
     open_trade();
   }
 }
 
 void open_establish_trade_route() {
-  MERCHANT *target_merch = dialog.merchant;
+  MERCHANT *target_merch = cur_merchant;
   CHUNK *target_chunk = NULL;
   for (int i = 0; i < num_trade_ships; i++) {
     target_chunk = chunk_buffer + trade_ships[i].target_chunk_index;
@@ -344,7 +344,7 @@ void open_establish_trade_route() {
   TRADE_SHIP *trade_ship = trade_ships + num_trade_ships;
 
   ivec2 target_chunk_coords = { 0, 0 };
-  glm_ivec2_copy(dialog.merchant->chunk, target_chunk_coords);
+  glm_ivec2_copy(cur_merchant->chunk, target_chunk_coords);
   trade_ship->target_chunk_index = add_chunk(target_chunk_coords);
 
   ivec2 cur_chunk_coords = { 0, 0 };

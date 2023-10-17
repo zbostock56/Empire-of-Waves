@@ -55,3 +55,4 @@ void update_enemy_chunk(E_ENEMY*, CHUNK*, int);
 int to_combat_mode(unsigned int);
 void from_combat_mode();
 void close_dialog();
+void close_trade();

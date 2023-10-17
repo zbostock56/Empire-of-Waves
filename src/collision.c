@@ -161,11 +161,10 @@ void check_merchant_prompt(vec2 world_player_coords) {
       trade.ui_listing[0]->enabled) {
     get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
   }
-  //if (!cur_merchant) {
-    //close_dialog();
-    //close_trade();
-    //close_establish_trade_route();
-  //}
+  if (!cur_merchant) {
+    close_dialog();
+    close_trade();
+  }
 }
 
 /*

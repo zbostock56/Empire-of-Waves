@@ -26,7 +26,7 @@ void init_trade();
 void free_trade();
 void open_trade();
 void close_trade();
-int set_trade(T_TRADE dialog_type, MERCHANT * merchant);
+int set_trade(T_TRADE dialog_type);
 void on_click_ui_listing();
 void open_buy();
 void open_sell();
