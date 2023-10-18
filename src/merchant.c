@@ -13,36 +13,19 @@ Implements the functionality for enabling/disabling merchant prompts/menus,
 modifying merchant relationships, and conducting trade.
 */
 
-
-// #23 - As a user I would like to talk to merchants
-
-MERCHANT * get_closest_merchant(E_PLAYER e_player) {
-  float closest_merchant_distance = 1e9+7;
-  MERCHANT * closest_merchant = NULL;
-  if (e_player.embarked == 0) {
-    for (int i = 0; i < 9; i++) {
-      CHUNK *cur_chunk = chunk_buffer + player_chunks[i];
-      for (int j = 0; j < cur_chunk->num_islands; j++) { // For each island inside player's chunk
-        if (cur_chunk->islands[j].has_merchant) { // Check if island has merchant
-          // YES - island has merchant
-          if (abs(glm_vec2_norm(cur_chunk->islands[j].merchant.coords)) -
-              abs(glm_vec2_norm(e_player.coords)) < closest_merchant_distance) { // Check if the merchant is closer
-            // YES - the merchant is closer
-            closest_merchant_distance = abs(cur_chunk->islands[j].merchant.coords - e_player.coords); // Update closest distance
-            closest_merchant = &cur_chunk->islands[j].merchant; // Update closest merchant
-          }
-        }
-      }
-    }
-  }
-  return closest_merchant;
-}
-
-LISTING *get_merchant_listing_item_by_number(MERCHANT * merchant, unsigned int item_number) {
-  if (merchant) { // Argument validate
-    if (item_number > 0 || item_number < merchant->num_listings) { // Argument validate
+/*
+Get the merchant listing item by given int number
+Args:
+MERCHANT * merchant
+  The merchant that you need a listing
+unsigned int item_number
+  The item_number in the listing array, start with index zero
+*/
+LISTING *get_merchant_listing_item_by_index(MERCHANT * merchant, unsigned int listing_index) {
+  if (merchant) {
+    if (listing_index >= 0 && listing_index < merchant->num_listings) {
       if (merchant->listings) {
-        return &merchant->listings[item_number - 1];
+        return &merchant->listings[listing_index];
       }
     }
   }
