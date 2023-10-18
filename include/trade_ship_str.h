@@ -4,6 +4,9 @@
 #include <cglm/vec2.h>
 #include <cglm/ivec2.h>
 
+#define MERCENARIES_CAPACITY (10)
+#define MAX_TRADE_SHIP_DESC (64)
+
 typedef struct trade_ship {
   ivec2 chunk_coords;
   vec2 coords;
@@ -18,7 +21,10 @@ typedef struct trade_ship {
   unsigned int export_rec;
   unsigned int import_rec;
   unsigned int target_island;
+  // Number of mercenaries assigned to the trade ship
   unsigned int num_mercenaries;
+  // Name of the trade ship itself (could be user assigned?)
+  char desc[MAX_TRADE_SHIP_DESC];
   float speed;
 } TRADE_SHIP;
 

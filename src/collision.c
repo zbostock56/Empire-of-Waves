@@ -133,6 +133,40 @@ void detect_context_interaction() {
 
     // Merchant Interaction
     check_merchant_prompt(world_coords_char);
+    // Check mercenary reassignment prompt
+    check_mercenary_reassignment_prompt(world_coords_char);
+  }
+}
+
+/*
+  Checks if the player is within range of the home
+  island home asset to see if the player can open
+  the mercenary reassignment menu
+*/
+void check_mercenary_reassignment_prompt(vec2 coords) {
+  CHUNK *chunk = chunk_buffer + player_chunks[PLAYER_CHUNK];
+  /* If the current chunk is not the home chunk, return. */
+  if (chunk->coords[0] != 0 || chunk->coords[1] != 0) {
+    return;
+  }
+  ISLAND *island = cur_island(chunk, coords, 1.0);
+  /* Check if on the home island, if not return */
+  if (island != chunk->islands + 0) {
+    return;
+  }
+  vec2 house_tile_world = GLM_VEC2_ZERO_INIT;
+  chunk_to_world(island->chunk, house_tile, house_tile_world);
+  float dist = glm_vec2_distance(house_tile_world, coords);
+  UI_COMPONENT *interaction_prompt = get_ui_component_by_ID(INTERACT_PROMPT);
+  if (dist <= 3.0 * T_WIDTH && !reassignment_menu_open) {
+    // prompt to reassign mercenaries
+    interaction_prompt->enabled = 1;
+    home_interaction_enabled = 1;
+  } else if (dist > 3.0 * T_WIDTH) {
+    // close prompt
+    interaction_prompt->enabled = 0;
+    home_interaction_enabled = 0;
+    close_mercenary_reassignment_menu();
   }
 }
 

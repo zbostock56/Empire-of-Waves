@@ -192,9 +192,15 @@ void populate_tile_pixel_buffer(ISLAND *island,
       tile_colors[i][1] = 157;
       tile_colors[i][2] = 252;
     } else if (island->tiles[texture_index] == HOME) {
+      /*
       tile_colors[i][0] = 255;
       tile_colors[i][1] = 0;
       tile_colors[i][2] = 255;
+      */
+      /* NOTE: Note rendering home debug tile */
+      tile_colors[i][0] = 4;
+      tile_colors[i][1] = 209;
+      tile_colors[i][2] = 38;
     }
   }
 }
@@ -245,6 +251,7 @@ void merchant_generate(MERCHANT *merchant, ISLAND *island) {
       merchant->coords[Y] = island->coords[Y] + yloc_intra_island;
       island->has_merchant = TRUE;
       island->tiles[tile_location] = MERCH;
+      merchant->num_mercenaries = (unsigned int) rand() % MAX_MERCENARIES;
       found_location = 1;
     }
   }
