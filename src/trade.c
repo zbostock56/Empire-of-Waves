@@ -296,9 +296,17 @@ void on_click_ui_listing(void *listing_ui_index) {
         cur_merchant->relationship = 100.0;
       }
 
-      printf("**** [SLOT %lld] [ITEM \"%s\"] [QUATITY %d] ****\n", listing_index + 1,
-                                                           trade.ui_listing[listing_index]->text,
-                                                           get_merchant_listing_item_by_index(cur_merchant, listing_index)->quantity);
+#ifndef __linux__
+      printf("**** [SLOT %lld] [ITEM \"%s\"] [QUATITY %d] ****\n",
+             listing_index + 1, trade.ui_listing[listing_index]->text,
+             get_merchant_listing_item_by_index(cur_merchant,
+                                                listing_index)->quantity);
+#else
+      printf("**** [SLOT %ld] [ITEM \"%s\"] [QUATITY %d] ****\n",
+             listing_index + 1, trade.ui_listing[listing_index]->text,
+             get_merchant_listing_item_by_index(cur_merchant,
+                                                listing_index)->quantity);
+#endif
     }
   } else if (trade.type == SELL && get_player_inventory_slot_by_index(listing_index)->quantity > 0) {
     // If player trying to sell a item
@@ -338,9 +346,15 @@ void on_click_ui_listing(void *listing_ui_index) {
       cur_merchant->relationship = 100.0;
     }
 
-    printf("**** [SLOT %lld] [ITEM \"%s\"] [QUATITY %d] ****\n", listing_index + 1,
-                                                           trade.ui_listing[listing_index]->text,
-                                                           get_player_inventory_slot_by_index(listing_index)->quantity);
+#ifndef __linux__
+    printf("**** [SLOT %lld] [ITEM \"%s\"] [QUATITY %d] ****\n",
+           listing_index + 1, trade.ui_listing[listing_index]->text,
+           get_player_inventory_slot_by_index(listing_index)->quantity);
+#else
+    printf("**** [SLOT %ld] [ITEM \"%s\"] [QUATITY %d] ****\n",
+           listing_index + 1, trade.ui_listing[listing_index]->text,
+           get_player_inventory_slot_by_index(listing_index)->quantity);
+#endif
   }
 }
 
