@@ -5,6 +5,10 @@
 Implements the functionality for shows player status.
 */
 
+/*
+Init status bar
+Call by main()
+*/
 void init_status_bar() {
   status.ui_health_status = get_ui_component_by_ID(STATUS_HEALTH);
   status.ui_money_status = get_ui_component_by_ID(STATUS_MONEY);
@@ -57,6 +61,7 @@ void init_status_bar() {
   status.ui_money_status->text[MAX_NAME_STR_LENGTH - 1] = '\0'; // Ensures null termination
 }
 
+/* Function used for free status bar whe needed */
 void free_status_bar() {
   free(status.ui_health_status);
   status.ui_health_status=NULL;
@@ -65,12 +70,14 @@ void free_status_bar() {
   status.ui_money_status=NULL;
 }
 
+/* Update status bar for each frame */
 void update_status_bar() {
   open_status_bar();
-  sprintf(status.ui_health_status->text, " HEALTH %.1f / %.1f", c_player.health, c_player.max_health);
-  sprintf(status.ui_money_status->text, " MONEY %d", e_player.money);
+  sprintf(status.ui_health_status->text, " HEALTH %3.1f / %3.1f ", c_player.health, c_player.max_health);
+  sprintf(status.ui_money_status->text, " MONEY %4d ", e_player.money);
 }
 
+/* Render status bar */
 void open_status_bar() {
   if (mode == EXPLORATION) {
     status.ui_health_status->enabled = 0;
@@ -81,6 +88,7 @@ void open_status_bar() {
   }
 }
 
+/* Derender status bar */
 void close_status_bar() {
   status.ui_health_status->enabled = 0;
   status.ui_money_status->enabled = 0;
