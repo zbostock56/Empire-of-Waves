@@ -13,6 +13,7 @@
 #include <trade_ship_str.h>
 #include <globals.h>
 
+#define MIN_TEXT_SCALE (1.25)
 #define BASE_RES_X (640.0)
 #define BASE_RES_Y (640.0)
 #define FBO_QUAD_WIDTH (18.0)

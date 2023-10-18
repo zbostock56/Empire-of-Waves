@@ -24,7 +24,7 @@ void init_trade() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.0, // text_scale
+    0.5, // text_scale
     0.5, // width
     0.5, // height
     PIVOT_CENTER, // pivot
@@ -42,7 +42,7 @@ void init_trade() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.0, // text_scale
+    0.5, // text_scale
     0.5, // width
     0.5, // height
     PIVOT_CENTER, // pivot
@@ -60,7 +60,7 @@ void init_trade() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.0, // text_scale
+    0.5, // text_scale
     0.5, // width
     0.5, // height
     PIVOT_CENTER, // pivot
@@ -78,7 +78,7 @@ void init_trade() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.0, // text_scale
+    0.5, // text_scale
     0.5, // width
     0.5, // height
     PIVOT_CENTER, // pivot
@@ -96,7 +96,7 @@ void init_trade() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.0, // text_scale
+    0.5, // text_scale
     0.5, // width
     0.5, // height
     PIVOT_CENTER, // pivot
@@ -114,7 +114,7 @@ void init_trade() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.0, // text_scale
+    0.5, // text_scale
     0.5, // width
     0.5, // height
     PIVOT_CENTER, // pivot
@@ -132,7 +132,7 @@ void init_trade() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.0, // text_scale
+    0.5, // text_scale
     0.5, // width
     0.5, // height
     PIVOT_CENTER, // pivot
@@ -150,7 +150,7 @@ void init_trade() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.0, // text_scale
+    0.5, // text_scale
     0.5, // width
     0.5, // height
     PIVOT_CENTER, // pivot
@@ -168,7 +168,7 @@ void init_trade() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.0, // text_scale
+    0.5, // text_scale
     0.5, // width
     0.5, // height
     PIVOT_CENTER, // pivot

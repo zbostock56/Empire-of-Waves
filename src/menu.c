@@ -122,7 +122,7 @@ void init_menus() {
     1, // textured
     0, // texture
     0, // text_padding
-    2.0, // text_scale
+    1.0, // text_scale
     1.0, // width
     1.0, // height
     PIVOT_LEFT, // pivot
@@ -131,7 +131,7 @@ void init_menus() {
   );
 
   // Embark/Disembark prompt
-  vec2 prompt_pos = { 0.0, -0.25 };
+  vec2 prompt_pos = { 0.0, -0.15 };
   init_menu(
     prompt_pos,
     NULL, NULL,
@@ -140,7 +140,7 @@ void init_menus() {
     0,
     0,
     0.0,
-    1.5,
+    0.5,
     0.0,
     0.0,
     PIVOT_CENTER,
@@ -157,7 +157,7 @@ void init_menus() {
     0,
     0,
     0.0,
-    1.5,
+    0.5,
     0.0,
     0.0,
     PIVOT_CENTER,

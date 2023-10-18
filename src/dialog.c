@@ -39,7 +39,7 @@ void init_dialog() {
   dialog.ui_text_schedule_trade_route_prompt = get_ui_component_by_ID(SCHEDULED_TRADE_ROUTE_PROMPT);
 
   // Init content
-  vec2 content_position = { -1.0, -0.75 };
+  vec2 content_position = { -1.0, -0.8 };
   init_menu(
     content_position, // position
     NULL, // on_click
@@ -49,16 +49,16 @@ void init_dialog() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.5, // text_scale
+    0.5, // text_scale
     2.0, // width
-    0.3, // height
+    0.25, // height
     PIVOT_BOTTOM_LEFT, // pivot
     T_LEFT, // text_anchor
     dialog.ui_text_content // dest
   );
 
   // Init name
-  vec2 name_position = { -1.0, -0.45 };
+  vec2 name_position = { -1.0, -0.55 };
   init_menu(
     name_position, // position
     NULL, // on_click
@@ -68,7 +68,7 @@ void init_dialog() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.5, // text_scale
+    0.5, // text_scale
     0, // width
     0, // heights
     PIVOT_BOTTOM_LEFT, // pivot
@@ -77,7 +77,7 @@ void init_dialog() {
   );
 
   // Init relationship
-  vec2 relationship_position = { 1.0, -0.45 };
+  vec2 relationship_position = { 1.0, -0.55 };
   init_menu(
     relationship_position, // position
     NULL, // on_click
@@ -87,7 +87,7 @@ void init_dialog() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.5, // text_scale
+    0.5, // text_scale
     0, // width
     0, // height
     PIVOT_BOTTOM_RIGHT, // pivot
@@ -106,9 +106,9 @@ void init_dialog() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.5, // text_scale
+    0.5, // text_scale
     0.5, // width
-    0.25, // heights
+    0.20, // heights
     PIVOT_BOTTOM_LEFT, // pivot
     T_LEFT, // text_anchor
     dialog.ui_button_buy // dest
@@ -125,9 +125,9 @@ void init_dialog() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.5, // text_scale
+    0.5, // text_scale
     0.5, // width
-    0.25, // heights
+    0.20, // heights
     PIVOT_BOTTOM_LEFT, // pivot
     T_LEFT, // text_anchor
     dialog.ui_button_sell // dest
@@ -144,7 +144,7 @@ void init_dialog() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.5, // text_scale
+    0.5, // text_scale
     1.0, // width
     0.25, // heights
     PIVOT_BOTTOM_LEFT, // pivot
@@ -163,7 +163,7 @@ void init_dialog() {
     1, // textured
     0, // texture
     0.1, // text_padding
-    1.5, // text_scale
+    0.5, // text_scale
     0, // width
     0, // heights
     PIVOT_CENTER, // pivot
