@@ -108,6 +108,12 @@ unsigned int resource_tab[NUM_RESOURCES] = {
   55  // SAFFRON
 };
 
+/*
+Get the value of a resources by provide a enum REC_IDS
+Args:
+REC_IDS resources_id
+  the resource ID of the resource value needs to get
+*/
 unsigned int get_resource_value_by_ID(REC_IDS resource_id) {
   // Check for invalid resource_id
   if (resource_id < GRAIN || resource_id > SAFFRON) {
@@ -116,6 +122,12 @@ unsigned int get_resource_value_by_ID(REC_IDS resource_id) {
   return resource_tab[resource_id + 1]; // +1 to account for INVALID_REC being -1
 }
 
+/*
+Get a item's item_tab reference by provide a enum REC_IDS
+Args:
+ITEM_IDS item_id
+  the item ID of the item info needs to get
+*/
 ITEM get_item_info_by_ID(ITEM_IDS item_id) {
   // Check for invalid resource_id
   if (item_id < EMPTY || item_id > PLATE_ARMOR) {
@@ -124,6 +136,12 @@ ITEM get_item_info_by_ID(ITEM_IDS item_id) {
   return item_tab[item_id + 1]; // +1 to account for INVALID_ITEM being -1
 }
 
+/*
+Get a item's name string by provide a enum REC_IDS
+Args:
+ITEM_IDS item_id
+  the item ID of the item info needs to from listing::item_id
+*/
 char * get_item_name_by_ID(int item_id) {
   if (item_id < 0 || item_id > 17) {
     return "INVALID_ITEM";
@@ -151,6 +169,12 @@ char * get_item_name_by_ID(int item_id) {
   }
 }
 
+/*
+Get a item's item_tab reference string by provide a enum REC_IDS
+Args:
+ITEM_IDS item_id
+  the item ID of the item info needs to from listing::item_id
+*/
 ITEM get_item_info_by_name(char * item_name) {
   if (item_name) {
     if (strcmp(item_name, "EMPTY") == 0) return get_item_info_by_ID(EMPTY);
