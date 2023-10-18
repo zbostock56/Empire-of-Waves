@@ -142,7 +142,7 @@ void exploration_movement(GLFWwindow *window) {
         e_player.embarked = 1;
       }
     }
-    if (!e_player.embarked && cur_merchant) {
+    if (!e_player.embarked && cur_merchant && !trade.ui_listing[0]->enabled) {
       if (set_dialog(MERCHANT_OPTION, "Merchant",
                      "Hail, Captain! What brings you to my humble stall")) {
         open_dialog();
@@ -205,7 +205,7 @@ void debug_keys(GLFWwindow *window) {
 
 void close_merchant_menu(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-     if (dialog.ui_text_name->enabled) {
+    if (dialog.ui_text_name->enabled) {
       close_dialog();
     }
     if (trade.ui_listing[0]->enabled) {
