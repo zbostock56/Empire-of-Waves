@@ -14,8 +14,6 @@
 #define SECOND (1)
 #define THIRD  (2)
 #define CHUNK_BUFF_STARTING_LEN (10)
-#define MAX_CHUNK_PATH_LEN (100)
-#define MAX_CHUNK_COORD (1000000)
 
 /* GLOBALS */
 
@@ -28,9 +26,10 @@ ivec2 CHUNK_OFFSETS[CHUNKS_SIMULATED] = {
 float T_WIDTH = 0.1;
 
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
-/* ISLAND.C */
 int generate_rand();
 int generate_island(ISLAND *island);
+int load_chunk(ivec2, CHUNK *);
+void save_chunk(CHUNK *);
 void populate_tile_pixel_buffer(ISLAND *, unsigned char (*)[3]);
 unsigned int texture_from_buffer(unsigned char *, int, int, int);
 
@@ -46,14 +45,5 @@ void free_chunk(CHUNK *);
 int add_chunk(ivec2);
 int remove_chunk(unsigned int);
 
-int load_chunk(ivec2, CHUNK *);
-int load_island(FILE *, ISLAND *);
-int load_merchant(FILE *, MERCHANT *);
-
-void save_chunk(CHUNK *);
-void save_island(FILE *, ISLAND *);
-void save_merchant(FILE *, MERCHANT *);
-
 char *index_to_str(int);
-int out_of_bounds(ivec2, int, int);
 int double_buffer(void **, unsigned int *, unsigned int);

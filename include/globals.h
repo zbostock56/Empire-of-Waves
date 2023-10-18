@@ -2,7 +2,9 @@
 #include <chunk_str.h>
 #include <trade_ship_str.h>
 
-// GLOBAL GAME STATE
+#define MAX_SAVE_NAME_LEN (32)
+
+// ========================= GLOBAL GAME STATE ===============================
 typedef enum game_mode {
   EXPLORATION,
   COMBAT
@@ -10,8 +12,9 @@ typedef enum game_mode {
 extern GAME_MODE mode;
 extern float delta_time;
 extern float last_frame;
+extern char save_name[MAX_SAVE_NAME_LEN];
 
-// EXPLORATION MODE STATE
+// ======================== EXPLORATION MODE STATE ===========================
 extern CHUNK *chunk_buffer;
 extern unsigned int chunk_buff_size;
 extern unsigned int chunk_buff_len;
@@ -31,7 +34,7 @@ extern unsigned int trade_ship_buf_size;
 extern float next_event;
 extern MERCHANT *cur_merchant;
 
-// COMBAT MODE STATE
+// ========================= COMBAT MODE STATE ===============================
 extern C_PLAYER c_player;
 extern C_UNIT *npc_units;
 // Index of enemy ship in chunk buffer which is currently engaged in combat

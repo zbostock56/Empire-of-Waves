@@ -1,6 +1,3 @@
-#include <chunk_str.h>
-#include <player_str.h>
-#include <trade_ship_str.h>
 #include <globals.h>
 
 /*
@@ -13,12 +10,13 @@ global information.
 NEVER INCLUDE THIS FILE. IF YOU NEED TO ACCESS ANY OF THE GLOBAL VARIABLES,
 INCLUDE globals.h INSTEAD
 */
-// GLOBAL GAME STATE
+// =========================== GLOBAL GAME STATE =============================
 GAME_MODE mode = EXPLORATION;
 float delta_time = 0.0;
 float last_frame = 0.0;
+char save_name[MAX_SAVE_NAME_LEN] = "\0";
 
-// EXPLORATION MODE STATE
+// ======================== EXPLORATION MODE STATE ===========================
 CHUNK *chunk_buffer = NULL;
 unsigned int chunk_buff_size = 0;
 unsigned int chunk_buff_len = 0;
@@ -34,7 +32,7 @@ unsigned int trade_ship_buf_size = 0;
 float next_event;
 MERCHANT *cur_merchant = NULL;
 
-// COMBAT MODE STATE
+// ========================== COMBAT MODE STATE ==============================
 C_PLAYER c_player;
 C_UNIT *npc_units;
 unsigned int e_enemy_index;
