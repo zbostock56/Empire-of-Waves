@@ -245,7 +245,6 @@ void ship_collisions(CHUNK *chunk, ivec2 chunk_coords, vec2 coords) {
           circle_aabb_collision(world_coords, radius, search_world_coords,
                                 T_WIDTH, T_WIDTH, collision_correction)) {
         glm_vec2_add(world_coords, collision_correction, world_coords);
-        printf("Collision occured\n");
         world_to_chunk(world_coords, chunk_coords, coords);
       }
     }

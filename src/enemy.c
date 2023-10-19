@@ -155,20 +155,16 @@ void pathfind_enemy(E_ENEMY *enemy) {
     /* If the enemy is in the left chunk of the player. */
     if (enemy->chunk[0] == e_player.ship_chunk[0] - 1 && enemy->chunk[1] == e_player.ship_chunk[1]) {
       target_dir[0] = 1.0;
-      printf("GOING RIGHT\n");
     }
     /* If the enemy is in the upper chunk of the player*/
     else if (enemy->chunk[0] == e_player.ship_chunk[0] && enemy->chunk[1] == e_player.ship_chunk[1] + 1) {
       target_dir[1] = -1.0;
-      printf("GOING DOWN\n");
     }
     else if (enemy->chunk[0] == e_player.ship_chunk[0] + 1 && enemy->chunk[1] == e_player.ship_chunk[1]) {
       target_dir[0] = -1.0;
-      printf("GOING LEFT\n");
     }
     else if (enemy->chunk[0] == e_player.ship_chunk[0] && enemy->chunk[1] == e_player.ship_chunk[1] - 1) {
       target_dir[1] = 1.0;
-      printf("GOING UP\n");
     } else {
       /*If the enemy on diagonal*/
     }
