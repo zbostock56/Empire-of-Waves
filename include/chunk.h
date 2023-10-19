@@ -41,6 +41,7 @@ int chunk_from_coords(ivec2, CHUNK *);
 void island_locator(ivec2 *locs, int num_islands);
 void bounds_check(ivec2 loc);
 
+void clear_chunk_buffer();
 void free_chunk(CHUNK *);
 int add_chunk(ivec2);
 int remove_chunk(unsigned int);

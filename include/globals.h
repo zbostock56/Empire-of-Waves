@@ -12,7 +12,7 @@ typedef enum game_mode {
 extern GAME_MODE mode;
 extern float delta_time;
 extern float last_frame;
-extern char save_name[MAX_SAVE_NAME_LEN];
+extern char game_save_name[MAX_SAVE_NAME_LEN];
 
 // ======================== EXPLORATION MODE STATE ===========================
 extern CHUNK *chunk_buffer;
@@ -31,7 +31,7 @@ extern vec2 house_tile;
 extern TRADE_SHIP *trade_ships;
 extern unsigned int num_trade_ships;
 extern unsigned int trade_ship_buf_size;
-extern float next_event;
+extern float global_time;
 extern MERCHANT *cur_merchant;
 
 // ========================= COMBAT MODE STATE ===============================

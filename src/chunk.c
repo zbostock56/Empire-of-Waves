@@ -35,34 +35,6 @@ int init_chunks() {
   return 0;
 }
 
-void print_refs() {
-  printf("buff_len: %d\n", chunk_buff_len);
-  for (int i = 0; i < CHUNKS_SIMULATED; i++) {
-    printf("coords: (%d, %d), ref_count: %d\n",
-           chunk_buffer[player_chunks[i]].coords[0],
-           chunk_buffer[player_chunks[i]].coords[1],
-           chunk_buffer[player_chunks[i]].ref_count);
-  }
-  fflush(stdout);
-  return;
-}
-
-void place_home(ISLAND *island, CHUNK *home_chunk) {
-  for (int i = (I_WIDTH * I_WIDTH) / 2 + (I_WIDTH / 2); i < (I_WIDTH * I_WIDTH); i++) {
-    if (home_chunk->islands[0].tiles[i] == GRASS) {
-      home_chunk->islands[0].tiles[i] = HOME;
-      house_tile[0] = (i % I_WIDTH) + island->coords[0];
-      house_tile[1] = (i / I_WIDTH) + island->coords[1];
-      break;
-    }
-  }
-  unsigned char tile_colors[I_WIDTH * I_WIDTH][3];
-  populate_tile_pixel_buffer(&home_chunk->islands[0], tile_colors);
-  home_chunk->islands[0].texture = texture_from_buffer((unsigned char *) tile_colors,
-                                                      I_WIDTH, I_WIDTH, GL_RGB);
-  island->has_merchant = 0;
-}
-
 int manage_chunks() {
   if (mode != EXPLORATION) {
     return 0;
@@ -130,6 +102,15 @@ int manage_chunks() {
     }
   }
   return 0;
+}
+
+void clear_chunk_buffer() {
+  for (int i = 0; i < chunk_buff_len; i++) {
+    free_chunk(chunk_buffer + i);
+  }
+  chunk_buff_len = 0;
+  free(chunk_buffer);
+  chunk_buffer = NULL;
 }
 
 void free_chunk(CHUNK *chunk) {
@@ -445,6 +426,34 @@ int out_of_bounds(ivec2 coords, int max_x, int max_y) {
     (coords[X] < 0 && coords[X] < -max_x) ||
     (coords[Y] < 0 && coords[Y] < -max_x)
   );
+}
+
+void print_refs() {
+  printf("buff_len: %d\n", chunk_buff_len);
+  for (int i = 0; i < CHUNKS_SIMULATED; i++) {
+    printf("coords: (%d, %d), ref_count: %d\n",
+           chunk_buffer[player_chunks[i]].coords[0],
+           chunk_buffer[player_chunks[i]].coords[1],
+           chunk_buffer[player_chunks[i]].ref_count);
+  }
+  fflush(stdout);
+  return;
+}
+
+void place_home(ISLAND *island, CHUNK *home_chunk) {
+  for (int i = (I_WIDTH * I_WIDTH) / 2 + (I_WIDTH / 2); i < (I_WIDTH * I_WIDTH); i++) {
+    if (home_chunk->islands[0].tiles[i] == GRASS) {
+      home_chunk->islands[0].tiles[i] = HOME;
+      house_tile[0] = (i % I_WIDTH) + island->coords[0];
+      house_tile[1] = (i / I_WIDTH) + island->coords[1];
+      break;
+    }
+  }
+  unsigned char tile_colors[I_WIDTH * I_WIDTH][3];
+  populate_tile_pixel_buffer(&home_chunk->islands[0], tile_colors);
+  home_chunk->islands[0].texture = texture_from_buffer((unsigned char *) tile_colors,
+                                                      I_WIDTH, I_WIDTH, GL_RGB);
+  island->has_merchant = 0;
 }
 
 int double_buffer(void **buffer, unsigned int *buff_size,

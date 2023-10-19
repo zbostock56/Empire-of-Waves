@@ -201,6 +201,24 @@ void debug_keys(GLFWwindow *window) {
   } else if (glfwGetKey(window, GLFW_KEY_MINUS) != GLFW_PRESS) {
     holding_minus = 0;
   }
+
+  if (glfwGetKey(window, GLFW_KEY_COMMA) == GLFW_PRESS && !holding_save) {
+    save_game(game_save_name);
+    printf("GAME SAVED\n");
+    fflush(stdout);
+    holding_save = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_COMMA) != GLFW_PRESS) {
+    holding_save = 0;
+  }
+
+  if (glfwGetKey(window, GLFW_KEY_PERIOD) == GLFW_PRESS && !holding_load) {
+    load_game(game_save_name);
+    printf("GAME LOADED\n");
+    fflush(stdout);
+    holding_load = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_PERIOD) != GLFW_PRESS) {
+    holding_load = 0;
+  }
 }
 
 void close_merchant_menu(GLFWwindow *window) {

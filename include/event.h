@@ -7,9 +7,6 @@
 /* DEFINES */
 #define EVENT_TIMER (10.0)
 
-/* GLOBALS */
-float global_time = EVENT_TIMER;
-
 /* ================ EXTERNALLY DEFINED FUNCTIONS ================== */
 void spawn_enemy();
 

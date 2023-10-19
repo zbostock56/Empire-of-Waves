@@ -14,7 +14,7 @@ INCLUDE globals.h INSTEAD
 GAME_MODE mode = EXPLORATION;
 float delta_time = 0.0;
 float last_frame = 0.0;
-char save_name[MAX_SAVE_NAME_LEN] = "\0";
+char game_save_name[MAX_SAVE_NAME_LEN] = "test";
 
 // ======================== EXPLORATION MODE STATE ===========================
 CHUNK *chunk_buffer = NULL;
@@ -29,7 +29,7 @@ vec2 home_island_coords = GLM_VEC2_ZERO_INIT;
 vec2 house_tile = GLM_VEC2_ZERO_INIT;
 unsigned int num_trade_ships = 0;
 unsigned int trade_ship_buf_size = 0;
-float next_event;
+float global_time = 0.0;
 MERCHANT *cur_merchant = NULL;
 
 // ========================== COMBAT MODE STATE ==============================

@@ -26,6 +26,8 @@ int holding_equals = 0;
 int holding_minus = 0;
 int holding_interaction = 0;
 int holding_attack = 0;
+int holding_save = 0;
+int holding_load = 0;
 
 extern DIALOG dialog;
 extern TRADE trade;
@@ -52,4 +54,5 @@ int set_dialog(T_DIALOG, char *, char *);
 void close_dialog();
 void close_trade();
 void refresh_framebuffers();
-
+int save_game(char *);
+int load_game(char *);
