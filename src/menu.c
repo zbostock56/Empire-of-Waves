@@ -12,6 +12,12 @@ any file which enables/disabled ui components.
 /* GLOBALS DEFINES */
 UI_COMPONENT ui_tab[NUM_COMPONENTS];
 
+/*
+Get UI Component by providing a enum UI_ID ui_id
+Args:
+UI_ID ui_id
+  ID of that UI Component. e.g. TEST_MENU
+*/
 UI_COMPONENT * get_ui_component_by_ID(UI_ID ui_id) {
   // Check for invalid ui_id
   if (ui_id < 0 || ui_id > NUM_COMPONENTS - 2) {
@@ -102,6 +108,7 @@ void test_callback(void *args) {
   get_ui_component_by_ID(TEST_MENU)->text = "HIT!";
 }
 
+/* Init menus including TEST_MENU, EMBARK_PROMPT, and INTERACT_PROMPT */
 void init_menus() {
   // Populate ui_tab
   // TEMPORARY TEST UI COMPONENT -- TO BE DELETED
@@ -115,7 +122,7 @@ void init_menus() {
     1, // textured
     0, // texture
     0, // text_padding
-    2.0, // text_scale
+    1.0, // text_scale
     1.0, // width
     1.0, // height
     PIVOT_LEFT, // pivot
@@ -124,7 +131,7 @@ void init_menus() {
   );
 
   // Embark/Disembark prompt
-  vec2 prompt_pos = { 0.0, -0.25 };
+  vec2 prompt_pos = { 0.0, -0.15 };
   init_menu(
     prompt_pos,
     NULL, NULL,
@@ -133,7 +140,7 @@ void init_menus() {
     0,
     0,
     0.0,
-    1.5,
+    0.5,
     0.0,
     0.0,
     PIVOT_CENTER,
@@ -150,7 +157,7 @@ void init_menus() {
     0,
     0,
     0.0,
-    1.5,
+    0.5,
     0.0,
     0.0,
     PIVOT_CENTER,
@@ -158,6 +165,7 @@ void init_menus() {
     get_ui_component_by_ID(INTERACT_PROMPT)
   );
 
+/* Past logic, commented by Zack */
 #if 0
   // Init dialog menu
   init_dialog();

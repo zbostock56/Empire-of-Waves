@@ -441,15 +441,21 @@ void render_ui(UI_COMPONENT *comp) {
   vec3 comp_pivot = { 0.0, 0.0, UI_DEPTH };
   // Number of characters in ui component text
   int text_len = 0;
+  // Scale text based on screen size
+  float screen_text_scale = RES_X / BASE_RES_X;
+  if (screen_text_scale < MIN_TEXT_SCALE) {
+    screen_text_scale = MIN_TEXT_SCALE;
+  }
   // Width of ui component text
   float text_width = 0.0;
   float text_height = 0.0;
   if (comp->text) {
     text_len = strlen(comp->text);
-    text_width = get_text_width(comp->text, text_len) * comp->text_scale;
+    text_width = get_text_width(comp->text, text_len) * comp->text_scale *
+                 screen_text_scale;
     // All characters have uniform height, so just scale by height of first
     // character in font
-    text_height = font[0].height * comp->text_scale;
+    text_height = font[0].height * comp->text_scale * screen_text_scale;
   }
 
   // Dynamic scaling of width and height
@@ -491,7 +497,7 @@ void render_ui(UI_COMPONENT *comp) {
     glm_vec2_add(text_pivot, comp_pivot, text_pivot);
     mat4 text_model_mat = GLM_MAT4_IDENTITY_INIT;
     glm_translate(text_model_mat, text_pivot);
-    glm_scale_uni(text_model_mat, comp->text_scale);
+    glm_scale_uni(text_model_mat, comp->text_scale * screen_text_scale);
 
     render_text(comp->text, text_len, text_model_mat);
   }
@@ -679,7 +685,12 @@ void render_island(ISLAND *island) {
 void render_arena() {
   // Render ocean
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+  vec3 scale = {
+    screen_scale[0], screen_scale[1], 1.0
+  };
   glm_translate_z(model_mat, WORLD_DEPTH);
+  glm_scale(model_mat, scale);
+
   mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
 
   vec3 ocean_col = { 3.0, 157.0, 252.0 };
@@ -694,11 +705,8 @@ void render_arena() {
 
   // Render arena floor
   glm_mat4_identity(model_mat);
-  vec3 scale = {
-    0.5 * T_WIDTH * arena_dimensions[0],
-    0.5 * T_WIDTH * arena_dimensions[1],
-    1.0
-  };
+  scale[0] = 0.5 * T_WIDTH * arena_dimensions[0];
+  scale[1] = 0.5 * T_WIDTH * arena_dimensions[1];
   vec3 floor_pos = { 0.0, 0.0, OBSTACLE_DEPTH };
   glm_translate(model_mat, floor_pos);
   glm_scale(model_mat, scale);

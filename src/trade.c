@@ -1,5 +1,6 @@
 #include <trade.h>
 
+/* Init trade menu */
 void init_trade() {
   trade.type = INVALID_TRADE;
   trade.ui_listing[0] = get_ui_component_by_ID(TRADE_BUTTON_LISTING_0);
@@ -23,7 +24,7 @@ void init_trade() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.0, // text_scale
+    0.5, // text_scale
     0.5, // width
     0.5, // height
     PIVOT_CENTER, // pivot
@@ -41,7 +42,7 @@ void init_trade() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.0, // text_scale
+    0.5, // text_scale
     0.5, // width
     0.5, // height
     PIVOT_CENTER, // pivot
@@ -59,7 +60,7 @@ void init_trade() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.0, // text_scale
+    0.5, // text_scale
     0.5, // width
     0.5, // height
     PIVOT_CENTER, // pivot
@@ -77,7 +78,7 @@ void init_trade() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.0, // text_scale
+    0.5, // text_scale
     0.5, // width
     0.5, // height
     PIVOT_CENTER, // pivot
@@ -95,7 +96,7 @@ void init_trade() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.0, // text_scale
+    0.5, // text_scale
     0.5, // width
     0.5, // height
     PIVOT_CENTER, // pivot
@@ -113,7 +114,7 @@ void init_trade() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.0, // text_scale
+    0.5, // text_scale
     0.5, // width
     0.5, // height
     PIVOT_CENTER, // pivot
@@ -131,7 +132,7 @@ void init_trade() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.0, // text_scale
+    0.5, // text_scale
     0.5, // width
     0.5, // height
     PIVOT_CENTER, // pivot
@@ -149,7 +150,7 @@ void init_trade() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.0, // text_scale
+    0.5, // text_scale
     0.5, // width
     0.5, // height
     PIVOT_CENTER, // pivot
@@ -167,7 +168,7 @@ void init_trade() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.0, // text_scale
+    0.5, // text_scale
     0.5, // width
     0.5, // height
     PIVOT_CENTER, // pivot
@@ -176,10 +177,7 @@ void init_trade() {
   );
 }
 
-void free_trade() {
-  return;
-}
-
+/* Render trade menu in frontend */
 void open_trade() {
   switch (trade.type) {
     case BUY: {
@@ -203,30 +201,37 @@ void open_trade() {
   }
 }
 
+/* Derender trade menu */
 void close_trade() {
   for (int i = 0; i < 9; i++) {
     trade.ui_listing[i]->enabled = 0;
   }
 }
 
-int set_trade(T_TRADE dialog_type) {
+/*
+Set trade menu with given trade type
+Args:
+T_TRADE trade_type
+  type of trade, e.g. BUY
+*/
+int set_trade(T_TRADE trade_type) {
   if (cur_merchant) {
-    trade.type = dialog_type;
-    switch (dialog_type) {
+    trade.type = trade_type;
+    // Set trade UI components with given trade type
+    switch (trade_type) {
+      // BUY: Set each listing slots with merchant listings
       case BUY: {
         for (int i = 0; i < 9; i++) {
           trade.ui_listing[i]->text = get_item_name_by_ID(
-                                       get_merchant_listing_item_by_number(
-                                       cur_merchant, i + 1)->item_id);
+                                        get_merchant_listing_item_by_index(cur_merchant, i)->item_id);
         }
         return 1;
       }
-  // Attacking
+      // SELL: Set each listing slots with invotory slots
       case SELL: {
         for (int i = 0; i < 9; i++) {
           trade.ui_listing[i]->text = get_item_name_by_ID(
-                                       get_player_inventory_slot_by_number(
-                                       i + 1)->item_id);
+                                        get_player_inventory_slot_by_index(i)->item_id);
         }
         return 1;
       }
@@ -241,75 +246,119 @@ int set_trade(T_TRADE dialog_type) {
   return 0;
 }
 
-void on_click_ui_listing(int listing_index) {
-  int listing = listing_index;
+/*
+Click listener of trade menu ui listings
+Args:
+unsigned int listing_ui_index
+  listing item index, from 0 to 8
+*/
+void on_click_ui_listing(void *listing_ui_index) {
+  uintptr_t listing_index = (uintptr_t)listing_ui_index;
   LISTING *listing_slot;
   I_SLOT *slot;
   ITEM item;
   if (trade.type == BUY) {
-    item = get_item_info_by_name(trade.ui_listing[listing]->text);
-    listing_slot = get_merchant_listing_item_by_number(cur_merchant,
-                                                       listing + 1);
-    // TODO: NOT ENOUGH MONEY PROMPT
+    item = get_item_info_by_name(trade.ui_listing[listing_index]->text);
+    listing_slot = get_merchant_listing_item_by_index(cur_merchant, listing_index);
+    // If player have enough money to buy the listing item
+    // Decrease the quatity of merchant listing slot
     if (e_player.money >= item.value && listing_slot->quantity > 0) {
       listing_slot->quantity -= 1;
       e_player.money -= item.value;
-      // INVENTORY ADD
+      // Add listing item to player inventory
+      // If player already have this item, increase its quatity
+      // Other wise, add the item to the first empty slot
       slot = search_player_inventory_with_ID(
-                                get_merchant_listing_item_by_number(
-                                cur_merchant, listing + 1)->item_id);
+               get_merchant_listing_item_by_index(
+               cur_merchant, listing_index)->item_id);
       if (slot) {
         slot->quantity += 1;
       } else if (get_player_first_empty_inventory_slot()) {
         I_SLOT *empty_inventory_slot = get_player_first_empty_inventory_slot();
-        empty_inventory_slot->item_id = get_merchant_listing_item_by_number(
-                                        cur_merchant, listing + 1)->item_id;
+        empty_inventory_slot->item_id = get_merchant_listing_item_by_index(cur_merchant, listing_index)->item_id;
         empty_inventory_slot->quantity = 1;
+      } else {
+        listing_slot->quantity += 1;
+        e_player.money += item.value;
+        // TODO: popup when player's inventory is full already
+        return;
       }
 
-      // Reset Listing UI Component
+      // When merchant item less than 1, show slot empty
       if (listing_slot->quantity <= 0) {
         listing_slot->item_id = 0;
-        trade.ui_listing[listing]->text = "SOLD";
+        trade.ui_listing[listing_index]->text = "EMPTY";
       }
 
+      // Increase the merchant relationship, maximum 100.0
       cur_merchant->relationship += 10.0;
       if (cur_merchant->relationship > 100.0) {
         cur_merchant->relationship = 100.0;
       }
+
+#ifndef __linux__
+      printf("**** [SLOT %lld] [ITEM \"%s\"] [QUATITY %d] ****\n",
+             listing_index + 1, trade.ui_listing[listing_index]->text,
+             get_merchant_listing_item_by_index(cur_merchant,
+                                                listing_index)->quantity);
+#else
+      printf("**** [SLOT %ld] [ITEM \"%s\"] [QUATITY %d] ****\n",
+             listing_index + 1, trade.ui_listing[listing_index]->text,
+             get_merchant_listing_item_by_index(cur_merchant,
+                                                listing_index)->quantity);
+#endif
     }
-  } else if (trade.type == SELL && get_player_inventory_slot_by_number(listing + 1)->quantity > 0) {
-    slot = get_player_inventory_slot_by_number(listing + 1);
+  } else if (trade.type == SELL && get_player_inventory_slot_by_index(listing_index)->quantity > 0) {
+    // If player trying to sell a item
+    // Decrease the item quatity in that slot
+    // Get the infomation of that item
+    // Add money as the item price
+    slot = get_player_inventory_slot_by_index(listing_index);
     slot->quantity -= 1;
-    int item_identifier = slot->item_id;
-    item = get_item_info_by_name(trade.ui_listing[listing]->text);
+    int sold_item_id = slot->item_id;
+    item = get_item_info_by_name(trade.ui_listing[listing_index]->text);
     e_player.money += item.value;
+
+    // When item's quatity in inventory less than 1, show slot empty
     if (slot->quantity <= 0) {
       slot->item_id = 0;
-      trade.ui_listing[listing]->text = "SOLD";
+      trade.ui_listing[listing_index]->text = "EMPTY";
     }
 
-    /* Find the first available listing location in the merchant inventory and populate */
-    /* with item that was just sold to it */
+    // Add solded item to merchant listing
+    // If merchant already have this item, increase its quatity
+    // Other wise, add the item to the first empty slot
     for (int i = 0; i < 9; i++) {
-      listing_slot = get_merchant_listing_item_by_number(cur_merchant, i + 1);
-      if (listing_slot->item_id == item_identifier) {
-        listing_slot->quantity++;
+      listing_slot = get_merchant_listing_item_by_index(cur_merchant, i);
+      if (listing_slot->item_id == sold_item_id) {
+        listing_slot->quantity += 1;
         break;
       } else if (listing_slot->quantity == 0) {
-        listing_slot->quantity++;
-        listing_slot->item_id = item_identifier;
+        listing_slot->quantity += 1;
+        listing_slot->item_id = sold_item_id;
         break;
       }
     }
 
+    // Increase the merchant relationship, maximum 100.0
     cur_merchant->relationship += 10.0;
     if (cur_merchant->relationship > 100.0) {
       cur_merchant->relationship = 100.0;
     }
+
+#ifndef __linux__
+    printf("**** [SLOT %lld] [ITEM \"%s\"] [QUATITY %d] ****\n",
+           listing_index + 1, trade.ui_listing[listing_index]->text,
+           get_player_inventory_slot_by_index(listing_index)->quantity);
+#else
+    printf("**** [SLOT %ld] [ITEM \"%s\"] [QUATITY %d] ****\n",
+           listing_index + 1, trade.ui_listing[listing_index]->text,
+           get_player_inventory_slot_by_index(listing_index)->quantity);
+#endif
   }
 }
 
+/* Render buy menu, called by dialog "buy" button */
 void open_buy() {
   close_dialog();
   if (set_trade(BUY)) {
@@ -317,6 +366,7 @@ void open_buy() {
   }
 }
 
+/* Render sell menu, called by dialog "sell" button */
 void open_sell() {
   close_dialog();
   if (set_trade(SELL)) {
@@ -324,22 +374,24 @@ void open_sell() {
   }
 }
 
+/* Click lisnter of establish trade route button */
 void open_establish_trade_route() {
   MERCHANT *target_merch = cur_merchant;
   CHUNK *target_chunk = NULL;
+  // Check if player already have a trade route to this island
   for (int i = 0; i < num_trade_ships; i++) {
     target_chunk = chunk_buffer + trade_ships[i].target_chunk_index;
     if (target_chunk->coords[0] == target_merch->chunk[0] &&
         target_chunk->coords[1] == target_merch->chunk[1]) {
-      dialog.ui_text_schedule_trade_route_prompt->text = "You Already Have a Trade Route";
+      dialog.ui_text_schedule_trade_route_prompt->text = "Unable to Schedule Duplicate Trade Route";
       dialog.ui_text_schedule_trade_route_prompt->enabled = 1;
       return;
     }
   }
+  // Establish trade route and popup the prompt shows successful
   dialog.ui_text_schedule_trade_route_prompt->text = "Trade Route Established";
   dialog.ui_text_schedule_trade_route_prompt->enabled = 1;
   time_schdule_trade_toute_prompt = 2.0;
-  // delay
 
   TRADE_SHIP *trade_ship = trade_ships + num_trade_ships;
 

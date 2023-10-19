@@ -1,12 +1,19 @@
 #include <dialog.h>
+/*
+                                    Dialog.c
+Implements the functionality for dialog, itegrate with UI components
+*/
 
+/*  Init global dialog, call by main() */
 void init_dialog() {
+  /* Alloc size for dialog name string*/
   dialog.name = malloc(MAX_NAME_STR_LENGTH * sizeof(char));
   if (!dialog.name) {
     return;
   }
   dialog.name[MAX_NAME_STR_LENGTH - 1] = '\0'; // Ensures null termination
 
+  /* Alloc size for dialog relationship string*/
   dialog.relationship = malloc(TEXT_BUFFER_LEN * sizeof(char));
   if (!dialog.relationship) {
     free(dialog.name);
@@ -32,7 +39,7 @@ void init_dialog() {
   dialog.ui_text_schedule_trade_route_prompt = get_ui_component_by_ID(SCHEDULED_TRADE_ROUTE_PROMPT);
 
   // Init content
-  vec2 content_position = { -1.0, -0.75 };
+  vec2 content_position = { -1.0, -0.8 };
   init_menu(
     content_position, // position
     NULL, // on_click
@@ -42,16 +49,16 @@ void init_dialog() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.5, // text_scale
+    0.5, // text_scale
     2.0, // width
-    0.3, // height
+    0.25, // height
     PIVOT_BOTTOM_LEFT, // pivot
     T_LEFT, // text_anchor
     dialog.ui_text_content // dest
   );
 
   // Init name
-  vec2 name_position = { -1.0, -0.45 };
+  vec2 name_position = { -1.0, -0.55 };
   init_menu(
     name_position, // position
     NULL, // on_click
@@ -61,7 +68,7 @@ void init_dialog() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.5, // text_scale
+    0.5, // text_scale
     0, // width
     0, // heights
     PIVOT_BOTTOM_LEFT, // pivot
@@ -70,7 +77,7 @@ void init_dialog() {
   );
 
   // Init relationship
-  vec2 relationship_position = { 1.0, -0.45 };
+  vec2 relationship_position = { 1.0, -0.55 };
   init_menu(
     relationship_position, // position
     NULL, // on_click
@@ -80,7 +87,7 @@ void init_dialog() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.5, // text_scale
+    0.5, // text_scale
     0, // width
     0, // height
     PIVOT_BOTTOM_RIGHT, // pivot
@@ -99,9 +106,9 @@ void init_dialog() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.5, // text_scale
+    0.5, // text_scale
     0.5, // width
-    0.25, // heights
+    0.20, // heights
     PIVOT_BOTTOM_LEFT, // pivot
     T_LEFT, // text_anchor
     dialog.ui_button_buy // dest
@@ -118,9 +125,9 @@ void init_dialog() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.5, // text_scale
+    0.5, // text_scale
     0.5, // width
-    0.25, // heights
+    0.20, // heights
     PIVOT_BOTTOM_LEFT, // pivot
     T_LEFT, // text_anchor
     dialog.ui_button_sell // dest
@@ -137,7 +144,7 @@ void init_dialog() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.5, // text_scale
+    0.5, // text_scale
     1.0, // width
     0.25, // heights
     PIVOT_BOTTOM_LEFT, // pivot
@@ -156,7 +163,7 @@ void init_dialog() {
     1, // textured
     0, // texture
     0.1, // text_padding
-    1.5, // text_scale
+    0.5, // text_scale
     0, // width
     0, // heights
     PIVOT_CENTER, // pivot
@@ -165,6 +172,7 @@ void init_dialog() {
   );
 }
 
+/* Free Dialog Allocated Spaces */
 void free_dialog() {
   free(dialog.name);
   dialog.name = NULL;
@@ -176,8 +184,9 @@ void free_dialog() {
   dialog.content = NULL;
 }
 
+/* Open Dialog UI based on dialog type */
 void open_dialog() {
- switch (dialog.type) {
+  switch (dialog.type) {
     case TALK: {
       dialog.ui_text_content->enabled = 1;
       dialog.ui_text_name->enabled = 1;
@@ -208,6 +217,7 @@ void open_dialog() {
   }
 }
 
+/* Close dialog and reset schedule trade route prompt timer to 2.0 */
 void close_dialog() {
   dialog.ui_text_content->enabled = 0;
   dialog.ui_text_name->enabled = 0;
@@ -219,6 +229,16 @@ void close_dialog() {
   time_schdule_trade_toute_prompt = 2.0;
 }
 
+/*
+Set global dialog, call when change dialog
+Args:
+T_DIALOG dialog type
+  Decided the type of dialog when call by open_dialog()
+char *name 
+  name string of the dialog, represent the who says the content
+char *content
+  content string of the dialog, do not exceed line length (16)
+*/
 int set_dialog(T_DIALOG dialog_type, char *name, char *content) {
   if (strlen(name) < MAX_NAME_STR_LENGTH && strlen(content) < MAX_CONTENT_STR_LENGTH) {
     dialog.type = dialog_type;
