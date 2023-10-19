@@ -43,7 +43,9 @@ void init_dialog() {
   init_menu(
     content_position, // position
     NULL, // on_click
+    NULL, // on_hover
     (void *) 0xBAADF00D, // on_click_args
+    (void *) 0xBAADF00D, // on_hover_args
     dialog.content, // text
     0, // enabled
     1, // textured
@@ -62,7 +64,9 @@ void init_dialog() {
   init_menu(
     name_position, // position
     NULL, // on_click
+    NULL, // on_hover
     (void *) 0xBAADF00D, // on_click_args
+    (void *) 0xBAADF00D, // on_hover_args
     dialog.name, // text
     0, // enabled
     1, // textured
@@ -81,7 +85,9 @@ void init_dialog() {
   init_menu(
     relationship_position, // position
     NULL, // on_click
+    NULL, // on_hover
     (void *) 0xBAADF00D, // on_click_args
+    (void *) 0xBAADF00D, // on_hover_args
     dialog.relationship, // text
     0, // enabled
     1, // textured
@@ -100,7 +106,9 @@ void init_dialog() {
   init_menu(
     buy_position, // position
     open_buy, // on_click
+    NULL, // on_hover
     (void *) 0xBAADF00D, // on_click_args
+    (void *) 0xBAADF00D, // on_hover_args
     "1. Buy", // text
     0, // enabled
     1, // textured
@@ -119,7 +127,9 @@ void init_dialog() {
   init_menu(
     sell_position, // position
     open_sell, // on_click
+    NULL, // on_hover
     (void *) 0xBAADF00D, // on_click_args
+    (void *) 0xBAADF00D, // on_hover_args
     "2. Sell", // text
     0, // enabled
     1, // textured
@@ -138,7 +148,9 @@ void init_dialog() {
   init_menu(
     establish_trade_route_position, // position
     open_establish_trade_route, // on_click
+    NULL,
     (void *) 0xBAADF00D, // on_click_args
+    (void *) 0xBAADF00D, // on_hover_args
     "3. Establish trade route", // text
     0, // enabled
     1, // textured
@@ -157,7 +169,9 @@ void init_dialog() {
   init_menu(
     establish_trade_route_prompt_position, // position
     NULL, // on_click
+    NULL, // on_hover
     (void *) 0xBAADF00D, // on_click_args
+    (void *) 0xBAADF00D, // on_hover_args
     "TRADE_ROUTE_PROMPT", // text
     0, // enabled
     1, // textured

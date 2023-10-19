@@ -18,7 +18,9 @@ void init_trade() {
   init_menu(
     listing_0_position, // position
     on_click_ui_listing, // on_click
+    NULL, // on_hover
     (void *) 0, // on_click_args
+    NULL, // on_hover_args
     "UI_L_1", // text
     0, // enabled
     1, // textured
@@ -36,7 +38,9 @@ void init_trade() {
   init_menu(
     listing_1_position, // position
     on_click_ui_listing, // on_click
+    NULL, // on_hover
     (void *) 1, // on_click_args
+    NULL, // on_hover_args
     "UI_L_2", // text
     0, // enabled
     1, // textured
@@ -54,7 +58,9 @@ void init_trade() {
   init_menu(
     listing_2_position, // position
     on_click_ui_listing, // on_click
+    NULL, // on_hover
     (void *) 2, // on_click_args
+    NULL, // on_hover_args
     "UI_L_3", // text
     0, // enabled
     1, // textured
@@ -72,7 +78,9 @@ void init_trade() {
   init_menu(
     listing_3_position, // position
     on_click_ui_listing, // on_click
+    NULL, // on_hover
     (void *) 3, // on_click_args
+    NULL, // on_hover_args
     "UI_L_4", // text
     0, // enabled
     1, // textured
@@ -90,7 +98,9 @@ void init_trade() {
   init_menu(
     listing_4_position, // position
     on_click_ui_listing, // on_click
+    NULL, // on_hover
     (void *) 4, // on_click_args
+    NULL, // on_hover_args
     "UI_L_5", // text
     0, // enabled
     1, // textured
@@ -108,7 +118,9 @@ void init_trade() {
   init_menu(
     listing_5_position, // position
     on_click_ui_listing, // on_click
+    NULL, // on_hover
     (void *) 5, // on_click_args
+    NULL, // on_hover_args
     "UI_L_6", // text
     0, // enabled
     1, // textured
@@ -126,7 +138,9 @@ void init_trade() {
   init_menu(
     listing_6_position, // position
     on_click_ui_listing, // on_click
+    NULL, // on_hover
     (void *) 6, // on_click_args
+    NULL, // on_hover_args
     "UI_L_7", // text
     0, // enabled
     1, // textured
@@ -144,7 +158,9 @@ void init_trade() {
   init_menu(
     listing_7_position, // position
     on_click_ui_listing, // on_click
+    NULL, // on_hover
     (void *) 7, // on_click_args
+    NULL, // on_hover_args
     "UI_L_8", // text
     0, // enabled
     1, // textured
@@ -162,7 +178,9 @@ void init_trade() {
   init_menu(
     listing_8_position, // position
     on_click_ui_listing, // on_click
+    NULL, // on_hover
     (void *) 8, // on_click_args
+    NULL, // on_hover_args
     "UI_L_9", // text
     0, // enabled
     1, // textured

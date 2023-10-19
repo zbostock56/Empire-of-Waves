@@ -38,6 +38,7 @@ void exploration_movement(GLFWwindow *);
 void combat_movement(GLFWwindow *);
 void debug_keys(GLFWwindow *);
 void ui_click_listener(double, double);
+void ui_hover_listener(double, double);
 void close_merchant_menu(GLFWwindow *window);
 
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
