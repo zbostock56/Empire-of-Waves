@@ -22,6 +22,7 @@
 extern float T_WIDTH;
 extern DIALOG dialog;
 extern TRADE trade;
+extern char merchant_name_list[][20];
 
 int shore_interaction_enabled = 0;
 int home_interaction_enabled = 0;

@@ -6,6 +6,7 @@
 
 #define MERCENARIES_CAPACITY (10)
 #define MAX_TRADE_SHIP_DESC (64)
+#define STEER_SPEED (3.0)
 
 typedef struct trade_ship {
   ivec2 chunk_coords;

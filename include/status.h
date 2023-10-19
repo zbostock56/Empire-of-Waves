@@ -23,7 +23,6 @@ void open_status_bar();
 void close_status_bar();
 
 /* =================== EXTERNALLY DEFINED FUNCTIONS =============== */
-void init_menu(vec2 position, void (*on_click)(void *), void *on_click_args,
-               char *text, int enabled, int textured, unsigned int texture,
-               float text_padding, float text_scale, float width, float height,
-               PIVOT pivot, TEXT_ANCHOR text_anchor, UI_COMPONENT *dest);
+void init_menu(vec2, void (*)(void *), void (*)(void *), void *, void *,
+               char *, int, int, unsigned int, float, float, float, float,
+               PIVOT, TEXT_ANCHOR, UI_COMPONENT *);

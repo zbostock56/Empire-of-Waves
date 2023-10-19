@@ -7,6 +7,7 @@ int main() {
   init_dialog();
   init_trade();
   init_status_bar();
+  init_ui_lists();
   open_status_bar();
 
   int status = 0;

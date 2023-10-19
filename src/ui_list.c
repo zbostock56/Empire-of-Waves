@@ -1,5 +1,12 @@
 #include <ui_list.h>
 
+void init_ui_lists() {
+  list.listing_strings = NULL;
+  list.page = 0;
+  list.num_components = 0;
+  list.comp_per_page = 0;
+}
+
 /*
   Assumes that UI_COMPONENTS are already created
 
@@ -54,6 +61,8 @@ void open_listing(UI_LIST *list) {
         listing_pos,
         NULL,
         NULL,
+        NULL,
+        NULL,
         list->listing_strings[listing_index],
         0,
         1,
@@ -78,7 +87,9 @@ void open_listing(UI_LIST *list) {
   init_menu(
     left_arrow,
     (void (*)(void *)) scroll_left,
+    NULL,
     (void *) list,
+    NULL,
     "<-",
     1,
     1,
@@ -95,7 +106,9 @@ void open_listing(UI_LIST *list) {
   init_menu(
     right_arrow,
     (void (*)(void *)) scroll_right,
+    NULL,
     (void *) list,
+    NULL,
     "->",
     1,
     1,

@@ -22,8 +22,10 @@ int detect_collisions() {
 
     E_ENEMY *cur_enemy = NULL;
     for (int i = 0; i < chunk_buff_len; i++) {
-      cur_enemy = chunk_buffer[i].enemies + i;
-      ship_collisions(chunk_buffer + i, cur_enemy->chunk, cur_enemy->coords);
+      for (int j = 0; j < chunk_buffer[i].num_enemies; j++) {
+        cur_enemy = &chunk_buffer[i].enemies[j];
+        ship_collisions(chunk_buffer + i, cur_enemy->chunk, cur_enemy->coords);
+      }
     }
 
     for (int i = 0; i < num_trade_ships; i++) {
@@ -188,6 +190,7 @@ void check_merchant_prompt(vec2 world_player_coords) {
       if (dist_to_merchant <= INTERACTION_RADIUS * T_WIDTH) {
         get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 1;
         cur_merchant = &cur_island->merchant;
+        strncpy(dialog.name, merchant_name_list[cur_merchant->name], MAX_NAME_STR_LENGTH);
       }
     }
   }
@@ -345,7 +348,7 @@ void trade_ship_steering(TRADE_SHIP *trade_ship, vec2 direction) {
   }
 
   glm_vec2_normalize(steer_dir);
-  glm_vec2_scale(steer_dir, delta_time, steer_dir);
+  glm_vec2_scale(steer_dir, delta_time * STEER_SPEED, steer_dir);
   glm_vec2_add(steer_dir, direction, direction);
 }
 
