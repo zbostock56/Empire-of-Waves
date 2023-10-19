@@ -17,7 +17,9 @@ void init_status_bar() {
   init_menu(
     top_left, // position
     NULL, // on_click
+    NULL, // on_hover
     (void *) 0xBAADF00D, // on_click_args
+    (void *) 0xBAADF00D, // on_hover_args
     NULL, // text
     0, // enabled
     1, // textured
@@ -40,7 +42,9 @@ void init_status_bar() {
   init_menu(
     top_left, // position
     NULL, // on_click
+    NULL, // on_hover
     (void *) 0xBAADF00D, // on_click_args
+    (void *) 0xBAADF00D, // on_hover_args
     NULL, // text
     0, // enabled
     1, // textured
