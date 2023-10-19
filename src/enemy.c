@@ -185,8 +185,13 @@ void pathfind_enemy(E_ENEMY *enemy) {
     // int goal_row = 80;
     int start_col = (int)(enemy->coords[0]);
     int start_row = (int)(enemy->coords[1]);
+    Node (*nodes)[C_WIDTH] = malloc(sizeof(Node) * C_WIDTH * C_WIDTH);
     vector *path_list = (vector *)malloc(sizeof(vector));
-    if (search(start_col, start_row, goal_col, goal_row, enemy, path_list)) {
+    path_list->items = NULL;
+    path_list->capacity = 0;
+    path_list->total = 0;
+    if (search(start_col, start_row, goal_col, goal_row, enemy, path_list,
+               nodes)) {
 
       Node *n = ((Node *)vector_get(path_list, vector_total(path_list) - 1));
       int next_x = n->col;
@@ -215,6 +220,8 @@ void pathfind_enemy(E_ENEMY *enemy) {
       glm_vec2_add(movement, enemy_world_coords, enemy_world_coords);
       world_to_chunk(enemy_world_coords, enemy->chunk, enemy->coords);
     }
+    vector_free(path_list);
+    free(nodes);
     free(path_list);
   }
 }
@@ -222,7 +229,8 @@ void pathfind_enemy(E_ENEMY *enemy) {
 /*
     A* search algorithm
 */
-int search(int start_col, int start_row, int goal_col, int goal_row, E_ENEMY *enemy, vector *path_list) {
+int search(int start_col, int start_row, int goal_col, int goal_row,
+           E_ENEMY *enemy, vector *path_list, Node (*nodes)[C_WIDTH]) {
   if (start_col >= C_WIDTH || start_col < 0 ||
       start_row >= C_WIDTH || start_row < 0 ||
       goal_col >= C_WIDTH || goal_col < 0 ||
@@ -243,7 +251,7 @@ int search(int start_col, int start_row, int goal_col, int goal_row, E_ENEMY *en
       [0 ... C_WIDTH - 1] = {[0 ... C_WIDTH - 1] = 0}};
   int checked[C_WIDTH][C_WIDTH] = {
       [0 ... C_WIDTH - 1] = {[0 ... C_WIDTH - 1] = 0}};
-  Node nodes[C_WIDTH][C_WIDTH];
+  //Node nodes[C_WIDTH][C_WIDTH];
   //Node (*nodes)[C_WIDTH] = malloc(sizeof(Node) * C_WIDTH * C_WIDTH);
 
   /* getting the chunk of the enemy and creating a tilemap to check which objects are able/unable to pass through*/
@@ -363,7 +371,8 @@ int search(int start_col, int start_row, int goal_col, int goal_row, E_ENEMY *en
 /*
     function for tracking the best path we got from A * search alg. by backtracking
 */
-void track_path(Node nodes[C_WIDTH][C_WIDTH], vector *path_list, int start_col, int start_row, int goal_col, int goal_row) {
+void track_path(Node nodes[C_WIDTH][C_WIDTH], vector *path_list, int start_col,
+                int start_row, int goal_col, int goal_row) {
   Node *current = &nodes[goal_col][goal_row];
   while (current->col != start_col || current->row != start_row) {
     // printf("X %d Y %d\n",current->col, current->row);
@@ -375,7 +384,8 @@ void track_path(Node nodes[C_WIDTH][C_WIDTH], vector *path_list, int start_col, 
 /*
     function for getting the cost needed for A * algorithm of the given node
 */
-void get_cost(Node *node, int col, int row, int start_col, int start_row, int goal_col, int goal_row) {
+void get_cost(Node *node, int col, int row, int start_col, int start_row,
+              int goal_col, int goal_row) {
   // G cost
   int x_distance = abs(col - start_col);
   int y_distance = abs(row - start_row);
@@ -395,7 +405,9 @@ void get_cost(Node *node, int col, int row, int start_col, int start_row, int go
     If so, add to the openList
     tiles = 1 mean it is ocean
 */
-void open_node(Node *node, Node *cur_node, int open[C_WIDTH][C_WIDTH], int checked[C_WIDTH][C_WIDTH], int tiles[C_WIDTH][C_WIDTH], vector *openList) {
+void open_node(Node *node, Node *cur_node, int open[C_WIDTH][C_WIDTH],
+               int checked[C_WIDTH][C_WIDTH], int tiles[C_WIDTH][C_WIDTH],
+               vector *openList) {
   if (open[node->col][node->row] == 0 && checked[node->col][node->row] == 0 && tiles[node->col][node->row] == 1) {
     open[node->col][node->row] = 1;
     node->parent_col = cur_node->col;

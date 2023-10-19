@@ -25,10 +25,11 @@ int find_avail_chunks();
 void generate_chunk_tiles(int [C_WIDTH][C_WIDTH], CHUNK);
 void update_enemy_position(E_ENEMY *);
 void pathfind_enemy(E_ENEMY *);
-int search(int,int, int, int, E_ENEMY*, vector *);
+int search(int,int, int, int, E_ENEMY*, vector *, Node (*)[C_WIDTH]);
 void track_path(Node[C_WIDTH][C_WIDTH], vector*, int, int, int, int);
 void get_cost(Node *, int, int, int, int, int, int);
-void open_node(Node *, Node *, int[C_WIDTH][C_WIDTH], int[C_WIDTH][C_WIDTH], int[C_WIDTH][C_WIDTH], vector*);
+void open_node(Node *, Node *, int[C_WIDTH][C_WIDTH], int[C_WIDTH][C_WIDTH],
+               int[C_WIDTH][C_WIDTH], vector*);
 void update_enemy_chunk(E_ENEMY*, CHUNK*, int);
 /* =================== EXTERNALLY DEFINED FUNCTIONS =================== */
 
