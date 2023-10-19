@@ -10,6 +10,8 @@ any file which needs to read/manipulate merchant state.
 */
 
 #define MAX_MERCENARIES (4)
+#define NUM_NAMES (600)
+#define NAME_SIZE (20)
 
 typedef struct listing {
   int item_id;
@@ -28,6 +30,10 @@ typedef struct merchant {
   unsigned int num_mercenaries;
   unsigned int num_listings;
   float relationship;
+  /* Index of the global names buffer which  */
+  /* indicates the name of the merchant and  */
+  /* the trade ship which goes to its island */
+  short name;
 } MERCHANT;
 
 #endif

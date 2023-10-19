@@ -122,6 +122,12 @@ void close_listings(UI_LIST *list) {
     cur_listing->enabled = 0;
   }
   if (list->listing_strings) {
+    for (int i = 0; i < num_trade_ships; i++) {
+      if (list->listing_strings[i]) {
+        free(list->listing_strings[i]);
+        list->listing_strings[i] = NULL;
+      }
+    }
     free(list->listing_strings);
     list->listing_strings = NULL;
   }

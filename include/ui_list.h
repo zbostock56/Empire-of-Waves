@@ -7,8 +7,7 @@
 UI_LIST list;
 /* Array of pointers to the text descriptions */
 char *listing_strings[MAX_PER_PAGE];
-/* Text descriptions themselves */
-char listing_description[MAX_PER_PAGE][50];
+extern unsigned int num_trade_ships;
 
 /* ================= INTERNALLY DEFINED FUNCTIONS ============= */
 void init_ui_list(UI_LIST *, unsigned int,
