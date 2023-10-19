@@ -22,8 +22,10 @@ int detect_collisions() {
 
     E_ENEMY *cur_enemy = NULL;
     for (int i = 0; i < chunk_buff_len; i++) {
-      cur_enemy = chunk_buffer[i].enemies + i;
-      ship_collisions(chunk_buffer + i, cur_enemy->chunk, cur_enemy->coords);
+      for (int j = 0; j < chunk_buffer[i].num_enemies; j++) {
+        cur_enemy = &chunk_buffer[i].enemies[j];
+        ship_collisions(chunk_buffer + i, cur_enemy->chunk, cur_enemy->coords);
+      }
     }
 
     for (int i = 0; i < num_trade_ships; i++) {
@@ -243,6 +245,7 @@ void ship_collisions(CHUNK *chunk, ivec2 chunk_coords, vec2 coords) {
           circle_aabb_collision(world_coords, radius, search_world_coords,
                                 T_WIDTH, T_WIDTH, collision_correction)) {
         glm_vec2_add(world_coords, collision_correction, world_coords);
+        printf("Collision occured\n");
         world_to_chunk(world_coords, chunk_coords, coords);
       }
     }

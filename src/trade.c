@@ -241,8 +241,8 @@ int set_trade(T_TRADE dialog_type) {
   return 0;
 }
 
-void on_click_ui_listing(void *listing_index) {
-  long listing = (long) listing_index;
+void on_click_ui_listing(int listing_index) {
+  int listing = listing_index;
   LISTING *listing_slot;
   I_SLOT *slot;
   ITEM item;
