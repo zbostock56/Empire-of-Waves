@@ -28,13 +28,14 @@ void open_mercenary_reassignment_menu() {
     }
   }
   init_ui_list(&list, 1, 4, num_trade_ships, listing_strings);
-  open_listing(&list);
   reassignment_menu_open = 1;
+  open_listing(&list);
 }
 
 void close_mercenary_reassignment_menu() {
-  close_listings(&list);
   reassignment_menu_open = 0;
+  get_ui_component_by_ID(MERCENARY_AVAIL)->enabled = 0;
+  close_listings(&list);
 }
 
 void purchase_mercenary_handler() {
@@ -48,3 +49,31 @@ void purchase_mercenary_handler() {
   e_player.total_mercenaries++;
 }
 
+void update_available_mercenaries() {
+  snprintf(avail_mercenaries, AVAIL_MERC_BUFF_LEN,
+             "Available: %d", e_player.total_mercenaries);
+}
+
+void check_available_mercenaries() {
+  if (reassignment_menu_open) {
+    vec2 avail_merc_pos = { 0.0, -0.75 };
+    init_menu(
+      avail_merc_pos, // position
+      NULL, // on_click
+      NULL, // on_hover
+      (void *) 0xBAADF00D, // on_click_args
+      (void *) 0xBAADF00D, // on_hover_args
+      avail_mercenaries, // text
+      1, // enabled
+      1, // textured
+      0, // texture
+      0.05, // text_padding
+      0.5, // text_scale
+      0.0, // width
+      0.0, // heights
+      PIVOT_CENTER, // pivot
+      T_CENTER, // text_anchor
+      get_ui_component_by_ID(MERCENARY_AVAIL)// dest
+    );
+  }
+}

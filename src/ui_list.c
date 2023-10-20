@@ -82,23 +82,23 @@ void open_listing(UI_LIST *list) {
   }
 
   /* Create the forward and back arrow buttons */
-  vec2 left_arrow = { -0.25, -0.5 };
-  vec2 right_arrow = { 0.25, -0.5 };
+  vec2 left_arrow = { -0.25, -0.75 };
+  vec2 right_arrow = { 0.25, -0.75 };
   init_menu(
     left_arrow,
     (void (*)(void *)) scroll_left,
     NULL,
     (void *) list,
     NULL,
-    "<-",
+    "Previous",
     1,
     1,
     0,
     0.05,
-    1.0,
+    0.5,
     0.0,
     0.0,
-    PIVOT_CENTER,
+    PIVOT_RIGHT,
     T_CENTER,
     get_ui_component_by_ID(LIST_BUTTON_LEFT)
   );
@@ -109,18 +109,20 @@ void open_listing(UI_LIST *list) {
     NULL,
     (void *) list,
     NULL,
-    "->",
+    "  Next  ",
     1,
     1,
     0,
     0.05,
-    1.0,
+    0.5,
     0.0,
     0.0,
-    PIVOT_CENTER,
+    PIVOT_LEFT,
     T_CENTER,
     get_ui_component_by_ID(LIST_BUTTON_RIGHT)
   );
+  // Open mercenary context menu
+  check_available_mercenaries();
 }
 
 void close_listings(UI_LIST *list) {

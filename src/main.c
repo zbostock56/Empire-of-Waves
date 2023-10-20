@@ -42,6 +42,7 @@ int main() {
     }
 
     update_dialog_buffers();
+    update_available_mercenaries();
     render_scene(window);
     update_combat_state();
     update_event_timer();
