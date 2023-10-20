@@ -37,8 +37,15 @@ void (*on_click)(void *)
   Callback function for if component is clicked
   NULL if no action should be taken
 
+void (*on_hover)(void *)
+  Callback function for if component is hovered over
+  NULL if no action should be taken
+
 void *on_click_args
   Arguments that will be passed to on_click()
+
+void *on_hover_args
+  Arguments that will be passed to on_hover()
 
 char *text
   Text to be displayed over top the ui component
@@ -83,13 +90,17 @@ TEXT_ANCHOR text_anchor
 UI_COMPONENT *dest
   Destination component
 */
-void init_menu(vec2 position, void (*on_click)(void *), void *on_click_args,
-               char *text, int enabled, int textured, unsigned int texture,
-               float text_padding, float text_scale, float width, float height,
-               PIVOT pivot, TEXT_ANCHOR text_anchor, UI_COMPONENT *dest) {
+void init_menu(vec2 position, void (*on_click)(void *),
+               void (*on_hover)(void *), void *on_click_args,
+               void *on_hover_args, char *text, int enabled, int textured,
+               unsigned int texture, float text_padding, float text_scale,
+               float width, float height, PIVOT pivot, TEXT_ANCHOR text_anchor,
+               UI_COMPONENT *dest) {
   glm_vec2_copy(position, dest->position);
   dest->on_click = on_click;
+  dest->on_hover = on_hover;
   dest->on_click_args = on_click_args;
+  dest->on_hover_args = on_hover_args;
   dest->text = text;
   // sprintf(dest->text, "%s", text);
   dest->enabled = enabled;
@@ -103,26 +114,20 @@ void init_menu(vec2 position, void (*on_click)(void *), void *on_click_args,
   dest->text_anchor = text_anchor;
 }
 
-// TEMPORARY TEST CALLBACK -- TO BE DELETED
-void test_callback(void *args) {
-  get_ui_component_by_ID(TEST_MENU)->text = "HIT!";
-}
-
 /* Init menus including TEST_MENU, EMBARK_PROMPT, and INTERACT_PROMPT */
 void init_menus() {
   // Populate ui_tab
   // TEMPORARY TEST UI COMPONENT -- TO BE DELETED
-  vec2 test_position = { -1.0, 0.0 };
+  vec2 test_position = { 0.0, 0.0 };
   init_menu(
     test_position, // position
-    test_callback, // on_click
-    (void *) 0xBAADF00D, // on_click_args
+    NULL, NULL, NULL, NULL,
     "", // text
     0, // enabled
     1, // textured
     0, // texture
     0, // text_padding
-    2.0, // text_scale
+    1.0, // text_scale
     1.0, // width
     1.0, // height
     PIVOT_LEFT, // pivot
@@ -131,16 +136,16 @@ void init_menus() {
   );
 
   // Embark/Disembark prompt
-  vec2 prompt_pos = { 0.0, -0.25 };
+  vec2 prompt_pos = { 0.0, -0.15 };
   init_menu(
     prompt_pos,
-    NULL, NULL,
+    NULL, NULL, NULL, NULL,
     "Press 'e' to embark",
     0,
     0,
     0,
     0.0,
-    1.5,
+    0.5,
     0.0,
     0.0,
     PIVOT_CENTER,
@@ -151,13 +156,13 @@ void init_menus() {
   // Interaction prompt
   init_menu(
     prompt_pos,
-    NULL, NULL,
+    NULL, NULL, NULL, NULL,
     "Press 'e' to interact",
     0,
     0,
     0,
     0.0,
-    1.5,
+    0.5,
     0.0,
     0.0,
     PIVOT_CENTER,

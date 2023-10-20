@@ -17,13 +17,15 @@ void init_status_bar() {
   init_menu(
     top_left, // position
     NULL, // on_click
+    NULL, // on_hover
     (void *) 0xBAADF00D, // on_click_args
+    (void *) 0xBAADF00D, // on_hover_args
     NULL, // text
     0, // enabled
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.5, // text_scale
+    0.5, // text_scale
     0, // width
     0, // height
     PIVOT_TOP_LEFT, // pivot
@@ -40,13 +42,15 @@ void init_status_bar() {
   init_menu(
     top_left, // position
     NULL, // on_click
+    NULL, // on_hover
     (void *) 0xBAADF00D, // on_click_args
+    (void *) 0xBAADF00D, // on_hover_args
     NULL, // text
     0, // enabled
     1, // textured
     0, // texture
     0.05, // text_padding
-    1.5, // text_scale
+    0.5, // text_scale
     0, // width
     0, // height
     PIVOT_TOP_LEFT, // pivot

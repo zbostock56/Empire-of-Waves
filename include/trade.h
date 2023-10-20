@@ -35,10 +35,9 @@ void open_establish_trade_route();
 int add_chunk(ivec2);
 void close_dialog();
 int double_buffer(void **, unsigned int *, unsigned int);
-void init_menu(vec2 position, void (*on_click)(void *), void *on_click_args,
-               char *text, int enabled, int textured, unsigned int texture,
-               float text_padding, float text_scale, float width, float height,
-               PIVOT pivot, TEXT_ANCHOR text_anchor, UI_COMPONENT *dest);
+void init_menu(vec2, void (*)(void *), void (*)(void *), void *, void *,
+               char *, int, int, unsigned int, float, float, float, float,
+               PIVOT, TEXT_ANCHOR, UI_COMPONENT *);
 I_SLOT * get_player_first_empty_inventory_slot();
 I_SLOT * search_player_inventory_with_ID(ITEM_IDS item_id);
 I_SLOT * get_player_inventory_slot_by_index(unsigned int item_index);

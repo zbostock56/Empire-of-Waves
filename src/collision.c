@@ -22,10 +22,9 @@ int detect_collisions() {
 
     E_ENEMY *cur_enemy = NULL;
     for (int i = 0; i < chunk_buff_len; i++) {
-      cur_chunk = chunk_buffer + i;
-      for (int j = 0; j < cur_chunk->num_enemies; j++) {
-        cur_enemy = chunk_buffer[i].enemies + j;
-        ship_collisions(cur_chunk, cur_enemy->chunk, cur_enemy->coords);
+      for (int j = 0; j < chunk_buffer[i].num_enemies; j++) {
+        cur_enemy = &chunk_buffer[i].enemies[j];
+        ship_collisions(chunk_buffer + i, cur_enemy->chunk, cur_enemy->coords);
       }
     }
 
@@ -318,7 +317,7 @@ void trade_ship_steering(TRADE_SHIP *trade_ship, vec2 direction) {
   }
 
   glm_vec2_normalize(steer_dir);
-  glm_vec2_scale(steer_dir, delta_time, steer_dir);
+  glm_vec2_scale(steer_dir, delta_time * STEER_SPEED, steer_dir);
   glm_vec2_add(steer_dir, direction, direction);
 }
 

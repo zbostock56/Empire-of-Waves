@@ -4,6 +4,8 @@
 #include <cglm/vec2.h>
 #include <cglm/ivec2.h>
 
+#define STEER_SPEED (3.0)
+
 typedef struct trade_ship {
   ivec2 chunk_coords;
   vec2 coords;

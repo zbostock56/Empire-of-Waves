@@ -168,11 +168,19 @@ void pathfind_enemy(E_ENEMY *enemy) {
     } else {
       /*If the enemy on diagonal*/
     }
-    update_enemy_position(enemy);
+    // update_enemy_position(enemy);
 
-    glm_vec2_scale(target_dir, delta_time, target_dir);
+    glm_vec2_scale(target_dir, delta_time * STEER_SPEED, target_dir);
     glm_vec2_add(target_dir, enemy->direction, enemy->direction);
+    if (enemy->direction[0] == 0) {
+        enemy->direction[0] = 0.05;
+      }
+    if (enemy->direction[1] == 0) {
+      enemy->direction[1] = 0.05;
+    }
     glm_vec2_normalize(enemy->direction);
+
+    update_enemy_position(enemy);
     enemy->on_path = false;
     return;
   }
@@ -204,9 +212,17 @@ void pathfind_enemy(E_ENEMY *enemy) {
       glm_vec2_sub(next_tile, enemy_coords, difference);
       glm_vec2_normalize(difference);
       difference[1] *= -1;
-      glm_vec2_scale(difference, delta_time, difference);
+      glm_vec2_scale(difference, delta_time*3, difference);
       glm_vec2_add(difference, enemy->direction, enemy->direction);
+
+      if (enemy->direction[0] == 0) {
+        enemy->direction[0] = 0.05;
+      }
+      if (enemy->direction[1] == 0) {
+        enemy->direction[1] = 0.05;
+      }
       glm_vec2_normalize(enemy->direction);
+
       int next_col = ((Node *)vector_get(path_list, vector_total(path_list) - 1))->col;
       int next_row = ((Node *)vector_get(path_list, vector_total(path_list) - 1))->row;
 
