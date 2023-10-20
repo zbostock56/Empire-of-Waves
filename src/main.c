@@ -41,6 +41,7 @@ int main() {
       return -1;
     }
 
+    update_dialog_buffers();
     render_scene(window);
     update_combat_state();
     update_event_timer();

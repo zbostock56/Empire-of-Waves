@@ -15,6 +15,7 @@ typedef struct dialog {
   char *name;
   char *content;
   char *relationship;
+  char *mercenary_count;
   UI_COMPONENT *ui_text_name;
   UI_COMPONENT *ui_text_relationship;
   UI_COMPONENT *ui_text_content;
@@ -22,5 +23,6 @@ typedef struct dialog {
   UI_COMPONENT *ui_button_sell;
   UI_COMPONENT *ui_button_establish_trade_route;
   UI_COMPONENT *ui_text_schedule_trade_route_prompt;
+  UI_COMPONENT *ui_mercenary_buy;
 } DIALOG;
 

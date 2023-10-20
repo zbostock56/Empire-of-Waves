@@ -1,23 +1,23 @@
-#include <render.h>
+  #include <render.h>
 
-void init_scene() {
-  glm_vec2_zero(e_player.coords);
-  glm_ivec2_zero(e_player.chunk);
-  glm_vec2_zero(e_player.direction);
-  glm_vec2_zero(e_player.ship_direction);
-  e_player.direction[1] = 1.0;
-  e_player.ship_direction[1] = 1.0;
-  e_player.embarked = 1;
-  e_player.inventory[0].item_id = RUM;
-  e_player.inventory[0].quantity = 1;
-  e_player.inventory[1].item_id = CITRUS;
-  e_player.inventory[1].quantity = 1;
-  e_player.inventory[2].item_id = KNIVE;
-  e_player.inventory[2].quantity = 1;
+  void init_scene() {
+    glm_vec2_zero(e_player.coords);
+    glm_ivec2_zero(e_player.chunk);
+    glm_vec2_zero(e_player.direction);
+    glm_vec2_zero(e_player.ship_direction);
+    e_player.direction[1] = 1.0;
+    e_player.ship_direction[1] = 1.0;
+    e_player.embarked = 1;
+    e_player.inventory[0].item_id = RUM;
+    e_player.inventory[0].quantity = 1;
+    e_player.inventory[1].item_id = CITRUS;
+    e_player.inventory[1].quantity = 1;
+    e_player.inventory[2].item_id = KNIVE;
+    e_player.inventory[2].quantity = 1;
 
-  // TEST MODELS
-  unsigned char ocean_buffer[3] = { 3, 157, 252 };
-  ocean_texture = texture_from_buffer(ocean_buffer, 1, 1, GL_RGB);
+    // TEST MODELS
+    unsigned char ocean_buffer[3] = { 3, 157, 252 };
+    ocean_texture = texture_from_buffer(ocean_buffer, 1, 1, GL_RGB);
   // END TEST
 
   // Initialize offscreen framebuffer
@@ -190,11 +190,6 @@ void render_scene(GLFWwindow *window) {
 
   render_player();
   if (mode == EXPLORATION) {
-    if (cur_merchant) {
-      snprintf(dialog.ui_text_relationship->text, TEXT_BUFFER_LEN,
-               "Relationship: %.1f", cur_merchant->relationship);
-    }
-
     for (int i = 0; i < 5; i++) {
       for (int j = 0; j < 5; j++) {
         ivec2 chunk = {

@@ -36,3 +36,15 @@ void close_mercenary_reassignment_menu() {
   close_listings(&list);
   reassignment_menu_open = 0;
 }
+
+void purchase_mercenary_handler() {
+  if (cur_merchant->num_mercenaries <= 0) {
+    /* Prompt that no mercenaries are available */
+    /* for purchase?                            */
+    printf("No mercenaries to buy\n");
+    return;
+  }
+  cur_merchant->num_mercenaries--;
+  e_player.total_mercenaries++;
+}
+
