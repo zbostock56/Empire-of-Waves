@@ -9,7 +9,7 @@
 
 /*
                                    TRADING
-Implements the functionality for buying and selling. Could be used for 
+Implements the functionality for buying and selling. Could be used for
 interaction with merchants.
 */
 
@@ -44,3 +44,4 @@ I_SLOT * search_player_inventory_with_ID(ITEM_IDS item_id);
 I_SLOT * get_player_inventory_slot_by_index(unsigned int item_index);
 LISTING * get_merchant_listing_item_by_index(MERCHANT * merchant, unsigned int item_index);
 MERCHANT *get_closest_merchant(E_PLAYER e_player);
+TRADE_SHIP *init_trade_ship(ivec2, unsigned int);

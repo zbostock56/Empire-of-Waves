@@ -190,9 +190,9 @@ void render_scene(GLFWwindow *window) {
 
   render_player();
   if (mode == EXPLORATION) {
-    if (cur_merchant) {
+    if (dialog.merchant) {
       snprintf(dialog.ui_text_relationship->text, TEXT_BUFFER_LEN,
-               "Relationship: %.1f", cur_merchant->relationship);
+               "Relationship: %.1f", dialog.merchant->relationship);
     }
 
     for (int i = 0; i < 5; i++) {

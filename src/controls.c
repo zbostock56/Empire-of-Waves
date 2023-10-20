@@ -142,13 +142,14 @@ void exploration_movement(GLFWwindow *window) {
         e_player.embarked = 1;
       }
     }
-    if (!e_player.embarked && cur_merchant && !trade.ui_listing[0]->enabled) {
+    if (!e_player.embarked && dialog.merchant &&
+        !trade.ui_listing[0]->enabled) {
       if (set_dialog(MERCHANT_OPTION, "Merchant",
                      "Hail, Captain! What brings you to my humble stall")) {
         open_dialog();
       }
       get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
-      cur_merchant = NULL;
+      dialog.merchant = NULL;
     }
     holding_interaction = 1;
   } else if (glfwGetKey(window, GLFW_KEY_E) != GLFW_PRESS) {

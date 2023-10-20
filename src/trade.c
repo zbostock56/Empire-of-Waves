@@ -215,7 +215,7 @@ T_TRADE trade_type
   type of trade, e.g. BUY
 */
 int set_trade(T_TRADE trade_type) {
-  if (cur_merchant) {
+  if (dialog.merchant) {
     trade.type = trade_type;
     // Set trade UI components with given trade type
     switch (trade_type) {
@@ -223,7 +223,7 @@ int set_trade(T_TRADE trade_type) {
       case BUY: {
         for (int i = 0; i < 9; i++) {
           trade.ui_listing[i]->text = get_item_name_by_ID(
-                                        get_merchant_listing_item_by_index(cur_merchant, i)->item_id);
+                                        get_merchant_listing_item_by_index(dialog.merchant, i)->item_id);
         }
         return 1;
       }
@@ -259,7 +259,7 @@ void on_click_ui_listing(void *listing_ui_index) {
   ITEM item;
   if (trade.type == BUY) {
     item = get_item_info_by_name(trade.ui_listing[listing_index]->text);
-    listing_slot = get_merchant_listing_item_by_index(cur_merchant, listing_index);
+    listing_slot = get_merchant_listing_item_by_index(dialog.merchant, listing_index);
     // If player have enough money to buy the listing item
     // Decrease the quatity of merchant listing slot
     if (e_player.money >= item.value && listing_slot->quantity > 0) {
@@ -270,12 +270,12 @@ void on_click_ui_listing(void *listing_ui_index) {
       // Other wise, add the item to the first empty slot
       slot = search_player_inventory_with_ID(
                get_merchant_listing_item_by_index(
-               cur_merchant, listing_index)->item_id);
+               dialog.merchant, listing_index)->item_id);
       if (slot) {
         slot->quantity += 1;
       } else if (get_player_first_empty_inventory_slot()) {
         I_SLOT *empty_inventory_slot = get_player_first_empty_inventory_slot();
-        empty_inventory_slot->item_id = get_merchant_listing_item_by_index(cur_merchant, listing_index)->item_id;
+        empty_inventory_slot->item_id = get_merchant_listing_item_by_index(dialog.merchant, listing_index)->item_id;
         empty_inventory_slot->quantity = 1;
       } else {
         listing_slot->quantity += 1;
@@ -291,20 +291,20 @@ void on_click_ui_listing(void *listing_ui_index) {
       }
 
       // Increase the merchant relationship, maximum 100.0
-      cur_merchant->relationship += 10.0;
-      if (cur_merchant->relationship > 100.0) {
-        cur_merchant->relationship = 100.0;
+      dialog.merchant->relationship += 10.0;
+      if (dialog.merchant->relationship > 100.0) {
+        dialog.merchant->relationship = 100.0;
       }
 
 #ifndef __linux__
       printf("**** [SLOT %lld] [ITEM \"%s\"] [QUATITY %d] ****\n",
              listing_index + 1, trade.ui_listing[listing_index]->text,
-             get_merchant_listing_item_by_index(cur_merchant,
+             get_merchant_listing_item_by_index(dialog.merchant,
                                                 listing_index)->quantity);
 #else
       printf("**** [SLOT %ld] [ITEM \"%s\"] [QUATITY %d] ****\n",
              listing_index + 1, trade.ui_listing[listing_index]->text,
-             get_merchant_listing_item_by_index(cur_merchant,
+             get_merchant_listing_item_by_index(dialog.merchant,
                                                 listing_index)->quantity);
 #endif
     }
@@ -329,7 +329,7 @@ void on_click_ui_listing(void *listing_ui_index) {
     // If merchant already have this item, increase its quatity
     // Other wise, add the item to the first empty slot
     for (int i = 0; i < 9; i++) {
-      listing_slot = get_merchant_listing_item_by_index(cur_merchant, i);
+      listing_slot = get_merchant_listing_item_by_index(dialog.merchant, i);
       if (listing_slot->item_id == sold_item_id) {
         listing_slot->quantity += 1;
         break;
@@ -341,9 +341,9 @@ void on_click_ui_listing(void *listing_ui_index) {
     }
 
     // Increase the merchant relationship, maximum 100.0
-    cur_merchant->relationship += 10.0;
-    if (cur_merchant->relationship > 100.0) {
-      cur_merchant->relationship = 100.0;
+    dialog.merchant->relationship += 10.0;
+    if (dialog.merchant->relationship > 100.0) {
+      dialog.merchant->relationship = 100.0;
     }
 
 #ifndef __linux__
@@ -375,46 +375,21 @@ void open_sell() {
 }
 
 /* Click lisnter of establish trade route button */
-void open_establish_trade_route() {
-  MERCHANT *target_merch = cur_merchant;
-  CHUNK *target_chunk = NULL;
+void open_establish_trade_route(int island_index) {
+  MERCHANT *target_merch = dialog.merchant;
+
   // Check if player already have a trade route to this island
-  for (int i = 0; i < num_trade_ships; i++) {
-    target_chunk = chunk_buffer + trade_ships[i].target_chunk_index;
-    if (target_chunk->coords[0] == target_merch->chunk[0] &&
-        target_chunk->coords[1] == target_merch->chunk[1]) {
-      dialog.ui_text_schedule_trade_route_prompt->text = "Unable to Schedule Duplicate Trade Route";
-      dialog.ui_text_schedule_trade_route_prompt->enabled = 1;
-      return;
-    }
+  if (target_merch->has_trade_route) {
+    dialog.ui_text_schedule_trade_route_prompt->text = "Unable to Schedule Duplicate Trade Route";
+    dialog.ui_text_schedule_trade_route_prompt->enabled = 1;
+    return;
   }
+
   // Establish trade route and popup the prompt shows successful
   dialog.ui_text_schedule_trade_route_prompt->text = "Trade Route Established";
   dialog.ui_text_schedule_trade_route_prompt->enabled = 1;
   time_schdule_trade_toute_prompt = 2.0;
 
-  TRADE_SHIP *trade_ship = trade_ships + num_trade_ships;
-
-  ivec2 target_chunk_coords = { 0, 0 };
-  glm_ivec2_copy(cur_merchant->chunk, target_chunk_coords);
-  trade_ship->target_chunk_index = add_chunk(target_chunk_coords);
-
-  ivec2 cur_chunk_coords = { 0, 0 };
-  trade_ship->cur_chunk_index = add_chunk(cur_chunk_coords);
-
-  glm_vec2_copy(home_island_coords, trade_ship->coords);
-  glm_ivec2_copy(cur_chunk_coords, trade_ship->chunk_coords);
-  glm_vec2_zero(trade_ships[num_trade_ships].direction);
-  trade_ships[num_trade_ships].direction[0] = 1.0;
-  trade_ships[num_trade_ships].export_rec = 0;
-  trade_ships[num_trade_ships].import_rec = 0;
-  trade_ships[num_trade_ships].target_island = 0;
-  trade_ships[num_trade_ships].num_mercenaries = 0;
-  trade_ships[num_trade_ships].speed = 10.0;
-  num_trade_ships++;
-
-  if (num_trade_ships == trade_ship_buf_size) {
-    double_buffer((void **) &trade_ships, &trade_ship_buf_size,
-                  sizeof(TRADE_SHIP));
-  }
+  init_trade_ship(dialog.merchant->chunk, island_index);
+  target_merch->has_trade_route = 1;
 }

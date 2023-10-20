@@ -30,6 +30,7 @@ void init_dialog() {
   dialog.content[MAX_CONTENT_STR_LENGTH - 1] = '\0'; // Ensures null termination
 
   dialog.type = INVALID_DIALOG;
+  dialog.merchant = NULL;
   dialog.ui_text_name = get_ui_component_by_ID(DIALOG_NAME);
   dialog.ui_text_relationship = get_ui_component_by_ID(DIALOG_RELATION);
   dialog.ui_text_content = get_ui_component_by_ID(DIALOG_CONTENT);
@@ -234,7 +235,7 @@ Set global dialog, call when change dialog
 Args:
 T_DIALOG dialog type
   Decided the type of dialog when call by open_dialog()
-char *name 
+char *name
   name string of the dialog, represent the who says the content
 char *content
   content string of the dialog, do not exceed line length (16)

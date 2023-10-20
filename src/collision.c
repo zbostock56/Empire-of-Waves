@@ -146,7 +146,7 @@ void check_merchant_prompt(vec2 world_player_coords) {
   ISLAND *cur_island = NULL;
   vec2 world_merchant_coords = GLM_VEC2_ZERO_INIT;
   float dist_to_merchant = 0.0;
-  cur_merchant = NULL;
+  MERCHANT *cur_merchant = NULL;
   for (int i = 0; i < cur_chunk->num_islands && !cur_merchant; i++) {
     cur_island = cur_chunk->islands + i;
     if (cur_island->has_merchant) {
@@ -157,6 +157,9 @@ void check_merchant_prompt(vec2 world_player_coords) {
       if (dist_to_merchant <= INTERACTION_RADIUS * T_WIDTH) {
         get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 1;
         cur_merchant = &cur_island->merchant;
+        long island_index = i;
+        UI_COMPONENT *tr_btn = dialog.ui_button_establish_trade_route;
+        tr_btn->on_click_args = (void *) island_index;
       }
     }
   }
@@ -168,6 +171,7 @@ void check_merchant_prompt(vec2 world_player_coords) {
     close_dialog();
     close_trade();
   }
+  dialog.merchant = cur_merchant;
 }
 
 /*
