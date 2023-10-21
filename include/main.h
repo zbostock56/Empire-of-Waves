@@ -21,3 +21,4 @@ void init_dialog();
 void init_trade();
 void init_status_bar();
 void open_status_bar();
+int init_save_menu();

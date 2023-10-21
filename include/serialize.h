@@ -42,6 +42,7 @@ void save_chunk(CHUNK *, char *);
 int init_save_dir(char *);
 void consolidate_unsaved_chunks();
 void clear_unsaved_chunks();
+void reset_state();
 void save_state(FILE *);
 void save_trade_ship(TRADE_SHIP *, FILE *);
 void load_player_state(FILE *);

@@ -10,6 +10,11 @@ int main() {
   open_status_bar();
 
   int status = 0;
+  status = init_save_menu();
+  if (status) {
+    return -1;
+  }
+
   status = init_chunks();
   if (status) {
     return -1;

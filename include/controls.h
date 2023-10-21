@@ -10,6 +10,7 @@
 #include <trade_str.h>
 #include <menu.h>
 
+#define INPUT_BUFFER_SIZE (16)
 #define X_MIN (0)
 #define Y_MIN (1)
 #define X_MAX (2)
@@ -28,7 +29,17 @@ int holding_interaction = 0;
 int holding_attack = 0;
 int holding_save = 0;
 int holding_load = 0;
+int holding_esc = 0;
 
+int holding_alpha[26];
+int holding_num[10];
+int holding_space;
+int holding_underscore;
+int holding_enter;
+int holding_bs;
+
+extern UI_ID open_prompt;
+extern unsigned int load_input_len;
 extern DIALOG dialog;
 extern TRADE trade;
 extern int RES_X;
@@ -42,6 +53,7 @@ void debug_keys(GLFWwindow *);
 void ui_click_listener(double, double);
 void ui_hover_listener(double, double);
 void close_merchant_menu(GLFWwindow *window);
+void load_keys(GLFWwindow *);
 
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 void detect_context_interaction();
@@ -54,6 +66,10 @@ void open_dialog();
 int set_dialog(T_DIALOG, char *, char *);
 void close_dialog();
 void close_trade();
+void open_save_menu();
+void close_save_menu();
+int save_menu_opened();
 void refresh_framebuffers();
+int new_game(char *);
 int save_game(char *);
 int load_game(char *);

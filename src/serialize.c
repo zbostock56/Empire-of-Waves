@@ -5,6 +5,43 @@
   Implements the functionality for saving and loading game state from disk.
 */
 
+int new_game(char *save_name) {
+  if (strlen(save_name) >= MAX_SAVE_NAME_LEN) {
+    fprintf(stderr, "serialize.c: Save name too long\n");
+    return -1;
+  } else if (!strlen(save_name)) {
+    fprintf(stderr, "serialize.c: Non-existant save name\n");
+    return -1;
+  }
+
+  char save_path[MAX_PATH_LEN];
+  // Generate path to save file
+  int status = build_save_path(save_name, save_path, MAX_PATH_LEN);
+  if (status) {
+    fprintf(stderr, "serialize.c: Save name too long\n");
+    return -1;
+  }
+
+  // Create save directory if it does not already exist
+  status = init_save_dir(save_name);
+  if (status) {
+    return -1;
+  }
+
+  // Reset global state
+  clear_chunk_buffer();
+  clear_unsaved_chunks();
+  reset_state();
+
+  // Re-initialize chunk management for newly loaded player state
+  init_chunks();
+
+  copy_valid_path(save_name, game_save_name, strlen(save_name));
+  game_save_name[strlen(save_name)] = '\0';
+
+  return 0;
+}
+
 /*
   Saves game state to disk. If the game save directory for the game save is not
   created, it will be automatically created
@@ -387,6 +424,25 @@ void clear_unsaved_chunks() {
     // Remove chunk from 'unsaved' directory
     remove(chunk_path);
   }
+}
+
+void reset_state() {
+  glm_ivec2_zero(e_player.chunk);
+  glm_vec2_zero(e_player.coords);
+  glm_vec2_zero(e_player.direction);
+  e_player.direction[0] = 1.0;
+  glm_ivec2_zero(e_player.ship_chunk);
+  glm_vec2_zero(e_player.ship_coords);
+  glm_vec2_zero(e_player.ship_direction);
+  e_player.ship_direction[0] = 1.0;
+  e_player.embarked = 1;
+  e_player.money = 0;
+  e_player.total_mercenaries = 0;
+  e_player.max_health = 100.0;
+  e_player.health = 100.0;
+  e_player.speed = 10.0;
+  global_time = 0.0;
+  num_trade_ships = 0;
 }
 
 void save_state(FILE *file) {

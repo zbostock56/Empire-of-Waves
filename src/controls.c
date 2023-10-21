@@ -8,9 +8,13 @@ events.
 
 void keyboard_input(GLFWwindow *window) {
   if (mode == EXPLORATION) {
-    // Exploration mode keyboard handlers here
-    exploration_movement(window);
-    close_merchant_menu(window);
+    if (get_ui_component_by_ID(SAVE_INPUT)->enabled) {
+      load_keys(window);
+    } else {
+      // Exploration mode keyboard handlers here
+      exploration_movement(window);
+      close_merchant_menu(window);
+    }
   } else {
     // Combat mode keyboard handlers here
     combat_movement(window);
@@ -140,6 +144,18 @@ void exploration_movement(GLFWwindow *window) {
   } else if (glfwGetKey(window, GLFW_KEY_E) != GLFW_PRESS) {
     holding_interaction = 0;
   }
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS && !holding_esc) {
+    if (!trade.ui_listing[0]->enabled && !dialog.ui_text_name->enabled) {
+      if (save_menu_opened()) {
+        close_save_menu();
+      } else {
+        open_save_menu();
+      }
+    }
+    holding_esc = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS) {
+    holding_esc = 0;
+  }
 }
 
 void combat_movement(GLFWwindow *window) {
@@ -186,24 +202,6 @@ void debug_keys(GLFWwindow *window) {
     holding_minus = 1;
   } else if (glfwGetKey(window, GLFW_KEY_MINUS) != GLFW_PRESS) {
     holding_minus = 0;
-  }
-
-  if (glfwGetKey(window, GLFW_KEY_COMMA) == GLFW_PRESS && !holding_save) {
-    save_game(game_save_name);
-    printf("GAME SAVED\n");
-    fflush(stdout);
-    holding_save = 1;
-  } else if (glfwGetKey(window, GLFW_KEY_COMMA) != GLFW_PRESS) {
-    holding_save = 0;
-  }
-
-  if (glfwGetKey(window, GLFW_KEY_PERIOD) == GLFW_PRESS && !holding_load) {
-    load_game(game_save_name);
-    printf("GAME LOADED\n");
-    fflush(stdout);
-    holding_load = 1;
-  } else if (glfwGetKey(window, GLFW_KEY_PERIOD) != GLFW_PRESS) {
-    holding_load = 0;
   }
 }
 
@@ -254,3 +252,80 @@ void ui_hover_listener(double x_pos, double y_pos) {
   }
 }
 
+void load_keys(GLFWwindow *window) {
+  char *input_buffer = get_ui_component_by_ID(SAVE_INPUT)->text;
+  // LETTERS
+  for (int i = GLFW_KEY_A; i <= GLFW_KEY_Z; i++) {
+    if (glfwGetKey(window, i) == GLFW_PRESS && !holding_alpha[i - GLFW_KEY_A]) {
+      holding_alpha[i - GLFW_KEY_A] = 1;
+      if (load_input_len < INPUT_BUFFER_SIZE - 1) {
+        input_buffer[load_input_len] = i + 32;
+        input_buffer[++load_input_len] = '\0';
+      }
+    } else if (glfwGetKey(window, i) != GLFW_PRESS) {
+      holding_alpha[i - GLFW_KEY_A] = 0;
+    }
+  }
+  // NUMBERS
+  for (int i = GLFW_KEY_0; i < GLFW_KEY_9; i++) {
+    if (glfwGetKey(window, i) == GLFW_PRESS && !holding_num[i - GLFW_KEY_0]) {
+      holding_num[i - GLFW_KEY_0] = 1;
+      if (load_input_len < INPUT_BUFFER_SIZE - 1) {
+        input_buffer[load_input_len] = i;
+        input_buffer[++load_input_len] = '\0';
+      }
+    } else if (glfwGetKey(window, i) != GLFW_PRESS) {
+      holding_num[i - GLFW_KEY_0] = 0;
+    }
+  }
+
+  // SPACE
+  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !holding_space) {
+    holding_space = 1;
+    if (load_input_len < INPUT_BUFFER_SIZE - 1) {
+      input_buffer[load_input_len] = ' ';
+      input_buffer[++load_input_len] = '\0';
+    }
+  } else if (glfwGetKey(window, GLFW_KEY_SPACE) != GLFW_PRESS) {
+    holding_space = 0;
+  }
+
+  // UNDERSCORE
+  if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS && !holding_underscore) {
+    holding_underscore = 1;
+    if (load_input_len < INPUT_BUFFER_SIZE - 1) {
+      input_buffer[load_input_len] = '_';
+      input_buffer[++load_input_len] = '\0';
+    }
+  } else if (glfwGetKey(window, GLFW_KEY_MINUS) != GLFW_PRESS) {
+    holding_underscore = 0;
+  }
+
+  // ENTER
+  if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS && !holding_enter) {
+    holding_enter = 1;
+
+    if (open_prompt == LOAD) {
+      load_game(input_buffer);
+    } else if (open_prompt == NEW_GAME) {
+      new_game(input_buffer);
+    }
+    close_save_menu();
+
+    load_input_len = 0;
+    input_buffer[load_input_len] = '\0';
+  } else if (glfwGetKey(window, GLFW_KEY_ENTER) != GLFW_PRESS) {
+    holding_enter = 0;
+  }
+
+  // BACKSPACE
+  if (glfwGetKey(window, GLFW_KEY_BACKSPACE) == GLFW_PRESS && !holding_bs) {
+    if (load_input_len) {
+      load_input_len--;
+      input_buffer[load_input_len] = '\0';
+    }
+    holding_bs = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_BACKSPACE) != GLFW_PRESS) {
+    holding_bs = 0;
+  }
+}
