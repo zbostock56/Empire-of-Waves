@@ -11,6 +11,8 @@ representing an exploration mode island. Can be included in any file which
 reads/manipulates chunks and/or islands.
 */
 
+#define CHUNK_DIR_PATH ("chunks")
+#define UNSAVED_DIR_PATH ("unsaved")
 #define C_WIDTH (128) // Width of a chunk in tiles
 #define I_WIDTH (96) // Width of an island in tiles
 #define MAX_ISLANDS (2) // Max islands per chunk

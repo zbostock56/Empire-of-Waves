@@ -28,8 +28,8 @@ float T_WIDTH = 0.1;
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 int generate_rand();
 int generate_island(ISLAND *island);
-int load_chunk(ivec2, CHUNK *);
-void save_chunk(CHUNK *);
+int load_chunk(ivec2, CHUNK *, char *);
+void save_chunk(CHUNK *, char *);
 void populate_tile_pixel_buffer(ISLAND *, unsigned char (*)[3]);
 unsigned int texture_from_buffer(unsigned char *, int, int, int);
 

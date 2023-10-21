@@ -6,6 +6,8 @@ generation, and detection of which chunks to load/unload.
 */
 
 int init_chunks() {
+  // Since we are not saving the game, the forseeable chunks will be saved to
+  // the unsaved directory rather than the chunks of the saved game
   chunk_buffer = malloc(sizeof(CHUNK) * CHUNK_BUFF_STARTING_LEN);
   if (chunk_buffer == NULL) {
     return -1;
@@ -29,7 +31,7 @@ int init_chunks() {
       return -1;
     }
 
-    save_chunk(chunk_buffer + status);
+    save_chunk(chunk_buffer + status, UNSAVED_DIR_PATH);
     player_chunks[i] = status;
   }
   return 0;
@@ -128,7 +130,13 @@ void free_chunk(CHUNK *chunk) {
 
 int chunk_from_coords(ivec2 coords, CHUNK *dest) {
   // Attempt to load chunk from disk
-  int status = load_chunk(coords, dest);
+  int status = load_chunk(coords, dest, UNSAVED_DIR_PATH);
+  if (status) {
+    // Chunk has not been saved to unsaved directory yet, attempt to load it
+    // from the saved directory
+    status = load_chunk(coords, dest, CHUNK_DIR_PATH);
+  }
+
   if (status) {
     // Chunk also does not exist on disk, so generate it
     glm_ivec2_copy(coords, dest->coords);
@@ -158,7 +166,7 @@ int chunk_from_coords(ivec2 coords, CHUNK *dest) {
   return 0;
 }
 
-int add_chunk (ivec2 coords) {
+int add_chunk(ivec2 coords) {
   int chunk_exists = -1;
   for (unsigned int i = 0; i < chunk_buff_len; i++) {
     if (chunk_buffer[i].coords[0] == coords[0] &&
@@ -207,7 +215,7 @@ int remove_chunk(unsigned int index) {
   }
 
   // Remove chunk from memory if it's ref count is zero
-  save_chunk(chunk_buffer + index);
+  save_chunk(chunk_buffer + index, UNSAVED_DIR_PATH);
   free_chunk(chunk_buffer + index);
   chunk_buff_len--;
 

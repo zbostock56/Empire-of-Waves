@@ -197,6 +197,8 @@ void free_dialog() {
 
   free(dialog.content);
   dialog.content = NULL;
+
+  dialog.merchant = NULL;
 }
 
 /* Open Dialog UI based on dialog type */
