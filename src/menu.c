@@ -169,17 +169,4 @@ void init_menus() {
     T_CENTER,
     get_ui_component_by_ID(INTERACT_PROMPT)
   );
-
-/* Past logic, commented by Zack */
-#if 0
-  // Init dialog menu
-  init_dialog();
-  // Init trade menu
-  init_trade();
-  // Give Init Money
-  e_player.money = 100;
-  // Init status bar
-  init_status_bar();
-  open_status_bar();
-#endif
 }

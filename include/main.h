@@ -24,3 +24,4 @@ void open_status_bar();
 void init_ui_lists();
 void update_dialog_buffers();
 void update_available_mercenaries();
+void update_mercenary_reassignment();

@@ -162,15 +162,17 @@ void populate_tile_pixel_buffer(ISLAND *island,
     texel_y = (I_WIDTH - 1) - (i / I_WIDTH);
     texture_index = (I_WIDTH * texel_y) + (i % I_WIDTH);
     if (island->tiles[texture_index] == MERCH) {
-      /*
+      #if 1
       tile_colors[i][0] = 255;
       tile_colors[i][1] = 0;
       tile_colors[i][2] = 0;
-      */
+      #endif
       /* NOTE: Not rendering merchant debug tile */
+      #if 0
       tile_colors[i][0] = 4;
       tile_colors[i][1] = 209;
       tile_colors[i][2] = 38;
+      #endif
     } else if (island->tiles[texture_index] == ROCK) {
       tile_colors[i][0] = 99;
       tile_colors[i][1] = 87;
@@ -253,7 +255,7 @@ void merchant_generate(MERCHANT *merchant, ISLAND *island) {
       island->tiles[tile_location] = MERCH;
       merchant->num_mercenaries = ((unsigned int) rand()) % MAX_MERCENARIES;
       /* Index of the global names array defined in merchant.h */
-      merchant->name = ((unsigned int) rand()) % NUM_NAMES;
+      merchant->name = ((unsigned int) generate_rand()) % NUM_NAMES;
       found_location = 1;
     }
   }

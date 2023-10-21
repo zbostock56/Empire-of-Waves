@@ -1,6 +1,6 @@
 
 /* DEFINES  */
-#define NUM_COMPONENTS (41) // UI COMPONENT:: Max number of UI component
+#define NUM_COMPONENTS (44) // UI COMPONENT:: Max number of UI component
 
 /*
   Enum mapping human-readable component names to the index of the ui component
@@ -38,7 +38,10 @@ typedef enum component_ids {
   LIST_BUTTON_LEFT = 22,
   LIST_ITEM = 23,
   MERCENARY_BUY_PROMPT = 39,
-  MERCENARY_AVAIL = 40
+  MERCENARY_AVAIL = 40,
+  ADD_MERCENARY = 41,
+  SUB_MERCENARY = 42,
+  REASSIGN_MENU_TITLE = 43
   // Populate as more components are added
 } UI_ID;
 

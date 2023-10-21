@@ -5,6 +5,7 @@ void init_ui_lists() {
   list.page = 0;
   list.num_components = 0;
   list.comp_per_page = 0;
+  e_player.total_mercenaries = 10;
 }
 
 /*
@@ -47,28 +48,26 @@ void open_listing(UI_LIST *list) {
   if (comp_bound > list->num_components) {
     comp_bound = list->num_components;
   }
-
   UI_COMPONENT *cur_comp = NULL;
   for (int i = 0; i < list->num_components; i++) {
-    int listing_index = i % list->comp_per_page;
-    cur_comp = get_ui_component_by_ID(LIST_ITEM) + listing_index;
+    cur_comp = get_ui_component_by_ID(LIST_ITEM) + i;
     vec2 listing_pos = {
       0.0,
-      0.50 - (((float) (listing_index)) * (1.0 / (float) list->comp_per_page))
+      0.50 - (((float) (i % list->comp_per_page)) * (1.0 / (float) list->comp_per_page))
     };
     if (i >= lower_bound && i < comp_bound) {
       init_menu(
         listing_pos,
+        (void (*)(void *)) select_listing_dispatcher,
         NULL,
+        (void *) ((long) i),
         NULL,
-        NULL,
-        NULL,
-        list->listing_strings[listing_index],
-        0,
+        list->listing_strings[i],
+        1,
         1,
         0,
         0.05,
-        1.0,
+        0.75,
         1.0,
         0.2,
         PIVOT_CENTER,
@@ -180,4 +179,17 @@ void scroll_right(UI_LIST *list) {
     list->page = 1;
   }
   open_listing(list);
+}
+
+void select_listing_dispatcher(int listing_selected) {
+  /* Add checks for different use cases of ui_list */
+  /* to determine which context the listing dispatcher*/
+  /* needs to operate in */
+
+  /* For example, if the below is true, set the listing */
+  /* selection dispatcher to work in the context of the */
+  /* mercenary reassignment menu */
+  if (reassignment_menu_open) {
+    mercenary_reassignment_selection(listing_selected);
+  }
 }

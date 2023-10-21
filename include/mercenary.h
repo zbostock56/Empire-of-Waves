@@ -6,16 +6,22 @@
 #include <globals.h>
 
 #define AVAIL_MERC_BUFF_LEN (32)
+#define TOT_LISTING_NUM (16)
 
 extern UI_LIST list;
 int reassignment_menu_open = 0;
 char avail_mercenaries[AVAIL_MERC_BUFF_LEN];
+int mercenary_listing_selected[TOT_LISTING_NUM];
+char **mercenary_reassign_listings;
 
 /* ================= INTERNALLY DEFINED FUNCTIONS ============= */
 void open_mercenary_reassignment_menu();
 void close_mercenary_reassignment_menu();
 void update_available_mercenaries();
 void check_available_mercenaries();
+void mercenary_reassignment_selection();
+void mercenary_reassign(void *);
+void update_mercenary_reassignment();
 
 /* ================= EXTERNALLY DEFINED FUNCTIONS ============= */
 UI_COMPONENT *get_ui_component_by_ID(UI_ID ui_id);
