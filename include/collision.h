@@ -38,6 +38,7 @@ void check_merchant_prompt(vec2);
 int detect_enemy_ships();
 void trade_ship_collision(TRADE_SHIP *);
 void attack_collision();
+int trade_ship_detect_enemies(TRADE_SHIP *, CHUNK*);
 
 int aabb_collision(float *, float, float, float *, float, float);
 int circle_aabb_collision(vec2, float, vec2, float, float, vec2);
@@ -48,7 +49,7 @@ int circle_circle_collision(vec2, float, vec2, float);
 void chunk_to_world(ivec2, vec2, vec2);
 void world_to_chunk(vec2, ivec2, vec2);
 void update_enemy_position(E_ENEMY *);
-void pathfind_enemy(E_ENEMY *);
+void pathfind_enemy(E_ENEMY *, CHUNK *);
 int double_buffer(void **, unsigned int *, unsigned int);
 void update_enemy_chunk(E_ENEMY*, CHUNK*, int);
 

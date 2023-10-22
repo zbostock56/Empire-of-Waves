@@ -21,9 +21,12 @@ int detect_collisions() {
     }
 
     E_ENEMY *cur_enemy = NULL;
+    // Look if enemies have targets to chase
     for (int i = 0; i < chunk_buff_len; i++) {
       for (int j = 0; j < chunk_buffer[i].num_enemies; j++) {
         cur_enemy = &chunk_buffer[i].enemies[j];
+        pathfind_enemy(cur_enemy, &chunk_buffer[i]);
+        update_enemy_chunk(cur_enemy, &chunk_buffer[i], i);
         ship_collisions(chunk_buffer + i, cur_enemy->chunk, cur_enemy->coords);
       }
     }
@@ -32,6 +35,7 @@ int detect_collisions() {
       cur_chunk = chunk_buffer + trade_ships[i].cur_chunk_index;
       ship_collisions(cur_chunk, trade_ships[i].chunk_coords,
                       trade_ships[i].coords);
+      trade_ship_detect_enemies(&trade_ships[i], cur_chunk);
       trade_ship_collision(trade_ships + i);
     }
 
@@ -74,14 +78,6 @@ int detect_enemy_ships() {
           if (status) {
             return -1;
           }
-        }
-        if (circle_circle_collision(world_coords,
-                                    SHIP_COLLISION_RADIUS *SHIP_CHASE_RADIUS*T_WIDTH,
-                                    cur_enemy_world_coords,
-                                    SHIP_COLLISION_RADIUS *SHIP_CHASE_RADIUS*T_WIDTH)) {
-          cur_enemy->on_path = true;
-          pathfind_enemy(cur_enemy);
-          update_enemy_chunk(cur_enemy, chunk, i);
         }
       }
     }
@@ -251,6 +247,46 @@ void ship_collisions(CHUNK *chunk, ivec2 chunk_coords, vec2 coords) {
     }
   }
 }
+
+// Detect enemies and steer away to avoid
+int trade_ship_detect_enemies(TRADE_SHIP *trade_ship, CHUNK *trade_ship_chunk) {
+  vec2 world_coords = GLM_VEC2_ZERO_INIT;
+  chunk_to_world(trade_ship->chunk_coords, trade_ship->coords, world_coords);
+  E_ENEMY *cur_enemy = NULL;
+  vec2 cur_enemy_world_coords = GLM_VEC2_ZERO_INIT;
+  // int status = 0;
+  
+  if (trade_ship_chunk->enemies) {
+    for (int i = 0; i < trade_ship_chunk->num_enemies; i++) {
+      cur_enemy = trade_ship_chunk->enemies + i;
+      chunk_to_world(cur_enemy->chunk, cur_enemy->coords,
+                    cur_enemy_world_coords);
+
+      if (circle_circle_collision(world_coords,
+                                  SHIP_COLLISION_RADIUS *T_WIDTH,
+                                  cur_enemy_world_coords,
+                                  SHIP_COLLISION_RADIUS *T_WIDTH)) {
+        num_trade_ships--;
+        trade_ships[i] = trade_ships[num_trade_ships];
+      }
+      if (circle_circle_collision(world_coords,
+                                  SHIP_COLLISION_RADIUS *SHIP_CHASE_RADIUS*T_WIDTH,
+                                  cur_enemy_world_coords,
+                                  SHIP_COLLISION_RADIUS *SHIP_CHASE_RADIUS*T_WIDTH)) {
+        /* some steering */
+        vec2 steer_force = GLM_VEC2_ZERO_INIT;
+        glm_vec2_sub(world_coords, cur_enemy_world_coords, steer_force); 
+        glm_vec2_normalize(steer_force);
+        glm_vec2_scale(steer_force, delta_time, steer_force);
+        glm_vec2_add(trade_ship->direction, steer_force, trade_ship->direction);
+      }
+    }
+  }
+  
+
+  return 0;
+}
+
 
 // Steer trade ship away from obstructive tiles of non-target islands
 void trade_ship_steering(TRADE_SHIP *trade_ship, vec2 direction) {
