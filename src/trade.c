@@ -3,15 +3,35 @@
 /* Init trade menu */
 void init_trade() {
   trade.type = INVALID_TRADE;
-  trade.ui_listing[0] = get_ui_component_by_ID(TRADE_BUTTON_LISTING_0);
-  trade.ui_listing[1] = get_ui_component_by_ID(TRADE_BUTTON_LISTING_1);
-  trade.ui_listing[2] = get_ui_component_by_ID(TRADE_BUTTON_LISTING_2);
-  trade.ui_listing[3] = get_ui_component_by_ID(TRADE_BUTTON_LISTING_3);
-  trade.ui_listing[4] = get_ui_component_by_ID(TRADE_BUTTON_LISTING_4);
-  trade.ui_listing[5] = get_ui_component_by_ID(TRADE_BUTTON_LISTING_5);
-  trade.ui_listing[6] = get_ui_component_by_ID(TRADE_BUTTON_LISTING_6);
-  trade.ui_listing[7] = get_ui_component_by_ID(TRADE_BUTTON_LISTING_7);
-  trade.ui_listing[8] = get_ui_component_by_ID(TRADE_BUTTON_LISTING_8);
+
+  // Init buy & sell listing UI
+  for (int i = 0; i < 9; i++) {
+    trade.ui_listing[i] = get_ui_component_by_ID(TRADE_BUTTON_LISTING_0 + i);
+  }
+
+  // Init trade with items UI (8 merchant item and 8 player item)
+  for (int i = 0; i < 8; i++) {
+    trade.ui_merchant_items[i] = get_ui_component_by_ID(TRADE_BUTTON_MERCHANT_ITEM_0 + i);
+    trade.ui_player_items[i] = get_ui_component_by_ID(TRADE_BUTTON_PLAYER_ITEM_0 + i);
+  }
+
+  // Init buttons and texts ui
+  UI_COMPONENT *ui_button_merchant_item_page_up = get_ui_component_by_ID(TRADE_BUTTON_MERCHANT_ITEM_PAGE_UP);
+  UI_COMPONENT *ui_button_merchant_item_page_down = get_ui_component_by_ID(TRADE_BUTTON_MERCHANT_ITEM_PAGE_DOWN);
+  UI_COMPONENT *ui_button_player_item_page_up = get_ui_component_by_ID(TRADE_BUTTON_PLAYER_ITEM_PAGE_UP);
+  UI_COMPONENT *ui_button_player_item_page_down = get_ui_component_by_ID(TRADE_BUTTON_PLAYER_ITEM_PAGE_DOWN);
+  UI_COMPONENT *ui_text_on_hover_item = get_ui_component_by_ID(TRADE_TEXT_ON_HOVER_ITEM);
+  UI_COMPONENT *ui_text_merchant_value = get_ui_component_by_ID(TRADE_TEXT_MERCHANT_VALUE);
+  UI_COMPONENT *ui_text_player_value = get_ui_component_by_ID(TRADE_TEXT_PLAYER_VALUE);
+  UI_COMPONENT *ui_button_trade = get_ui_component_by_ID(TRADE_BUTTON_TRADE);
+  UI_COMPONENT *ui_text_event_prompt = get_ui_component_by_ID(TRADE_TEXT_EVENT_PROMPT);
+
+  for (int i = 0; i < MAX_MERCHANT_ITEM_SELECTED; i++) {
+    trade.merchant_item_selected[i] = 0;
+  }
+  for (int i = 0; i < MAX_PLAYER_ITEM_SELECTED; i++) {
+    trade.player_item_selected[i] = 0;
+  }
 
   // Init listings
   vec2 listing_0_position = { -0.5, 0.5 };
@@ -193,36 +213,282 @@ void init_trade() {
     T_CENTER, // text_anchor
     trade.ui_listing[8] // dest
   );
+
+  // Init merchant items
+  for (uintptr_t i = 0; i < MAX_ITEMS_PER_PAGE; i++) {
+    init_menu(
+      (vec2) { 0.2, -0.2 }, // position
+      on_click_ui_item, // on_click
+      on_hover_ui_item, // on_hover
+      (void *) i, // on_click_args
+      (void *) i, // on_hover_args
+      "UI_M", // text
+      0, // enabled
+      1, // textured
+      0, // texture
+      0.05, // text_padding
+      0.5, // text_scale
+      0.5, // width
+      0.5, // height
+      PIVOT_CENTER, // pivot
+      T_CENTER, // text_anchor
+      trade.ui_merchant_items[i] // dest
+    );
+  }
+
+  // Init player items
+  for (uintptr_t i = 0; i < MAX_ITEMS_PER_PAGE; i++) {
+    init_menu(
+      (vec2) { 0.2, -0.2 }, // position
+      on_click_ui_item, // on_click
+      on_hover_ui_item, // on_hover
+      (void *) i, // on_click_args
+      (void *) i,// on_hover_args
+      "UI_P", // text
+      0, // enabled
+      1, // textured
+      0, // texture
+      0.05, // text_padding
+      0.5, // text_scale
+      0.5, // width
+      0.5, // height
+      PIVOT_CENTER, // pivot
+      T_CENTER, // text_anchor
+      trade.ui_merchant_items[i] // dest
+    );
+  }
+
+  // Init page up and down
+  init_menu(
+    (vec2) { 0.2, -0.2 }, // position
+    on_click_page_up, // on_click
+    NULL, // on_hover
+    (void *) 1, // on_click_args
+    NULL, // on_hover_args
+    "PG_UP", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    0.5, // text_scale
+    0.5, // width
+    0.5, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    trade.ui_button_merchant_item_page_up // dest
+  );
+
+  init_menu(
+    (vec2) { 0.2, -0.2 }, // position
+    on_click_page_down, // on_click
+    NULL, // on_hover
+    (void *) 1, // on_click_args
+    NULL, // on_hover_args
+    "PG_DN", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    0.5, // text_scale
+    0.5, // width
+    0.5, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    trade.ui_button_merchant_item_page_down // dest
+  );
+
+  // Init page up and down
+  init_menu(
+    (vec2) { 0.2, -0.2 }, // position
+    on_click_page_up, // on_click
+    NULL, // on_hover
+    (void *) 1, // on_click_args
+    NULL, // on_hover_args
+    "PG_UP", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    0.5, // text_scale
+    0.5, // width
+    0.5, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    trade.ui_button_player_item_page_up // dest
+  );
+
+  init_menu(
+    (vec2) { 0.2, -0.2 }, // position
+    on_click_page_down, // on_click
+    NULL, // on_hover
+    (void *) 1, // on_click_args
+    NULL, // on_hover_args
+    "PG_DN", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    0.5, // text_scale
+    0.5, // width
+    0.5, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    trade.ui_button_player_item_page_down // dest
+  );
+
+  // Init on-hover prompt
+  init_menu(
+    (vec2) { 0.2, -0.2 }, // position
+    NULL, // on_click
+    NULL, // on_hover
+    NULL, // on_click_args
+    NULL, // on_hover_args
+    "ON_HOVER", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    0.5, // text_scale
+    0.5, // width
+    0.5, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    trade.ui_text_on_hover_item // dest
+  );
+
+  // Init merchant and player value text
+  init_menu(
+    (vec2) { 0.2, -0.2 }, // position
+    NULL, // on_click
+    NULL, // on_hover
+    NULL, // on_click_args
+    NULL, // on_hover_args
+    "M_VAL", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    0.5, // text_scale
+    0.5, // width
+    0.5, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    trade.ui_text_merchant_value // dest
+  );
+
+  init_menu(
+    (vec2) { 0.2, -0.2 }, // position
+    NULL, // on_click
+    NULL, // on_hover
+    NULL, // on_click_args
+    NULL, // on_hover_args
+    "P_VAL", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    0.5, // text_scale
+    0.5, // width
+    0.5, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    trade.ui_text_player_value // dest
+  );
+
+  // Init trade button
+  init_menu(
+    (vec2) { 0.2, -0.2 }, // position
+    on_click_trade, // on_click
+    NULL, // on_hover
+    NULL, // on_click_args
+    NULL, // on_hover_args
+    "TRADE", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    0.5, // text_scale
+    0.5, // width
+    0.5, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    trade.ui_button_trade // dest
+  );
+
+  // Init trade event prompt
+  init_menu(
+    (vec2) { 0.2, -0.2 }, // position
+    NULL, // on_click
+    NULL, // on_hover
+    NULL, // on_click_args
+    NULL, // on_hover_args
+    "EVENT PROMPT", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    0.5, // text_scale
+    0.5, // width
+    0.5, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    trade.ui_text_event_prompt // dest
+  );
+
+
+  // Test
+  open_trade();
 }
 
 /* Render trade menu in frontend */
 void open_trade() {
+  int is_ui_buy_sell_enabled = 0;
+  int is_ui_trade_with_items_enabled = 0;
   switch (trade.type) {
     case BUY: {
-      for (int i = 0; i < 9; i++) {
-        trade.ui_listing[i]->enabled = 1;
-      }
+      is_ui_buy_sell_enabled = 1;
+      is_ui_trade_with_items_enabled = 0;
       break;
     }
     case SELL: {
-      for (int i = 0; i < 9; i++) {
-        trade.ui_listing[i]->enabled = 1;
-      }
+      is_ui_buy_sell_enabled = 1;
+      is_ui_trade_with_items_enabled = 0;
       break;
     }
+    case WITH_ITEM: {
+    }
     default: {
-      for (int i = 0; i < 9; i++) {
-        trade.ui_listing[i]->enabled = 1;
-      }
+      is_ui_buy_sell_enabled = 0;
+      is_ui_trade_with_items_enabled = 1;
       break;
     }
   }
+  for (int i = 0; i < 9; i++) {
+    trade.ui_listing[i]->enabled = is_ui_buy_sell_enabled;
+  }
+  for (int i = 0; i < 8; i++) {
+    trade.ui_merchant_items[i]->enabled = is_ui_trade_with_items_enabled;
+    trade.ui_player_items[i]->enabled = is_ui_trade_with_items_enabled;
+  }
+  trade.ui_button_merchant_item_page_up->enabled = is_ui_trade_with_items_enabled;
+  trade.ui_button_merchant_item_page_down->enabled = is_ui_trade_with_items_enabled;
+  trade.ui_button_player_item_page_up->enabled = is_ui_trade_with_items_enabled;
+  trade.ui_button_player_item_page_down->enabled = is_ui_trade_with_items_enabled;
+  trade.ui_text_on_hover_item->enabled = is_ui_trade_with_items_enabled;
+  trade.ui_text_merchant_value->enabled = is_ui_trade_with_items_enabled;
+  trade.ui_text_player_value->enabled = is_ui_trade_with_items_enabled;
+  trade.ui_button_trade->enabled = is_ui_trade_with_items_enabled;
+  trade.ui_text_event_prompt->enabled = is_ui_trade_with_items_enabled;
 }
 
 /* Derender trade menu */
 void close_trade() {
   for (int i = 0; i < 9; i++) {
     trade.ui_listing[i]->enabled = 0;
+  }
+  for (int i = 0; i < 8; i++) {
+    trade.ui_merchant_items[i]->enabled = 0;
+    trade.ui_player_items[i]->enabled = 0;
   }
 }
 
@@ -435,4 +701,57 @@ void open_establish_trade_route() {
     double_buffer((void **) &trade_ships, &trade_ship_buf_size,
                   sizeof(TRADE_SHIP));
   }
+}
+
+/*
+Click listener of trade with item menu merchant items
+Args:
+unsigned int merchant_ui_index
+  merchant item index, from 0 to 7
+*/
+void on_click_ui_item(void *item_ui_index) {
+  uintptr_t arg = (uintptr_t)item_ui_index;
+  printf("Click Detected\n");
+}
+
+
+/*
+Hover listener of trade with item menu merchant items
+Args:
+unsigned int merchant_ui_index
+  merchant item index, from 0 to 7
+
+*/
+void on_hover_ui_item(void *item_ui_index) {
+  uintptr_t arg = (uintptr_t)item_ui_index;
+  printf("Hover Detected\n");
+}
+
+/*
+Click listener of merchant items page up
+Args:
+int isMerchant
+  is clicked page up button belongs to merchant or player
+*/
+void on_click_page_up(void *isMerchant) {
+  uintptr_t arg = (uintptr_t)isMerchant;
+  printf("Click Detected\n");
+}
+
+/*
+Click listener of merchant items page up
+Args:
+int isMerchant
+  is clicked page up button belongs to merchant or player
+*/
+void on_click_page_down(void *isMerchant) {
+  uintptr_t arg = (uintptr_t)isMerchant;
+  printf("Click Detected\n");
+}
+
+/*
+Trade with both sides item selected
+*/
+void on_click_trade() {
+  printf("Click Detected\n");
 }

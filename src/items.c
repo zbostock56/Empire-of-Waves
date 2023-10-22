@@ -81,6 +81,15 @@ ITEM item_tab[NUM_ITEMS] = {
   
   // PLATE_ARMOR
   {180, 0, 1, 0.0, -0.2, -0.5, 200.0},
+
+  // GOLD_COIN
+  {100, 0, 0, 0.0, 0.0, 0.0, 0.0},
+
+  // SILVER_COIN
+  {10, 0, 0, 0.0, 0.0, 0.0, 0.0},
+
+  // COPPER_COIN
+  {1, 0, 0, 0.0, 0.0, 0.0, 0.0},
 };
 
 // Resource table definition

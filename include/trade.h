@@ -30,6 +30,11 @@ void on_click_ui_listing(void *listing_ui_number);
 void open_buy();
 void open_sell();
 void open_establish_trade_route();
+void on_click_ui_item(void *item_ui_index);
+void on_hover_ui_item(void *item_ui_index);
+void on_click_page_up(void *isMerchant);
+void on_click_page_down(void *isMerchant);
+void on_click_trade();
 
 /* ==================== EXTERNALLY DEFINED FUNCTIONS ================== */
 int add_chunk(ivec2);
