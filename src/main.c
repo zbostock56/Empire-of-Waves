@@ -35,7 +35,7 @@ int main() {
     }
 
     update_trade_ships();
-    
+
     status = detect_collisions();
     if (status) {
       return -1;

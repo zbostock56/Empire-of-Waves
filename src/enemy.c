@@ -280,15 +280,15 @@ void pathfind_enemy(E_ENEMY *enemy, CHUNK *enemy_chunk) {
       difference[1] *= -1;
       glm_vec2_scale(difference, delta_time*3, difference);
       glm_vec2_add(difference, enemy->direction, enemy->direction);
-      
+
       if (enemy->direction[0] == 0) {
         enemy->direction[0] = 0.05;
       }
       if (enemy->direction[1] == 0) {
         enemy->direction[1] = 0.05;
-      }      
+      }
       glm_vec2_normalize(enemy->direction);
-      
+
       int next_col = ((Node *)vector_get(path_list, vector_total(path_list) - 1))->col;
       int next_row = ((Node *)vector_get(path_list, vector_total(path_list) - 1))->row;
 

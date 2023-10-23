@@ -241,7 +241,6 @@ void ship_collisions(CHUNK *chunk, ivec2 chunk_coords, vec2 coords) {
           circle_aabb_collision(world_coords, radius, search_world_coords,
                                 T_WIDTH, T_WIDTH, collision_correction)) {
         glm_vec2_add(world_coords, collision_correction, world_coords);
-        printf("Collision occured\n");
         world_to_chunk(world_coords, chunk_coords, coords);
       }
     }
@@ -350,7 +349,7 @@ void trade_ship_steering(TRADE_SHIP *trade_ship, vec2 direction) {
   }
 
   glm_vec2_normalize(steer_dir);
-  glm_vec2_scale(steer_dir, delta_time, steer_dir);
+  glm_vec2_scale(steer_dir, delta_time * STEER_SPEED, steer_dir);
   glm_vec2_add(steer_dir, direction, direction);
 }
 
