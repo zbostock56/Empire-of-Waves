@@ -226,7 +226,7 @@ void pathfind_enemy(E_ENEMY *enemy, CHUNK *enemy_chunk) {
         /*If the enemy on diagonal. Currently doesn't manually move it*/
       }
 
-      glm_vec2_scale(target_dir, delta_time*3, target_dir);
+      glm_vec2_scale(target_dir, delta_time * STEER_SPEED, target_dir);
       glm_vec2_add(target_dir, enemy->direction, enemy->direction);
       if (enemy->direction[0] == 0) {
           enemy->direction[0] = 0.05;
