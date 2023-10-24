@@ -1,4 +1,4 @@
-#include <render.h>
+  #include <render.h>
 
 void init_scene() {
   glm_vec2_zero(e_player.coords);
@@ -16,9 +16,9 @@ void init_scene() {
   e_player.inventory[2].item_id = KNIVE;
   e_player.inventory[2].quantity = 1;
 
-  // TEST MODELS
-  unsigned char ocean_buffer[3] = { 3, 157, 252 };
-  ocean_texture = texture_from_buffer(ocean_buffer, 1, 1, GL_RGB);
+    // TEST MODELS
+    unsigned char ocean_buffer[3] = { 3, 157, 252 };
+    ocean_texture = texture_from_buffer(ocean_buffer, 1, 1, GL_RGB);
   // END TEST
 
   // Initialize offscreen framebuffer
@@ -191,11 +191,6 @@ void render_scene(GLFWwindow *window) {
 
   render_player();
   if (mode == EXPLORATION) {
-    if (cur_merchant) {
-      snprintf(dialog.ui_text_relationship->text, TEXT_BUFFER_LEN,
-               "Relationship: %.1f", cur_merchant->relationship);
-    }
-
     for (int i = 0; i < 5; i++) {
       for (int j = 0; j < 5; j++) {
         ivec2 chunk = {

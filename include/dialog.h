@@ -2,6 +2,8 @@
 #include <ui_component.h>
 #include <dialog_str.h>
 #include <menu.h>
+#include <globals.h>
+#include <stdio.h>
 
 /*
                                    DIALOG
@@ -20,6 +22,7 @@ void free_dialog();
 void open_dialog();
 void close_dialog();
 int set_dialog(T_DIALOG, char *, char *);
+void update_dialog_buffers();
 
 /* ================= EXTERNALLY DEFINED FUNCTIONS ================ */
 void init_menu(vec2, void (*)(void *), void (*)(void *), void *, void *,
@@ -28,3 +31,4 @@ void init_menu(vec2, void (*)(void *), void (*)(void *), void *, void *,
 void open_buy();
 void open_sell();
 void open_establish_trade_route();
+void purchase_mercenary_handler();

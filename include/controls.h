@@ -23,6 +23,8 @@ vec2 mouse_position = GLM_VEC2_ZERO_INIT;
 
 int holding_left_click = 0;
 extern int shore_interaction_enabled;
+extern int home_interaction_enabled;
+extern int reassignment_menu_open;
 
 int holding_equals = 0;
 int holding_left_bracket = 0;
@@ -69,4 +71,5 @@ int set_dialog(T_DIALOG, char *, char *);
 void close_dialog();
 void close_trade();
 void refresh_framebuffers();
-
+void open_mercenary_reassignment_menu();
+void close_mercenary_reassignment_menu();
