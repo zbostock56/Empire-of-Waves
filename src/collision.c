@@ -462,13 +462,16 @@ void unit_collision(vec2 coords) {
 }
 
 void attack_collision() {
-  float hurt_radius = CHARACTER_COLLISION_RADIUS * T_WIDTH;
-  vec2 collision_correction = GLM_VEC2_ZERO_INIT;
+  float hurt_radius = CHARACTER_HURT_RADIUS * T_WIDTH;
+
   vec2 player_coords = GLM_VEC2_ZERO_INIT;
   glm_vec2_scale(c_player.coords, T_WIDTH, player_coords);
+  player_coords[Y] += T_WIDTH;
+
   vec2 player_attack_pos = GLM_VEC2_ZERO_INIT;
   glm_vec2_scale_as(c_player.direction, T_WIDTH, player_attack_pos);
   glm_vec2_add(player_attack_pos, player_coords, player_attack_pos);
+
   // Because circle_aabb_collision utilizes the top left corner of the aabb,
   // we must calculate the top left corner of the hitbox, since
   // player_attack_pos currently contains the middle of the hitbox
@@ -481,24 +484,65 @@ void attack_collision() {
   for (unsigned int i = 0; i < num_npc_units; i++) {
     unit = npc_units + i;
     glm_vec2_scale(unit->coords, T_WIDTH, unit_coords);
+    unit_coords[Y] += T_WIDTH;
     if (unit->type == ENEMY && unit->death_animation == -1.0) {
       // Check player collision with enemy hitbox
       glm_vec2_scale_as(npc_units[i].direction, T_WIDTH, unit_attack_pos);
       glm_vec2_add(unit_attack_pos, unit_coords, unit_attack_pos);
-      glm_vec2_add(to_top_left, unit_attack_pos, unit_attack_pos);
       if (c_player.invuln_timer == 0.0 && npc_units[i].attack_active &&
-          circle_aabb_collision(player_coords, hurt_radius, unit_attack_pos,
-                                T_WIDTH, T_WIDTH, collision_correction)) {
+          circle_circle_collision(player_coords, hurt_radius, unit_attack_pos,
+                                  T_WIDTH)) {
         c_player.health -= 10.0;
         c_player.invuln_timer = 0.5;
       }
 
       // Check enemy collision with player hitbox
       if (c_player.attack_active &&
-          circle_aabb_collision(unit_coords, hurt_radius, player_attack_pos,
-                                T_WIDTH, T_WIDTH, collision_correction)) {
+          circle_circle_collision(unit_coords, hurt_radius, player_attack_pos,
+                                  T_WIDTH)) {
         unit->death_animation = 1.0;
       }
+    }
+  }
+
+  PROJ *cur_proj = NULL;
+  int to_despawn = 0;
+  for (unsigned int i = 0; i < num_projectiles; i++) {
+    to_despawn = 0;
+    cur_proj = projectiles + i;
+    if (cur_proj->pos[X] <= -0.5 * arena_dimensions[X] * T_WIDTH ||
+        cur_proj->pos[X] >=  0.5 * arena_dimensions[X] * T_WIDTH ||
+        cur_proj->pos[Y] <= -0.5 * arena_dimensions[Y] * T_WIDTH ||
+        cur_proj->pos[Y] >=  0.5 * arena_dimensions[Y] * T_WIDTH) {
+      to_despawn = 1;
+    }
+
+    for (unsigned int j = 0; j < num_npc_units && !to_despawn; j++) {
+      unit = npc_units + j;
+      glm_vec2_scale(unit->coords, T_WIDTH, unit_coords);
+      unit_coords[Y] += T_WIDTH;
+      if (((cur_proj->target == ENEMY && unit->type == ENEMY) ||
+           (cur_proj->target == ALLY && unit->type == ALLY)) &&
+          unit->death_animation == -1.0 &&
+          circle_circle_collision(unit_coords, hurt_radius, cur_proj->pos,
+                                  PROJ_RAD * T_WIDTH)) {
+        unit->death_animation = 1.0;
+        to_despawn = 1;
+      }
+    }
+
+    if (cur_proj->target == ALLY && c_player.invuln_timer == 0.0 &&
+        !to_despawn && circle_circle_collision(player_coords, hurt_radius,
+                                               cur_proj->pos,
+                                               PROJ_RAD * T_WIDTH)) {
+      c_player.health -= 10.0;
+      c_player.invuln_timer = 0.5;
+      to_despawn = 1;
+    }
+
+    if (to_despawn) {
+      despawn_projectile(i);
+      i--;
     }
   }
 }

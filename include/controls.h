@@ -40,6 +40,7 @@ void debug_keys(GLFWwindow *);
 void ui_click_listener(double, double);
 void ui_hover_listener(double, double);
 void close_merchant_menu(GLFWwindow *window);
+void combat_mode_attack(int);
 
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 void detect_context_interaction();
@@ -53,4 +54,5 @@ int set_dialog(T_DIALOG, char *, char *);
 void close_dialog();
 void close_trade();
 void refresh_framebuffers();
+int spawn_projectile(vec2, vec2, float, UNIT_T);
 

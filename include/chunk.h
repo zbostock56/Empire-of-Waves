@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <glad/glad.h>
+#include <combat_str.h>
 #include <player_str.h>
 #include <chunk_str.h>
 #include <trade_ship_str.h>

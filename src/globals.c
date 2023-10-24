@@ -36,7 +36,10 @@ MERCHANT *cur_merchant = NULL;
 
 // COMBAT MODE STATE
 C_PLAYER c_player;
-C_UNIT *npc_units;
+C_UNIT *npc_units = NULL;
+unsigned int num_npc_units = 0;
+PROJ *projectiles = NULL;
+unsigned int num_projectiles = 0;
+unsigned int proj_buf_size = 0;
 unsigned int e_enemy_index;
-unsigned int num_npc_units;
 ivec2 arena_dimensions = { 50, 20 };

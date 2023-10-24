@@ -3,6 +3,7 @@
 
 #include <cglm/vec2.h>
 #include <cglm/ivec2.h>
+#include <combat_str.h>
 #include <items.h>
 /*
                                 PLAYER_STR.h
@@ -12,18 +13,6 @@ which reads/manipulates player state.
 */
 
 #define INV_SIZE (9)
-
-/*
-  Enum describing weapon types
-  Wrapped in def guards because WEAPON_T is also defined in enemy_str.h
-*/
-#ifndef WT
-#define WT
-typedef enum weapon_t {
-  MELEE,
-  RANGED
-} WEAPON_T;
-#endif
 
 typedef struct inventory_slot {
   int item_id;
@@ -61,6 +50,7 @@ typedef struct combat_player {
   float max_health;
   float health;
   float speed;
+  float proj_speed;
   // Indicates the current cool down of a players active hitbox in seconds.
   // When non-zero, the hitbox is currently active. When 0, the hitbox is not
   // active
