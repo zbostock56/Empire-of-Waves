@@ -6,13 +6,16 @@
 #include <globals.h>
 
 #define AVAIL_MERC_BUFF_LEN (32)
-#define TOT_LISTING_NUM (16)
+#define TOT_LISTING_NUM (17)
+#define MY_SHIP_MERC_LEN (48)
 
 extern UI_LIST list;
 int reassignment_menu_open = 0;
 char avail_mercenaries[AVAIL_MERC_BUFF_LEN];
 int mercenary_listing_selected[TOT_LISTING_NUM];
 char **mercenary_reassign_listings;
+char my_ship_mercenaries[MY_SHIP_MERC_LEN];
+int my_ship_selected = 0;
 
 /* ================= INTERNALLY DEFINED FUNCTIONS ============= */
 void open_mercenary_reassignment_menu();
@@ -22,6 +25,7 @@ void check_available_mercenaries();
 void mercenary_reassignment_selection();
 void mercenary_reassign(void *);
 void update_mercenary_reassignment();
+void mercenary_reassign_my_ship(long);
 
 /* ================= EXTERNALLY DEFINED FUNCTIONS ============= */
 UI_COMPONENT *get_ui_component_by_ID(UI_ID ui_id);
@@ -33,3 +37,5 @@ void close_listings(UI_LIST *);
 void init_menu(vec2, void (*)(void *), void (*)(void *), void *, void *,
                char *, int, int, unsigned int, float, float, float, float,
                PIVOT, TEXT_ANCHOR, UI_COMPONENT *);
+void select_listing_dispatcher();
+
