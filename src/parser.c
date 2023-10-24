@@ -86,6 +86,14 @@ void console_dispatcher() {
     return;
   } else if (strncmp(command[0].tok, TELEPORT_NEAREST_ISLAND, sizeof(TELEPORT_NEAREST_ISLAND)) == 0) {
     teleport_nearest_island();
+  } else if (strncmp(command[0].tok, TELEPORT, sizeof(TELEPORT)) == 0) {
+    if (command[1].kind != NUMBER || command[2].kind != NUMBER) {
+      print_parse_table();
+      command_not_found();
+      return;
+    }
+    ivec2 loc = { atoi(command[1].tok), atoi(command[2].tok) };
+    teleport(loc);
   } else {
     command_not_found();
   }

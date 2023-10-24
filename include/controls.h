@@ -25,11 +25,11 @@ int holding_left_click = 0;
 extern int shore_interaction_enabled;
 extern int home_interaction_enabled;
 extern int reassignment_menu_open;
+char cons_cmd[MAX_CMD_LEN];
 
 int holding_equals = 0;
 int holding_left_bracket = 0;
 int holding_tilde = 0;
-char cons_cmd[MAX_CMD_LEN];
 int cons_cmd_len = 0;
 int holding_alpha[26];
 int holding_num[10];
@@ -73,3 +73,4 @@ void close_trade();
 void refresh_framebuffers();
 void open_mercenary_reassignment_menu();
 void close_mercenary_reassignment_menu();
+void close_console_prompt();

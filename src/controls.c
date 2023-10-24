@@ -192,18 +192,21 @@ void debug_keys(GLFWwindow *window) {
   } else if (glfwGetKey(window, GLFW_KEY_LEFT_BRACKET) != GLFW_PRESS) {
     holding_left_bracket = 0;
   }
+
+  /* Console enable/disable  */
   if (glfwGetKey(window, GLFW_KEY_SLASH) == GLFW_PRESS && !holding_tilde) {
     // Enter console
     holding_tilde = 1;
     if (console_enabled) {
       console_enabled = 0;
-      printf("CONSOLE END\n");
-      fflush(stdout);
+      //printf("CONSOLE END\n");
+      //fflush(stdout);
       cons_cmd_len = 0;
+      close_console_prompt();
     } else {
       console_enabled = 1;
-      printf("\nEOW-CONSOLE $ ");
-      fflush(stdout);
+      //printf("\nEOW-CONSOLE $ ");
+      //fflush(stdout);
     }
   } else if (glfwGetKey(window, GLFW_KEY_SLASH) != GLFW_PRESS) {
     holding_tilde = 0;
@@ -224,28 +227,28 @@ void close_merchant_menu(GLFWwindow *window) {
   }
 }
 
+
 void console_keys(GLFWwindow *window) {
   // LETTERS
   for (int i = GLFW_KEY_A; i <= GLFW_KEY_Z; i++) {
     if (glfwGetKey(window, i) == GLFW_PRESS && !holding_alpha[i - GLFW_KEY_A]) {
       holding_alpha[i - GLFW_KEY_A] = 1;
       if (cons_cmd_len < MAX_CMD_LEN - 1) {
-        printf("%c", i + 32);
-        cons_cmd[cons_cmd_len] = i + 32;
-        cons_cmd_len++;
+        //printf("%c", i + 32);
+        cons_cmd[cons_cmd_len++] = i + 32;
       }
     } else if (glfwGetKey(window, i) != GLFW_PRESS) {
       holding_alpha[i - GLFW_KEY_A] = 0;
     }
   }
+
   // NUMBERS
-  for (int i = GLFW_KEY_0; i < GLFW_KEY_9; i++) {
+  for (int i = GLFW_KEY_0; i <= GLFW_KEY_9; i++) {
     if (glfwGetKey(window, i) == GLFW_PRESS && !holding_num[i - GLFW_KEY_0]) {
       holding_num[i - GLFW_KEY_0] = 1;
       if (cons_cmd_len < MAX_CMD_LEN - 1) {
-        printf("%c", i);
-        cons_cmd[cons_cmd_len] = i;
-        cons_cmd_len++;
+        //printf("%c", i);
+        cons_cmd[cons_cmd_len++] = i;
       }
     } else if (glfwGetKey(window, i) != GLFW_PRESS) {
       holding_num[i - GLFW_KEY_0] = 0;
@@ -256,9 +259,8 @@ void console_keys(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !holding_space) {
     holding_space = 1;
     if (cons_cmd_len < MAX_CMD_LEN - 1) {
-      printf("%c", ' ');
-      cons_cmd[cons_cmd_len] = ' ';
-      cons_cmd_len++;
+      //printf("%c", ' ');
+      cons_cmd[cons_cmd_len++] = ' ';
     }
   } else if (glfwGetKey(window, GLFW_KEY_SPACE) != GLFW_PRESS) {
     holding_space = 0;
@@ -268,9 +270,8 @@ void console_keys(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS && !holding_underscore) {
     holding_underscore = 1;
     if (cons_cmd_len < MAX_CMD_LEN - 1) {
-      printf("%c", '_');
-      cons_cmd[cons_cmd_len] = '_';
-      cons_cmd_len++;
+      //printf("%c", '_');
+      cons_cmd[cons_cmd_len++] = '_';
     }
   } else if (glfwGetKey(window, GLFW_KEY_MINUS) != GLFW_PRESS) {
     holding_underscore = 0;
@@ -279,21 +280,13 @@ void console_keys(GLFWwindow *window) {
   // ENTER
   if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS && !holding_enter) {
     holding_enter = 1;
-    printf("\nEOW CONSOLE $ ");
+    //printf("\nEOW CONSOLE $ ");
     cons_cmd[cons_cmd_len++] = '\0';
-    /*
-    printf("|");
-    for (int i = 0; i < cons_cmd_len; i++) {
-      if (cons_cmd[i] == '\0') {
-        printf(" ");
-        continue;
-      }
-      printf("%c", cons_cmd[i]);
-    }
-    printf("|\n");\
-    */
     tokenize(cons_cmd, cons_cmd_len);
     cons_cmd_len = 0;
+    for (int i = 0; i < 100; i++) {
+      cons_cmd[i] = '\0';
+    }
   } else if (glfwGetKey(window, GLFW_KEY_ENTER) != GLFW_PRESS) {
     holding_enter = 0;
   }
@@ -302,14 +295,26 @@ void console_keys(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_PERIOD) == GLFW_PRESS && !holding_dot) {
     holding_dot = 1;
     if (cons_cmd_len < MAX_CMD_LEN - 1) {
-      printf("%c", '.');
+      //printf("%c", '.');
       cons_cmd[cons_cmd_len++] = '.';
     }
   } else if (glfwGetKey(window, GLFW_KEY_PERIOD) != GLFW_PRESS) {
     holding_dot = 0;
   }
-  fflush(stdout);
+
+  // BACKSPACE
+  if (glfwGetKey(window, GLFW_KEY_BACKSPACE) == GLFW_PRESS && !holding_backspace) {
+    holding_backspace = 1;
+    if (cons_cmd_len > 0) {
+      cons_cmd[cons_cmd_len--] = '\0';
+    }
+  } else if (glfwGetKey(window, GLFW_KEY_BACKSPACE) != GLFW_PRESS) {
+    holding_backspace = 0;
+  }
+
+  //fflush(stdout);
 }
+
 void ui_click_listener(double x_pos, double y_pos) {
   for (int i = 0; i < NUM_COMPONENTS; i++) {
     if (!ui_tab[i].enabled || ui_tab[i].on_click == NULL) {

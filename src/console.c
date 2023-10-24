@@ -10,12 +10,11 @@ Teleports the player to the nearest island within the chunks that
 are currently being rendered
 */
 void teleport_nearest_island() {
-#if 0
   if (mode != EXPLORATION) {
-    printf("ERROR: Not in exploration mode!\nEOW-CONSOLE $ ");
+    printf("ERROR: Not in exploration mode!\n");
     return;
   } else if (!e_player.embarked) {
-    printf("ERROR: Not embarked on ship!\nEOW-CONSOLE $ ");
+    printf("ERROR: Not embarked on ship!\n");
     return;
   }
   ISLAND_DIST dist[MAX_ISLANDS_SIM_CHUNKS];
@@ -29,7 +28,7 @@ void teleport_nearest_island() {
   ivec2 intra_chunk_int = { 0, 0 };
   /* Actual coordinates in relative to the origin of the world */
   vec2 world_coords = { 0.0, 0.0 };
-  vec2 player_coords = { 0.0, 0.0};
+  vec2 player_coords = { 0.0, 0.0 };
   for (int i = 0; i < MAX_CHUNKS; i++) {
     chunk = chunk_buffer[player_chunks[i]];
     for (int j = 0; j < chunk.num_islands; j++) {
@@ -40,18 +39,13 @@ void teleport_nearest_island() {
       intra_chunk[1] = (float) intra_chunk_int[1];
       /* Find the coordinates of the island in world space */
       chunk_to_world(chunk_coords, intra_chunk, world_coords);
-      chunk_to_world(e_player.chunk, e_player.coords, player_coords);
-      dist[tot_num_islands].distance = sqrt(
-        ((player_coords[0] - world_coords[0]) * (player_coords[0] - world_coords[0]))
-        +
-        ((player_coords[1] - world_coords[1]) * (player_coords[1] - world_coords[1]))
-      );
-      tot_num_islands++;
+      chunk_to_world(e_player.ship_chunk, e_player.ship_coords, player_coords);
+      dist[tot_num_islands++].distance = glm_vec2_distance(player_coords, world_coords);
     }
   }
 
   if (!tot_num_islands) {
-    printf("ERROR: No islands in simulated chunks\nEOW-CONSOLE $ ");
+    printf("ERROR: No islands in simulated chunks\n");
     return;
   }
 
@@ -75,16 +69,13 @@ void teleport_nearest_island() {
   e_player.chunk[1] = dist[shortest].island.chunk[1];
 
   /* Move player and ship to new coordinates within chunk */
-  //chunk_to_world(dist[shortest].island.chunk,
-  //               island_coords_float, destination);
   e_player.ship_coords[0] = island_coords_float[0];
   e_player.ship_coords[1] = island_coords_float[1];
   e_player.coords[0] = island_coords_float[0];
   e_player.coords[1] = island_coords_float[1];
-  printf("\nNEW CHUNK: %d | %d\nNEW WORLD COORDINATES %f | %f\nEOW-CONSOLE $ ",
+  printf("\nNEW CHUNK: %d | %d\nNEW WORLD COORDINATES %f | %f\n",
           dist[shortest].island.chunk[0], dist[shortest].island.chunk[1],
           island_coords_float[0], island_coords_float[1]);
-  #endif
 }
 
 void teleport(ivec2 pos) {
@@ -107,4 +98,35 @@ void set_speed(float speed) {
     c_player.speed = speed;
   }
   fprintf(stderr, "Operation completed successfully\n");
+}
+
+void update_console_prompt() {
+  if (console_enabled) {
+    vec2 console_pos = { 0.0, -1.0 };
+    init_menu(
+      console_pos, // position
+      NULL, // on_click
+      NULL, // on_hover
+      NULL, // on_click_args
+      NULL, // on_hover_args
+      cons_cmd, // text
+      1, // enabled
+      1, // textured
+      0, // texture
+      0.05, // text_padding
+      1.0, // text_scale
+      2.0, // width
+      0.0, // height
+      PIVOT_BOTTOM, // pivot
+      T_LEFT, // text_anchor
+      get_ui_component_by_ID(CONSOLE) // dest
+    );
+  }
+}
+
+void close_console_prompt() {
+  get_ui_component_by_ID(CONSOLE)->enabled = 0;
+  for (int i = 0; i < 100; i++) {
+    cons_cmd[i] = '\0';
+  }
 }
