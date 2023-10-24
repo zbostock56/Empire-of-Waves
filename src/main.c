@@ -49,6 +49,7 @@ int main() {
     render_scene(window);
     update_combat_state();
     update_event_timer();
+    update_save_interval();
   }
 
   // Insert all "cleanup" functionality here

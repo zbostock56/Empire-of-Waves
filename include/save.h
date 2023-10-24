@@ -4,9 +4,13 @@
 #include <globals.h>
 
 #define INPUT_BUFFER_SIZE (16)
+#define STATUS_BUFFER_SIZE (32)
 
+float save_status_interval = 0.0;
 UI_ID open_prompt = INVALID_MENU;
-unsigned int load_input_len;
+char input_buffer[INPUT_BUFFER_SIZE];
+unsigned int load_input_len = 0;
+char status_buffer[STATUS_BUFFER_SIZE];
 
 /* ================= INTERNALLY DEFINED FUNCTIONS ================= */
 void new_game_callback(void *);

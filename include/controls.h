@@ -44,6 +44,7 @@ extern DIALOG dialog;
 extern TRADE trade;
 extern int RES_X;
 extern int RES_Y;
+extern float save_status_interval;
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 
@@ -68,6 +69,8 @@ void close_dialog();
 void close_trade();
 void open_save_menu();
 void close_save_menu();
+void open_save_status(char *);
+void close_save_status();
 int save_menu_opened();
 void refresh_framebuffers();
 int new_game(char *);

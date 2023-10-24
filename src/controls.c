@@ -150,6 +150,7 @@ void exploration_movement(GLFWwindow *window) {
         close_save_menu();
       } else {
         open_save_menu();
+        close_save_status();
       }
     }
     holding_esc = 1;
@@ -305,11 +306,23 @@ void load_keys(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS && !holding_enter) {
     holding_enter = 1;
 
+    int status = 0;
     if (open_prompt == LOAD) {
-      load_game(input_buffer);
+      status = load_game(input_buffer);
+      if (status) {
+        open_save_status("Failed to load game");
+      } else {
+        open_save_status("Game loaded");
+      }
     } else if (open_prompt == NEW_GAME) {
-      new_game(input_buffer);
+      status = new_game(input_buffer);
+      if (status) {
+        open_save_status("Failed to create new game");
+      } else {
+        open_save_status("New game created");
+      }
     }
+    save_status_interval = 1.0;
     close_save_menu();
 
     load_input_len = 0;

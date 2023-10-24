@@ -22,22 +22,18 @@ int new_game(char *save_name) {
     return -1;
   }
 
-  // Create save directory if it does not already exist
-  status = init_save_dir(save_name);
-  if (status) {
-    return -1;
-  }
-
   // Reset global state
   clear_chunk_buffer();
   clear_unsaved_chunks();
   reset_state();
 
+  status = save_game(save_name);
+  if (status) {
+    return -1;
+  }
+
   // Re-initialize chunk management for newly loaded player state
   init_chunks();
-
-  copy_valid_path(save_name, game_save_name, strlen(save_name));
-  game_save_name[strlen(save_name)] = '\0';
 
   return 0;
 }
@@ -131,6 +127,9 @@ int load_game(char *save_name) {
   clear_chunk_buffer();
   clear_unsaved_chunks();
 
+  copy_valid_path(save_name, game_save_name, strlen(save_name));
+  game_save_name[strlen(save_name)] = '\0';
+
   // Load player data before reinitializing chunks in order to properly load
   // player's 9 chunks
   load_player_state(save_file);
@@ -141,9 +140,6 @@ int load_game(char *save_name) {
   // Load rest of the data now that the initial chunk buffer is set up
   load_game_state(save_file);
   fclose(save_file);
-
-  copy_valid_path(save_name, game_save_name, strlen(save_name));
-  game_save_name[strlen(save_name)] = '\0';
 
   return 0;
 }

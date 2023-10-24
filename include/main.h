@@ -22,3 +22,4 @@ void init_trade();
 void init_status_bar();
 void open_status_bar();
 int init_save_menu();
+void update_save_interval();
