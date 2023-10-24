@@ -15,7 +15,6 @@ char avail_mercenaries[AVAIL_MERC_BUFF_LEN];
 int mercenary_listing_selected[TOT_LISTING_NUM];
 char **mercenary_reassign_listings;
 char my_ship_mercenaries[MY_SHIP_MERC_LEN];
-int my_ship_selected = 0;
 
 /* ================= INTERNALLY DEFINED FUNCTIONS ============= */
 void open_mercenary_reassignment_menu();
