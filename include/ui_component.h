@@ -32,7 +32,10 @@ typedef struct ui_component {
   vec2 position;
   void (*on_click)(void *); // Function to call if component is clicked
                             // (NULL for no action)
+  void (*on_hover)(void *); // Function to call if mouse hovers over component
+                            // (NULL for no action)
   void *on_click_args; // Args passed to on_click() upon clicking component
+  void *on_hover_args; // Args passed to on_hover() upon hovering on component
   char *text;
   int enabled; // If 0, component will not be rendered, if 1, component will be
                // rendered

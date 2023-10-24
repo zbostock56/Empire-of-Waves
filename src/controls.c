@@ -39,6 +39,8 @@ void mouse_pos(GLFWwindow *window, double x_pos, double y_pos) {
     c_player.direction[1] = mouse_position[1];
     glm_vec2_normalize(c_player.direction);
   }
+
+  ui_hover_listener(mouse_position[0], mouse_position[1]);
 }
 
 void mouse_click(GLFWwindow *window, int button, int action, int mods) {
@@ -53,23 +55,6 @@ void mouse_click(GLFWwindow *window, int button, int action, int mods) {
   }
   if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
     ui_click_listener(mouse_position[0], mouse_position[1]);
-  }
-}
-
-void ui_click_listener(double x_pos, double y_pos) {
-  for (int i = 0; i < NUM_COMPONENTS; i++) {
-    if (!ui_tab[i].enabled || ui_tab[i].on_click == NULL) {
-      continue;
-    }
-
-    // { x_min, y_min, x_max, y_max }
-    vec4 min_max = GLM_VEC4_ZERO_INIT;
-    get_ui_min_max(ui_tab + i, min_max);
-
-    if (x_pos >= min_max[X_MIN] && x_pos <= min_max[X_MAX] &&
-        y_pos >= min_max[Y_MIN] && y_pos <= min_max[Y_MAX]) {
-      ui_tab[i].on_click(ui_tab[i].on_click_args);
-    }
   }
 }
 
@@ -144,7 +129,7 @@ void exploration_movement(GLFWwindow *window) {
         e_player.embarked = 1;
       }
     }
-    if (!e_player.embarked && cur_merchant) {
+    if (!e_player.embarked && cur_merchant && !trade.ui_listing[0]->enabled) {
       if (set_dialog(MERCHANT_OPTION, "Merchant",
                      "Hail, Captain! What brings you to my humble stall")) {
         open_dialog();
@@ -221,9 +206,11 @@ void debug_keys(GLFWwindow *window) {
   }
 }
 
+// =============================== HELPERS ===================================
+
 void close_merchant_menu(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-     if (dialog.ui_text_name->enabled) {
+    if (dialog.ui_text_name->enabled) {
       close_dialog();
     }
     if (trade.ui_listing[0]->enabled) {
@@ -318,3 +305,37 @@ void console_keys(GLFWwindow *window) {
   }
   fflush(stdout);
 }
+void ui_click_listener(double x_pos, double y_pos) {
+  for (int i = 0; i < NUM_COMPONENTS; i++) {
+    if (!ui_tab[i].enabled || ui_tab[i].on_click == NULL) {
+      continue;
+    }
+
+    // { x_min, y_min, x_max, y_max }
+    vec4 min_max = GLM_VEC4_ZERO_INIT;
+    get_ui_min_max(ui_tab + i, min_max);
+
+    if (x_pos >= min_max[X_MIN] && x_pos <= min_max[X_MAX] &&
+        y_pos >= min_max[Y_MIN] && y_pos <= min_max[Y_MAX]) {
+      ui_tab[i].on_click(ui_tab[i].on_click_args);
+    }
+  }
+}
+
+void ui_hover_listener(double x_pos, double y_pos) {
+  for (int i = 0; i < NUM_COMPONENTS; i++) {
+    if (!ui_tab[i].enabled || ui_tab[i].on_hover == NULL) {
+      continue;
+    }
+
+    // { x_min, y_min, x_max, y_max }
+    vec4 min_max = GLM_VEC4_ZERO_INIT;
+    get_ui_min_max(ui_tab + i, min_max);
+
+    if (x_pos >= min_max[X_MIN] && x_pos <= min_max[X_MAX] &&
+        y_pos >= min_max[Y_MIN] && y_pos <= min_max[Y_MAX]) {
+      ui_tab[i].on_hover(ui_tab[i].on_hover_args);
+    }
+  }
+}
+
