@@ -1,5 +1,8 @@
 #include <render.h>
 
+// TODO Error checking for shader, model, texture, font, etc.. importing
+// - Program will crash if assets do not exist
+
 void init_scene() {
   glm_vec2_zero(e_player.coords);
   glm_ivec2_zero(e_player.chunk);
@@ -29,6 +32,7 @@ void init_scene() {
   pixel_shader = shader_init(vertex_shader, fragment_shader_pixelated);
   text_shader = shader_init(vertex_shader, fragment_shader_text);
   chunk_shader = shader_init(vertex_shader, fragment_shader_chunk);
+  island_shader = shader_init(vertex_shader, fragment_shader_island);
 
   // Initialize models
   player = load_model("assets/player.bin", "assets/3A.png");
@@ -153,10 +157,7 @@ void init_scene() {
     }
   }
 
-  // TODO: Initiallize tile texture buffers
-
   // Setup perspective matrices
-  //float aspect_ratio = ((float) RES_X) / ((float) RES_Y);
   glm_ortho(-1.0, 1.0, -1.0, 1.0, 0.0, 100.0, ortho_proj);
   glm_perspective(glm_rad(45.0f), ((float) RES_X) / ((float) RES_Y), 0.1,
                   100.0, persp_proj);
@@ -220,7 +221,7 @@ void render_scene(GLFWwindow *window) {
         if (cur_chunk->islands[j].has_merchant) {
           render_merchant(&cur_chunk->islands[j].merchant);
         }
-        render_island(cur_chunk->islands + j);
+//        render_island(cur_chunk->islands + j);
       }
     }
   } else {
@@ -522,7 +523,7 @@ void render_text(char *text, int text_len, mat4 text_model) {
   // Render each character of the text
   for (unsigned int i = 0; i < text_len; i++) {
     int char_index = text[i] - ' ';
-    if (text[i] < ' ') {
+    if (text[i] < ' ' || char_index >= FONT_LEN) {
       char_index = ' ';
     }
 
@@ -578,7 +579,6 @@ void render_chunk(ivec2 chunk) {
   world_coords[0] = world_coords[0] + (T_WIDTH * C_WIDTH * 0.5);
   world_coords[1] = world_coords[1] - (T_WIDTH * C_WIDTH * 0.5);
 
-  /*
   float c_val = 0.0f;
   if (chunk[0] % 2 == 0) {
     if (chunk[1] % 2 == 0) {
@@ -593,7 +593,6 @@ void render_chunk(ivec2 chunk) {
       c_val = 1.0;
     }
   }
-  */
 
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   glm_translate(model_mat, world_coords);
@@ -619,21 +618,24 @@ void render_chunk(ivec2 chunk) {
   set_mat4("proj", ortho_proj, color_shader);
   draw_model(quad, color_shader);
   */
+  /*
   glUseProgram(std_shader);
   set_mat4("model", model_mat, std_shader);
   set_mat4("view", view_mat, std_shader);
   set_mat4("proj", ortho_proj, std_shader);
-  /*
+  quad->texture = ocean_texture;
+  draw_model(quad, std_shader);
+  */
+
+  float threshold = ((H/2.0)*sin(glfwGetTime()))+(C/2.0);
   glUseProgram(chunk_shader);
   set_mat4("model", model_mat, chunk_shader);
   set_mat4("view", view_mat, chunk_shader);
   set_mat4("proj", ortho_proj, chunk_shader);
-  glUniform1f(glGetUniformLocation(chunk_shader, "chunk"), c_val);
+  set_float("threshold", threshold, chunk_shader);
+  set_float("chunk", c_val, chunk_shader);
   quad->texture = ocean_texture;
   draw_model(quad, chunk_shader);
-  */
-  quad->texture = ocean_texture;
-  draw_model(quad, std_shader);
 }
 
 void render_island(ISLAND *island) {
@@ -658,12 +660,17 @@ void render_island(ISLAND *island) {
   glm_vec3_negate(player_world_coords);
   glm_translate(view_mat, player_world_coords);
 
-  glUseProgram(std_shader);
-  set_mat4("model", model_mat, std_shader);
-  set_mat4("view", view_mat, std_shader);
-  set_mat4("proj", ortho_proj, std_shader);
-  quad->texture = island->texture;
-  draw_model(quad, std_shader);
+  glUseProgram(island_shader);
+  set_mat4("model", model_mat, island_shader);
+  set_mat4("view", view_mat, island_shader);
+  set_mat4("proj", ortho_proj, island_shader);
+  // set_texture("ocean", ocean_tex, island_shader, 1);
+  // set_texture("shore", shore_tex, island_shader, 2);
+  // set_texture("sand", sand_tex, island_shader, 3);
+  // set_texture("grass", grass_tex, island_shader, 4);
+  // set_texture("stone", stone_tex, island_shader, 5);
+  set_iarr("tiles", (int *) island->tiles, I_WIDTH * I_WIDTH, island_shader);
+  draw_model(quad, island_shader);
 
   glm_mat4_identity(model_mat);
   vec3 house_coords = { 0.0, 0.0, OBSTACLE_DEPTH };
@@ -942,4 +949,19 @@ void set_vec3(char *name, vec3 matrix, unsigned int shader) {
 
 void set_float(char *name, float val, unsigned int shader) {
   glUniform1f(glGetUniformLocation(shader, name), val);
+}
+
+void set_int(char *name, int val, unsigned int shader) {
+  glUniform1i(glGetUniformLocation(shader, name), val);
+}
+
+void set_iarr(char *name, int *arr, unsigned int count, unsigned int shader) {
+  glUniform1iv(glGetUniformLocation(shader, name), count, arr);
+}
+
+void set_texture(char *name, unsigned int tex, unsigned int shader, int unit) {
+  glUseProgram(shader);
+  glActiveTexture(GL_TEXTURE0 + unit);
+  glBindTexture(GL_TEXTURE_2D, tex);
+  glUniform1i(glGetUniformLocation(shader, name), unit);
 }

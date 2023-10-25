@@ -31,7 +31,6 @@ float T_WIDTH = 0.1;
 /* ISLAND.C */
 int generate_rand();
 int generate_island(ISLAND *island);
-void populate_tile_pixel_buffer(ISLAND *, unsigned char (*)[3]);
 unsigned int texture_from_buffer(unsigned char *, int, int, int);
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================

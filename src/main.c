@@ -3,6 +3,7 @@
 int main() {
   GLFWwindow *window = init_gl();
 
+  init_scene();
   init_menus();
   init_dialog();
   init_trade();
@@ -15,7 +16,6 @@ int main() {
     return -1;
   }
 
-  init_scene();
   status = init_trade_ship_buffers();
   if (status) {
     return -1;

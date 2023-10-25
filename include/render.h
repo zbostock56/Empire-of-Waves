@@ -2,7 +2,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <cglm/cglm.h>
-#include <shader_code.h>
 #include <model_str.h>
 #include <player_str.h>
 #include <chunk_str.h>
@@ -23,6 +22,14 @@
 #define Y_MIN (1)
 #define X_MAX (2)
 #define Y_MAX (3)
+
+// Constants for ocean wave effect
+#define A (1.34)
+#define B (8.7)
+#define C (1.3)
+#define K (5.2)
+#define H (0.1)
+#include <shader_code.h>
 
 #define WORLD_DEPTH (-0.6)
 #define OBSTACLE_DEPTH (-0.5)
@@ -70,6 +77,7 @@ unsigned int pixel_shader;
 unsigned int text_shader;
 unsigned int menu_shader;
 unsigned int chunk_shader;
+unsigned int island_shader;
 
 FRAMEBUFFER entity_framebuffer;
 
@@ -125,6 +133,9 @@ void set_mat3(char *, mat3, unsigned int);
 void set_vec4(char *, vec4, unsigned int);
 void set_vec3(char *, vec3, unsigned int);
 void set_float(char *, float, unsigned int);
+void set_int(char *, int, unsigned int);
+void set_iarr(char *, int *, unsigned int, unsigned int);
+void set_texture(char *, unsigned int, unsigned int, int);
 
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 
@@ -132,6 +143,7 @@ MODEL *load_model(char *, char *);
 void load_character(char *, char *, CHARACTER *);
 void draw_model(MODEL *, unsigned int);
 void free_model(MODEL *);
+unsigned int gen_texture(char *);
 
 void chunk_to_world(ivec2, vec2, vec2);
 void world_to_chunk(vec2, ivec2, vec2);

@@ -56,10 +56,6 @@ void place_home(ISLAND *island, CHUNK *home_chunk) {
       break;
     }
   }
-  unsigned char tile_colors[I_WIDTH * I_WIDTH][3];
-  populate_tile_pixel_buffer(&home_chunk->islands[0], tile_colors);
-  home_chunk->islands[0].texture = texture_from_buffer((unsigned char *) tile_colors,
-                                                      I_WIDTH, I_WIDTH, GL_RGB);
   island->has_merchant = 0;
 }
 
@@ -335,12 +331,6 @@ int load_island(FILE *file, ISLAND *dest) {
       return -1;
     }
   }
-
-  // TODO Create island texture buffer from preloaded tile texture buffers
-  unsigned char tile_colors[I_WIDTH * I_WIDTH][3];
-  populate_tile_pixel_buffer(dest, tile_colors);
-  dest->texture = texture_from_buffer((unsigned char *) tile_colors, I_WIDTH,
-                                      I_WIDTH, GL_RGB);
 
   return 0;
 }
