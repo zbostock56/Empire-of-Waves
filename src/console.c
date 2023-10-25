@@ -80,13 +80,10 @@ void teleport_nearest_island() {
 }
 
 void teleport(ivec2 pos) {
-  vec2 coords = { pos[0], pos[1] };
+  vec2 coords = { pos[0] / T_WIDTH, pos[1] / T_WIDTH };
   if (mode == EXPLORATION) {
-    if (e_player.embarked) {
-      world_to_chunk(coords, e_player.ship_chunk, e_player.ship_coords);
-    } else {
-      world_to_chunk(coords, e_player.chunk, e_player.coords);
-    }
+    world_to_chunk(coords, e_player.ship_chunk, e_player.ship_coords);
+    world_to_chunk(coords, e_player.chunk, e_player.coords);
   } else {
     glm_vec2_copy(coords, c_player.coords);
   }
