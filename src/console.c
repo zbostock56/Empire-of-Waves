@@ -1,7 +1,7 @@
 #include <console.h>
 
 void command_not_found() {
-  printf("Command not found\nEOW-CONSOLE $ ");
+  printf("Command not found\n");
   fflush(stdout);
 }
 
@@ -76,6 +76,7 @@ void teleport_nearest_island() {
   printf("\nNEW CHUNK: %d | %d\nNEW WORLD COORDINATES %f | %f\n",
           dist[shortest].island.chunk[0], dist[shortest].island.chunk[1],
           island_coords_float[0], island_coords_float[1]);
+  fprintf(stderr, "Operation completed successfully\n");
 }
 
 void teleport(ivec2 pos) {
@@ -89,9 +90,26 @@ void teleport(ivec2 pos) {
   } else {
     glm_vec2_copy(coords, c_player.coords);
   }
+  fprintf(stderr, "Operation completed successfully\n");
 }
 
+/* Give or remove mercenaries */
+void give_mercenaries(int change) {
+  if (change == 0) {
+    return;
+  }
+  e_player.total_mercenaries += change;
+  if (e_player.total_mercenaries < 0) {
+    e_player.total_mercenaries = 0;
+  }
+  fprintf(stderr, "Operation completed successfully\n");
+}
+
+/* Change the speed of the player  */
 void set_speed(float speed) {
+  if (speed <= 0.0) {
+    return;
+  }
   if (mode == EXPLORATION) {
     e_player.speed = speed;
   } else if (mode == COMBAT) {
@@ -100,6 +118,8 @@ void set_speed(float speed) {
   fprintf(stderr, "Operation completed successfully\n");
 }
 
+/* Updates the buffer of what is in the console on the screen */
+/* for every frame */
 void update_console_prompt() {
   if (console_enabled) {
     vec2 console_pos = { 0.0, -1.0 };
@@ -121,12 +141,44 @@ void update_console_prompt() {
       T_LEFT, // text_anchor
       get_ui_component_by_ID(CONSOLE) // dest
     );
+    vec2 cursor_pos = GLM_VEC2_ZERO_INIT;
+    calc_cursor_pos(cursor_pos);
+    init_menu(
+      cursor_pos, // position
+      NULL, // on_click
+      NULL, // on_hover
+      NULL, // on_click_args
+      NULL, // on_hover_args
+      "_", // text
+      cursor_enabled, // enabled
+      0, // textured
+      0, // texture
+      0.05, // text_padding
+      1.0, // text_scale
+      0.0, // width
+      0.0, // height
+      PIVOT_BOTTOM_LEFT, // pivot
+      T_LEFT, // text_anchor
+      get_ui_component_by_ID(CONSOLE_CURSOR) // dest
+    );
   }
 }
 
+/* Resets the console buffer and closes the prompt  */
 void close_console_prompt() {
   get_ui_component_by_ID(CONSOLE)->enabled = 0;
+  get_ui_component_by_ID(CONSOLE_CURSOR)->enabled = 0;
   for (int i = 0; i < 100; i++) {
     cons_cmd[i] = '\0';
   }
+}
+
+void calc_cursor_pos(vec2 dest) {
+  float screen_text_scale = get_screen_text_scale();
+  UI_COMPONENT *console = get_ui_component_by_ID(CONSOLE);
+  float text_width = get_text_width(cons_cmd, strlen(cons_cmd))
+                     * screen_text_scale / screen_scale[0];
+  //text_width += console->text_padding;
+  dest[1] = console->position[1];
+  dest[0] = (text_width) - (0.5 * console->width);
 }

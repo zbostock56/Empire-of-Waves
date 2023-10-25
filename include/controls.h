@@ -26,6 +26,8 @@ extern int shore_interaction_enabled;
 extern int home_interaction_enabled;
 extern int reassignment_menu_open;
 char cons_cmd[MAX_CMD_LEN];
+extern float console_cursor_interval;
+extern int cursor_enabled;
 
 int holding_equals = 0;
 int holding_left_bracket = 0;

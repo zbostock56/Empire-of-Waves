@@ -27,3 +27,4 @@ void update_dialog_buffers();
 void update_available_mercenaries();
 void update_mercenary_reassignment();
 void update_console_prompt();
+void update_timers();

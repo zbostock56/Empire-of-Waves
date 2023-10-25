@@ -9,11 +9,12 @@
 #define MAX_TOKS (10)
 #define GIVE ("give")
 #define TELEPORT ("tp")
-#define SPAWN ("sp")
+#define SPAWN ("spawn")
 #define SET ("set")
 #define ENEMY ("enemy")
 #define SPEED ("speed")
 #define TELEPORT_NEAREST_ISLAND ("tni")
+#define MERCENARY ("mercenaries")
 
 /* GLOBALS */
 extern LEXER lexer;
@@ -34,3 +35,5 @@ void command_not_found();
 void teleport(ivec2);
 void teleport_nearest_island();
 void set_speed(float);
+void give_mercenaries(int);
+void spawn_enemy();

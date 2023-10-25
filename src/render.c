@@ -438,10 +438,7 @@ void render_ui(UI_COMPONENT *comp) {
   // Number of characters in ui component text
   int text_len = 0;
   // Scale text based on screen size
-  float screen_text_scale = RES_X / BASE_RES_X;
-  if (screen_text_scale < MIN_TEXT_SCALE) {
-    screen_text_scale = MIN_TEXT_SCALE;
-  }
+  float screen_text_scale = get_screen_text_scale();
   // Width of ui component text
   float text_width = 0.0;
   float text_height = 0.0;
@@ -912,6 +909,14 @@ void get_ui_min_max(UI_COMPONENT *comp, vec4 dest) {
   dest[X_MAX] = comp_pivot[0] + comp_scale[0];
   dest[Y_MIN] = comp_pivot[1] - comp_scale[1];
   dest[Y_MAX] = comp_pivot[1] + comp_scale[1];
+}
+
+float get_screen_text_scale() {
+  float screen_text_scale = RES_X / BASE_RES_X;
+  if (screen_text_scale < MIN_TEXT_SCALE) {
+    screen_text_scale = MIN_TEXT_SCALE;
+  }
+  return screen_text_scale;
 }
 
 /*

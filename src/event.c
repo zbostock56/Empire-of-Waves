@@ -23,3 +23,16 @@ void spawn_event() {
     spawn_enemy();
   }
 }
+
+void update_timers() {
+  if (console_enabled) {
+    console_cursor_interval -= delta_time;
+    if (console_cursor_interval <= 0.0 && cursor_enabled) {
+      console_cursor_interval = 0.25;
+      cursor_enabled = 0;
+    } else if (console_cursor_interval <= 0.0 && !cursor_enabled) {
+      console_cursor_interval = 0.25;
+      cursor_enabled = 1;
+    }
+  }
+}

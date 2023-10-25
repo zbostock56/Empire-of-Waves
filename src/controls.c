@@ -199,14 +199,10 @@ void debug_keys(GLFWwindow *window) {
     holding_tilde = 1;
     if (console_enabled) {
       console_enabled = 0;
-      //printf("CONSOLE END\n");
-      //fflush(stdout);
       cons_cmd_len = 0;
       close_console_prompt();
     } else {
       console_enabled = 1;
-      //printf("\nEOW-CONSOLE $ ");
-      //fflush(stdout);
     }
   } else if (glfwGetKey(window, GLFW_KEY_SLASH) != GLFW_PRESS) {
     holding_tilde = 0;
@@ -234,8 +230,9 @@ void console_keys(GLFWwindow *window) {
     if (glfwGetKey(window, i) == GLFW_PRESS && !holding_alpha[i - GLFW_KEY_A]) {
       holding_alpha[i - GLFW_KEY_A] = 1;
       if (cons_cmd_len < MAX_CMD_LEN - 1) {
-        //printf("%c", i + 32);
         cons_cmd[cons_cmd_len++] = i + 32;
+        cursor_enabled = 1;
+        console_cursor_interval = 0.25;
       }
     } else if (glfwGetKey(window, i) != GLFW_PRESS) {
       holding_alpha[i - GLFW_KEY_A] = 0;
@@ -247,8 +244,9 @@ void console_keys(GLFWwindow *window) {
     if (glfwGetKey(window, i) == GLFW_PRESS && !holding_num[i - GLFW_KEY_0]) {
       holding_num[i - GLFW_KEY_0] = 1;
       if (cons_cmd_len < MAX_CMD_LEN - 1) {
-        //printf("%c", i);
         cons_cmd[cons_cmd_len++] = i;
+        cursor_enabled = 1;
+        console_cursor_interval = 0.25;
       }
     } else if (glfwGetKey(window, i) != GLFW_PRESS) {
       holding_num[i - GLFW_KEY_0] = 0;
@@ -259,8 +257,9 @@ void console_keys(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !holding_space) {
     holding_space = 1;
     if (cons_cmd_len < MAX_CMD_LEN - 1) {
-      //printf("%c", ' ');
       cons_cmd[cons_cmd_len++] = ' ';
+      cursor_enabled = 1;
+      console_cursor_interval = 0.25;
     }
   } else if (glfwGetKey(window, GLFW_KEY_SPACE) != GLFW_PRESS) {
     holding_space = 0;
@@ -270,8 +269,9 @@ void console_keys(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS && !holding_underscore) {
     holding_underscore = 1;
     if (cons_cmd_len < MAX_CMD_LEN - 1) {
-      //printf("%c", '_');
       cons_cmd[cons_cmd_len++] = '_';
+      cursor_enabled = 1;
+      console_cursor_interval = 0.25;
     }
   } else if (glfwGetKey(window, GLFW_KEY_MINUS) != GLFW_PRESS) {
     holding_underscore = 0;
@@ -280,7 +280,6 @@ void console_keys(GLFWwindow *window) {
   // ENTER
   if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS && !holding_enter) {
     holding_enter = 1;
-    //printf("\nEOW CONSOLE $ ");
     cons_cmd[cons_cmd_len++] = '\0';
     tokenize(cons_cmd, cons_cmd_len);
     cons_cmd_len = 0;
@@ -295,8 +294,9 @@ void console_keys(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_PERIOD) == GLFW_PRESS && !holding_dot) {
     holding_dot = 1;
     if (cons_cmd_len < MAX_CMD_LEN - 1) {
-      //printf("%c", '.');
       cons_cmd[cons_cmd_len++] = '.';
+      cursor_enabled = 1;
+      console_cursor_interval = 0.25;
     }
   } else if (glfwGetKey(window, GLFW_KEY_PERIOD) != GLFW_PRESS) {
     holding_dot = 0;
@@ -306,13 +306,13 @@ void console_keys(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_BACKSPACE) == GLFW_PRESS && !holding_backspace) {
     holding_backspace = 1;
     if (cons_cmd_len > 0) {
-      cons_cmd[cons_cmd_len--] = '\0';
+      cons_cmd[--cons_cmd_len] = '\0';
+      cursor_enabled = 1;
+      console_cursor_interval = 0.25;
     }
   } else if (glfwGetKey(window, GLFW_KEY_BACKSPACE) != GLFW_PRESS) {
     holding_backspace = 0;
   }
-
-  //fflush(stdout);
 }
 
 void ui_click_listener(double x_pos, double y_pos) {

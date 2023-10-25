@@ -37,63 +37,89 @@ void parse() {
   /* END: argument */
   /* END: simple_command */
   /* END: command */
-  //print_parse_table();
   console_dispatcher();
 }
 
 /* Responsible for calling appropriate console command with arguments */
 /* passed through to the respective function  */
 void console_dispatcher() {
-  if (strncmp(command[0].tok, SET, sizeof(SET)) == 0) {
-    if (strncmp(command[1].tok, SPEED, sizeof(SPEED)) == 0) {
-      /* Generate the float out of the token string */
-      if (command[2].num_chars > 3) {
-        fprintf(stderr, "Speed too large! Must be < 1000.0!\n");
-        return;
-      }
-      char fl[6];
-      int index = command[2].num_chars;
-      /* snprintf will fail if not accounting for null byte  */
-      /* therefore need to add one to size to copy to work   */
-      /* properly                                            */
-      snprintf(fl, index + 1, "%s", command[2].tok);
-      fl[index++] = '.';
-      if (command[4].kind != NUMBER) {
-        fl[index] = '0';
-      } else {
-        /* Only take the first and second decimal places and discard the rest */
-        if (command[4].num_chars == 1) {
-          fl[index++] = command[4].tok[0];
+  if (command[0].kind == IDENTIFIER) {
+    if (strncmp(command[0].tok, SET, sizeof(SET)) == 0) {
+      /* BEGIN: set  */
+      if (strncmp(command[1].tok, SPEED, sizeof(SPEED)) == 0) {
+        /* BEGIN: speed */
+        /* Generate the float out of the token string */
+        if (command[2].num_chars > 3) {
+          fprintf(stderr, "Speed too large! Must be < 1000.0!\n");
+          return;
+        }
+        char fl[6];
+        int index = command[2].num_chars;
+        /* snprintf will fail if not accounting for null byte  */
+        /* therefore need to add one to size to copy to work   */
+        /* properly                                            */
+        snprintf(fl, index + 1, "%s", command[2].tok);
+        fl[index++] = '.';
+        if (command[4].kind != NUMBER) {
+          fl[index] = '0';
         } else {
-          fl[index++] = command[4].tok[0];
-          fl[index++] = command[4].tok[1];
+          /* Only take the first and second decimal places and discard the rest */
+          if (command[4].num_chars == 1) {
+            fl[index++] = command[4].tok[0];
+          } else {
+            fl[index++] = command[4].tok[0];
+            fl[index++] = command[4].tok[1];
+          }
+          while (index < 6) {
+            fl[index++] = '0';
+          }
         }
-        while (index < 6) {
-          fl[index++] = '0';
+        /* atof() returns 0.0 when it can't make a conversion */
+        /* set to default speed if conversion can't be made */
+        if (atof(fl) == 0.0) {
+          set_speed(1.0);
+          return;
         }
+        set_speed(atof(fl));
+        /* END: speed */
+      } else {
+        command_not_found();
       }
-      /* atof() returns 0.0 when it can't make a conversion */
-      /* set to default speed if conversion can't be made */
-      if (atof(fl) == 0.0) {
-        set_speed(1.0);
+    /* END: set */
+    } else if (strncmp(command[0].tok, TELEPORT_NEAREST_ISLAND, sizeof(TELEPORT_NEAREST_ISLAND)) == 0) {
+      /* BEGIN: tni  */
+      teleport_nearest_island();
+      /* END: tni */
+    } else if (strncmp(command[0].tok, TELEPORT, sizeof(TELEPORT)) == 0) {
+      /* BEGIN: tp */
+      if (command[1].kind != NUMBER || command[2].kind != NUMBER) {
+        print_parse_table();
+        command_not_found();
         return;
       }
-      set_speed(atof(fl));
+      ivec2 loc = { atoi(command[1].tok), atoi(command[2].tok) };
+      teleport(loc);
+      /* END: tp */
+    } else if (strncmp(command[0].tok, GIVE, sizeof(GIVE)) == 0) {
+      /* BEGIN: give */
+      if (command[1].kind == IDENTIFIER && strncmp(command[1].tok, MERCENARY, sizeof(MERCENARY)) == 0) {
+        int num_mercenaries = atoi(command[2].tok);
+        give_mercenaries(num_mercenaries);
+      } else {
+        command_not_found();
+      }
+      /* END: give */
+    } else if (strncmp(command[0].tok, SPAWN, sizeof(SPAWN)) == 0) {
+      /* BEGIN: spawn */
+      if (command[1].kind == IDENTIFIER && strncmp(command[1].tok, ENEMY, sizeof(ENEMY)) == 0) {
+        spawn_enemy();
+      } else {
+        command_not_found();
+      }
+      /* END: spawn  */
     } else {
       command_not_found();
     }
-  } else if (strncmp(command[0].tok, SPAWN, sizeof(SPAWN)) == 0) {
-    return;
-  } else if (strncmp(command[0].tok, TELEPORT_NEAREST_ISLAND, sizeof(TELEPORT_NEAREST_ISLAND)) == 0) {
-    teleport_nearest_island();
-  } else if (strncmp(command[0].tok, TELEPORT, sizeof(TELEPORT)) == 0) {
-    if (command[1].kind != NUMBER || command[2].kind != NUMBER) {
-      print_parse_table();
-      command_not_found();
-      return;
-    }
-    ivec2 loc = { atoi(command[1].tok), atoi(command[2].tok) };
-    teleport(loc);
   } else {
     command_not_found();
   }
