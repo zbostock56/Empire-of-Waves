@@ -76,6 +76,7 @@ FRAMEBUFFER entity_framebuffer;
 MODEL *player;
 MODEL *enemy;
 MODEL *merchant;
+MODEL *mercenary;
 MODEL *player_ship;
 MODEL *enemy_ship;
 MODEL *trade_ship;

@@ -29,13 +29,15 @@ int to_combat_mode(unsigned int enemy_index) {
 
   // Initialize combat mode enemies
   e_enemy_index = enemy_index;
-  num_npc_units = enemy_ship->crew_count;
+  // TODO Properly calculate the number of allies during combat
+  e_player.total_mercenaries = 3;
+  num_npc_units = enemy_ship->crew_count + e_player.total_mercenaries;
   npc_units = malloc(sizeof(C_UNIT) * num_npc_units);
   if (npc_units == NULL) {
     fprintf(stderr, "combat.c: unable to allocate npc_units buffer\n");
     return -1;
   }
-  for (unsigned int i = 0; i < num_npc_units; i++) {
+  for (int i = 0; i < enemy_ship->crew_count; i++) {
     npc_units[i].type = ENEMY;
     npc_units[i].weapon_type = MELEE;
     npc_units[i].ammo = 0;
@@ -50,6 +52,25 @@ int to_combat_mode(unsigned int enemy_index) {
     npc_units[i].direction[X] = -1.0;
     npc_units[i].coords[X] = arena_dimensions[X] / 4;
     npc_units[i].coords[Y] = ((arena_dimensions[Y] - 2) / 2) - (i * 2);
+  }
+
+  for (int i = enemy_ship->crew_count; i < num_npc_units; i++) {
+    npc_units[i].type = ALLY;
+    npc_units[i].weapon_type = MELEE;
+    npc_units[i].ammo = 0;
+    npc_units[i].speed = 0.5;
+    npc_units[i].death_animation = -1.0;
+    npc_units[i].attack_active = 0.0;
+    npc_units[i].attack_cooldown = 0.0;
+    npc_units[i].fire_rate = 1.0;
+    glm_vec2_zero(npc_units[i].direction);
+    glm_vec2_zero(npc_units[i].coords);
+    // Spawn allies in line on left side of the arena
+    npc_units[i].direction[X] = -1.0;
+    npc_units[i].coords[X] = -arena_dimensions[X] / 4;
+    npc_units[i].coords[Y] = ((arena_dimensions[Y] - 2) / 2) - (i * 2);
+    printf("(%f, %f)\n", npc_units[i].coords[X], npc_units[i].coords[Y]);
+    fflush(stdout);
   }
 
   return 0;
