@@ -1,6 +1,8 @@
 #ifndef __TRADE_STR_H__
 #define __TRADE_STR_H__
 
+#include <ui_component.h>
+
 #define MAX_BUY_SELL_LISTING (9)
 #define MAX_ITEMS_PER_PAGE (8) // Max number of items per page for both merchant and player associated with UI Components
 #define MAX_MERCHANT_ITEM_SELECTED (16) // Max number of items selected for merchant, currently not infinite
@@ -27,6 +29,10 @@ typedef struct trade {
   UI_COMPONENT *ui_text_player_value;
   UI_COMPONENT *ui_button_trade;
   UI_COMPONENT *ui_text_event_prompt;
+  int merchant_page;
+  int player_page;
+  int merchant_value;
+  int player_value;
   /* merchant item index at [i] is selected or not, 0 = unselected and 1 = selected */
   int merchant_item_selected[MAX_MERCHANT_ITEM_SELECTED];
   /* player item index at [i] is selected or not, 0 = unselected and 1 = selected */

@@ -13,13 +13,11 @@ Implements the functionality for buying and selling. Could be used for
 interaction with merchants.
 */
 
-/* DEFINES  */
-#define MAX_LISTING_STR_LENGTH (16) // TRADE :: Max length of listing string
-
 /* GLOBALS */
 TRADE trade;
 extern DIALOG dialog;
 extern float time_schdule_trade_toute_prompt;
+float time_trade_event_prompt;
 
 /* ==================== INTERNALLY DEFINED FUNCITONS ================== */
 void init_trade();
@@ -30,8 +28,10 @@ void on_click_ui_listing(void *listing_ui_number);
 void open_buy();
 void open_sell();
 void open_establish_trade_route();
-void on_click_ui_item(void *item_ui_index);
-void on_hover_ui_item(void *item_ui_index);
+void on_click_merchant_item(void *merchant_item_index);
+void on_hover_merchant_item(void *merchant_item_index);
+void on_click_player_item(void *player_item_index);
+void on_hover_player_item(void *player_item_index);
 void on_click_page_up(void *isMerchant);
 void on_click_page_down(void *isMerchant);
 void on_click_trade();
@@ -44,7 +44,9 @@ void init_menu(vec2, void (*)(void *), void (*)(void *), void *, void *,
                char *, int, int, unsigned int, float, float, float, float,
                PIVOT, TEXT_ANCHOR, UI_COMPONENT *);
 I_SLOT * get_player_first_empty_inventory_slot();
-I_SLOT * search_player_inventory_with_ID(ITEM_IDS item_id);
+I_SLOT * search_player_inventory_by_ID(ITEM_IDS item_id);
 I_SLOT * get_player_inventory_slot_by_index(unsigned int item_index);
 LISTING * get_merchant_listing_item_by_index(MERCHANT * merchant, unsigned int item_index);
+LISTING * search_merchant_listing_by_ID(MERCHANT * merchant, ITEM_IDS item_id);
+LISTING * get_merchant_first_empty_listing();
 MERCHANT *get_closest_merchant(E_PLAYER e_player);

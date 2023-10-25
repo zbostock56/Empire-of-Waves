@@ -263,6 +263,13 @@ void render_scene(GLFWwindow *window) {
   } else {
     time_schdule_trade_toute_prompt -= delta_time;
   }
+  // Trade prompt delay
+  if (time_trade_event_prompt < 0) {
+    trade.ui_text_event_prompt->enabled = 0;
+    time_trade_event_prompt = 2.0;
+  } else {
+    time_trade_event_prompt -= delta_time;
+  }
 
   /*
   vec2 world_coords = GLM_VEC2_ZERO_INIT;

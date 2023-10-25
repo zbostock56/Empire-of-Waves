@@ -1,3 +1,6 @@
+#ifndef __UI_COMPONENT_H__
+#define __UI_COMPONENT_H__
+
 #include <cglm/vec2.h>
 #include <string.h>
 /*
@@ -52,3 +55,5 @@ typedef struct ui_component {
   PIVOT pivot; // Specifies "pivot" point of ui component
   TEXT_ANCHOR text_anchor; // Specifies text alignment inside ui component
 } UI_COMPONENT;
+
+#endif

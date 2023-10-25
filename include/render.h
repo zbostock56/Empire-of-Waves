@@ -8,6 +8,7 @@
 #include <chunk_str.h>
 #include <ui_component.h>
 #include <dialog_str.h>
+#include <trade_str.h>
 #include <menu.h>
 #include <items.h>
 #include <trade_ship_str.h>
@@ -54,6 +55,8 @@ vec3 UI_PIVOT_OFFSETS[9] = {
 
 extern DIALOG dialog;
 extern float time_schdule_trade_toute_prompt;
+extern TRADE trade;
+extern float time_trade_event_prompt;
 
 // Insert declarations of global render elemements:
 // - models

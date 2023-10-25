@@ -46,12 +46,13 @@ void swap_inventory_slot(I_SLOT * slot_a, I_SLOT * slot_b) {
 }
 
 /*
-Find first item that is item_id of the player's inventory
+Find first item slot that is item_id of the player's inventory
+Return NULL when not find
 Args:
 ITEM_IDS item_id
   the item that you want to search
 */
-I_SLOT * search_player_inventory_with_ID(ITEM_IDS item_id) {
+I_SLOT * search_player_inventory_by_ID(ITEM_IDS item_id) {
   for (int i = 0; i < INV_SIZE; i++) {
     if (e_player.inventory[i].item_id == item_id) {
       return &e_player.inventory[i];
