@@ -781,7 +781,7 @@ int list_all_files(char *dir, char (**dest_list)[MAX_CHUNK_NAME_LEN],
 #ifdef __linux__
   DIR *cur_dir = opendir(dir);
   if (!cur_dir) {
-    free(dest_list);
+    free(*dest_list);
     return -1;
   }
 
@@ -824,7 +824,7 @@ int list_all_files(char *dir, char (**dest_list)[MAX_CHUNK_NAME_LEN],
   WIN32_FIND_DATA cur_file;
   HANDLE cur_dir = FindFirstFile(dir_path, &cur_file);
   if (cur_dir == INVALID_HANDLE_VALUE) {
-    free(dest_list);
+    free(*dest_list);
     return -1;
   }
 
