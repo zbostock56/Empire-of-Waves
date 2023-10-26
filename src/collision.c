@@ -26,7 +26,7 @@ int detect_collisions() {
       for (int j = 0; j < chunk_buffer[i].num_enemies; j++) {
         cur_enemy = &chunk_buffer[i].enemies[j];
         pathfind_enemy(cur_enemy, &chunk_buffer[i]);
-        update_enemy_chunk(cur_enemy, &chunk_buffer[i], i);
+        update_enemy_chunk(cur_enemy, &chunk_buffer[i], j);
         ship_collisions(chunk_buffer + i, cur_enemy->chunk, cur_enemy->coords);
       }
     }
@@ -35,7 +35,7 @@ int detect_collisions() {
       cur_chunk = chunk_buffer + trade_ships[i].cur_chunk_index;
       ship_collisions(cur_chunk, trade_ships[i].chunk_coords,
                       trade_ships[i].coords);
-      trade_ship_detect_enemies(&trade_ships[i], cur_chunk);
+      trade_ship_detect_enemies(&trade_ships[i], cur_chunk, i);
       trade_ship_collision(trade_ships + i);
     }
 
@@ -248,36 +248,73 @@ void ship_collisions(CHUNK *chunk, ivec2 chunk_coords, vec2 coords) {
 }
 
 // Detect enemies and steer away to avoid
-int trade_ship_detect_enemies(TRADE_SHIP *trade_ship, CHUNK *trade_ship_chunk) {
+int trade_ship_detect_enemies(TRADE_SHIP *trade_ship, CHUNK *trade_ship_chunk, int idx) {
   vec2 world_coords = GLM_VEC2_ZERO_INIT;
   chunk_to_world(trade_ship->chunk_coords, trade_ship->coords, world_coords);
   E_ENEMY *cur_enemy = NULL;
   vec2 cur_enemy_world_coords = GLM_VEC2_ZERO_INIT;
   // int status = 0;
-  
-  if (trade_ship_chunk->enemies) {
-    for (int i = 0; i < trade_ship_chunk->num_enemies; i++) {
-      cur_enemy = trade_ship_chunk->enemies + i;
-      chunk_to_world(cur_enemy->chunk, cur_enemy->coords,
-                    cur_enemy_world_coords);
-
-      if (circle_circle_collision(world_coords,
+  /* AVOID Steering behavior added across chunks if tradeship is in player_chunk[9]
+    Assumption: e_player.chunk corresponds to player_chunks[4]
+  */
+  if (trade_ship->chunk_coords[0] <= e_player.chunk[0]+1 && 
+      trade_ship->chunk_coords[0] >= e_player.chunk[0]-1 &&
+      trade_ship->chunk_coords[1] <= e_player.chunk[1]+1 &&
+      trade_ship->chunk_coords[1] >= e_player.chunk[1]-1) {
+    for (int i = 0; i < chunk_buff_len; i++) {
+      for (int j = 0; j <chunk_buffer[i].num_enemies; j++) {
+        cur_enemy = chunk_buffer[i].enemies+j;
+        chunk_to_world(cur_enemy->chunk, cur_enemy->coords, cur_enemy_world_coords);
+        if (circle_circle_collision(world_coords,
                                   SHIP_COLLISION_RADIUS *T_WIDTH,
                                   cur_enemy_world_coords,
                                   SHIP_COLLISION_RADIUS *T_WIDTH)) {
-        num_trade_ships--;
-        trade_ships[i] = trade_ships[num_trade_ships];
+          num_trade_ships--;
+          trade_ships[idx] = trade_ships[num_trade_ships];
+        }
+        if (circle_circle_collision(world_coords,
+                                    SHIP_COLLISION_RADIUS *SHIP_CHASE_RADIUS*T_WIDTH,
+                                    cur_enemy_world_coords,
+                                    SHIP_COLLISION_RADIUS *SHIP_CHASE_RADIUS*T_WIDTH)) {
+          /* some steering */
+          vec2 steer_force = GLM_VEC2_ZERO_INIT;
+          glm_vec2_sub(world_coords, cur_enemy_world_coords, steer_force); 
+          glm_vec2_normalize(steer_force);
+          glm_vec2_scale(steer_force, delta_time, steer_force);
+          glm_vec2_add(trade_ship->direction, steer_force, trade_ship->direction);
+        }
       }
-      if (circle_circle_collision(world_coords,
-                                  SHIP_COLLISION_RADIUS *SHIP_CHASE_RADIUS*T_WIDTH,
-                                  cur_enemy_world_coords,
-                                  SHIP_COLLISION_RADIUS *SHIP_CHASE_RADIUS*T_WIDTH)) {
-        /* some steering */
-        vec2 steer_force = GLM_VEC2_ZERO_INIT;
-        glm_vec2_sub(world_coords, cur_enemy_world_coords, steer_force); 
-        glm_vec2_normalize(steer_force);
-        glm_vec2_scale(steer_force, delta_time, steer_force);
-        glm_vec2_add(trade_ship->direction, steer_force, trade_ship->direction);
+    }
+  }
+  /* Don't need to account for across chunks if tradeship chunk is outside of player_chunk[9] 
+     This is because the enemies allocated in that 1 chunk is only care 
+  */
+  else {
+    if (trade_ship_chunk->enemies) {
+      //printf("num_enemies : %d\n", trade_ship_chunk->num_enemies);
+      for (int i = 0; i < trade_ship_chunk->num_enemies; i++) {
+        cur_enemy = trade_ship_chunk->enemies + i;
+        chunk_to_world(cur_enemy->chunk, cur_enemy->coords,
+                      cur_enemy_world_coords);
+
+        if (circle_circle_collision(world_coords,
+                                    SHIP_COLLISION_RADIUS *T_WIDTH,
+                                    cur_enemy_world_coords,
+                                    SHIP_COLLISION_RADIUS *T_WIDTH)) {
+          num_trade_ships--;
+          trade_ships[idx] = trade_ships[num_trade_ships];
+        }
+        if (circle_circle_collision(world_coords,
+                                    SHIP_COLLISION_RADIUS *SHIP_CHASE_RADIUS*T_WIDTH,
+                                    cur_enemy_world_coords,
+                                    SHIP_COLLISION_RADIUS *SHIP_CHASE_RADIUS*T_WIDTH)) {
+          /* some steering */
+          vec2 steer_force = GLM_VEC2_ZERO_INIT;
+          glm_vec2_sub(world_coords, cur_enemy_world_coords, steer_force); 
+          glm_vec2_normalize(steer_force);
+          glm_vec2_scale(steer_force, delta_time, steer_force);
+          glm_vec2_add(trade_ship->direction, steer_force, trade_ship->direction);
+        }
       }
     }
   }

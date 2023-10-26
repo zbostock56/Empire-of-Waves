@@ -18,9 +18,9 @@ typedef struct Node {
     int parent_col;
     int row;
     int col;
-    int f_cost;
-    int g_cost;
-    int h_cost;
+    float f_cost;
+    float g_cost;
+    float h_cost;
 } Node;
 
 /* =================== INTERNALLY DEFINED FUNCTIONS =================== */
@@ -29,9 +29,9 @@ int find_avail_chunks();
 void generate_chunk_tiles(int [C_WIDTH][C_WIDTH], CHUNK);
 void update_enemy_position(E_ENEMY *);
 void pathfind_enemy(E_ENEMY *, CHUNK *);
-int search(int,int, int, int, E_ENEMY*, vector *, CHUNK *);
+int search(vec2, int,int, int, int, E_ENEMY*, vector *, CHUNK *);
 void track_path(Node[C_WIDTH][C_WIDTH], vector*, int, int, int, int);
-void get_cost(Node *, int, int, int, int, int, int);
+void get_cost(Node *, float, float, int, int, int, int);
 void open_node(Node *, Node *, int[C_WIDTH][C_WIDTH], int[C_WIDTH][C_WIDTH], int[C_WIDTH][C_WIDTH], vector*);
 void update_enemy_chunk(E_ENEMY*, CHUNK*, int);
 /* =================== EXTERNALLY DEFINED FUNCTIONS =================== */

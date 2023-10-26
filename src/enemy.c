@@ -163,6 +163,7 @@ void pathfind_enemy(E_ENEMY *enemy, CHUNK *enemy_chunk) {
   TRADE_SHIP *target_tradeship = NULL;
   int goal_col;
   int goal_row;
+  float lerp_factor = 0.1; // Adjust this value to control the smoothness of the transition.
   
   /* 
     the enemy finds all possible targets in range and 
@@ -200,11 +201,17 @@ void pathfind_enemy(E_ENEMY *enemy, CHUNK *enemy_chunk) {
 
   /* Return if there was no target found */
   if (min_distance == FLT_MAX) {
+    enemy->on_path = false;
     return;
   }
 
   /* if target is player_ship */
   if (prioritize_player) {
+     /* if player is not on board, don't chase */
+    if (!e_player.embarked) {
+      enemy->on_path = false;
+      return;
+    }
 
     /* If Enemy ship is not in player's current chunk, manually move it to our chunk instead of targetng */
     if (e_player.ship_chunk[0] != enemy->chunk[0] || e_player.ship_chunk[1] != enemy->chunk[1]) {
@@ -226,15 +233,16 @@ void pathfind_enemy(E_ENEMY *enemy, CHUNK *enemy_chunk) {
         /*If the enemy on diagonal. Currently doesn't manually move it*/
       }
 
-      glm_vec2_scale(target_dir, delta_time * STEER_SPEED, target_dir);
-      glm_vec2_add(target_dir, enemy->direction, enemy->direction);
-      if (enemy->direction[0] == 0) {
-          enemy->direction[0] = 0.05;
-        }
-      if (enemy->direction[1] == 0) {
-        enemy->direction[1] = 0.05;
+      vec2 smoothed_direction = GLM_VEC2_ZERO_INIT;
+      glm_vec2_lerp(enemy->direction, target_dir, lerp_factor, smoothed_direction);
+      if (smoothed_direction[0] == 0) {
+        smoothed_direction[0] = 0.05;
       }
-      glm_vec2_normalize(enemy->direction);
+      if (smoothed_direction[1] == 0) {
+        smoothed_direction[1] = 0.05;
+      }
+      glm_vec2_normalize(smoothed_direction);
+      glm_vec2_copy(smoothed_direction, enemy->direction);
       
       update_enemy_position(enemy);
       enemy->on_path = false;
@@ -246,11 +254,40 @@ void pathfind_enemy(E_ENEMY *enemy, CHUNK *enemy_chunk) {
     }
     
   }
-  /* If target is a trade_ship. Currently, if trade ship is in a different
-   * chunk, enemy will not chase the trade ship
-   */
+  /* If target is a trade_ship. */
   else {
+    /* If Enemy ship is not in tradeship's current chunk, manually move it to its chunk instead of targetng */
     if (target_tradeship->chunk_coords[0] != enemy->chunk[0] || target_tradeship->chunk_coords[1] != enemy->chunk[1]) {
+      vec2 target_dir = GLM_VEC2_ZERO_INIT;
+      /* If the enemy is in the left chunk of the player. */
+      if (enemy->chunk[0] == target_tradeship->chunk_coords[0] - 1 && enemy->chunk[1] == target_tradeship->chunk_coords[1]) {
+        target_dir[0] = 1.0;
+      }
+      /* If the enemy is in the upper chunk of the player*/
+      else if (enemy->chunk[0] == target_tradeship->chunk_coords[0] && enemy->chunk[1] == target_tradeship->chunk_coords[1] + 1) {
+        target_dir[1] = -1.0;
+      }
+      else if (enemy->chunk[0] == target_tradeship->chunk_coords[0] + 1 && enemy->chunk[1] == target_tradeship->chunk_coords[1]) {
+        target_dir[0] = -1.0;
+      }
+      else if (enemy->chunk[0] == target_tradeship->chunk_coords[0] && enemy->chunk[1] == target_tradeship->chunk_coords[1] - 1) {
+        target_dir[1] = 1.0;
+      } else {
+        /*If the enemy on diagonal. Currently doesn't manually move it*/
+      }
+
+      vec2 smoothed_direction = GLM_VEC2_ZERO_INIT;
+      glm_vec2_lerp(enemy->direction, target_dir, lerp_factor, smoothed_direction);
+      if (smoothed_direction[0] == 0) {
+        smoothed_direction[0] = 0.05;
+      }
+      if (smoothed_direction[1] == 0) {
+        smoothed_direction[1] = 0.05;
+      }
+      glm_vec2_normalize(smoothed_direction);
+      glm_vec2_copy(smoothed_direction, enemy->direction);
+      
+      update_enemy_position(enemy);
       enemy->on_path = false;
       return;
     }
@@ -265,29 +302,29 @@ void pathfind_enemy(E_ENEMY *enemy, CHUNK *enemy_chunk) {
     int start_col = (int)(enemy->coords[0]);
     int start_row = (int)(enemy->coords[1]);
     vector *path_list = (vector *)malloc(sizeof(vector));
-    if (search(start_col, start_row, goal_col, goal_row, enemy, path_list, enemy_chunk)) {
+    if (search(enemy->coords, start_col, start_row, goal_col, goal_row, enemy, path_list, enemy_chunk)) {
 
       Node *n = ((Node *)vector_get(path_list, vector_total(path_list) - 1));
       int next_x = n->col;
       int next_y = n->row;
 
-      // printf("next_x : %d next_y : %d\n\n", next_x, next_y);
       vec2 next_tile = {next_x, next_y};
       vec2 difference = GLM_VEC2_ZERO_INIT;
       vec2 enemy_coords = {(int)enemy->coords[0], (int)enemy->coords[1]};
       glm_vec2_sub(next_tile, enemy_coords, difference);
       glm_vec2_normalize(difference);
-      difference[1] *= -1;
-      glm_vec2_scale(difference, delta_time*3, difference);
-      glm_vec2_add(difference, enemy->direction, enemy->direction);
-
-      if (enemy->direction[0] == 0) {
-        enemy->direction[0] = 0.05;
+      difference[1] *= -1;  
+      
+      vec2 smoothed_direction = GLM_VEC2_ZERO_INIT;
+      glm_vec2_lerp(enemy->direction, difference, lerp_factor, smoothed_direction);
+      if (smoothed_direction[0] == 0) {
+        smoothed_direction[0] = 0.05;
       }
-      if (enemy->direction[1] == 0) {
-        enemy->direction[1] = 0.05;
+      if (smoothed_direction[1] == 0) {
+        smoothed_direction[1] = 0.05;
       }
-      glm_vec2_normalize(enemy->direction);
+      glm_vec2_normalize(smoothed_direction);
+      glm_vec2_copy(smoothed_direction, enemy->direction);
 
       int next_col = ((Node *)vector_get(path_list, vector_total(path_list) - 1))->col;
       int next_row = ((Node *)vector_get(path_list, vector_total(path_list) - 1))->row;
@@ -309,7 +346,7 @@ void pathfind_enemy(E_ENEMY *enemy, CHUNK *enemy_chunk) {
 /*
     A* search algorithm
 */
-int search(int start_col, int start_row, int goal_col, int goal_row, E_ENEMY *enemy, vector *path_list, CHUNK * enemy_chunk) {
+int search(vec2 start_coords, int start_col, int start_row, int goal_col, int goal_row, E_ENEMY *enemy, vector *path_list, CHUNK * enemy_chunk) {
   if (start_col >= C_WIDTH || start_col < 0 ||
       start_row >= C_WIDTH || start_row < 0 ||
       goal_col >= C_WIDTH || goal_col < 0 ||
@@ -352,7 +389,7 @@ int search(int start_col, int start_row, int goal_col, int goal_row, E_ENEMY *en
   /* Setting up the costs needed for A * algorithm on each node of the tilemap */
   for (int i = 0; i < C_WIDTH; i++) {
     for (int j = 0; j < C_WIDTH; j++) {
-      get_cost(&nodes[i][j], i, j, start_col, start_row, goal_col, goal_row);
+      get_cost(&nodes[i][j], i, j, start_coords[0], start_coords[1], goal_col, goal_row);
     }
   }
 
@@ -462,15 +499,15 @@ void track_path(Node nodes[C_WIDTH][C_WIDTH], vector *path_list, int start_col, 
 /*
     function for getting the cost needed for A * algorithm of the given node
 */
-void get_cost(Node *node, int col, int row, int start_col, int start_row, int goal_col, int goal_row) {
+void get_cost(Node *node, float col, float row, int start_col, int start_row, int goal_col, int goal_row) {
   // G cost
-  int x_distance = abs(col - start_col);
-  int y_distance = abs(row - start_row);
-  node->g_cost = x_distance + y_distance;
+  int x_distance = fabs(col - start_col);
+  int y_distance = fabs(row - start_row);
+  node->g_cost = sqrt(x_distance*x_distance + y_distance*y_distance);
   // H cost
-  x_distance = abs(col - goal_col);
-  y_distance = abs(row - goal_row);
-  node->h_cost = x_distance + y_distance;
+  x_distance = fabs(col - goal_col);
+  y_distance = fabs(row - goal_row);
+  node->h_cost = sqrt(x_distance*x_distance + y_distance*y_distance);
   // F cost
   node->f_cost = node->g_cost + node->h_cost;
   node->row = row;

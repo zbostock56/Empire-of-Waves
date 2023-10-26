@@ -428,7 +428,7 @@ void open_establish_trade_route() {
   trade_ships[num_trade_ships].import_rec = 0;
   trade_ships[num_trade_ships].target_island = 0;
   trade_ships[num_trade_ships].num_mercenaries = 0;
-  trade_ships[num_trade_ships].speed = 10.0;
+  trade_ships[num_trade_ships].speed = 13.0;
   num_trade_ships++;
 
   if (num_trade_ships == trade_ship_buf_size) {
