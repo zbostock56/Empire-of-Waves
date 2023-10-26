@@ -55,6 +55,7 @@ void teleport_nearest_merchant();
 void reset_console_error();
 void set_console_error(const char *);
 void console_error_init();
+void establish_nearest_traderoute();
 
 /* ---------------- EXTERNALLY DEFINED FUNCTIONS -------------- */
 void world_to_chunk(vec2, ivec2, vec2);
@@ -66,3 +67,4 @@ void init_menu(vec2, void (*)(void *), void (*)(void *), void *, void *,
 float get_text_width(char *, int);
 float get_screen_text_scale();
 void print_parse_table();
+void open_establish_trade_route();

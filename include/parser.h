@@ -18,6 +18,7 @@
 #define HOME ("home")
 #define COORDS ("coords")
 #define TELEPORT_NEAREST_MERCHANT ("tnm")
+#define ESTABLISH_NEAREST_TRADEROUTE ("ent")
 
 /* GLOBALS */
 extern LEXER lexer;
@@ -44,3 +45,4 @@ void spawn_enemy();
 void teleport_home();
 void close_coords();
 void teleport_nearest_merchant();
+void establish_nearest_traderoute();

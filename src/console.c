@@ -1,7 +1,7 @@
 #include <console.h>
 
 void command_not_found() {
-  fprintf(stderr, "Command not found\n");
+  set_console_error("Command not found");
   print_parse_table();
 }
 
@@ -75,6 +75,7 @@ void teleport_nearest_island() {
   e_player.coords[1] = island_coords_float[1];
 }
 
+/* Finds which merchant is closest and teleports */
 void teleport_nearest_merchant() {
   if (mode != EXPLORATION) {
     set_console_error("ERR: Not in exploration mode");
@@ -113,7 +114,6 @@ void teleport_nearest_merchant() {
   }
 
   if (!tot_num_islands) {
-    //printf("ERROR: No merchants in simulated chunks\n");
     set_console_error("ERR: No merchants in simulated chunks");
     return;
   }
@@ -142,6 +142,56 @@ void teleport_nearest_merchant() {
   e_player.ship_coords[1] = island_coords_float[1];
   e_player.coords[0] = island_coords_float[0];
   e_player.coords[1] = island_coords_float[1];
+}
+
+/* Establishes trade route with nearest merchant */
+void establish_nearest_traderoute() {
+  ISLAND_DIST dist[MAX_ISLANDS_SIM_CHUNKS];
+  int tot_num_islands = 0;
+  CHUNK chunk;
+  /* Actual chunk coordinates relative to other chunks */
+  ivec2 chunk_coords = { 0, 0 };
+  /* Coordinates of the island relative to the chunk */
+  /* (top left of chunk is 0, 0) */
+  vec2 intra_chunk = { 0.0, 0.0 };
+  ivec2 intra_chunk_int = { 0, 0 };
+  /* Actual coordinates in relative to the origin of the world */
+  vec2 world_coords = { 0.0, 0.0 };
+  vec2 player_coords = { 0.0, 0.0 };
+  for (int i = 0; i < MAX_CHUNKS; i++) {
+    chunk = chunk_buffer[player_chunks[i]];
+    for (int j = 0; j < chunk.num_islands; j++) {
+      if (chunk.islands[j].has_merchant) {
+        dist[tot_num_islands].island = chunk.islands[j];
+        glm_ivec2_copy(dist[tot_num_islands].island.chunk, chunk_coords);
+        glm_ivec2_copy(dist[tot_num_islands].island.coords, intra_chunk_int);
+        intra_chunk[0] = (float) intra_chunk_int[0];
+        intra_chunk[1] = (float) intra_chunk_int[1];
+        /* Find the coordinates of the island in world space */
+        chunk_to_world(chunk_coords, intra_chunk, world_coords);
+        chunk_to_world(e_player.ship_chunk, e_player.ship_coords, player_coords);
+        dist[tot_num_islands++].distance = glm_vec2_distance(player_coords, world_coords);
+      }
+    }
+  }
+
+  if (!tot_num_islands) {
+    set_console_error("ERR: No merchants in simulated chunks");
+    return;
+  }
+
+  /* Find which distance is the shortest*/
+  int shortest = 0;
+  float shortest_distance = FLT_MAX;
+  for (int i = 0; i < tot_num_islands; i++) {
+     if (dist[i].distance < shortest_distance) {
+        shortest_distance = dist[i].distance;
+        shortest = i;
+     }
+  }
+  cur_merchant = &dist[shortest].island.merchant;
+  open_establish_trade_route();
+  cur_merchant = NULL;
 }
 
 void teleport(ivec2 pos) {
