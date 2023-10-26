@@ -49,3 +49,4 @@ void init_menu(vec2, void (*)(void *), void (*)(void *), void *, void *,
                PIVOT, TEXT_ANCHOR, UI_COMPONENT *);
 float get_text_width(char *, int);
 float get_screen_text_scale();
+void print_parse_table();

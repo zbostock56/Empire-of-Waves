@@ -21,7 +21,7 @@ void next(LEXER *);
 char get();
 char peek();
 void identifier(TOKEN *, char);
-void number(TOKEN *, char);
+void number(TOKEN *, TOKEN *, char);
 void slash_or_comment(TOKEN *, char);
 void init_lexer();
 void tokenize(char *, int);

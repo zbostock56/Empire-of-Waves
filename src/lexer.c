@@ -12,6 +12,7 @@ void init_lexer() {
     lexer.lines[i].num_tokens = 0;
     for (int j = 0; j < MAX_TOKENS; j++) {
       lexer.lines[i].tokens[j].num_chars = 0;
+      lexer.lines[i].tokens[j].kind = UNEXPECTED;
     }
   }
 }
@@ -204,8 +205,12 @@ void next(LEXER *lexer) {
     case '7':
     case '8':
     case '9':
-      number(&(lexer->lines[lines].tokens[toks]), c);
-      lexer->lines[lines].num_tokens++;
+      if (toks > 0 && lexer->lines[lines].tokens[toks - 1].kind == MINUS) {
+        number(&(lexer->lines[lines].tokens[toks]), &(lexer->lines[lines].tokens[toks - 1]), c);
+      } else {
+        number(&(lexer->lines[lines].tokens[toks]), NULL, c);
+        lexer->lines[lines].num_tokens++;
+      }
       break;
     case '(':
       lexer->lines[lines].tokens[toks].kind = LEFTPAREN;
@@ -362,10 +367,12 @@ void identifier(TOKEN *token, char c) {
 
 /* Outputs the whole of a number as */
 /* a token */
-void number(TOKEN *token, char c) {
+void number(TOKEN *token, TOKEN *prev, char c) {
+  if (prev) {
+    token = prev;
+  }
   token->kind = NUMBER;
-  token->tok[token->num_chars] = c;
-  token->num_chars++;
+  token->tok[token->num_chars++] = c;
   int lines = lexer.num_lines;
   int toks = lexer.lines[lines].num_tokens;
   int characters = token->num_chars;

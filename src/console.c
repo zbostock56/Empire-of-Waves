@@ -1,8 +1,8 @@
 #include <console.h>
 
 void command_not_found() {
-  printf("Command not found\n");
-  fflush(stdout);
+  fprintf(stderr, "Command not found\n");
+  print_parse_table();
 }
 
 /*
@@ -111,6 +111,19 @@ void set_speed(float speed) {
     e_player.speed = speed;
   } else if (mode == COMBAT) {
     c_player.speed = speed;
+  }
+  fprintf(stderr, "Operation completed successfully\n");
+}
+
+void teleport_home() {
+  ivec2 home_chunk = { 0, 0 };
+  if (mode == EXPLORATION) {
+    //chunk_to_world(home_island_coords, home_chunk, e_player.ship_coords);
+    //chunk_to_world(home_island_coords, home_chunk, e_player.coords);
+    glm_vec2_copy(home_island_coords, e_player.coords);
+    glm_vec2_copy(home_island_coords, e_player.ship_coords);
+    glm_ivec2_copy(home_chunk, e_player.chunk);
+    glm_ivec2_copy(home_chunk, e_player.ship_chunk);
   }
   fprintf(stderr, "Operation completed successfully\n");
 }

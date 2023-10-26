@@ -47,7 +47,6 @@ void console_dispatcher() {
     if (strncmp(command[0].tok, SET, sizeof(SET)) == 0) {
       /* BEGIN: set  */
       if (strncmp(command[1].tok, SPEED, sizeof(SPEED)) == 0) {
-        /* BEGIN: speed */
         /* Generate the float out of the token string */
         if (command[2].num_chars > 3) {
           fprintf(stderr, "Speed too large! Must be < 1000.0!\n");
@@ -81,7 +80,6 @@ void console_dispatcher() {
           return;
         }
         set_speed(atof(fl));
-        /* END: speed */
       } else {
         command_not_found();
       }
@@ -92,13 +90,16 @@ void console_dispatcher() {
       /* END: tni */
     } else if (strncmp(command[0].tok, TELEPORT, sizeof(TELEPORT)) == 0) {
       /* BEGIN: tp */
-      if (command[1].kind != NUMBER || command[2].kind != NUMBER) {
-        print_parse_table();
-        command_not_found();
-        return;
-      }
-      ivec2 loc = { atoi(command[1].tok), atoi(command[2].tok) };
-      teleport(loc);
+        if (command[1].kind == NUMBER && command[2].kind == NUMBER) {
+          ivec2 loc = { atoi(command[1].tok), atoi(command[2].tok) };
+          teleport(loc);
+        } else if (command[1].kind == IDENTIFIER &&
+                   strncmp(command[1].tok, HOME, sizeof(HOME)) == 0) {
+           teleport_home();
+        } else {
+           command_not_found();
+           print_parse_table();
+        }
       /* END: tp */
     } else if (strncmp(command[0].tok, GIVE, sizeof(GIVE)) == 0) {
       /* BEGIN: give */

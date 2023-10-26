@@ -5,7 +5,6 @@ void init_ui_lists() {
   list.page = 0;
   list.num_components = 0;
   list.comp_per_page = 0;
-  e_player.total_mercenaries = 10;
 }
 
 /*

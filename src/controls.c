@@ -253,6 +253,24 @@ void console_keys(GLFWwindow *window) {
     }
   }
 
+  // MINUS KEY
+  if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS &&
+      (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) != GLFW_PRESS &&
+      glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) != GLFW_PRESS)
+      && !holding_minus) {
+    holding_minus = 1;
+    if (cons_cmd_len < MAX_CMD_LEN - 1) {
+      cons_cmd[cons_cmd_len++] = '-';
+      cursor_enabled = 1;
+      console_cursor_interval = 0.25;
+    }
+  } else if (glfwGetKey(window, GLFW_KEY_MINUS) != GLFW_PRESS &&
+      (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) != GLFW_PRESS &&
+      glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) != GLFW_PRESS)
+      && holding_minus) {
+    holding_minus = 0;
+  }
+
   // SPACE
   if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !holding_space) {
     holding_space = 1;
@@ -266,14 +284,20 @@ void console_keys(GLFWwindow *window) {
   }
 
   // UNDERSCORE
-  if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS && !holding_underscore) {
+  if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS &&
+      (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
+      glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) &&
+      !holding_underscore) {
     holding_underscore = 1;
     if (cons_cmd_len < MAX_CMD_LEN - 1) {
       cons_cmd[cons_cmd_len++] = '_';
       cursor_enabled = 1;
       console_cursor_interval = 0.25;
     }
-  } else if (glfwGetKey(window, GLFW_KEY_MINUS) != GLFW_PRESS) {
+  } else if (glfwGetKey(window, GLFW_KEY_MINUS) != GLFW_PRESS &&
+      (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) != GLFW_PRESS ||
+      glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) != GLFW_PRESS) &&
+      holding_underscore) {
     holding_underscore = 0;
   }
 

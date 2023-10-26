@@ -15,6 +15,7 @@
 #define SPEED ("speed")
 #define TELEPORT_NEAREST_ISLAND ("tni")
 #define MERCENARY ("mercenaries")
+#define HOME ("home")
 
 /* GLOBALS */
 extern LEXER lexer;
@@ -37,3 +38,4 @@ void teleport_nearest_island();
 void set_speed(float);
 void give_mercenaries(int);
 void spawn_enemy();
+void teleport_home();
