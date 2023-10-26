@@ -119,6 +119,7 @@ void refresh_framebuffers();
 void calc_rot_mat(vec3, mat4);
 
 float get_text_width(char *, int);
+float get_screen_text_scale();
 
 void set_mat4(char *, mat4, unsigned int);
 void set_mat3(char *, mat3, unsigned int);
