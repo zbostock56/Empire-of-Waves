@@ -192,12 +192,8 @@ void debug_keys(GLFWwindow *window) {
 
 void close_merchant_menu(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-    if (dialog.ui_text_name->enabled) {
-      close_dialog();
-    }
-    if (trade.ui_listing[0]->enabled) {
-      close_trade();
-    }
+    close_dialog();
+    close_trade();
   }
 }
 
@@ -234,4 +230,3 @@ void ui_hover_listener(double x_pos, double y_pos) {
     }
   }
 }
-

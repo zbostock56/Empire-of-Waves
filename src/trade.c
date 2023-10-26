@@ -32,10 +32,10 @@ void init_trade() {
   trade.merchant_value = 0;
   trade.player_value = 0;
 
-  for (int i = 0; i < MAX_MERCHANT_ITEM_SELECTED; i++) {
+  for (int i = 0; i < MAX_MERCHANT_ITEM; i++) {
     trade.merchant_item_selected[i] = 0;
   }
-  for (int i = 0; i < MAX_PLAYER_ITEM_SELECTED; i++) {
+  for (int i = 0; i < MAX_PLAYER_ITEM; i++) {
     trade.player_item_selected[i] = 0;
   }
 
@@ -348,7 +348,7 @@ void init_trade() {
 
   // Init on-hover prompt
   init_menu(
-    (vec2) { 0, 0.6 }, // position
+    (vec2) { 0, 0.62 }, // position
     NULL, // on_click
     NULL, // on_hover
     NULL, // on_click_args
@@ -359,7 +359,7 @@ void init_trade() {
     0, // texture
     0.05, // text_padding
     0.5, // text_scale
-    0.6, // width
+    0, // width
     0.2, // height
     PIVOT_CENTER, // pivot
     T_CENTER, // text_anchor
@@ -370,7 +370,7 @@ void init_trade() {
     return;
   }
   trade.ui_text_on_hover_item->text[MAX_UI_TEXT_LENGTH - 1] = '\0'; // Ensures null termination
-  trade.ui_text_on_hover_item->text = "ON_HOVER_TEXT";
+  strcpy(trade.ui_text_on_hover_item->text, "[Name] P [Price] Q [Quantity] S [Num Select]");
 
   // Init merchant and player value text
   init_menu(
@@ -379,7 +379,7 @@ void init_trade() {
     NULL, // on_hover
     NULL, // on_click_args
     NULL, // on_hover_args
-    "M_VAL", // text
+    NULL, // text
     0, // enabled
     1, // textured
     0, // texture
@@ -391,6 +391,12 @@ void init_trade() {
     T_CENTER, // text_anchor
     trade.ui_text_merchant_value // dest
   );
+  trade.ui_text_merchant_value->text = malloc(MAX_UI_TEXT_LENGTH * sizeof(char));
+  if (!trade.ui_text_merchant_value) {
+    return;
+  }
+  trade.ui_text_merchant_value->text[MAX_UI_TEXT_LENGTH - 1] = '\0'; // Ensures null termination
+  strcpy(trade.ui_text_merchant_value->text, "MERCHANT VALUE [0]");
 
   init_menu(
     (vec2) { 0.7, -0.42 }, // position
@@ -398,7 +404,7 @@ void init_trade() {
     NULL, // on_hover
     NULL, // on_click_args
     NULL, // on_hover_args
-    "P_VAL", // text
+    NULL, // text
     0, // enabled
     1, // textured
     0, // texture
@@ -410,6 +416,12 @@ void init_trade() {
     T_CENTER, // text_anchor
     trade.ui_text_player_value // dest
   );
+  trade.ui_text_player_value->text = malloc(MAX_UI_TEXT_LENGTH * sizeof(char));
+  if (!trade.ui_text_player_value) {
+    return;
+  }
+  trade.ui_text_player_value->text[MAX_UI_TEXT_LENGTH - 1] = '\0'; // Ensures null termination
+  strcpy(trade.ui_text_player_value->text, "PLAYER VALUE [0]");
 
   // Init trade button
   init_menu(
@@ -438,7 +450,7 @@ void init_trade() {
     NULL, // on_hover
     NULL, // on_click_args
     NULL, // on_hover_args
-    "EVENT PROMPT", // text
+    NULL, // text
     0, // enabled
     1, // textured
     0, // texture
@@ -450,6 +462,12 @@ void init_trade() {
     T_CENTER, // text_anchor
     trade.ui_text_event_prompt // dest
   );
+  trade.ui_text_event_prompt->text = malloc(MAX_UI_TEXT_LENGTH * sizeof(char));
+  if (!trade.ui_text_event_prompt) {
+    return;
+  }
+  trade.ui_text_event_prompt->text[MAX_UI_TEXT_LENGTH - 1] = '\0'; // Ensures null termination
+  strcpy(trade.ui_text_event_prompt->text, "EVENT PROMPT");
 }
 
 /* Render trade menu in frontend */
@@ -519,10 +537,10 @@ void close_trade() {
   trade.merchant_value = 0;
   trade.player_value = 0;
 
-  for (int i = 0; i < MAX_MERCHANT_ITEM_SELECTED; i++) {
+  for (int i = 0; i < MAX_MERCHANT_ITEM; i++) {
     trade.merchant_item_selected[i] = 0;
   }
-  for (int i = 0; i < MAX_PLAYER_ITEM_SELECTED; i++) {
+  for (int i = 0; i < MAX_PLAYER_ITEM; i++) {
     trade.player_item_selected[i] = 0;
   }
 
@@ -566,10 +584,10 @@ int set_trade(T_TRADE trade_type) {
         trade.merchant_value = 0;
         trade.player_value = 0;
         
-        for (int i = 0; i < MAX_MERCHANT_ITEM_SELECTED; i++) {
+        for (int i = 0; i < MAX_MERCHANT_ITEM; i++) {
           trade.merchant_item_selected[i] = 0;
         }
-        for (int i = 0; i < MAX_PLAYER_ITEM_SELECTED; i++) {
+        for (int i = 0; i < MAX_PLAYER_ITEM; i++) {
           trade.player_item_selected[i] = 0;
         }
         for (int i = 0; i < 8; i++) {
@@ -769,15 +787,18 @@ unsigned int merchant_item_index
 void on_click_merchant_item(void *merchant_item_index) {
   printf("Merchant Item Page [%d] Index [%lld] [Click] Detected\n", trade.merchant_page, (uintptr_t)merchant_item_index);
   int index = (uintptr_t)merchant_item_index + trade.merchant_page * 8;
-  if (trade.merchant_item_selected[index] == 1 && get_merchant_listing_item_by_index(cur_merchant, index)->item_id != EMPTY) {
-    trade.merchant_item_selected[index] = 0;
-    trade.merchant_value -= get_item_info_by_ID(get_merchant_listing_item_by_index(cur_merchant, index)->item_id).value;
-  } else if (trade.merchant_item_selected[index] == 0 && get_merchant_listing_item_by_index(cur_merchant, index)->item_id != EMPTY) {
-    trade.merchant_item_selected[index] = 1;
-    trade.merchant_value += get_item_info_by_ID(get_merchant_listing_item_by_index(cur_merchant, index)->item_id).value;
+  if (get_merchant_listing_item_by_index(cur_merchant, index)->item_id != EMPTY && get_merchant_listing_item_by_index(cur_merchant, index)->item_id != INVALID_ITEM) {
+    if (trade.merchant_item_selected[index] + 1 <= get_merchant_listing_item_by_index(cur_merchant, index)->quantity) {
+      // If do not reach the maximum quatity, add selection
+      trade.merchant_item_selected[index] += 1;
+      trade.merchant_value += get_item_info_by_ID(get_merchant_listing_item_by_index(cur_merchant, index)->item_id).value;
+    } else {
+      // If already reach the maximum quatity, reset to zero
+      trade.merchant_item_selected[index] = 0;
+      trade.merchant_value -= get_item_info_by_ID(get_merchant_listing_item_by_index(cur_merchant, index)->item_id).value * get_merchant_listing_item_by_index(cur_merchant, index)->quantity;
+    }
   }
-  printf("MERCHANT VALUE [%d]\n", trade.merchant_value);
-  // sprintf(trade.ui_text_merchant_value->text, "MERCHANT VALUE [%d]", trade.merchant_value);
+  sprintf(trade.ui_text_merchant_value->text, "MERCHANT VALUE [%d]", trade.merchant_value);
 }
 
 /*
@@ -792,8 +813,7 @@ void on_hover_merchant_item(void *merchant_item_index) {
   ITEM_IDS merchant_item_id_at_index = get_merchant_listing_item_by_index(cur_merchant, index)->item_id;
   int price = get_item_info_by_ID(merchant_item_id_at_index).value;
   int quatity = get_merchant_listing_item_by_index(cur_merchant, index)->quantity;
-  printf("[%s] Price [%d] Quatity [%d] ", get_item_name_by_ID(merchant_item_id_at_index), price, quatity);
-  // sprintf(trade.ui_text_on_hover_item->text, "[%s] Price [%d] Quatity [%d]", get_item_name_by_ID(get_item_info_by_ID), price, quatity);
+  sprintf(trade.ui_text_on_hover_item->text, " [%s] P [%d] Q [%d] S [%d] ", get_item_name_by_ID(merchant_item_id_at_index), price, quatity, trade.merchant_item_selected[index]);
 }
 
 /*
@@ -805,15 +825,18 @@ unsigned int player_item_index
 void on_click_player_item(void *player_item_index) {
   printf("Player Item Page [%d] Index [%lld] [Click] Detected\n", trade.player_page, (uintptr_t)player_item_index);
   int index = (uintptr_t)player_item_index + trade.player_page * 8;
-  if (trade.player_item_selected[index] == 1 && get_player_inventory_slot_by_index(index)->item_id != EMPTY) {
-    trade.player_item_selected[index] = 0;
-    trade.player_value -= get_item_info_by_ID(get_player_inventory_slot_by_index(index)->item_id).value;
-  } else if (trade.player_item_selected[index] == 0 && get_player_inventory_slot_by_index(index)->item_id != EMPTY) {
-    trade.player_item_selected[index] = 1;
-    trade.player_value += get_item_info_by_ID(get_player_inventory_slot_by_index(index)->item_id).value;
+  if (get_player_inventory_slot_by_index(index)->item_id != EMPTY && get_player_inventory_slot_by_index(index)->item_id != INVALID_ITEM) {
+    if (trade.player_item_selected[index] + 1 <= get_player_inventory_slot_by_index(index)->quantity) {
+      // If do not reach the maximum quatity, add selection
+      trade.player_item_selected[index] +=1;
+      trade.player_value += get_item_info_by_ID(get_player_inventory_slot_by_index(index)->item_id).value;
+    } else {
+      // If already reach the maximum quatity, reset to zero
+      trade.player_item_selected[index] = 0;
+      trade.player_value -= get_item_info_by_ID(get_player_inventory_slot_by_index(index)->item_id).value * get_player_inventory_slot_by_index(index)->quantity;
+    }
   }
-  printf("PLAYER VALUE [%d]\n", trade.player_value);
-  // sprintf(trade.ui_text_player_value->text, "PLAYER VALUE [%d]", trade.player_value);
+  sprintf(trade.ui_text_player_value->text, "PLAYER VALUE [%d]", trade.player_value);
 }
 
 /*
@@ -828,8 +851,7 @@ void on_hover_player_item(void *player_item_index) {
   ITEM_IDS player_item_id_at_index = get_player_inventory_slot_by_index(index)->item_id;
   int price = get_item_info_by_ID(player_item_id_at_index).value;
   int quatity = get_player_inventory_slot_by_index(index)->quantity;
-  printf("[%s] Price [%d] Quatity [%d] ", get_item_name_by_ID(player_item_id_at_index), price, quatity);
-  // sprintf(trade.ui_text_on_hover_item->text, "[%s] Price [%d] Quatity [%d]", get_item_name_by_ID(player_item_id_at_index), price, quatity);
+  sprintf(trade.ui_text_on_hover_item->text, " [%s] P [%d] Q [%d] S [%d] ", get_item_name_by_ID(player_item_id_at_index), price, quatity, trade.player_item_selected[index]);
 }
 
 /*
@@ -840,7 +862,7 @@ int isMerchant
 */
 void on_click_page_up(void *isMerchant) {
   if (isMerchant) {
-    (trade.merchant_page - 1 < 0) ? (trade.merchant_page = 0) : (trade.merchant_page -= 1);
+    (trade.merchant_page == 0) ? (trade.merchant_page = 1) : (trade.merchant_page = 0);
     printf("Merchant Page Down Detected | Current Page [%d]\n", trade.merchant_page);
     for (int i = 0; i < 8; i++) {
       int index = i + trade.merchant_page * 8;
@@ -848,7 +870,7 @@ void on_click_page_up(void *isMerchant) {
       trade.ui_merchant_items[i]->text = get_item_name_by_ID(merchant_item_id_at_index_i);
     }
   } else {
-    (trade.player_page - 1 < 0) ? (trade.player_page = 0) : (trade.player_page -= 1);
+    (trade.player_page == 0) ? (trade.player_page = 1) : (trade.player_page = 0);
     printf("Player Page Down Detected | Current Page [%d]\n", trade.player_page);
     for (int i = 0; i < 8; i++) {
       int index = i + trade.merchant_page * 8;
@@ -886,41 +908,42 @@ void on_click_page_down(void *isMerchant) {
 
 /*
 Trade with both sides item selected
+TODO: DO NOT DEAL WITH LIMITED INVENTORY SPACE
 */
 void on_click_trade() {
   printf("Trade Button Click Detected\n");
   // Check player value > merchant value
   if (trade.player_value >= trade.merchant_value) {
     // Add the selected items to player inventory
-    for (int i = 0; i < MAX_PLAYER_ITEM_SELECTED; i++) {
-      if (trade.merchant_item_selected[i] == 1) {
+    for (int i = 0; i < MAX_PLAYER_ITEM; i++) {
+      if (trade.merchant_item_selected[i] > 0) {
         ITEM_IDS item_id = get_merchant_listing_item_by_index(cur_merchant, i)->item_id;
         if (search_player_inventory_by_ID(item_id)) {
-          search_player_inventory_by_ID(item_id)->quantity += 1;
+          search_player_inventory_by_ID(item_id)->quantity += trade.merchant_item_selected[i];
         } else {
           I_SLOT *empty_slot = get_player_first_empty_inventory_slot();
           empty_slot->item_id = item_id;
-          empty_slot->quantity = 1;
+          empty_slot->quantity = trade.merchant_item_selected[i];
         }
       }
     }
     // Add the selected items to merchant listing
-    for (int i = 0; i < MAX_MERCHANT_ITEM_SELECTED; i++) {
-      if (trade.player_item_selected[i] == 1) {
+    for (int i = 0; i < MAX_MERCHANT_ITEM; i++) {
+      if (trade.player_item_selected[i] > 0) {
         ITEM_IDS item_id = get_player_inventory_slot_by_index(i)->item_id;
         if (search_merchant_listing_by_ID(cur_merchant, item_id)) {
-          search_merchant_listing_by_ID(cur_merchant, item_id)->quantity += 1;
+          search_merchant_listing_by_ID(cur_merchant, item_id)->quantity += trade.player_item_selected[i];
         } else {
           LISTING *empty_slot = get_merchant_first_empty_listing(cur_merchant);
           empty_slot->item_id = item_id;
-          empty_slot->quantity = 1;
+          empty_slot->quantity = trade.player_item_selected[i];
         }
       }
     }
     // Remove the selected items from player inventory
-    for (int i = 0; i < MAX_PLAYER_ITEM_SELECTED; i++) {
-      if (trade.player_item_selected[i] == 1) {
-        get_player_inventory_slot_by_index(i)->quantity -= 1;
+    for (int i = 0; i < MAX_PLAYER_ITEM; i++) {
+      if (trade.player_item_selected[i] > 0) {
+        get_player_inventory_slot_by_index(i)->quantity -= trade.player_item_selected[i];
         if (get_player_inventory_slot_by_index(i)->quantity <= 0) {
           get_player_inventory_slot_by_index(i)->item_id = EMPTY;
           get_player_inventory_slot_by_index(i)->quantity = 0;
@@ -928,14 +951,24 @@ void on_click_trade() {
       }
     }
     // Remove the selected items from merchant inventory
-    for (int i = 0; i < MAX_MERCHANT_ITEM_SELECTED; i++) {
-      if (trade.merchant_item_selected[i] == 1) {
-        get_merchant_listing_item_by_index(cur_merchant, i)->quantity -= 1;
+    for (int i = 0; i < MAX_MERCHANT_ITEM; i++) {
+      if (trade.merchant_item_selected[i] > 0) {
+        get_merchant_listing_item_by_index(cur_merchant, i)->quantity -= trade.merchant_item_selected[i];
         if (get_merchant_listing_item_by_index(cur_merchant, i)->quantity <= 0) {
           get_merchant_listing_item_by_index(cur_merchant, i)->item_id = EMPTY;
           get_merchant_listing_item_by_index(cur_merchant, i)->quantity = 0;
         }
       }
+    }
+    // Set Values Back
+    trade.player_value = 0;
+    sprintf(trade.ui_text_player_value->text, "PLAYER VALUE [%d]", trade.player_value);
+    trade.merchant_value = 0;
+    sprintf(trade.ui_text_merchant_value->text, "MERCHANT VALUE [%d]", trade.merchant_value);
+
+    for (int i = 0; i < MAX_MERCHANT_ITEM; i++) {
+      trade.merchant_item_selected[i] = 0;
+      trade.player_item_selected[i] = 0;
     }
     // Refresh the UI
     for (int i = 0; i < 8; i++) {
@@ -948,9 +981,13 @@ void on_click_trade() {
       ITEM_IDS player_item_id_at_index_i = get_player_inventory_slot_by_index(index)->item_id;
       trade.ui_player_items[i]->text = get_item_name_by_ID(player_item_id_at_index_i);
     }
+    // Show prompt
+    sprintf(trade.ui_text_event_prompt->text, " Trade Successful ");
+    trade.ui_text_event_prompt->enabled = 1;
+    time_trade_event_prompt = 2.0;
   } else {
-    trade.ui_text_event_prompt->text = "VALUE NOT ENOUGH";
-    // sprintf(trade.ui_text_event_prompt->text, "VALUE NOT ENOUGH");
+    // Show prompt
+    sprintf(trade.ui_text_event_prompt->text, " Player Value Insufficient ");
     trade.ui_text_event_prompt->enabled = 1;
     time_trade_event_prompt = 2.0;
   }

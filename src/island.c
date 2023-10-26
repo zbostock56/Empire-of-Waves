@@ -1,4 +1,5 @@
 #include <island.h>
+#include <trade_str.h>
 /*
                                     ISLAND.c
 Implements the functionality for procedural island generation, and random
@@ -31,22 +32,28 @@ int generate_island(ISLAND *island) {
   merchant_generate(&(island->merchant), island);
 
   if (island->has_merchant) {
-    island->merchant.listings = malloc(sizeof(LISTING) * STARTING_BUFF_SIZE);
-    island->merchant.listings_buf_size = STARTING_BUFF_SIZE;
+    island->merchant.listings = malloc(sizeof(LISTING) * MAX_MERCHANT_ITEM);
+    island->merchant.listings_buf_size = MAX_MERCHANT_ITEM;
     if (island->merchant.listings == NULL) {
       fprintf(stderr,
               "generate_island: unabled to allocate merchant listings buffer");
       return -1;
     }
 
-    island->merchant.num_listings = 9;
+    island->merchant.num_listings = 16;
     // List of items to be populated in merchant
     ITEM_IDS ids[9] = { CITRUS, RUM, LIFE_POTION, SPEED_POTION, BOW, CLOTH_ARMOR,
                    CROSSBOW, LIGHT_ARMOR, PLATE_ARMOR };
-    for (int i = 0; i < 9; i++) {
-      island->merchant.listings[i].item_id = ids[i];
-      island->merchant.listings[i].quantity = 1;
-      island->merchant.listings[i].barter_range = 1;
+    for (int i = 0; i < MAX_MERCHANT_ITEM; i++) {
+      if (i < 8) {
+        island->merchant.listings[i].item_id = ids[i];
+        island->merchant.listings[i].quantity = 1;
+        island->merchant.listings[i].barter_range = 0.1;
+      } else {
+        island->merchant.listings[i].item_id = EMPTY;
+        island->merchant.listings[i].quantity = 0;
+        island->merchant.listings[i].barter_range = 0.1;
+      }
     }
     island->merchant.relationship = 0.0;
   } else {
