@@ -33,6 +33,7 @@ void init_scene() {
 
   // Initialize models
   player = load_model("assets/player.bin", "assets/3A.png");
+  mercenary = load_model("assets/player.bin", "assets/1A.png");
   enemy = load_model("assets/enemy.bin", "assets/2A.png");
   merchant = load_model("assets/merchant.bin", "assets/2A.png");
   player_ship = load_model("assets/player_ship.bin", "assets/1A.png");
@@ -351,12 +352,15 @@ void render_player() {
 }
 
 void render_unit(C_UNIT *unit) {
-  // TODO Sprint 2: render allies here as well
   float scale = 0.25;
   if (unit->death_animation >= 0.0) {
     scale = scale * unit->death_animation;
   }
-  render_c_npc(enemy, unit->coords, unit->direction, scale);
+  if (unit->type == ENEMY) {
+    render_c_npc(enemy, unit->coords, unit->direction, scale);
+  } else if (unit->type == ALLY) {
+    render_c_npc(mercenary, unit->coords, unit->direction, scale);
+  }
 }
 
 void render_merchant(MERCHANT *m) {

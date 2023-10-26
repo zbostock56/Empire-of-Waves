@@ -11,7 +11,7 @@ void init_dialog() {
   if (!dialog.name) {
     return;
   }
-  dialog.name[MAX_NAME_STR_LENGTH - 1] = '\0'; // Ensures null termination
+  dialog.name[0] = '\0'; // Ensures null termination
 
   /* Alloc size for dialog relationship string*/
   dialog.relationship = malloc(TEXT_BUFFER_LEN * sizeof(char));
@@ -19,7 +19,7 @@ void init_dialog() {
     free(dialog.name);
     return;
   }
-  dialog.relationship[TEXT_BUFFER_LEN - 1] = '\0';
+  dialog.relationship[0] = '\0';
 
   dialog.content = malloc(MAX_CONTENT_STR_LENGTH * sizeof(char));
   if (!dialog.content) {
@@ -27,7 +27,7 @@ void init_dialog() {
     free(dialog.name);
     return;
   }
-  dialog.content[MAX_CONTENT_STR_LENGTH - 1] = '\0'; // Ensures null termination
+  dialog.content[0] = '\0'; // Ensures null termination
 
   dialog.mercenary_count = malloc(TEXT_BUFFER_LEN);
   if (!dialog.mercenary_count) {
