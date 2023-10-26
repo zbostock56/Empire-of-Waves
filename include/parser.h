@@ -16,11 +16,14 @@
 #define TELEPORT_NEAREST_ISLAND ("tni")
 #define MERCENARY ("mercenaries")
 #define HOME ("home")
+#define COORDS ("coords")
+#define TELEPORT_NEAREST_MERCHANT ("tnm")
 
 /* GLOBALS */
 extern LEXER lexer;
 CURRENT current;
 TOKEN command[MAX_TOKS];
+extern int coords_enabled;
 
 /* ================ INTERNALLY DEFINED FUNCTIONS ===================*/
 void parse();
@@ -39,3 +42,5 @@ void set_speed(float);
 void give_mercenaries(int);
 void spawn_enemy();
 void teleport_home();
+void close_coords();
+void teleport_nearest_merchant();

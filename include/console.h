@@ -13,17 +13,29 @@
 #include <ui_component.h>
 #include <menu.h>
 
-/* GLOBALS */
-extern int console_enabled;
-extern char cons_cmd[100];
-float console_cursor_interval = 0.0;
-int cursor_enabled = 0;
-extern vec2 screen_scale;
-
 /* DEFINES */
 #define MAX_TOKENS (10)
 #define MAX_CHUNKS (9)
 #define MAX_ISLANDS_SIM_CHUNKS (MAX_ISLANDS * 9)
+#define CONSOLE_BUFFER_MAX (100)
+
+/* ------------- GLOBALS ------------ */
+/* Timers */
+float console_cursor_interval = 0.0;
+float console_error_interval = 0.0;
+/* Event Flags */
+extern int console_enabled;
+int cursor_enabled = 0;
+int coords_enabled = 0;
+int console_error = 0;
+/* Buffers */
+char console_world_coords[CONSOLE_BUFFER_MAX];
+char console_intra_chunk[CONSOLE_BUFFER_MAX];
+char console_chunk_coords[CONSOLE_BUFFER_MAX];
+char console_error_buffer[CONSOLE_BUFFER_MAX];
+extern vec2 screen_scale;
+extern char cons_cmd[CONSOLE_BUFFER_MAX];
+/* ---------------------------------  */
 
 /* STRUCTS */
 typedef struct island_dist {
@@ -31,7 +43,7 @@ typedef struct island_dist {
   float distance;
 } ISLAND_DIST;
 
-/* PROTOTYPES */
+/* ---------------- INTERNALLY DEFINED FUNCTIONS -------------- */
 void teleport(ivec2);
 void set_speed(float);
 void teleport_nearest_island();
@@ -39,8 +51,12 @@ void command_not_found();
 void update_console_prompt();
 void give_mercenaries(int);
 void calc_cursor_pos(vec2);
+void teleport_nearest_merchant();
+void reset_console_error();
+void set_console_error(const char *);
+void console_error_init();
 
-/* EXTERNAL PROTOTYPES */
+/* ---------------- EXTERNALLY DEFINED FUNCTIONS -------------- */
 void world_to_chunk(vec2, ivec2, vec2);
 void chunk_to_world(ivec2, vec2, vec2);
 void spawn_enemy();

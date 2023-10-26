@@ -113,11 +113,29 @@ void console_dispatcher() {
     } else if (strncmp(command[0].tok, SPAWN, sizeof(SPAWN)) == 0) {
       /* BEGIN: spawn */
       if (command[1].kind == IDENTIFIER && strncmp(command[1].tok, ENEMY, sizeof(ENEMY)) == 0) {
-        spawn_enemy();
+        if (command[2].kind == NUMBER) {
+          for (int i = 0; i < atoi(command[2].tok); i++) {
+            spawn_enemy();
+          }
+        } else {
+          spawn_enemy();
+        }
       } else {
         command_not_found();
       }
       /* END: spawn  */
+    } else if (strncmp(command[0].tok, COORDS, sizeof(COORDS)) == 0) {
+      if (!coords_enabled) {
+        coords_enabled = 1;
+      } else {
+        coords_enabled = 0;
+        close_coords();
+      }
+    } else if (strncmp(command[0].tok, TELEPORT_NEAREST_MERCHANT,
+               sizeof(TELEPORT_NEAREST_MERCHANT)) == 0) {
+      /* BEGIN: tnm */
+      teleport_nearest_merchant();
+      /* END: tmn */
     } else {
       command_not_found();
     }
