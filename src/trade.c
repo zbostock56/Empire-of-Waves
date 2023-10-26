@@ -468,6 +468,8 @@ void init_trade() {
   }
   trade.ui_text_event_prompt->text[MAX_UI_TEXT_LENGTH - 1] = '\0'; // Ensures null termination
   strcpy(trade.ui_text_event_prompt->text, "EVENT PROMPT");
+
+  e_player.money = 2000;
 }
 
 /* Render trade menu in frontend */
@@ -799,6 +801,10 @@ void on_click_merchant_item(void *merchant_item_index) {
     }
   }
   sprintf(trade.ui_text_merchant_value->text, "MERCHANT VALUE [%d]", trade.merchant_value);
+  ITEM_IDS merchant_item_id_at_index = get_merchant_listing_item_by_index(cur_merchant, index)->item_id;
+  int price = get_item_info_by_ID(merchant_item_id_at_index).value;
+  int quatity = get_merchant_listing_item_by_index(cur_merchant, index)->quantity;
+  sprintf(trade.ui_text_on_hover_item->text, " [%s] P [%d] Q [%d] S [%d] ", get_item_name_by_ID(merchant_item_id_at_index), price, quatity, trade.merchant_item_selected[index]);
 }
 
 /*
@@ -837,6 +843,10 @@ void on_click_player_item(void *player_item_index) {
     }
   }
   sprintf(trade.ui_text_player_value->text, "PLAYER VALUE [%d]", trade.player_value);
+  ITEM_IDS player_item_id_at_index = get_player_inventory_slot_by_index(index)->item_id;
+  int price = get_item_info_by_ID(player_item_id_at_index).value;
+  int quatity = get_player_inventory_slot_by_index(index)->quantity;
+  sprintf(trade.ui_text_on_hover_item->text, " [%s] P [%d] Q [%d] S [%d] ", get_item_name_by_ID(player_item_id_at_index), price, quatity, trade.player_item_selected[index]);
 }
 
 /*
@@ -862,7 +872,10 @@ int isMerchant
 */
 void on_click_page_up(void *isMerchant) {
   if (isMerchant) {
-    (trade.merchant_page == 0) ? (trade.merchant_page = 1) : (trade.merchant_page = 0);
+    if (cur_merchant->num_listings == 0) {
+      return;
+    }
+    (trade.merchant_page == 0) ? trade.merchant_page = (((cur_merchant->num_listings / 8) == 0) ? 0 : (cur_merchant->num_listings/8) - 1) : (trade.merchant_page -= 1);
     printf("Merchant Page Down Detected | Current Page [%d]\n", trade.merchant_page);
     for (int i = 0; i < 8; i++) {
       int index = i + trade.merchant_page * 8;
@@ -888,7 +901,10 @@ int isMerchant
 */
 void on_click_page_down(void *isMerchant) {
   if (isMerchant) {
-    (trade.merchant_page + 1 > 1) ? (trade.merchant_page = 1) : (trade.merchant_page += 1);
+    if (cur_merchant->num_listings == 0) {
+      return;
+    }
+    (trade.merchant_page + 1 == cur_merchant->num_listings / 8) ? (trade.merchant_page = 0) : (trade.merchant_page += 1);
     printf("Merchant Page Up Detected | Current Page [%d]\n", trade.merchant_page);
     for (int i = 0; i < 8; i++) {
       int index = i + trade.merchant_page * 8;
@@ -928,18 +944,37 @@ void on_click_trade() {
       }
     }
     // Add the selected items to merchant listing
-    for (int i = 0; i < MAX_MERCHANT_ITEM; i++) {
-      if (trade.player_item_selected[i] > 0) {
-        ITEM_IDS item_id = get_player_inventory_slot_by_index(i)->item_id;
+    for (int i = 0 ; i < cur_merchant->num_listings; i++) {
+        if (trade.player_item_selected[i] > 0) {
+          ITEM_IDS item_id = get_player_inventory_slot_by_index(i)->item_id;
         if (search_merchant_listing_by_ID(cur_merchant, item_id)) {
           search_merchant_listing_by_ID(cur_merchant, item_id)->quantity += trade.player_item_selected[i];
         } else {
           LISTING *empty_slot = get_merchant_first_empty_listing(cur_merchant);
           empty_slot->item_id = item_id;
           empty_slot->quantity = trade.player_item_selected[i];
+          cur_merchant->num_listings ++;
+          if (cur_merchant->num_listings == cur_merchant->listings_buf_size) {
+            if (double_buffer((void  **)&cur_merchant->listings, &cur_merchant->listings_buf_size, sizeof(LISTING))) {
+              fprintf(stderr, "Cannot double buffer size");
+              exit(1);
+            }
+          }
         }
       }
     }
+    // for (int i = 0; i < cur_merchant->num_listings; i++) {
+    //   if (trade.player_item_selected[i] > 0) {
+    //     ITEM_IDS item_id = get_player_inventory_slot_by_index(i)->item_id;
+    //     if (search_merchant_listing_by_ID(cur_merchant, item_id)) {
+    //       search_merchant_listing_by_ID(cur_merchant, item_id)->quantity += trade.player_item_selected[i];
+    //     } else {
+    //       LISTING *empty_slot = get_merchant_first_empty_listing(cur_merchant);
+    //       empty_slot->item_id = item_id;
+    //       empty_slot->quantity = trade.player_item_selected[i];
+    //     }
+    //   }
+    // }
     // Remove the selected items from player inventory
     for (int i = 0; i < MAX_PLAYER_ITEM; i++) {
       if (trade.player_item_selected[i] > 0) {
