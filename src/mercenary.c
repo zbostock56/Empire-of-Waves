@@ -99,6 +99,7 @@ void close_mercenary_reassignment_menu() {
   get_ui_component_by_ID(ADD_MERCENARY)->enabled = 0;
   get_ui_component_by_ID(SUB_MERCENARY)->enabled = 0;
   get_ui_component_by_ID(REASSIGN_MENU_TITLE)->enabled = 0;
+  get_ui_component_by_ID(MY_SHIP_MERC)->enabled = 0;
   close_listings(&list);
 }
 
@@ -122,6 +123,8 @@ void update_available_mercenaries() {
   if (reassignment_menu_open) {
     snprintf(avail_mercenaries, AVAIL_MERC_BUFF_LEN,
                "Available: %d", e_player.total_mercenaries);
+    snprintf(my_ship_mercenaries, MY_SHIP_MERC_LEN,
+               "My Ship (%d assigned)", e_player.ship_mercenaries);
   }
 }
 
@@ -188,6 +191,26 @@ void check_available_mercenaries() {
       T_CENTER, // text_anchor
       get_ui_component_by_ID(SUB_MERCENARY)// dest
     );
+
+    vec2 my_ship_pos = { 0.0, 0.50 };
+    init_menu(
+      my_ship_pos,
+      (void (*)(void *)) select_listing_dispatcher,
+      NULL,
+      (void *) ((long) 16),
+      NULL,
+      my_ship_mercenaries,
+      1,
+      1,
+      0,
+      0.05,
+      0.75,
+      1.0,
+      0.2,
+      PIVOT_CENTER,
+      T_CENTER,
+      get_ui_component_by_ID(MY_SHIP_MERC)
+    );
   }
 }
 
@@ -210,7 +233,7 @@ void mercenary_reassign(void *ch) {
   long change = (long) ch;
   if ((e_player.total_mercenaries && change > 0) ||
        change < 0) {
-    int is_selected = 0;
+    int is_selected = -1;
     for (int i = 0; i < TOT_LISTING_NUM; i++) {
       if (mercenary_listing_selected[i]) {
         is_selected = i;
@@ -222,6 +245,11 @@ void mercenary_reassign(void *ch) {
         /* Prompt to select a listing */
         return;
       }
+    }
+    /* Adding or subtracting from player ship */
+    if (is_selected == (TOT_LISTING_NUM - 1)) {
+      mercenary_reassign_my_ship(change);
+      return;
     }
     /* Calculate what listing this equates to in the trade */
     /* ship array */
@@ -249,4 +277,24 @@ void mercenary_reassign(void *ch) {
     }
     (trade_ships + actual_item)->num_mercenaries += change;
   }
+}
+
+/* Handles reassigning mercenaries only to the player's ship */
+void mercenary_reassign_my_ship(long change) {
+  if (change < 0) {
+    if (e_player.ship_mercenaries) {
+      e_player.total_mercenaries++;
+    } else {
+      printf("No more mercenaries are left on your ship to remove\n");
+      return;
+    }
+  } else if (change > 0) {
+    if (e_player.ship_mercenaries < 10) {
+      e_player.total_mercenaries--;
+    } else {
+      printf("No more mercenaries can be added to your ship\n");
+      return;
+    }
+  }
+  e_player.ship_mercenaries += change;
 }

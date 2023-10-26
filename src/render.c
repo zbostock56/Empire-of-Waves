@@ -1,19 +1,20 @@
   #include <render.h>
 
-  void init_scene() {
-    glm_vec2_zero(e_player.coords);
-    glm_ivec2_zero(e_player.chunk);
-    glm_vec2_zero(e_player.direction);
-    glm_vec2_zero(e_player.ship_direction);
-    e_player.direction[1] = 1.0;
-    e_player.ship_direction[1] = 1.0;
-    e_player.embarked = 1;
-    e_player.inventory[0].item_id = RUM;
-    e_player.inventory[0].quantity = 1;
-    e_player.inventory[1].item_id = CITRUS;
-    e_player.inventory[1].quantity = 1;
-    e_player.inventory[2].item_id = KNIVE;
-    e_player.inventory[2].quantity = 1;
+void init_scene() {
+  glm_vec2_zero(e_player.coords);
+  glm_ivec2_zero(e_player.chunk);
+  glm_vec2_zero(e_player.direction);
+  glm_vec2_zero(e_player.ship_direction);
+  e_player.speed = 1.0;
+  e_player.direction[1] = 1.0;
+  e_player.ship_direction[1] = 1.0;
+  e_player.embarked = 1;
+  e_player.inventory[0].item_id = RUM;
+  e_player.inventory[0].quantity = 1;
+  e_player.inventory[1].item_id = CITRUS;
+  e_player.inventory[1].quantity = 1;
+  e_player.inventory[2].item_id = KNIVE;
+  e_player.inventory[2].quantity = 1;
 
     // TEST MODELS
     unsigned char ocean_buffer[3] = { 3, 157, 252 };
@@ -437,10 +438,7 @@ void render_ui(UI_COMPONENT *comp) {
   // Number of characters in ui component text
   int text_len = 0;
   // Scale text based on screen size
-  float screen_text_scale = RES_X / BASE_RES_X;
-  if (screen_text_scale < MIN_TEXT_SCALE) {
-    screen_text_scale = MIN_TEXT_SCALE;
-  }
+  float screen_text_scale = get_screen_text_scale();
   // Width of ui component text
   float text_width = 0.0;
   float text_height = 0.0;
@@ -911,6 +909,14 @@ void get_ui_min_max(UI_COMPONENT *comp, vec4 dest) {
   dest[X_MAX] = comp_pivot[0] + comp_scale[0];
   dest[Y_MIN] = comp_pivot[1] - comp_scale[1];
   dest[Y_MAX] = comp_pivot[1] + comp_scale[1];
+}
+
+float get_screen_text_scale() {
+  float screen_text_scale = RES_X / BASE_RES_X;
+  if (screen_text_scale < MIN_TEXT_SCALE) {
+    screen_text_scale = MIN_TEXT_SCALE;
+  }
+  return screen_text_scale;
 }
 
 /*

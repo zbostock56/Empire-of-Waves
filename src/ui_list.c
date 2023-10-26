@@ -5,7 +5,6 @@ void init_ui_lists() {
   list.page = 0;
   list.num_components = 0;
   list.comp_per_page = 0;
-  e_player.total_mercenaries = 10;
 }
 
 /*
@@ -53,7 +52,7 @@ void open_listing(UI_LIST *list) {
     cur_comp = get_ui_component_by_ID(LIST_ITEM) + i;
     vec2 listing_pos = {
       0.0,
-      0.50 - (((float) (i % list->comp_per_page)) * (1.0 / (float) list->comp_per_page))
+      0.25 - (((float) (i % list->comp_per_page)) * (1.0 / (float) list->comp_per_page))
     };
     if (i >= lower_bound && i < comp_bound) {
       init_menu(
