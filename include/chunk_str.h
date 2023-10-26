@@ -11,7 +11,7 @@ representing an exploration mode island. Can be included in any file which
 reads/manipulates chunks and/or islands.
 */
 
-#define C_WIDTH (128) // Width of a chunk in tiles
+#define C_WIDTH (450) // Width of a chunk in tiles
 #define I_WIDTH (96) // Width of an island in tiles
 #define MAX_ISLANDS (1) // Max islands per chunk
 #define CHUNKS_SIMULATED (9)

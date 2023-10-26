@@ -195,7 +195,6 @@ void pathfind_enemy(E_ENEMY *enemy) {
     int start_row = (int)(enemy->coords[1]);
     vector *path_list = (vector *)malloc(sizeof(vector));
     if (search(start_col, start_row, goal_col, goal_row, enemy, path_list)) {
-
       Node *n = ((Node *)vector_get(path_list, vector_total(path_list) - 1));
       int next_x = n->col;
       int next_y = n->row;

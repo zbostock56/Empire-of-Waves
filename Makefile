@@ -37,4 +37,8 @@ clean:
 run:
 	@./bin/EOW
 
+.PHONY: debug
+debug:
+	gdb ./bin/EOW
+
 -include $(DEPS)

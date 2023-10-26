@@ -194,6 +194,9 @@ void merchant_generate(MERCHANT *merchant, ISLAND *island) {
       merchant->coords[Y] = island->coords[Y] + yloc_intra_island;
       island->has_merchant = TRUE;
       island->tiles[tile_location] = MERCH;
+      merchant->num_mercenaries = ((unsigned int) rand()) % MAX_MERCENARIES;
+      /* Index of the global names array defined in merchant.h */
+      merchant->name = ((unsigned int) generate_rand()) % NUM_NAMES;
       found_location = 1;
     }
   }
