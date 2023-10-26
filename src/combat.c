@@ -29,9 +29,7 @@ int to_combat_mode(unsigned int enemy_index) {
 
   // Initialize combat mode enemies
   e_enemy_index = enemy_index;
-  // TODO Properly calculate the number of allies during combat
-  e_player.total_mercenaries = 3;
-  num_npc_units = enemy_ship->crew_count + e_player.total_mercenaries;
+  num_npc_units = enemy_ship->crew_count + e_player.ship_mercenaries;
   npc_units = malloc(sizeof(C_UNIT) * num_npc_units);
   if (npc_units == NULL) {
     fprintf(stderr, "combat.c: unable to allocate npc_units buffer\n");
@@ -69,7 +67,6 @@ int to_combat_mode(unsigned int enemy_index) {
     npc_units[i].direction[X] = -1.0;
     npc_units[i].coords[X] = -arena_dimensions[X] / 4;
     npc_units[i].coords[Y] = ((arena_dimensions[Y] - 2) / 2) - (i * 2);
-    printf("(%f, %f)\n", npc_units[i].coords[X], npc_units[i].coords[Y]);
     fflush(stdout);
   }
 
