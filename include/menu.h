@@ -1,12 +1,17 @@
 
 /* DEFINES  */
-#define NUM_COMPONENTS (22) // UI COMPONENT:: Max number of UI component
+#define NUM_COMPONENTS (51) // UI COMPONENT:: Max number of UI component
 
 /*
   Enum mapping human-readable component names to the index of the ui component
   in ui_tab
 */
 typedef enum component_ids {
+  /*
+    WARNING:
+    Zero indexed. Make sure to update above define statment
+    when adding more components.
+  */
   INVALID_MENU = -1,
   TEST_MENU = 0,
   DIALOG_NAME = 1,
@@ -28,7 +33,22 @@ typedef enum component_ids {
   INTERACT_PROMPT = 17,
   SCHEDULED_TRADE_ROUTE_PROMPT = 18,
   STATUS_HEALTH = 19,
-  STATUS_MONEY = 20
+  STATUS_MONEY = 20,
+  LIST_BUTTON_RIGHT = 21,
+  LIST_BUTTON_LEFT = 22,
+  LIST_ITEM = 23,
+  MERCENARY_BUY_PROMPT = 39,
+  MERCENARY_AVAIL = 40,
+  ADD_MERCENARY = 41,
+  SUB_MERCENARY = 42,
+  REASSIGN_MENU_TITLE = 43,
+  MY_SHIP_MERC = 44,
+  CONSOLE = 45,
+  CONSOLE_CURSOR = 46,
+  CONSOLE_WORLD_COORDS = 47,
+  CONSOLE_INTRA_CHUNK_COORDS = 48,
+  CONSOLE_CHUNK_COORDS = 49,
+  CONSOLE_ERROR = 50
   // Populate as more components are added
 } UI_ID;
 
