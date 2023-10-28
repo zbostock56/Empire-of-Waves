@@ -12,6 +12,8 @@
 #define SHIP_CHASE_RADIUS (20)
 #define X (0)
 #define Y (1)
+#define MAX(a,b) ((a) > (b) ? (a) : (b))
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
 
 typedef struct Node {
     int parent_row;
@@ -30,9 +32,9 @@ void generate_chunk_tiles(int [C_WIDTH][C_WIDTH], CHUNK);
 void update_enemy_position(E_ENEMY *);
 void pathfind_enemy(E_ENEMY *, CHUNK *);
 int search(vec2, int,int, int, int, E_ENEMY*, vector *, CHUNK *);
-void track_path(Node[C_WIDTH][C_WIDTH], vector*, int, int, int, int);
-void get_cost(Node *, float, float, int, int, int, int);
-void open_node(Node *, Node *, int[C_WIDTH][C_WIDTH], int[C_WIDTH][C_WIDTH], int[C_WIDTH][C_WIDTH], vector*);
+void track_path(int arr_size_x, int arr_size_y, Node[arr_size_x][arr_size_y], vector*, int, int, int, int);
+void get_cost(Node *, int, int, float, float, int, int);
+void open_node(Node *, Node *, int arr_size_x, int arr_size_y, int[arr_size_x][arr_size_y], int[arr_size_x][arr_size_y], int[arr_size_x][arr_size_y], vector*);
 void update_enemy_chunk(E_ENEMY*, CHUNK*, int);
 /* =================== EXTERNALLY DEFINED FUNCTIONS =================== */
 

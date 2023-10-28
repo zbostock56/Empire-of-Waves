@@ -255,12 +255,12 @@ int trade_ship_detect_enemies(TRADE_SHIP *trade_ship, CHUNK *trade_ship_chunk, i
   vec2 cur_enemy_world_coords = GLM_VEC2_ZERO_INIT;
   // int status = 0;
   /* AVOID Steering behavior added across chunks if tradeship is in player_chunk[9]
-    Assumption: e_player.chunk corresponds to player_chunks[4]
+    Assumption: e_player.ship_chunk corresponds to player_chunks[4]
   */
-  if (trade_ship->chunk_coords[0] <= e_player.chunk[0]+1 && 
-      trade_ship->chunk_coords[0] >= e_player.chunk[0]-1 &&
-      trade_ship->chunk_coords[1] <= e_player.chunk[1]+1 &&
-      trade_ship->chunk_coords[1] >= e_player.chunk[1]-1) {
+  if (trade_ship->chunk_coords[0] <= e_player.ship_chunk[0]+1 && 
+      trade_ship->chunk_coords[0] >= e_player.ship_chunk[0]-1 &&
+      trade_ship->chunk_coords[1] <= e_player.ship_chunk[1]+1 &&
+      trade_ship->chunk_coords[1] >= e_player.ship_chunk[1]-1) {
     for (int i = 0; i < chunk_buff_len; i++) {
       for (int j = 0; j <chunk_buffer[i].num_enemies; j++) {
         cur_enemy = chunk_buffer[i].enemies+j;
