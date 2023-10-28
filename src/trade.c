@@ -772,6 +772,9 @@ void open_establish_trade_route() {
   trade_ships[num_trade_ships].target_island = 0;
   trade_ships[num_trade_ships].num_mercenaries = 0;
   trade_ships[num_trade_ships].speed = 10.0;
+  for (int i = 0; i < 20; i++) {
+    trade_ships[num_trade_ships].desc[i] = merchant_name_list[target_merch->name][i];
+  }
   num_trade_ships++;
 
   if (num_trade_ships == trade_ship_buf_size) {

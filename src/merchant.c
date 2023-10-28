@@ -7,6 +7,7 @@
 #include <cglm/cglm.h>
 #include <globals.h>
 #include <trade_str.h>
+#include <merchant.h>
 
 /*
                                    MERCHANT.c
