@@ -4,6 +4,8 @@
 #include <cglm/vec2.h>
 #include <cglm/ivec2.h>
 
+#define MERCENARIES_CAPACITY (10)
+#define MAX_TRADE_SHIP_DESC (64)
 #define STEER_SPEED (3.0)
 
 typedef struct trade_ship {
@@ -20,7 +22,11 @@ typedef struct trade_ship {
   unsigned int export_rec;
   unsigned int import_rec;
   unsigned int target_island;
+  // Number of mercenaries assigned to the trade ship
   unsigned int num_mercenaries;
+  // Used to describe the name of the trade ship
+  // when adding mercenaries to it
+  char desc[MAX_TRADE_SHIP_DESC];
   float speed;
 } TRADE_SHIP;
 

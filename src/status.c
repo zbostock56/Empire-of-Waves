@@ -37,7 +37,7 @@ void init_status_bar() {
   if (!status.ui_health_status->text) {
     return;
   }
-  status.ui_health_status->text[0] = '\0'; // Ensures null termination
+  status.ui_health_status->text[0] = '\0';
 
   init_menu(
     top_left, // position
