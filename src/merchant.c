@@ -1,11 +1,6 @@
-#include <stdio.h>
-#include <player.h>
-#include <chunk_str.h>
-#include <trade_ship_str.h>
-#include <cglm/vec2.h>
-#include <GLFW/glfw3.h>
-#include <cglm/cglm.h>
-#include <globals.h>
+
+
+#include <merchant.h>
 
 /*
                                    MERCHANT.c

@@ -7,6 +7,7 @@ int main() {
   init_dialog();
   init_trade();
   init_status_bar();
+  init_ui_lists();
   open_status_bar();
 
   int status = 0;
@@ -42,6 +43,12 @@ int main() {
       return -1;
     }
 
+    update_timers();
+    print_coords();
+    update_console_prompt();
+    update_dialog_buffers();
+    update_available_mercenaries();
+    update_mercenary_reassignment();
     render_scene(window);
     update_combat_state();
     update_event_timer();

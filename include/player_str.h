@@ -34,6 +34,9 @@ typedef struct exploration_player {
   unsigned int resources[NUM_RESOURCES];
   unsigned int money;
   unsigned int total_mercenaries;
+  /* Number of mercenaries assigned to */
+  /* player's ship */
+  unsigned int ship_mercenaries;
   float max_health;
   float health;
   float speed;

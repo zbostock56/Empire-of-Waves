@@ -4,12 +4,14 @@
 #include <player_str.h>
 #include <chunk_str.h>
 #include <trade_ship_str.h>
+#include <lexer_str.h>
 #include <globals.h>
 #include <ui_component.h>
 #include <dialog_str.h>
 #include <trade_str.h>
 #include <menu.h>
 
+#define MAX_CMD_LEN (100)
 #define X_MIN (0)
 #define Y_MIN (1)
 #define X_MAX (2)
@@ -21,8 +23,23 @@ vec2 mouse_position = GLM_VEC2_ZERO_INIT;
 
 int holding_left_click = 0;
 extern int shore_interaction_enabled;
+extern int home_interaction_enabled;
+extern int reassignment_menu_open;
+char cons_cmd[MAX_CMD_LEN];
+extern float console_cursor_interval;
+extern int cursor_enabled;
 
 int holding_equals = 0;
+int holding_left_bracket = 0;
+int holding_tilde = 0;
+int cons_cmd_len = 0;
+int holding_alpha[26];
+int holding_num[10];
+int holding_space = 0;
+int holding_enter = 0;
+int holding_backspace = 0;
+int holding_underscore = 0;
+int holding_dot = 0;
 int holding_minus = 0;
 int holding_interaction = 0;
 int holding_attack = 0;
@@ -37,6 +54,7 @@ extern int RES_Y;
 void exploration_movement(GLFWwindow *);
 void combat_movement(GLFWwindow *);
 void debug_keys(GLFWwindow *);
+void console_keys(GLFWwindow *);
 void ui_click_listener(double, double);
 void ui_hover_listener(double, double);
 void close_merchant_menu(GLFWwindow *window);
@@ -46,6 +64,8 @@ void combat_mode_attack(int);
 void detect_context_interaction();
 void chunk_to_world(ivec2, vec2, vec2);
 void world_to_chunk(vec2, ivec2, vec2);
+void handle_command(char *);
+void tokenize(char *, int);
 void get_ui_min_max(UI_COMPONENT *, vec4);
 int to_combat_mode(unsigned int);
 void from_combat_mode();
@@ -56,3 +76,6 @@ void close_trade();
 void refresh_framebuffers();
 int spawn_projectile(vec2, vec2, float, UNIT_T);
 
+void open_mercenary_reassignment_menu();
+void close_mercenary_reassignment_menu();
+void close_console_prompt();
