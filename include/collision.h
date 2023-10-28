@@ -27,7 +27,7 @@ int shore_interaction_enabled = 0;
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 
-ISLAND *cur_island(CHUNK *, vec2, float);
+ISLAND *cur_island(CHUNK *, vec2);
 int check_tile(ISLAND *cur_isl, vec2);
 
 void detect_context_interaction();
@@ -49,7 +49,7 @@ int circle_circle_collision(vec2, float, vec2, float);
 void chunk_to_world(ivec2, vec2, vec2);
 void world_to_chunk(vec2, ivec2, vec2);
 void update_enemy_position(E_ENEMY *);
-void pathfind_enemy(E_ENEMY *, CHUNK *);
+void pathfind_enemy(E_ENEMY *, unsigned int);
 int double_buffer(void **, unsigned int *, unsigned int);
 void update_enemy_chunk(E_ENEMY*, CHUNK*, int);
 

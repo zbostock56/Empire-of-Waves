@@ -25,7 +25,7 @@ int detect_collisions() {
     for (int i = 0; i < chunk_buff_len; i++) {
       for (int j = 0; j < chunk_buffer[i].num_enemies; j++) {
         cur_enemy = &chunk_buffer[i].enemies[j];
-        pathfind_enemy(cur_enemy, &chunk_buffer[i]);
+        pathfind_enemy(cur_enemy, i);
         update_enemy_chunk(cur_enemy, &chunk_buffer[i], j);
         ship_collisions(chunk_buffer + i, cur_enemy->chunk, cur_enemy->coords);
       }
@@ -94,9 +94,8 @@ void detect_context_interaction() {
   if (e_player.embarked) {
     chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
                    world_coords_ship);
-    float radius = T_WIDTH * CHARACTER_COLLISION_RADIUS;
     CHUNK *cur_chunk = chunk_buffer + player_chunks[PLAYER_CHUNK];
-    ISLAND *island = cur_island(cur_chunk, world_coords_ship, radius);
+    ISLAND *island = cur_island(cur_chunk, world_coords_ship);
     if (island) {
       int tile = check_tile(island, e_player.ship_coords);
       if (tile == SHORE) {
@@ -175,7 +174,7 @@ void character_collisions(CHUNK *chunk, ivec2 chunk_coords, vec2 coords) {
   chunk_to_world(chunk_coords, coords, world_coords);
 
   float radius = T_WIDTH * CHARACTER_COLLISION_RADIUS;
-  ISLAND *island = cur_island(chunk, world_coords, radius);
+  ISLAND *island = cur_island(chunk, world_coords);
   if (!island) {
     return;
   }
@@ -216,7 +215,7 @@ void ship_collisions(CHUNK *chunk, ivec2 chunk_coords, vec2 coords) {
   chunk_to_world(chunk_coords, coords, world_coords);
 
   float radius = T_WIDTH * SHIP_COLLISION_RADIUS;
-  ISLAND *island = cur_island(chunk, world_coords, radius);
+  ISLAND *island = cur_island(chunk, world_coords);
   if (!island) {
     return;
   }
@@ -329,11 +328,10 @@ void trade_ship_steering(TRADE_SHIP *trade_ship, vec2 direction) {
   vec2 world_coords = GLM_VEC2_ZERO_INIT;
   chunk_to_world(trade_ship->chunk_coords, trade_ship->coords, world_coords);
 
-  float radius = T_WIDTH * SHIP_COLLISION_RADIUS;
   CHUNK *cur_chunk = chunk_buffer + trade_ship->cur_chunk_index;
   CHUNK *target_chunk = chunk_buffer + trade_ship->target_chunk_index;
   ISLAND *target_island = target_chunk->islands + trade_ship->target_island;
-  ISLAND *island = cur_island(cur_chunk, world_coords, radius);
+  ISLAND *island = cur_island(cur_chunk, world_coords);
   if (!island) {
     return;
   }
@@ -395,21 +393,11 @@ void trade_ship_collision(TRADE_SHIP *trade_ship) {
   vec2 world_coords = GLM_VEC2_ZERO_INIT;
   chunk_to_world(trade_ship->chunk_coords, trade_ship->coords, world_coords);
 
-  float radius = T_WIDTH * SHIP_COLLISION_RADIUS;
   CHUNK *cur_chunk = chunk_buffer + trade_ship->cur_chunk_index;
   CHUNK *target_chunk = chunk_buffer + trade_ship->target_chunk_index;
   ISLAND *target_island = target_chunk->islands + trade_ship->target_island;
-  ISLAND *island = cur_island(cur_chunk, world_coords, radius);
-  if (
-    !island ||
-    /*
-    target_island->chunk[X] != island->chunk[X] ||
-    target_island->chunk[Y] != island->chunk[Y] ||
-    target_island->coords[X] != island->coords[X] ||
-    target_island->coords[Y] != island->coords[Y]
-    */
-    target_island != island
-  ) {
+  ISLAND *island = cur_island(cur_chunk, world_coords);
+  if (!island || target_island != island) {
     return;
   }
 
@@ -436,21 +424,6 @@ void trade_ship_collision(TRADE_SHIP *trade_ship) {
         if (target_island->merchant.relationship > 100.0) {
           target_island->merchant.relationship = 100.0;
         }
-        /*
-        // Sync with player chunks
-        for (int i = 0; i < 9; i++) {
-          if (player_chunks[i].coords[X] == trade_ship->chunk_coords[X] &&
-              player_chunks[i].coords[Y] == trade_ship->chunk_coords[Y]) {
-            for (int j = 0; j < player_chunks[i].num_islands; j++) {
-              ISLAND *p_island = player_chunks[i].islands + j;
-              if (p_island->coords[X] == target_island->coords[X] &&
-                  p_island->coords[Y] == target_island->coords[Y]) {
-                p_island->merchant.relationship = target_island->merchant.relationship;
-              }
-            }
-          }
-        }
-        */
         e_player.money += 10;
 
         glm_ivec2_zero(trade_ship->chunk_coords);
@@ -648,17 +621,17 @@ int circle_circle_collision(vec2 a_center, float a_radius, vec2 b_center,
 /*
    helper function for getting the island player's currently on
 */
-ISLAND *cur_island(CHUNK *chunk, vec2 world_coords, float radius) {
+ISLAND *cur_island(CHUNK *chunk, vec2 world_coords) {
   /* Finds which island the the player is on by checking if they collide */
   for (int i = 0; i < chunk->num_islands; i++) {
     vec2 island_coords = { chunk->islands[i].coords[X],
                            chunk->islands[i].coords[Y] };
     vec2 island_coords_world = GLM_VEC2_ZERO_INIT;
     chunk_to_world(chunk->coords, island_coords, island_coords_world);
-    vec2 correction = GLM_VEC2_ZERO_INIT;
-    if (circle_aabb_collision(world_coords, radius, island_coords_world,
-                              I_WIDTH * T_WIDTH, I_WIDTH * T_WIDTH,
-                              correction)) {
+    if (world_coords[0] <= island_coords_world[0] + (I_WIDTH * T_WIDTH) &&
+        world_coords[0] >= island_coords_world[0] &&
+        world_coords[1] <= island_coords_world[1] &&
+        world_coords[1] >= island_coords_world[1] - (I_WIDTH * T_WIDTH)) {
       return chunk->islands + i;
     }
   }
@@ -680,4 +653,25 @@ int check_tile(ISLAND *island, vec2 coords) {
   }
 
   return island->tiles[tile_index];
+}
+
+/*
+  Helper function to retrieve the type of a tile given its coordinates
+  Args:
+  - unsinged int chunk: index of chunk in "chunk_buffer" to which the tile
+                        belongs
+  - vec2 coords: tile coordinates of the tile within the chunk
+*/
+int get_tile(unsigned int chunk, vec2 coords) {
+  if (chunk >= chunk_buff_len) {
+    return OCEAN;
+ }
+ CHUNK *target_chunk = chunk_buffer + chunk;
+ vec2 world_coords = GLM_VEC2_ZERO_INIT;
+ chunk_to_world(target_chunk->coords, coords, world_coords);
+ ISLAND *island = cur_island(target_chunk, world_coords);
+ if (island == NULL) {
+   return OCEAN;
+ }
+ return check_tile(island, coords);
 }

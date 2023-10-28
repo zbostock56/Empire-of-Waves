@@ -153,7 +153,7 @@ void update_enemy_position(E_ENEMY *enemy) {
   Searches the given enemy's boundary and selects the target, pathfind towards it.
   Currently, I will make enemy ships to halt to follow the trade ship if it's in a diff chunk
 */
-void pathfind_enemy(E_ENEMY *enemy, CHUNK *enemy_chunk) {
+void pathfind_enemy(E_ENEMY *enemy, unsigned int enemy_chunk) {
   vec2 player_ship_world_coords = GLM_VEC2_ZERO_INIT;
   chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
                  player_ship_world_coords);
@@ -305,9 +305,12 @@ void pathfind_enemy(E_ENEMY *enemy, CHUNK *enemy_chunk) {
   if (enemy->on_path) {
     int start_col = (int)(enemy->coords[0]);
     int start_row = (int)(enemy->coords[1]);
-    vector *path_list = (vector *)malloc(sizeof(vector));
+    Node *path_list = NULL;
+    unsigned int path_list_len = 0;
+    unsigned int path_list_size = 0;
+
     if (search(enemy->coords, start_col, start_row, goal_col, goal_row, enemy,
-               path_list, enemy_chunk)) {
+               enemy_chunk, &path_list, &path_list_len, &path_list_size)) {
       int min_x = start_col - SHIP_CHASE_RADIUS*2;
       int max_x = start_col + SHIP_CHASE_RADIUS*2;
       int min_y = start_row - SHIP_CHASE_RADIUS*2;
@@ -316,9 +319,9 @@ void pathfind_enemy(E_ENEMY *enemy, CHUNK *enemy_chunk) {
       max_x = MIN(max_x, C_WIDTH - 1);
       min_y = MAX(min_y, 0);
       max_y = MIN(max_y, C_WIDTH - 1);
-      Node *n = ((Node *)vector_get(path_list, vector_total(path_list) - 1));
-      int next_x = (n->col)+min_x;
-      int next_y = (n->row)+min_y;
+      Node n = path_list[path_list_len - 1];
+      int next_x = n.col+min_x;
+      int next_y = n.row+min_y;
 
       vec2 next_tile = {next_x, next_y};
       vec2 difference = GLM_VEC2_ZERO_INIT;
@@ -338,10 +341,8 @@ void pathfind_enemy(E_ENEMY *enemy, CHUNK *enemy_chunk) {
       }
       glm_vec2_normalize(smoothed_direction);
       glm_vec2_copy(smoothed_direction, enemy->direction);
-      int next_col = (((Node *)vector_get(path_list,
-                     vector_total(path_list) - 1))->col)+min_x;
-      int next_row = (((Node *)vector_get(path_list,
-                     vector_total(path_list) - 1))->row)+min_y;
+      int next_col = path_list[path_list_len - 1].col + min_x;
+      int next_row = path_list[path_list_len - 1].row + min_y;
 
       if (next_col == goal_col && next_row == goal_row) {
         enemy->on_path = false;
@@ -364,25 +365,30 @@ void pathfind_enemy(E_ENEMY *enemy, CHUNK *enemy_chunk) {
 int search(
     vec2 start_coords, int start_col, int start_row,
     int goal_col, int goal_row,
-    E_ENEMY *enemy, vector *path_list, CHUNK * enemy_chunk
+    E_ENEMY *enemy, unsigned int enemy_chunk,
+    Node **path_list, unsigned int *path_list_len, unsigned int *path_list_size
 ) {
   if (start_col >= C_WIDTH || start_col < 0 ||
       start_row >= C_WIDTH || start_row < 0 ||
       goal_col >= C_WIDTH || goal_col < 0 ||
       goal_row >= C_WIDTH || goal_row < 0) {
-
     return 0;
   }
 
-  /*
-      Setting the nodes and arrays
-      tiles = returns 1 if the tile is an ocean in the given tile index
-      open = returns 1 if the tile is open in the given tile index
-      checked = returns 1 if the tile was checked before in the given tile index
-      Array Size :
-      It is maximum SHIP_CHASE_RADIUS * 2 + SHIP_CHASE_RADIUS * 2 + 1
-      Can shrink if it's right next to the borderline of chunks.
-  */
+  Node *openList = malloc(sizeof(Node) * NODE_BUF_START_LEN);
+  if (openList == NULL) {
+    // error check
+  }
+  unsigned int open_list_len = 0;
+  unsigned int open_list_size = NODE_BUF_START_LEN;
+
+  *path_list = malloc(sizeof(Node) * NODE_BUF_START_LEN);
+  if (*path_list == NULL) {
+    // error check
+  }
+  *path_list_len = 0;
+  *path_list_size = NODE_BUF_START_LEN;
+
   int min_x = start_col - SHIP_CHASE_RADIUS*2;
   int max_x = start_col + SHIP_CHASE_RADIUS*2;
   int min_y = start_row - SHIP_CHASE_RADIUS*2;
@@ -391,65 +397,42 @@ int search(
   max_x = MIN(max_x, C_WIDTH - 1);
   min_y = MAX(min_y, 0);
   max_y = MIN(max_y, C_WIDTH - 1);
-  // int tiles[max_x-min_x+1][max_y-min_y+1];
-  int (*tiles)[max_y-min_y+1] = malloc(sizeof(int[max_x-min_x+1][max_y-min_y+1]));
-  for (int i = 0; i <= max_x - min_x; i++) {
-    for (int j = 0; j <= max_y - min_y; j++) {
-      tiles[i][j] = 1;
-      int actual_col = i + min_x;
-      int actual_row = j + min_y;
-      /* checks if this tile is in an island and put 0 if it's not an OCEAN or SHORE tile*/
-      for (int k = 0; k < enemy_chunk->num_islands; k++) {
-        ISLAND island = enemy_chunk->islands[k];
-        if (island.coords[0] <= actual_col &&
-            island.coords[0] + I_WIDTH - 1 >= actual_col &&
-            island.coords[1] <= actual_row &&
-            island.coords[1] + I_WIDTH - 1 >= actual_row) {
-          TILE tile = island.tiles[(actual_row - island.coords[1]) *
-                                   I_WIDTH + (actual_col - island.coords[0])];
-          if (tile != OCEAN && tile != SHORE) {
-            tiles[i][j] = 0;
-          }
-        }
-      }
-    }
-  }
-  // int open[max_x-min_x+1][max_y-min_y+1];
-  int (*open)[max_y-min_y+1] = malloc(sizeof(int[max_x-min_x+1][max_y-min_y+1]));
-  for (int i = 0; i <= max_x - min_x; i++) {
-    for (int j = 0; j <= max_y - min_y; j++) {
-        open[i][j] = 0;
-    }
-  }
-  // int checked[max_x-min_x+1][max_y-min_y+1];
-  int (*checked)[max_y-min_y+1] = malloc(sizeof(int[max_x-min_x+1][max_y-min_y+1]));
-  for (int i = 0; i <= max_x - min_x; i++) {
-    for (int j = 0; j <= max_y - min_y; j++) {
-        checked[i][j] = 0;
-    }
-  }
-  Node nodes[max_x-min_x+1][max_y-min_y+1];
-  // Node (*nodes)[max_y-min_y+1] = malloc(sizeof(int[max_x-min_x+1][max_y-min_y+1]));
-
-  /* Setting up the costs needed for A * algorithm on each node of the tilemap */
   int localized_goal_col = goal_col - min_x;
   int localized_goal_row = goal_row - min_y;
   int localized_start_col = start_col-min_x;
   int localized_start_row = start_row-min_y;
-  int arr_size_x = max_x-min_x+1;
-  int arr_size_y = max_y-min_y+1;
-  for (int i = 0; i < max_x-min_x+1; i++) {
-    for (int j = 0; j < max_y-min_y+1; j++) {
-      get_cost(&nodes[i][j], i, j, start_coords[0]-min_x,
-               start_coords[1]-min_y, localized_goal_col, localized_goal_row);
+  int X_WIDTH = max_x - min_x + 1;
+  int Y_WIDTH = max_y - min_y + 1;
+  Node nodes[X_WIDTH][Y_WIDTH];
+
+  /*
+      Setting the nodes, arrays and costs for A*
+      valid_tile = returns 1 if the tile is an ocean in the given tile index
+      open = returns 1 if the tile is open in the given tile index
+      checked = returns 1 if the tile was checked before in the given tile index
+      Array Size :
+      It is maximum SHIP_CHASE_RADIUS * 2 + SHIP_CHASE_RADIUS * 2 + 1
+      Can shrink if it's right next to the borderline of chunks.
+  */
+  for (int i = 0; i < X_WIDTH; i++) {
+    for (int j = 0; j < Y_WIDTH; j++) {
+      nodes[i][j].open = 0;
+      nodes[i][j].checked = 0;
+      ivec2 coords = { i, j };
+      ivec2 s_coords = { start_coords[0]-min_x, start_coords[1]-min_y };
+      ivec2 g_coords = { localized_goal_col, localized_goal_row };
+      get_cost(&nodes[i][j], coords, s_coords, g_coords);
+
+      vec2 cur_coords = { i + min_x, j + min_y };
+      TILE cur_tile = get_tile(enemy_chunk, cur_coords);
+      nodes[i][j].valid_tile = cur_tile == OCEAN || cur_tile == SHORE ? 1 : 0;
     }
   }
   Node start_node = nodes[localized_start_col][localized_start_row];
   Node cur_node = start_node;
-  vector openList;
-  vector_init(&openList);
-  vector_add(&openList, (void *)&cur_node);
-  vector_init(path_list);
+
+  add_node(&openList, &open_list_len, &open_list_size, &cur_node);
+
   int goal_reached = 0;
   int step = 0;
   int best_node_idx = 0;
@@ -458,94 +441,90 @@ int search(
     int row = cur_node.row;
 
     /* check the current node and remove it from the openList */
-    checked[col][row] = 1;
-    vector_delete(&openList, best_node_idx);
+    nodes[col][row].checked = 1;
+    delete_node(openList, &open_list_len, best_node_idx);
+    cur_node.checked = 0;
 
     /* Open the node UP if it's possible, and add to openList */
     if (row - 1 >= 0) {
-      open_node(&nodes[col][row - 1], &cur_node, arr_size_x, arr_size_y, open,
-                checked, tiles, &openList);
+      open_node(&nodes[col][row - 1], &cur_node, &openList, &open_list_len,
+                &open_list_size);
     }
 
     /* Open the node LEFT if it's possible, and add to openList */
     if (col - 1 >= 0) {
-      open_node(&nodes[col - 1][row], &cur_node, arr_size_x, arr_size_y, open,
-                checked, tiles, &openList);
+      open_node(&nodes[col - 1][row], &cur_node, &openList, &open_list_len,
+                &open_list_size);
     }
 
     /* Open the node DOWN if it's possible, and add to openList */
-    if (row + 1 < arr_size_y) {
-      open_node(&nodes[col][row + 1], &cur_node, arr_size_x, arr_size_y, open,
-                checked, tiles, &openList);
+    if (row + 1 < Y_WIDTH) {
+      open_node(&nodes[col][row + 1], &cur_node, &openList, &open_list_len,
+                &open_list_size);
     }
 
     /* Open the node RIGHT if it's possible, and add to openList */
-    if (col+ 1 < arr_size_x) {
-      open_node(&nodes[col + 1][row], &cur_node, arr_size_x, arr_size_y, open,
-                checked, tiles, &openList);
+    if (col+ 1 < X_WIDTH) {
+      open_node(&nodes[col + 1][row], &cur_node, &openList, &open_list_len,
+                &open_list_size);
     }
 
     /* For 8-way feature */
     /* OPEN the RIGHT UP if it it's possible, and add to openList*/
-    if (col + 1 < arr_size_x && row - 1 >= 0) {
-      open_node(&nodes[col + 1][row - 1], &cur_node, arr_size_x, arr_size_y,
-                open, checked, tiles, &openList);
+    if (col + 1 < X_WIDTH && row - 1 >= 0) {
+      open_node(&nodes[col + 1][row - 1], &cur_node, &openList, &open_list_len,
+                &open_list_size);
     }
     /* Open the right down if it's possible*/
-    if (col + 1 < arr_size_x && row + 1 < arr_size_y) {
-      open_node(&nodes[col + 1][row], &cur_node, arr_size_x, arr_size_y, open,
-                checked, tiles, &openList);
+    if (col + 1 < X_WIDTH && row + 1 < Y_WIDTH) {
+      open_node(&nodes[col + 1][row + 1], &cur_node, &openList, &open_list_len,
+                &open_list_size);
     }
     /* open the LEFT UP if it's possible*/
     if (col - 1 >= 0 && row - 1 >= 0) {
-      open_node(&nodes[col - 1][row - 1], &cur_node, arr_size_x, arr_size_y,
-                open, checked, tiles, &openList);
+      open_node(&nodes[col - 1][row - 1], &cur_node, &openList, &open_list_len,
+                &open_list_size);
     }
     /* open the LEFT down if it's possible*/
-    if (col - 1 >= 0 && row + 1 < arr_size_y) {
-      open_node(&nodes[col - 1][row + 1], &cur_node, arr_size_x, arr_size_y,
-                open, checked, tiles, &openList);
+    if (col - 1 >= 0 && row + 1 < Y_WIDTH) {
+      open_node(&nodes[col - 1][row + 1], &cur_node, &openList, &open_list_len,
+                &open_list_size);
     }
 
     best_node_idx = 0;
     float best_node_fCost = 1000;
-    for (int i = 0; i < vector_total(&openList); i++) {
-
+    for (int i = 0; i < open_list_len; i++) {
       /* Check if the openList's node we checking has a smaller F cost than the
          previous best and update */
-      if (((Node *)vector_get(&openList, i))->f_cost < best_node_fCost) {
+      if (openList[i].f_cost < best_node_fCost) {
         best_node_idx = i;
-        best_node_fCost = ((Node *)vector_get(&openList, i))->f_cost;
+        best_node_fCost = openList[i].f_cost;
       }
       /* if F cost is equal, check the G cost and update */
-      else if (((Node *)vector_get(&openList, i))->f_cost == best_node_fCost) {
-        if (((Node *)vector_get(&openList, i))->g_cost <
-            ((Node *)vector_get(&openList, best_node_idx))->g_cost) {
-          best_node_idx = i;
-        }
+      else if (openList[i].f_cost == best_node_fCost &&
+               openList[i].g_cost < openList[best_node_idx].g_cost) {
+        best_node_idx = i;
       }
     }
 
     /* If no more node in the openList, end the loop */
-    if (vector_total(&openList) == 0) {
+    if (open_list_len == 0) {
       break;
     }
 
-    cur_node = *(Node *)vector_get(&openList, best_node_idx);
+    cur_node = openList[best_node_idx];
 
     /* If we reached to the goal node, we start tracking the path */
     if (cur_node.col == localized_goal_col &&
         cur_node.row == localized_goal_row) {
       goal_reached = 1;
-      track_path(arr_size_x, arr_size_y, nodes, path_list, localized_start_col,
-                 localized_start_row, localized_goal_col, localized_goal_row);
+      track_path(X_WIDTH, Y_WIDTH, nodes, path_list, path_list_len,
+                 path_list_size, localized_start_col, localized_start_row,
+                 localized_goal_col, localized_goal_row);
     }
     step++;
   }
-  free(tiles);
-  free(open);
-  free(checked);
-  vector_free(&openList);
+  free(openList);
   return goal_reached;
 }
 
@@ -554,12 +533,14 @@ int search(
     backtracking
 */
 void track_path(int arr_size_x, int arr_size_y,
-                Node nodes[arr_size_x][arr_size_y], vector *path_list,
-                int start_col, int start_row, int goal_col, int goal_row) {
+                Node nodes[arr_size_x][arr_size_y],
+                Node **path_list, unsigned int *path_list_len,
+                unsigned int *path_list_size, int start_col, int start_row,
+                int goal_col, int goal_row) {
   Node *current = &nodes[goal_col][goal_row];
   while (current->col != start_col || current->row != start_row) {
     // printf("X %d Y %d\n",current->col, current->row);
-    vector_add(path_list, (void *)current);
+    add_node(path_list, path_list_len, path_list_size, current);
     current = &nodes[current->parent_col][current->parent_row];
   }
 }
@@ -567,20 +548,16 @@ void track_path(int arr_size_x, int arr_size_y,
 /*
     function for getting the cost needed for A * algorithm of the given node
 */
-void get_cost(Node *node, int col, int row, float start_col, float start_row,
-              int goal_col, int goal_row) {
+void get_cost(Node *node, ivec2 coords, ivec2 start_coords,
+              ivec2 goal_coords) {
   // G cost
-  int x_distance = fabs(col - start_col);
-  int y_distance = fabs(row - start_row);
-  node->g_cost = sqrt(x_distance*x_distance + y_distance*y_distance);
+  node->g_cost = glm_ivec2_distance(coords, start_coords);
   // H cost
-  x_distance = fabs(col - goal_col);
-  y_distance = fabs(row - goal_row);
-  node->h_cost = sqrt(x_distance*x_distance + y_distance*y_distance);
+  node->h_cost = glm_ivec2_distance(coords, goal_coords);
   // F cost
   node->f_cost = node->g_cost + node->h_cost;
-  node->row = row;
-  node->col = col;
+  node->row = coords[Y];
+  node->col = coords[X];
 }
 
 /*
@@ -588,21 +565,31 @@ void get_cost(Node *node, int col, int row, float start_col, float start_row,
     If so, add to the openList
     tiles = 1 mean it is ocean
 */
-void open_node(
-     Node *node, Node *cur_node, int arr_size_x, int arr_size_y,
-     int open[arr_size_x][arr_size_y],
-     int checked[arr_size_x][arr_size_y],
-     int tiles[arr_size_x][arr_size_y],
-     vector *openList
-) {
-  if (open[node->col][node->row] == 0 && checked[node->col][node->row] == 0 &&
-      tiles[node->col][node->row] == 1) {
-    open[node->col][node->row] = 1;
+void open_node(Node *node, Node *cur_node,
+               Node **open_list, unsigned int *open_list_len,
+               unsigned int *open_list_size) {
+  if (!node->open && !node->checked && node->valid_tile) {
+    node->open = 1;
     node->parent_col = cur_node->col;
     node->parent_row = cur_node->row;
-    vector_add(openList, (void *)node);
+    add_node(open_list, open_list_len, open_list_size, node);
     // printf("Opened node %d %d\n", node->col,node->row);
   }
+}
+
+int add_node(Node **list, unsigned int *list_len, unsigned int *list_size,
+             Node *node) {
+  (*list)[*list_len] = *node;
+  (*list_len)++;
+  if (*list_len == *list_size) {
+    return double_buffer((void **) list, list_size, sizeof(Node));
+  }
+  return 0;
+}
+
+void delete_node (Node *list, unsigned int *list_len, unsigned int index) {
+  (*list_len)--;
+  list[index] = list[*list_len];
 }
 
 /*

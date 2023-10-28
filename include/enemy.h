@@ -2,11 +2,11 @@
 #include <string.h>
 #include <player_str.h>
 #include <chunk_str.h>
-#include <vector.h>
 #include <trade_ship_str.h>
 #include <globals.h>
 
 /* DEFINES */
+#define NODE_BUF_START_LEN (4)
 #define CURRENT_CHUNK (4)
 #define SHIP_COLLISION_RADIUS (1.0)
 #define SHIP_CHASE_RADIUS (20)
@@ -20,6 +20,9 @@ typedef struct Node {
     int parent_col;
     int row;
     int col;
+    int open;
+    int checked;
+    int valid_tile;
     float f_cost;
     float g_cost;
     float h_cost;
@@ -30,11 +33,18 @@ void spawn_enemy();
 int find_avail_chunks();
 void generate_chunk_tiles(int [C_WIDTH][C_WIDTH], CHUNK);
 void update_enemy_position(E_ENEMY *);
-void pathfind_enemy(E_ENEMY *, CHUNK *);
-int search(vec2, int,int, int, int, E_ENEMY*, vector *, CHUNK *);
-void track_path(int arr_size_x, int arr_size_y, Node[arr_size_x][arr_size_y], vector*, int, int, int, int);
-void get_cost(Node *, int, int, float, float, int, int);
-void open_node(Node *, Node *, int arr_size_x, int arr_size_y, int[arr_size_x][arr_size_y], int[arr_size_x][arr_size_y], int[arr_size_x][arr_size_y], vector*);
+void pathfind_enemy(E_ENEMY *, unsigned int);
+int search(vec2, int, int, int, int, E_ENEMY *, unsigned int, Node **,
+           unsigned int *, unsigned int *);
+void track_path(int arr_size_x, int arr_size_y,
+                Node nodes[arr_size_x][arr_size_y],
+                Node **path_list, unsigned int *path_list_len,
+                unsigned int *path_list_size, int start_col, int start_row,
+                int goal_col, int goal_row);
+void get_cost(Node *, ivec2, ivec2, ivec2);
+void open_node(Node *, Node *, Node **, unsigned int *, unsigned int *);
+int add_node(Node **, unsigned int *, unsigned int *, Node *);
+void delete_node(Node *, unsigned int *, unsigned int);
 void update_enemy_chunk(E_ENEMY*, CHUNK*, int);
 /* =================== EXTERNALLY DEFINED FUNCTIONS =================== */
 
@@ -42,3 +52,4 @@ int double_buffer(void **, unsigned int *, unsigned int);
 void chunk_to_world(ivec2, vec2, vec2);
 void world_to_chunk(vec2, ivec2, vec2);
 int circle_circle_collision(vec2, float, vec2, float);
+int get_tile(unsigned int chunk, vec2 coords);
