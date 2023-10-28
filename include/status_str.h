@@ -1,5 +1,5 @@
 /* DEFINES */
-#define MAX_STATUS_STR_LENGTH (16) // STATUS :: Max length of status string
+#define MAX_STATUS_STR_LENGTH (64) // STATUS :: Max length of status string
 
 typedef struct status {
   UI_COMPONENT *ui_health_status;
