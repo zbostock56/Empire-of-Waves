@@ -386,7 +386,8 @@ int search(vec2 start_coords, int start_col, int start_row, int goal_col, int go
   max_x = MIN(max_x, C_WIDTH - 1);
   min_y = MAX(min_y, 0);
   max_y = MIN(max_y, C_WIDTH - 1);
-  int tiles[max_x-min_x+1][max_y-min_y+1];
+  // int tiles[max_x-min_x+1][max_y-min_y+1];
+  int (*tiles)[max_y-min_y+1] = malloc(sizeof(int[max_x-min_x+1][max_y-min_y+1]));
   for (int i = 0; i <= max_x - min_x; i++) {
     for (int j = 0; j <= max_y - min_y; j++) {
       tiles[i][j] = 1;
@@ -405,20 +406,22 @@ int search(vec2 start_coords, int start_col, int start_row, int goal_col, int go
       }
     }
   }
-  int open[max_x-min_x+1][max_y-min_y+1];
+  // int open[max_x-min_x+1][max_y-min_y+1];
+  int (*open)[max_y-min_y+1] = malloc(sizeof(int[max_x-min_x+1][max_y-min_y+1]));
   for (int i = 0; i <= max_x - min_x; i++) {
     for (int j = 0; j <= max_y - min_y; j++) {
         open[i][j] = 0;
     }
   }
-  int checked[max_x-min_x+1][max_y-min_y+1];
+  // int checked[max_x-min_x+1][max_y-min_y+1];
+  int (*checked)[max_y-min_y+1] = malloc(sizeof(int[max_x-min_x+1][max_y-min_y+1]));
   for (int i = 0; i <= max_x - min_x; i++) {
     for (int j = 0; j <= max_y - min_y; j++) {
         checked[i][j] = 0;
     }
   }
   Node nodes[max_x-min_x+1][max_y-min_y+1];
-  //Node (*nodes)[C_WIDTH] = malloc(sizeof(Node) * C_WIDTH * C_WIDTH);
+  // Node (*nodes)[max_y-min_y+1] = malloc(sizeof(int[max_x-min_x+1][max_y-min_y+1]));
 
   /* Setting up the costs needed for A * algorithm on each node of the tilemap */
   int localized_goal_col = goal_col - min_x;
@@ -519,6 +522,10 @@ int search(vec2 start_coords, int start_col, int start_row, int goal_col, int go
     }
     step++;
   }
+  free(tiles);
+  free(open);
+  free(checked);
+  
   vector_free(&openList);
   //vector_free(path_list);
   return goal_reached;
