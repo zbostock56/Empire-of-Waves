@@ -146,7 +146,7 @@ void check_mercenary_reassignment_prompt(vec2 coords) {
   if (chunk->coords[0] != 0 || chunk->coords[1] != 0) {
     return;
   }
-  ISLAND *island = cur_island(chunk, coords, 1.0);
+  ISLAND *island = cur_island(chunk, coords);
   /* Check if on the home island, if not return */
   if (island != chunk->islands + 0) {
     return;
