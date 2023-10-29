@@ -19,17 +19,17 @@ void init_scene() {
   e_player.inventory[3].quantity = 1;
   e_player.inventory[4].item_id = SILVER_COIN;
   e_player.inventory[4].quantity = 1;
-  e_player.inventory[5].item_id = COPER_COIN;
+  e_player.inventory[5].item_id = COPPER_COIN;
   e_player.inventory[5].quantity = 1;
-    e_player.inventory[6].item_id = CROSSBOW;
+  e_player.inventory[6].item_id = CROSSBOW;
   e_player.inventory[6].quantity = 1;
-    e_player.inventory[7].item_id = FLINTLOCK;
+  e_player.inventory[7].item_id = FLINTLOCK;
   e_player.inventory[7].quantity = 1;  
   e_player.inventory[8].item_id = MIDIUM_ARMOR;
   e_player.inventory[8].quantity = 1;  
   e_player.inventory[9].item_id = HEAVY_ARMOR;
   e_player.inventory[9].quantity = 1;
-    e_player.inventory[10].item_id = PLATE_ARMOR;
+  e_player.inventory[10].item_id = PLATE_ARMOR;
   e_player.inventory[10].quantity = 1;
 
     // TEST MODELS

@@ -12,7 +12,7 @@ struct representing player state in combat mode. Can be included by any file
 which reads/manipulates player state.
 */
 
-#define INV_SIZE (9)
+#define MAX_PLAYERT_INV_SIZE (16)
 
 typedef struct inventory_slot {
   int item_id;
@@ -30,7 +30,7 @@ typedef struct exploration_player {
   vec2 direction;
   vec2 ship_direction;
   int embarked;
-  I_SLOT inventory[INV_SIZE];
+  I_SLOT inventory[MAX_PLAYERT_INV_SIZE];
   unsigned int resources[NUM_RESOURCES];
   unsigned int money;
   unsigned int total_mercenaries;

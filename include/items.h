@@ -64,7 +64,7 @@ typedef enum item_ids {
   // Currency 1 GOLD = 10 SILVER = 100 COPPER
   GOLD_COIN = 18,
   SILVER_COIN = 19,
-  COPER_COIN = 20
+  COPPER_COIN = 20
 } ITEM_IDS;
 
 /*
