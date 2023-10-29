@@ -392,7 +392,9 @@ void consolidate_unsaved_chunks() {
 
     // Save chunk to 'chunks' directory
     chunk_to_disk(chunk_path, &temp_chunk);
+    free_chunk(&temp_chunk);
   }
+  free(unsaved_chunks);
 }
 
 void clear_unsaved_chunks() {
@@ -423,6 +425,7 @@ void clear_unsaved_chunks() {
     // Remove chunk from 'unsaved' directory
     remove(chunk_path);
   }
+  free(unsaved_chunks);
 }
 
 void reset_state() {

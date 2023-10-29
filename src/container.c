@@ -25,6 +25,10 @@ int init_container(CONTAINER *cont, unsigned int capacity) {
   return 0;
 }
 
+void free_container(CONTAINER *cont) {
+  free(cont->items);
+}
+
 int move_item(I_SLOT *to, I_SLOT *from) {
   if ((from->item_id == EMPTY || from->quantity == 0) ||
       (to->item_id != from->item_id && to->item_id != EMPTY)) {
