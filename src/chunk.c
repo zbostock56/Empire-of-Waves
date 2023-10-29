@@ -48,12 +48,20 @@ void print_refs() {
 }
 
 void place_home(ISLAND *island, CHUNK *home_chunk) {
+  int found_home = 0;
   for (int i = (I_WIDTH * I_WIDTH) / 2 + (I_WIDTH / 2); i < (I_WIDTH * I_WIDTH); i++) {
-    if (home_chunk->islands[0].tiles[i] == GRASS) {
+    if (!found_home && home_chunk->islands[0].tiles[i] == GRASS) {
       home_chunk->islands[0].tiles[i] = HOME;
       house_tile[0] = (i % I_WIDTH) + island->coords[0];
       house_tile[1] = (i / I_WIDTH) + island->coords[1];
-      break;
+      found_home = 1;
+    } else if (home_chunk->islands[0].tiles[i] == GRASS) {
+      home_box_tile[0] = (i % I_WIDTH) + island->coords[0];
+      home_box_tile[1] = (i / I_WIDTH) + island->coords[1];
+      if (glm_vec2_distance(house_tile, home_box_tile) >= 5.0) {
+        home_chunk->islands[0].tiles[i] = CHEST;
+        break;
+      }
     }
   }
   unsigned char tile_colors[I_WIDTH * I_WIDTH][3];
@@ -123,10 +131,12 @@ int manage_chunks() {
           if (island->tiles[i] == HOME) {
             house_tile[0] = (i % I_WIDTH) + island->coords[0];
             house_tile[1] = (i / I_WIDTH) + island->coords[1];
+          } else if (island->tiles[i] == CHEST) {
+            home_box_tile[0] = (i % I_WIDTH) + island->coords[0];
+            home_box_tile[1] = (i / I_WIDTH) + island->coords[1];
           }
         }
       }
-
     }
   }
   return 0;

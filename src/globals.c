@@ -24,11 +24,11 @@ CHUNK *chunk_buffer = NULL;
 unsigned int chunk_buff_size = 0;
 unsigned int chunk_buff_len = 0;
 
-CONTAINER magic_box;
-
 E_PLAYER e_player;
 unsigned int player_chunks[9];
 unsigned int updated_chunks[9];
+CONTAINER home_box;
+vec2 home_box_tile = GLM_VEC2_ZERO_INIT;
 TRADE_SHIP *trade_ships = NULL;
 vec2 home_island_coords = GLM_VEC2_ZERO_INIT;
 vec2 house_tile = GLM_VEC2_ZERO_INIT;

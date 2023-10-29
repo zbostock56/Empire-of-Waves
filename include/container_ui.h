@@ -6,6 +6,7 @@
 extern int RES_X;
 extern int RES_Y;
 extern int holding_shift;
+int container_menu_open = 0;
 
 static CONTAINER c1;
 static CONTAINER c2;

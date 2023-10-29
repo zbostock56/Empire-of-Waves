@@ -17,8 +17,6 @@ extern CHUNK *chunk_buffer;
 extern unsigned int chunk_buff_size;
 extern unsigned int chunk_buff_len;
 
-extern CONTAINER magic_box;
-
 extern E_PLAYER e_player;
 // Indexs to chunks in chunk_buffer which represent the chunks loaded by the
 // player
@@ -26,6 +24,8 @@ extern unsigned int player_chunks[9];
 // Utility buffer for tracking updated indices of chunks in chunk_buffer, which
 // represent the loaded player chunks
 extern unsigned int updated_chunks[9];
+extern CONTAINER home_box;
+extern vec2 home_box_tile;
 extern vec2 home_island_coords;
 extern vec2 house_tile;
 extern TRADE_SHIP *trade_ships;

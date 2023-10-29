@@ -167,6 +167,13 @@ void open_container(CONTAINER container_1, CONTAINER container_2) {
   c1_page = 0;
   c2_page = 0;
   refresh_containers();
+  get_ui_component_by_ID(CONTAINER_1_NEXT)->enabled = 1;
+  get_ui_component_by_ID(CONTAINER_1_PREV)->enabled = 1;
+  get_ui_component_by_ID(CONTAINER_1_MOVE)->enabled = 1;
+  get_ui_component_by_ID(CONTAINER_2_NEXT)->enabled = 1;
+  get_ui_component_by_ID(CONTAINER_2_PREV)->enabled = 1;
+  get_ui_component_by_ID(CONTAINER_2_MOVE)->enabled = 1;
+  container_menu_open = 1;
 }
 
 void close_container() {
@@ -175,6 +182,13 @@ void close_container() {
   for (int i = CONTAINER_1_SLOTS; i <= CONTAINER_2_MOVE; i++) {
     get_ui_component_by_ID(i)->enabled = 0;
   }
+  get_ui_component_by_ID(CONTAINER_1_NEXT)->enabled = 0;
+  get_ui_component_by_ID(CONTAINER_1_PREV)->enabled = 0;
+  get_ui_component_by_ID(CONTAINER_1_MOVE)->enabled = 0;
+  get_ui_component_by_ID(CONTAINER_2_NEXT)->enabled = 0;
+  get_ui_component_by_ID(CONTAINER_2_PREV)->enabled = 0;
+  get_ui_component_by_ID(CONTAINER_2_MOVE)->enabled = 0;
+  container_menu_open = 0;
 }
 
 void refresh_containers() {
@@ -202,7 +216,10 @@ void c1_slot_on_click(void *slot) {
   size_t index = (c1_page * 36) + ((size_t) slot);
   if (holding_shift) {
     for (int i = 0; i < c2.capacity; i++) {
-      if (c2.items[i].item_id == EMPTY) {
+      if (c2.items[i].item_id == c1.items[index].item_id) {
+        move_item(c2.items + i, c1.items + index);
+        break;
+      } else if (c2.items[i].item_id == EMPTY) {
         c2.items[i].quantity = 0;
         move_item(c2.items + i, c1.items + index);
         break;
@@ -218,7 +235,10 @@ void c2_slot_on_click(void *slot) {
   size_t index = (c2_page * 36) + ((size_t) slot);
   if (holding_shift) {
     for (int i = 0; i < c1.capacity; i++) {
-      if (c1.items[i].item_id == 0) {
+      if (c1.items[i].item_id == c2.items[index].item_id) {
+        move_item(c1.items + i, c2.items + index);
+        break;
+      } else if (c1.items[i].item_id == EMPTY) {
         c1.items[i].quantity = 0;
         move_item(c1.items + i, c2.items + index);
         break;

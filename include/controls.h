@@ -24,6 +24,7 @@ vec2 mouse_position = GLM_VEC2_ZERO_INIT;
 int holding_left_click = 0;
 extern int shore_interaction_enabled;
 extern int home_interaction_enabled;
+extern int container_interaction_enabled;
 extern int reassignment_menu_open;
 char cons_cmd[MAX_CMD_LEN];
 extern float console_cursor_interval;
@@ -79,6 +80,8 @@ void close_dialog();
 void close_trade();
 void refresh_framebuffers();
 int spawn_projectile(vec2, vec2, float, UNIT_T);
+void open_container(CONTAINER, CONTAINER);
+void close_container();
 
 void open_mercenary_reassignment_menu();
 void close_mercenary_reassignment_menu();

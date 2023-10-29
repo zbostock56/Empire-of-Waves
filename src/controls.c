@@ -135,6 +135,10 @@ void exploration_movement(GLFWwindow *window) {
       /* Mercenary Reassignment list open */
       open_mercenary_reassignment_menu();
       get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
+    } else if (!e_player.embarked && container_interaction_enabled) {
+      CONTAINER player_inv = { e_player.inventory, INV_SIZE };
+      open_container(home_box, player_inv);
+      get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
     }
     holding_interaction = 1;
   } else if (glfwGetKey(window, GLFW_KEY_E) != GLFW_PRESS) {
@@ -271,6 +275,7 @@ void close_merchant_menu(GLFWwindow *window) {
       close_trade();
     }
     close_mercenary_reassignment_menu();
+    close_container();
   }
 }
 

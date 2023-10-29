@@ -129,9 +129,12 @@ void detect_context_interaction() {
     }
 
     // Merchant Interaction
+    get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
     check_merchant_prompt(world_coords_char);
     // Check mercenary reassignment prompt
     check_mercenary_reassignment_prompt(world_coords_char);
+    // Check chest interaction prompt
+    check_chest_prompt(world_coords_char);
   }
 }
 
@@ -155,16 +158,40 @@ void check_mercenary_reassignment_prompt(vec2 coords) {
   chunk_to_world(island->chunk, house_tile, house_tile_world);
   float dist = glm_vec2_distance(house_tile_world, coords);
   UI_COMPONENT *interaction_prompt = get_ui_component_by_ID(INTERACT_PROMPT);
+  home_interaction_enabled = 0;
   if (dist <= 3.0 * T_WIDTH && !reassignment_menu_open) {
     // prompt to reassign mercenaries
     interaction_prompt->enabled = 1;
     home_interaction_enabled = 1;
-  } else if (dist > 3.0 * T_WIDTH) {
-    // close prompt
-    interaction_prompt->enabled = 0;
-    home_interaction_enabled = 0;
+  } else if (dist > 3.0) {
     close_mercenary_reassignment_menu();
   }
+}
+
+void check_chest_prompt(vec2 coords) {
+  CHUNK *chunk = chunk_buffer + player_chunks[PLAYER_CHUNK];
+  /* If the current chunk is not the home chunk, return. */
+  if (chunk->coords[0] != 0 || chunk->coords[1] != 0) {
+    return;
+  }
+  ISLAND *island = cur_island(chunk, coords);
+  /* Check if on the home island, if not return */
+  if (island != chunk->islands) {
+    return;
+  }
+  vec2 home_box_world = GLM_VEC2_ZERO_INIT;
+  chunk_to_world(island->chunk, home_box_tile, home_box_world);
+  float dist = glm_vec2_distance(home_box_world, coords);
+  UI_COMPONENT *interaction_prompt = get_ui_component_by_ID(INTERACT_PROMPT);
+  container_interaction_enabled = 0;
+  if (dist <= 3.0 * T_WIDTH && !container_menu_open) {
+    // prompt to reassign mercenaries
+    interaction_prompt->enabled = 1;
+    container_interaction_enabled = 1;
+  } else if (dist > 3.0) {
+    close_container();
+  }
+
 }
 
 // Exploration mode collision:
@@ -189,8 +216,7 @@ void check_merchant_prompt(vec2 world_player_coords) {
       }
     }
   }
-  if (!cur_merchant || dialog.ui_text_name->enabled ||
-      trade.ui_listing[0]->enabled) {
+  if (dialog.ui_text_name->enabled || trade.ui_listing[0]->enabled) {
     get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
   }
   if (!cur_merchant) {

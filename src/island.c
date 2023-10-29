@@ -203,6 +203,10 @@ void populate_tile_pixel_buffer(ISLAND *island,
       tile_colors[i][0] = 4;
       tile_colors[i][1] = 209;
       tile_colors[i][2] = 38;
+    } else if (island->tiles[texture_index] == CHEST) {
+      tile_colors[i][0] = 4;
+      tile_colors[i][1] = 209;
+      tile_colors[i][2] = 38;
     }
   }
 }

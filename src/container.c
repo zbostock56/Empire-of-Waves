@@ -2,7 +2,7 @@
 
 int init_containers() {
   int status = 0;
-  status = init_container(&magic_box, 64);
+  status = init_container(&home_box, 64);
   if (status) {
     fprintf(stderr, "container.c: Unable to allocate container items\n");
     return -1;
