@@ -57,6 +57,7 @@ void init_scene() {
   trade_ship = load_model("assets/trade_ship.bin", "assets/2A.png");
   house = load_model("assets/quad.bin", "assets/House.png");
   quad = load_model("assets/quad.bin", NULL);
+  circle = load_model("assets/circle.bin", NULL);
   char default_path[50] = "assets/Dinklebitmap/x.bin";
   char lowercase_path[50] = "assets/Dinklebitmap/x_lower.bin";
   for (char cur = ' '; cur <= '~'; cur++) {
@@ -242,12 +243,18 @@ void render_scene(GLFWwindow *window) {
         render_unit(npc_units + i);
         if (npc_units[i].attack_active) {
           vec2 hitbox_pos = GLM_VEC2_ZERO_INIT;
-          glm_vec2_scale(npc_units[i].coords, T_WIDTH, hitbox_pos);
           vec2 hitbox_offset = GLM_VEC2_ZERO_INIT;
+          glm_vec2_scale(npc_units[i].coords, T_WIDTH, hitbox_pos);
           glm_vec2_scale_as(npc_units[i].direction, T_WIDTH, hitbox_offset);
+          hitbox_offset[1] += T_WIDTH;
           glm_vec2_add(hitbox_pos, hitbox_offset, hitbox_pos);
-          render_hitbox(hitbox_pos);
+          render_hitbox(hitbox_pos, 1.0);
         }
+
+        vec2 hitbox_pos = GLM_VEC2_ZERO_INIT;
+        glm_vec2_scale(npc_units[i].coords, T_WIDTH, hitbox_pos);
+        hitbox_pos[1] += T_WIDTH;
+        render_hitbox(hitbox_pos, 1.0);
       }
     }
 
@@ -255,11 +262,18 @@ void render_scene(GLFWwindow *window) {
 
     if (c_player.attack_active) {
       vec2 hitbox_pos = GLM_VEC2_ZERO_INIT;
-      glm_vec2_scale(c_player.coords, T_WIDTH, hitbox_pos);
       vec2 hitbox_offset = GLM_VEC2_ZERO_INIT;
+      glm_vec2_scale(c_player.coords, T_WIDTH, hitbox_pos);
       glm_vec2_scale_as(c_player.direction, T_WIDTH, hitbox_offset);
+      hitbox_offset[1] += T_WIDTH;
       glm_vec2_add(hitbox_pos, hitbox_offset, hitbox_pos);
-      render_hitbox(hitbox_pos);
+      render_hitbox(hitbox_pos, 1.0);
+    }
+
+    PROJ *cur_proj = NULL;
+    for (unsigned int i = 0; i < num_projectiles; i++) {
+      cur_proj = projectiles + i;
+      render_hitbox(cur_proj->pos, PROJ_RAD);
     }
   }
 
@@ -760,14 +774,14 @@ void render_arena() {
   draw_model(quad, color_shader);
 }
 
-void render_hitbox(vec2 world_coords) {
+void render_hitbox(vec2 world_coords, float radius) {
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
 
   vec3 hitbox_pos = { 0.0, 0.0, AVATAR_DEPTH };
   glm_vec2_copy(world_coords, hitbox_pos);
   glm_translate(model_mat, hitbox_pos);
-  glm_scale_uni(model_mat, T_WIDTH);
+  glm_scale_uni(model_mat, T_WIDTH * radius);
 
   vec3 player_coords = GLM_VEC3_ZERO_INIT;
   glm_vec2_scale(c_player.coords, T_WIDTH, player_coords);
@@ -780,7 +794,7 @@ void render_hitbox(vec2 world_coords) {
   set_mat4("view", view_mat, color_shader);
   set_mat4("proj", ortho_proj, color_shader);
   set_vec3("color", hit_box_col, color_shader);
-  draw_model(quad, color_shader);
+  draw_model(circle, color_shader);
 }
 
 /*

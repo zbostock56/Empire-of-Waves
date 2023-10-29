@@ -77,8 +77,10 @@ void free_status_bar() {
 /* Update status bar for each frame */
 void update_status_bar() {
   open_status_bar();
-  sprintf(status.ui_health_status->text, " HEALTH %3.1f / %3.1f ", c_player.health, c_player.max_health);
-  sprintf(status.ui_money_status->text, " MONEY %4d ", e_player.money);
+  snprintf(status.ui_health_status->text, MAX_STATUS_STR_LENGTH,
+           " HEALTH %3.1f / %3.1f ", c_player.health, c_player.max_health);
+  snprintf(status.ui_money_status->text, MAX_STATUS_STR_LENGTH, " MONEY %4d ",
+           e_player.money);
 }
 
 /* Render status bar */

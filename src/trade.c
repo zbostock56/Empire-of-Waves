@@ -739,11 +739,28 @@ void open_sell() {
 void open_establish_trade_route() {
   MERCHANT *target_merch = cur_merchant;
   CHUNK *target_chunk = NULL;
+  unsigned int target_island = 0;
+  for (int i = 0; i < chunk_buff_len; i++) {
+    target_chunk = chunk_buffer + i;
+    if (target_chunk->coords[0] == target_merch->chunk[0] &&
+        target_chunk->coords[1] == target_merch->chunk[1]) {
+      for (int j = 0; j < target_chunk->num_islands; j++) {
+        ISLAND *cur_island = target_chunk->islands + j;
+        if (cur_island->has_merchant &&
+            &(cur_island->merchant) == target_merch) {
+          target_island = j;
+          break;
+        }
+      }
+      break;
+    }
+  }
   // Check if player already have a trade route to this island
   for (int i = 0; i < num_trade_ships; i++) {
     target_chunk = chunk_buffer + trade_ships[i].target_chunk_index;
     if (target_chunk->coords[0] == target_merch->chunk[0] &&
-        target_chunk->coords[1] == target_merch->chunk[1]) {
+        target_chunk->coords[1] == target_merch->chunk[1] &&
+        trade_ships[i].target_island == target_island) {
       dialog.ui_text_schedule_trade_route_prompt->text = "Unable to Schedule Duplicate Trade Route";
       dialog.ui_text_schedule_trade_route_prompt->enabled = 1;
       return;
@@ -769,7 +786,7 @@ void open_establish_trade_route() {
   trade_ships[num_trade_ships].direction[0] = 1.0;
   trade_ships[num_trade_ships].export_rec = 0;
   trade_ships[num_trade_ships].import_rec = 0;
-  trade_ships[num_trade_ships].target_island = 0;
+  trade_ships[num_trade_ships].target_island = target_island;
   trade_ships[num_trade_ships].num_mercenaries = 0;
   trade_ships[num_trade_ships].speed = 10.0;
   for (int i = 0; i < 20; i++) {

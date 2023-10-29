@@ -36,6 +36,8 @@ int main() {
     }
 
     update_trade_ships();
+    update_projectiles();
+
     status = detect_collisions();
     if (status) {
       return -1;

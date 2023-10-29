@@ -85,6 +85,7 @@ MODEL *enemy_ship;
 MODEL *trade_ship;
 MODEL *house;
 MODEL *quad;
+MODEL *circle;
 CHARACTER font[FONT_LEN];
 
 mat4 persp_proj;
@@ -112,7 +113,7 @@ void render_text(char *, int, mat4);
 void render_island(ISLAND *);
 void render_chunk(ivec2);
 void render_arena();
-void render_hitbox(vec2);
+void render_hitbox(vec2, float);
 
 void calc_screen_scale();
 
