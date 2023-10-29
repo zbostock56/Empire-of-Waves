@@ -30,3 +30,5 @@ void update_mercenary_reassignment();
 void update_console_prompt();
 void update_timers();
 void print_coords();
+int init_containers();
+void init_container_ui();

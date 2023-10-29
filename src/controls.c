@@ -14,6 +14,7 @@ void keyboard_input(GLFWwindow *window) {
   } else if (mode == COMBAT && !console_enabled) {
     combat_movement(window);
   }
+  modifier_keys(window);
   debug_keys(window);
   if (console_enabled) {
     console_keys(window);
@@ -200,6 +201,38 @@ void debug_keys(GLFWwindow *window) {
     }
   } else if (glfwGetKey(window, GLFW_KEY_SLASH) != GLFW_PRESS) {
     holding_tilde = 0;
+  }
+}
+
+void modifier_keys(GLFWwindow *window) {
+  if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
+       glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) &&
+       !holding_shift) {
+    holding_shift = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) != GLFW_PRESS &&
+             glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) != GLFW_PRESS &&
+             holding_shift) {
+    holding_shift = 0;
+  }
+
+  if ((glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS ||
+       glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS) &&
+       !holding_alt) {
+    holding_alt = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) != GLFW_PRESS &&
+             glfwGetKey(window, GLFW_KEY_RIGHT_ALT) != GLFW_PRESS &&
+             holding_alt) {
+    holding_alt = 0;
+  }
+
+  if ((glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
+       glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS) &&
+       !holding_ctrl) {
+    holding_ctrl = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) != GLFW_PRESS &&
+             glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) != GLFW_PRESS &&
+             holding_ctrl) {
+    holding_ctrl = 0;
   }
 }
 

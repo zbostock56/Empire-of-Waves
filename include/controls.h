@@ -36,6 +36,9 @@ int cons_cmd_len = 0;
 int holding_alpha[26];
 int holding_num[10];
 int holding_space = 0;
+int holding_shift = 0;
+int holding_ctrl = 0;
+int holding_alt = 0;
 int holding_enter = 0;
 int holding_backspace = 0;
 int holding_underscore = 0;
@@ -59,6 +62,7 @@ void ui_click_listener(double, double);
 void ui_hover_listener(double, double);
 void close_merchant_menu(GLFWwindow *window);
 void combat_mode_attack(int);
+void modifier_keys(GLFWwindow *);
 
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 void detect_context_interaction();

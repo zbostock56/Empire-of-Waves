@@ -5,6 +5,7 @@
 #include <cglm/ivec2.h>
 #include <combat_str.h>
 #include <items.h>
+#include <container_str.h>
 /*
                                 PLAYER_STR.h
 Describes the struct representing player state in exploration mode, and the
@@ -13,11 +14,6 @@ which reads/manipulates player state.
 */
 
 #define INV_SIZE (9)
-
-typedef struct inventory_slot {
-  int item_id;
-  unsigned int quantity;
-} I_SLOT;
 
 /*
   Player state in exploration mode

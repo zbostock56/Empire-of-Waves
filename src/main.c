@@ -8,10 +8,16 @@ int main() {
   init_trade();
   init_status_bar();
   init_ui_lists();
+  init_container_ui();
   open_status_bar();
 
   int status = 0;
   status = init_chunks();
+  if (status) {
+    return -1;
+  }
+
+  status = init_containers();
   if (status) {
     return -1;
   }
