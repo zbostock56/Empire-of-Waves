@@ -19,6 +19,43 @@ int init_trade_ship_buffers() {
   return 0;
 }
 
+/*
+  Initializes a trade ship located at the home island, targeting an island
+  at a given chunk
+  Returns:
+  A pointer to the newly created trade ship
+*/
+TRADE_SHIP *init_trade_ship(char *merch_name, ivec2 target_chunk,
+                            unsigned int target_island) {
+  TRADE_SHIP *trade_ship = trade_ships + num_trade_ships;
+
+  trade_ship->target_chunk_index = add_chunk(target_chunk);
+
+  ivec2 cur_chunk_coords = { 0, 0 };
+  trade_ship->cur_chunk_index = add_chunk(cur_chunk_coords);
+
+  glm_vec2_copy(home_island_coords, trade_ship->coords);
+  glm_ivec2_copy(cur_chunk_coords, trade_ship->chunk_coords);
+  glm_vec2_zero(trade_ships[num_trade_ships].direction);
+  trade_ships[num_trade_ships].direction[0] = 1.0;
+  trade_ships[num_trade_ships].export_rec = 0;
+  trade_ships[num_trade_ships].import_rec = 0;
+  trade_ships[num_trade_ships].target_island = target_island;
+  trade_ships[num_trade_ships].num_mercenaries = 0;
+  trade_ships[num_trade_ships].speed = 10.0;
+  for (int i = 0; i < 20; i++) {
+    trade_ships[num_trade_ships].desc[i] = merch_name[i];
+  }
+  num_trade_ships++;
+
+  if (num_trade_ships == trade_ship_buf_size) {
+    double_buffer((void **) &trade_ships, &trade_ship_buf_size,
+                  sizeof(TRADE_SHIP));
+  }
+
+  return trade_ships + num_trade_ships - 1;
+}
+
 void update_trade_ships() {
   for (unsigned int i = 0; i < num_trade_ships; i++) {
     trade_ship_pathfind(trade_ships + i);

@@ -1,6 +1,6 @@
 
 /* DEFINES  */
-#define NUM_COMPONENTS (129) // UI COMPONENT:: Max number of UI component
+#define NUM_COMPONENTS (136) // UI COMPONENT:: Max number of UI component
 
 /*
   Enum mapping human-readable component names to the index of the ui component
@@ -56,7 +56,14 @@ typedef enum component_ids {
   CONTAINER_2_SLOTS = 90,
   CONTAINER_2_NEXT = 126,
   CONTAINER_2_PREV = 127,
-  CONTAINER_2_MOVE = 128
+  CONTAINER_2_MOVE = 128,
+  NEW_GAME = 129,
+  SAVE = 130,
+  LOAD = 131,
+  SAVE_CLOSE = 132,
+  SAVE_PROMPT = 133,
+  SAVE_INPUT = 134,
+  SAVE_STATUS = 135
   // Populate as more components are added
 } UI_ID;
 

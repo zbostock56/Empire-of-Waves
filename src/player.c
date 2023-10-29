@@ -1,5 +1,4 @@
 #include <player.h>
-#include <globals.h>
 
 /*
 Get player's inventory slot item by a given unsigned int item_number

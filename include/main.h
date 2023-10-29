@@ -23,6 +23,8 @@ void init_dialog();
 void init_trade();
 void init_status_bar();
 void open_status_bar();
+int init_save_menu();
+void update_save_interval();
 void init_ui_lists();
 void update_dialog_buffers();
 void update_available_mercenaries();

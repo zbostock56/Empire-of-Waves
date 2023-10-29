@@ -18,3 +18,6 @@ void chunk_to_world(ivec2, vec2, vec2);
 void world_to_chunk(vec2, ivec2, vec2);
 
 void trade_ship_steering(TRADE_SHIP *, vec2);
+
+int add_chunk(ivec2);
+int double_buffer(void **, unsigned int *, unsigned int);

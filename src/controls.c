@@ -8,9 +8,13 @@ events.
 
 void keyboard_input(GLFWwindow *window) {
   if (mode == EXPLORATION && !console_enabled) {
-    // Exploration mode keyboard handlers here
-    exploration_movement(window);
-    close_merchant_menu(window);
+    if (get_ui_component_by_ID(SAVE_INPUT)->enabled) {
+      load_keys(window);
+    } else {
+      // Exploration mode keyboard handlers here
+      exploration_movement(window);
+      close_merchant_menu(window);
+    }
   } else if (mode == COMBAT && !console_enabled) {
     combat_movement(window);
   }
@@ -124,13 +128,15 @@ void exploration_movement(GLFWwindow *window) {
         e_player.embarked = 1;
       }
     }
-    if (!e_player.embarked && cur_merchant && !trade.ui_listing[0]->enabled) {
-      if (set_dialog(MERCHANT_OPTION, "Merchant",
+    if (!e_player.embarked && close_merchant &&
+        !trade.ui_listing[0]->enabled) {
+      if (set_dialog(close_merchant, MERCHANT_OPTION,
+                     get_merchant_name(close_merchant->name),
                      "Hail, Captain! What brings you to my humble stall")) {
         open_dialog();
       }
       get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
-      cur_merchant = NULL;
+      close_merchant = NULL;
     } else if (!e_player.embarked && home_interaction_enabled) {
       /* Mercenary Reassignment list open */
       open_mercenary_reassignment_menu();
@@ -143,6 +149,19 @@ void exploration_movement(GLFWwindow *window) {
     holding_interaction = 1;
   } else if (glfwGetKey(window, GLFW_KEY_E) != GLFW_PRESS) {
     holding_interaction = 0;
+  }
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS && !holding_esc) {
+    if (!trade.ui_listing[0]->enabled && !dialog.ui_text_name->enabled) {
+      if (save_menu_opened()) {
+        close_save_menu();
+      } else {
+        open_save_menu();
+        close_save_status();
+      }
+    }
+    holding_esc = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS) {
+    holding_esc = 0;
   }
 }
 
@@ -279,6 +298,96 @@ void close_merchant_menu(GLFWwindow *window) {
   }
 }
 
+void load_keys(GLFWwindow *window) {
+  char *input_buffer = get_ui_component_by_ID(SAVE_INPUT)->text;
+  // LETTERS
+  for (int i = GLFW_KEY_A; i <= GLFW_KEY_Z; i++) {
+    if (glfwGetKey(window, i) == GLFW_PRESS && !holding_alpha[i - GLFW_KEY_A]) {
+      holding_alpha[i - GLFW_KEY_A] = 1;
+      if (load_input_len < INPUT_BUFFER_SIZE - 1) {
+        input_buffer[load_input_len] = i + 32;
+        input_buffer[++load_input_len] = '\0';
+      }
+    } else if (glfwGetKey(window, i) != GLFW_PRESS) {
+      holding_alpha[i - GLFW_KEY_A] = 0;
+    }
+  }
+  // NUMBERS
+  for (int i = GLFW_KEY_0; i < GLFW_KEY_9; i++) {
+    if (glfwGetKey(window, i) == GLFW_PRESS && !holding_num[i - GLFW_KEY_0]) {
+      holding_num[i - GLFW_KEY_0] = 1;
+      if (load_input_len < INPUT_BUFFER_SIZE - 1) {
+        input_buffer[load_input_len] = i;
+        input_buffer[++load_input_len] = '\0';
+      }
+    } else if (glfwGetKey(window, i) != GLFW_PRESS) {
+      holding_num[i - GLFW_KEY_0] = 0;
+    }
+  }
+
+  // SPACE
+  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !holding_space) {
+    holding_space = 1;
+    if (load_input_len < INPUT_BUFFER_SIZE - 1) {
+      input_buffer[load_input_len] = ' ';
+      input_buffer[++load_input_len] = '\0';
+    }
+  } else if (glfwGetKey(window, GLFW_KEY_SPACE) != GLFW_PRESS) {
+    holding_space = 0;
+  }
+
+  // UNDERSCORE
+  if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS && !holding_underscore) {
+    holding_underscore = 1;
+    if (load_input_len < INPUT_BUFFER_SIZE - 1) {
+      input_buffer[load_input_len] = '_';
+      input_buffer[++load_input_len] = '\0';
+    }
+  } else if (glfwGetKey(window, GLFW_KEY_MINUS) != GLFW_PRESS) {
+    holding_underscore = 0;
+  }
+
+  // ENTER
+  if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS && !holding_enter) {
+    holding_enter = 1;
+
+    int status = 0;
+    if (open_prompt == LOAD) {
+      status = load_game(input_buffer);
+      if (status) {
+        open_save_status("Failed to load game");
+      } else {
+        open_save_status("Game loaded");
+      }
+    } else if (open_prompt == NEW_GAME) {
+      status = new_game(input_buffer);
+      if (status) {
+        open_save_status("Failed to create new game");
+      } else {
+        open_save_status("New game created");
+      }
+    }
+    save_status_interval = 1.0;
+    close_save_menu();
+
+    load_input_len = 0;
+    input_buffer[load_input_len] = '\0';
+  } else if (glfwGetKey(window, GLFW_KEY_ENTER) != GLFW_PRESS) {
+    holding_enter = 0;
+  }
+
+  // BACKSPACE
+  if (glfwGetKey(window, GLFW_KEY_BACKSPACE) == GLFW_PRESS &&
+      !holding_backspace) {
+    if (load_input_len) {
+      load_input_len--;
+      input_buffer[load_input_len] = '\0';
+    }
+    holding_backspace = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_BACKSPACE) != GLFW_PRESS) {
+    holding_backspace = 0;
+  }
+}
 
 void console_keys(GLFWwindow *window) {
   // LETTERS

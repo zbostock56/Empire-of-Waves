@@ -5,6 +5,7 @@ typedef enum trade_type {
 } T_TRADE;
 
 typedef struct trade {
+  MERCHANT *merchant;
   T_TRADE type;
   UI_COMPONENT *ui_listing[9];
 } TRADE;

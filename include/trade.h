@@ -9,7 +9,7 @@
 
 /*
                                    TRADING
-Implements the functionality for buying and selling. Could be used for 
+Implements the functionality for buying and selling. Could be used for
 interaction with merchants.
 */
 
@@ -26,7 +26,7 @@ extern char merchant_name_list[600][20];
 void init_trade();
 void open_trade();
 void close_trade();
-int set_trade(T_TRADE dialog_type);
+int set_trade(MERCHANT *, T_TRADE);
 void on_click_ui_listing(void *listing_ui_number);
 void open_buy();
 void open_sell();
@@ -44,3 +44,4 @@ I_SLOT * search_player_inventory_with_ID(ITEM_IDS item_id);
 I_SLOT * get_player_inventory_slot_by_index(unsigned int item_index);
 LISTING * get_merchant_listing_item_by_index(MERCHANT * merchant, unsigned int item_index);
 MERCHANT *get_closest_merchant(E_PLAYER e_player);
+TRADE_SHIP *init_trade_ship(char *, ivec2, unsigned int);

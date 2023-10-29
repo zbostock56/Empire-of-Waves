@@ -1,4 +1,4 @@
-  #include <render.h>
+#include <render.h>
 
 void init_scene() {
   glm_vec2_zero(e_player.coords);

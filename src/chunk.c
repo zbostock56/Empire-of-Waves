@@ -6,6 +6,8 @@ generation, and detection of which chunks to load/unload.
 */
 
 int init_chunks() {
+  // Since we are not saving the game, the forseeable chunks will be saved to
+  // the unsaved directory rather than the chunks of the saved game
   chunk_buffer = malloc(sizeof(CHUNK) * CHUNK_BUFF_STARTING_LEN);
   if (chunk_buffer == NULL) {
     return -1;
@@ -29,46 +31,10 @@ int init_chunks() {
       return -1;
     }
 
-    save_chunk(chunk_buffer + status);
+    save_chunk(chunk_buffer + status, UNSAVED_DIR_PATH);
     player_chunks[i] = status;
   }
   return 0;
-}
-
-void print_refs() {
-  printf("buff_len: %d\n", chunk_buff_len);
-  for (int i = 0; i < CHUNKS_SIMULATED; i++) {
-    printf("coords: (%d, %d), ref_count: %d\n",
-           chunk_buffer[player_chunks[i]].coords[0],
-           chunk_buffer[player_chunks[i]].coords[1],
-           chunk_buffer[player_chunks[i]].ref_count);
-  }
-  fflush(stdout);
-  return;
-}
-
-void place_home(ISLAND *island, CHUNK *home_chunk) {
-  int found_home = 0;
-  for (int i = (I_WIDTH * I_WIDTH) / 2 + (I_WIDTH / 2); i < (I_WIDTH * I_WIDTH); i++) {
-    if (!found_home && home_chunk->islands[0].tiles[i] == GRASS) {
-      home_chunk->islands[0].tiles[i] = HOME;
-      house_tile[0] = (i % I_WIDTH) + island->coords[0];
-      house_tile[1] = (i / I_WIDTH) + island->coords[1];
-      found_home = 1;
-    } else if (home_chunk->islands[0].tiles[i] == GRASS) {
-      home_box_tile[0] = (i % I_WIDTH) + island->coords[0];
-      home_box_tile[1] = (i / I_WIDTH) + island->coords[1];
-      if (glm_vec2_distance(house_tile, home_box_tile) >= 5.0) {
-        home_chunk->islands[0].tiles[i] = CHEST;
-        break;
-      }
-    }
-  }
-  unsigned char tile_colors[I_WIDTH * I_WIDTH][3];
-  populate_tile_pixel_buffer(&home_chunk->islands[0], tile_colors);
-  home_chunk->islands[0].texture = texture_from_buffer((unsigned char *) tile_colors,
-                                                      I_WIDTH, I_WIDTH, GL_RGB);
-  island->has_merchant = 0;
 }
 
 int manage_chunks() {
@@ -142,6 +108,15 @@ int manage_chunks() {
   return 0;
 }
 
+void clear_chunk_buffer() {
+  for (int i = 0; i < chunk_buff_len; i++) {
+    free_chunk(chunk_buffer + i);
+  }
+  chunk_buff_len = 0;
+  free(chunk_buffer);
+  chunk_buffer = NULL;
+}
+
 void free_chunk(CHUNK *chunk) {
   for (int i = 0; i < chunk->num_islands; i++) {
     if (chunk->islands[i].has_merchant) {
@@ -157,7 +132,13 @@ void free_chunk(CHUNK *chunk) {
 
 int chunk_from_coords(ivec2 coords, CHUNK *dest) {
   // Attempt to load chunk from disk
-  int status = load_chunk(coords, dest);
+  int status = load_chunk(coords, dest, UNSAVED_DIR_PATH);
+  if (status) {
+    // Chunk has not been saved to unsaved directory yet, attempt to load it
+    // from the saved directory
+    status = load_chunk(coords, dest, CHUNK_DIR_PATH);
+  }
+
   if (status) {
     // Chunk also does not exist on disk, so generate it
     glm_ivec2_copy(coords, dest->coords);
@@ -187,7 +168,7 @@ int chunk_from_coords(ivec2 coords, CHUNK *dest) {
   return 0;
 }
 
-int add_chunk (ivec2 coords) {
+int add_chunk(ivec2 coords) {
   int chunk_exists = -1;
   for (unsigned int i = 0; i < chunk_buff_len; i++) {
     if (chunk_buffer[i].coords[0] == coords[0] &&
@@ -236,7 +217,7 @@ int remove_chunk(unsigned int index) {
   }
 
   // Remove chunk from memory if it's ref count is zero
-  save_chunk(chunk_buffer + index);
+  save_chunk(chunk_buffer + index, UNSAVED_DIR_PATH);
   free_chunk(chunk_buffer + index);
   chunk_buff_len--;
 
@@ -271,171 +252,6 @@ int remove_chunk(unsigned int index) {
   }
 
   return 0;
-}
-
-int load_chunk(ivec2 coords, CHUNK *dest) {
-  // Must have some sort of max chunk to guarentee chunk file path is limited
-  if (out_of_bounds(coords, MAX_CHUNK_COORD, MAX_CHUNK_COORD)) {
-    fprintf(stderr, "chunk.c: Chunk (%d, %d) exceeds max chunk coordinates\n",
-            coords[0], coords[1]);
-    return -1;
-  }
-
-  char file_path[MAX_CHUNK_PATH_LEN];
-  snprintf(file_path, MAX_CHUNK_PATH_LEN, "chunks/c_%d_%d.chunk",
-           coords[0], coords[1]);
-  FILE *chunk_file = fopen(file_path, "rb");
-  if (chunk_file == NULL) {
-    //fprintf(stderr, "chunk.c: Unable to open chunk file for reading\n");
-    return -1;
-  }
-
-  fread(dest->coords, sizeof(int), 2, chunk_file);
-  fread(&dest->num_islands, sizeof(unsigned int), 1, chunk_file);
-  fread(&dest->num_enemies, sizeof(unsigned int), 1, chunk_file);
-  if (dest->num_enemies) {
-    dest->enemies = malloc(sizeof(E_ENEMY) * dest->num_enemies * 2);
-    if (dest->enemies == NULL) {
-      fprintf(stderr, "chunk.c: Unable to allocate chunk enemy buffer\n");
-      fclose(chunk_file);
-      return -1;
-    }
-    dest->enemy_buf_size = dest->num_enemies * 2;
-
-    fread(dest->enemies, sizeof(E_ENEMY), dest->num_enemies, chunk_file);
-  } else {
-    dest->enemies = malloc(sizeof(E_ENEMY) * STARTING_BUFF_SIZE);
-    if (dest->enemies == NULL) {
-      fprintf(stderr, "chunk.c: Unable to allocate chunk enemy buffer\n");
-      fclose(chunk_file);
-      return -1;
-    }
-    dest->enemy_buf_size = STARTING_BUFF_SIZE;
-  }
-
-  for (unsigned int i = 0; i < dest->num_islands; i++) {
-    int status = load_island(chunk_file, dest->islands + i);
-    if (status) {
-      free(dest->enemies);
-      for (unsigned int j = 0; j < i; j++) {
-        if (dest->islands[j].has_merchant) {
-          free(dest->islands[j].merchant.listings);
-        }
-        glDeleteTextures(1, &dest->islands[j].texture);
-      }
-      fclose(chunk_file);
-      return -1;
-    }
-  }
-
-  fclose(chunk_file);
-
-  return 0;
-}
-
-int load_island(FILE *file, ISLAND *dest) {
-  fread(dest->chunk, sizeof(int), 2, file);
-  fread(dest->coords, sizeof(int), 2, file);
-  fread(dest->tiles, sizeof(TILE), I_WIDTH * I_WIDTH, file);
-  fread(&dest->has_merchant, sizeof(int), 1, file);
-  int status  = 0;
-  if (dest->has_merchant) {
-    status = load_merchant(file, &dest->merchant);
-    if (status) {
-      return -1;
-    }
-  }
-
-  // TODO Create island texture buffer from preloaded tile texture buffers
-  unsigned char tile_colors[I_WIDTH * I_WIDTH][3];
-  populate_tile_pixel_buffer(dest, tile_colors);
-  dest->texture = texture_from_buffer((unsigned char *) tile_colors, I_WIDTH,
-                                      I_WIDTH, GL_RGB);
-
-  return 0;
-}
-
-int load_merchant(FILE *file, MERCHANT *dest) {
-  fread(dest->chunk, sizeof(int), 2, file);
-  fread(dest->coords, sizeof(float), 2, file);
-  fread(&dest->num_mercenaries, sizeof(unsigned int), 1, file);
-  fread(&dest->num_listings, sizeof(unsigned int), 1, file);
-  fread(&dest->relationship, sizeof(float), 1, file);
-  fread(&dest->name, sizeof(short), 1, file);
-
-  dest->listings = NULL;
-  if (dest->num_listings) {
-    dest->listings = malloc(sizeof(LISTING) * dest->num_listings * 2);
-    dest->listings_buf_size = dest->num_listings * 2;
-    if (dest->listings == NULL) {
-      fprintf(stderr, "chunk.c: Unable to allocate merchant listing buffer\n");
-      return -1;
-    }
-
-    fread(dest->listings, sizeof(LISTING), dest->num_listings, file);
-  } else {
-    dest->listings = malloc(sizeof(LISTING) * STARTING_BUFF_SIZE);
-    dest->listings_buf_size = STARTING_BUFF_SIZE;
-    if (dest->listings == NULL) {
-      fprintf(stderr, "chunk.c: Unable to allocate merchant listing buffer\n");
-      return -1;
-    }
-  }
-
-  return 0;
-}
-
-void save_chunk(CHUNK *chunk) {
-  // Must have some sort of max chunk to guarentee chunk file path is limited
-  if (out_of_bounds(chunk->coords, MAX_CHUNK_COORD, MAX_CHUNK_COORD)) {
-    fprintf(stderr, "chunk.c: Chunk exceeds max chunk coordinates\n");
-    return;
-  }
-
-  char file_path[MAX_CHUNK_PATH_LEN];
-  snprintf(file_path, MAX_CHUNK_PATH_LEN, "chunks/c_%d_%d.chunk",
-           chunk->coords[0], chunk->coords[1]);
-  file_path[MAX_CHUNK_PATH_LEN - 1] = '\0';
-  FILE *chunk_file = fopen(file_path, "wb");
-  if (chunk_file == NULL) {
-    fprintf(stderr, "chunk.c: Unable to open chunk file for writing: %s\n",
-            file_path);
-    return;
-  }
-
-  fwrite(chunk->coords, sizeof(int), 2, chunk_file);
-  fwrite(&chunk->num_islands, sizeof(unsigned int), 1, chunk_file);
-  fwrite(&chunk->num_enemies, sizeof(unsigned int), 1, chunk_file);
-  if (chunk->num_enemies) {
-    fwrite(chunk->enemies, sizeof(E_ENEMY), chunk->num_enemies, chunk_file);
-  }
-  for (unsigned int i = 0; i < chunk->num_islands; i++) {
-    save_island(chunk_file, chunk->islands + i);
-  }
-
-  fclose(chunk_file);
-}
-
-void save_island(FILE *file, ISLAND *island) {
-  fwrite(island->chunk, sizeof(int), 2, file);
-  fwrite(island->coords, sizeof(int), 2, file);
-  fwrite(island->tiles, sizeof(TILE), I_WIDTH * I_WIDTH, file);
-  fwrite(&island->has_merchant, sizeof(int), 1, file);
-  if (island->has_merchant) {
-    save_merchant(file, &island->merchant);
-  }
-}
-
-void save_merchant(FILE *file, MERCHANT *merchant) {
-  fwrite(merchant->chunk, sizeof(int), 2, file);
-  fwrite(merchant->coords, sizeof(float), 2, file);
-  fwrite(&merchant->num_mercenaries, sizeof(unsigned int), 1, file);
-  fwrite(&merchant->num_listings, sizeof(unsigned int), 1, file);
-  fwrite(&merchant->relationship, sizeof(float), 1, file);
-  fwrite(&merchant->name, sizeof(short), 1, file);
-  if (merchant->num_listings) {
-    fwrite(merchant->listings, sizeof(LISTING), merchant->num_listings, file);
-  }
 }
 
 /*
@@ -620,6 +436,42 @@ int out_of_bounds(ivec2 coords, int max_x, int max_y) {
     (coords[X] < 0 && coords[X] < -max_x) ||
     (coords[Y] < 0 && coords[Y] < -max_x)
   );
+}
+
+void print_refs() {
+  printf("buff_len: %d\n", chunk_buff_len);
+  for (int i = 0; i < CHUNKS_SIMULATED; i++) {
+    printf("coords: (%d, %d), ref_count: %d\n",
+           chunk_buffer[player_chunks[i]].coords[0],
+           chunk_buffer[player_chunks[i]].coords[1],
+           chunk_buffer[player_chunks[i]].ref_count);
+  }
+  fflush(stdout);
+  return;
+}
+
+void place_home(ISLAND *island, CHUNK *home_chunk) {
+  int found_home = 0;
+  for (int i = (I_WIDTH * I_WIDTH) / 2 + (I_WIDTH / 2); i < (I_WIDTH * I_WIDTH); i++) {
+    if (!found_home && home_chunk->islands[0].tiles[i] == GRASS) {
+      home_chunk->islands[0].tiles[i] = HOME;
+      house_tile[0] = (i % I_WIDTH) + island->coords[0];
+      house_tile[1] = (i / I_WIDTH) + island->coords[1];
+      found_home = 1;
+    } else if (home_chunk->islands[0].tiles[i] == GRASS) {
+      home_box_tile[0] = (i % I_WIDTH) + island->coords[0];
+      home_box_tile[1] = (i / I_WIDTH) + island->coords[1];
+      if (glm_vec2_distance(house_tile, home_box_tile) >= 5.0) {
+        home_chunk->islands[0].tiles[i] = CHEST;
+        break;
+      }
+    }
+  }
+  unsigned char tile_colors[I_WIDTH * I_WIDTH][3];
+  populate_tile_pixel_buffer(&home_chunk->islands[0], tile_colors);
+  home_chunk->islands[0].texture = texture_from_buffer((unsigned char *) tile_colors,
+                                                      I_WIDTH, I_WIDTH, GL_RGB);
+  island->has_merchant = 0;
 }
 
 int double_buffer(void **buffer, unsigned int *buff_size,
