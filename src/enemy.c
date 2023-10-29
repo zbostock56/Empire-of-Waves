@@ -67,7 +67,8 @@ void spawn_enemy() {
           enemy->direction[0] = 0;
           enemy->direction[1] = 1;
           enemy->speed = 15.0;
-          enemy->crew_count = 3;
+          //randomize (1-5)
+          enemy->crew_count = rand()%5+1;
           not_found = 0;
         }
       }
@@ -630,9 +631,17 @@ void update_enemy_chunk(E_ENEMY *cur_enemy, CHUNK *chunk, int i) {
 
 void c_enemy_pathfind(C_UNIT *enemy, vec2 target_coords) {
   float target_dist = glm_vec2_distance(target_coords, enemy->coords);
-  if (target_dist <= 1.5 && enemy->attack_cooldown == 0.0) {
-    npc_melee_attack(enemy);
+  if (enemy->weapon_type == RANGED) {
+    if (enemy->attack_cooldown == 0.0) {
+      npc_ranged_attack(enemy);
+    }
+  
+  } else {
+    if (target_dist <= 1.5 && enemy->attack_cooldown == 0.0) {
+      npc_melee_attack(enemy);
+    }
   }
+  
 
   vec2 movement = GLM_VEC2_ZERO_INIT;
   int move = 0;

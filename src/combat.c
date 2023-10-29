@@ -142,6 +142,7 @@ void update_combat_state() {
 
   if (num_npc_units == 0) {
     // Player wins
+    // TODO: only wins when enemy units are gone. (if only left units are allies, still means we won)
     from_combat_mode();
   } else if (c_player.health <= 0.0) {
     // Player loses
@@ -222,5 +223,24 @@ void despawn_projectile(unsigned int index) {
 void npc_melee_attack(C_UNIT *unit) {
   unit->attack_cooldown = unit->fire_rate;
   unit->attack_active = 0.1;
+}
+
+void npc_ranged_attack(C_UNIT *unit) {
+  unit->attack_cooldown = unit->fire_rate;
+  unit->attack_active = 0.1;
+  vec2 proj_coords = { 0.0, 0.0 };
+  vec2 proj_dir = { 0.0, 0.0 };
+  glm_vec2_scale(unit->coords, T_WIDTH, proj_coords);
+  proj_coords[1] += T_WIDTH;
+  glm_vec2_copy(unit->direction, proj_dir);
+  proj_dir[1] -= T_WIDTH;
+  if (unit->type == ENEMY) {
+    spawn_projectile(proj_coords, proj_dir, 3.0,
+                    ALLY);
+  } else {
+    spawn_projectile(proj_coords, proj_dir, 3.0,
+                    ENEMY);
+  }
+  
 }
 
