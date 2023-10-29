@@ -23,14 +23,6 @@
 vec2 mouse_position = GLM_VEC2_ZERO_INIT;
 
 int holding_left_click = 0;
-extern int shore_interaction_enabled;
-extern int home_interaction_enabled;
-extern int container_interaction_enabled;
-extern int reassignment_menu_open;
-char cons_cmd[MAX_CMD_LEN];
-extern float console_cursor_interval;
-extern int cursor_enabled;
-
 int holding_equals = 0;
 int holding_left_bracket = 0;
 int holding_tilde = 0;
@@ -51,18 +43,20 @@ int holding_attack = 0;
 int holding_save = 0;
 int holding_load = 0;
 int holding_esc = 0;
-
-int holding_alpha[26];
-int holding_num[10];
-int holding_space;
-int holding_underscore;
 int holding_enter;
-int holding_bs;
 
+extern int shore_interaction_enabled;
+extern int home_interaction_enabled;
+extern int container_interaction_enabled;
+extern int reassignment_menu_open;
+char cons_cmd[MAX_CMD_LEN];
+extern float console_cursor_interval;
+extern int cursor_enabled;
 extern UI_ID open_prompt;
 extern unsigned int load_input_len;
-extern DIALOG dialog;
+extern MERCHANT *close_merchant;
 extern TRADE trade;
+extern DIALOG dialog;
 extern int RES_X;
 extern int RES_Y;
 extern float save_status_interval;
@@ -90,7 +84,7 @@ void get_ui_min_max(UI_COMPONENT *, vec4);
 int to_combat_mode(unsigned int);
 void from_combat_mode();
 void open_dialog();
-int set_dialog(T_DIALOG, char *, char *);
+int set_dialog(MERCHANT *, T_DIALOG, char *, char *);
 void close_dialog();
 void close_trade();
 void open_save_menu();
@@ -105,6 +99,7 @@ int load_game(char *);
 int spawn_projectile(vec2, vec2, float, UNIT_T);
 void open_container(CONTAINER, CONTAINER);
 void close_container();
+char *get_merchant_name(short);
 
 void open_mercenary_reassignment_menu();
 void close_mercenary_reassignment_menu();

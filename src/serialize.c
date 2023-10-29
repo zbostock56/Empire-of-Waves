@@ -138,7 +138,10 @@ int load_game(char *save_name) {
   init_chunks();
 
   // Load rest of the data now that the initial chunk buffer is set up
-  load_game_state(save_file);
+  status = load_game_state(save_file);
+  if (status) {
+    return -1;
+  }
   fclose(save_file);
 
   return 0;
@@ -436,7 +439,7 @@ void reset_state() {
   e_player.total_mercenaries = 0;
   e_player.max_health = 100.0;
   e_player.health = 100.0;
-  e_player.speed = 10.0;
+  e_player.speed = 1.0;
   global_time = 0.0;
   num_trade_ships = 0;
 }
@@ -445,11 +448,18 @@ void save_state(FILE *file) {
   fwrite(&e_player, sizeof(E_PLAYER), 1, file);
   fwrite(&mode, sizeof(GAME_MODE), 1, file);
   fwrite(home_island_coords, sizeof(float), 2, file);
+  fwrite(home_box_tile, sizeof(float), 2, file);
   fwrite(house_tile, sizeof(float), 2, file);
   fwrite(&global_time, sizeof(float), 1, file);
+
   fwrite(&num_trade_ships, sizeof(unsigned int), 1, file);
   for (int i = 0; i < num_trade_ships; i++) {
     save_trade_ship(trade_ships + i, file);
+  }
+
+  fwrite(&home_box.capacity, sizeof(unsigned int), 1, file);
+  for (int i = 0; i < home_box.capacity; i++) {
+    fwrite(home_box.items + i, sizeof(I_SLOT), 1, file);
   }
 }
 
@@ -463,6 +473,7 @@ void save_trade_ship(TRADE_SHIP *ship, FILE *file) {
   fwrite(&ship->export_rec, sizeof(unsigned int), 1, file);
   fwrite(&ship->import_rec, sizeof(unsigned int), 1, file);
   fwrite(&ship->num_mercenaries, sizeof(unsigned int), 1, file);
+  fwrite(ship->desc, sizeof(char), MAX_TRADE_SHIP_DESC, file);
   fwrite(&ship->speed, sizeof(float), 1, file);
 }
 
@@ -470,11 +481,12 @@ void load_player_state(FILE *file) {
   fread(&e_player, sizeof(E_PLAYER), 1, file);
 }
 
-void load_game_state(FILE *file) {
+int load_game_state(FILE *file) {
   num_trade_ships = 0;
 
   fread(&mode, sizeof(GAME_MODE), 1, file);
   fread(home_island_coords, sizeof(float), 2, file);
+  fread(home_box_tile, sizeof(float), 2, file);
   fread(house_tile, sizeof(float), 2, file);
   fread(&global_time, sizeof(float), 1, file);
 
@@ -483,6 +495,17 @@ void load_game_state(FILE *file) {
   for (unsigned int i = 0; i < to_read; i++) {
     load_trade_ship(file);
   }
+
+  fread(&home_box.capacity, sizeof(unsigned int), 1, file);
+  home_box.items = malloc(sizeof(I_SLOT) * home_box.capacity);
+  if (home_box.items == NULL) {
+    fprintf(stderr, "serialize.c: Failed to allocate home box items\n");
+    return -1;
+  }
+  for (int i = 0; i < home_box.capacity; i++) {
+    fread(home_box.items + i, sizeof(I_SLOT), 1, file);
+  }
+  return 0;
 }
 
 void load_trade_ship(FILE *file) {
@@ -490,7 +513,8 @@ void load_trade_ship(FILE *file) {
   unsigned int target_island = 0;
   fread(target_chunk_coords, sizeof(int), 2, file);
   fread(&target_island, sizeof(unsigned int), 1, file);
-  TRADE_SHIP *cur_ship = init_trade_ship(target_chunk_coords, target_island);
+  TRADE_SHIP *cur_ship = init_trade_ship("", target_chunk_coords,
+                                         target_island);
 
   fread(cur_ship->chunk_coords, sizeof(float), 2, file);
   fread(cur_ship->coords, sizeof(float), 2, file);
@@ -498,6 +522,7 @@ void load_trade_ship(FILE *file) {
   fread(&cur_ship->export_rec, sizeof(unsigned int), 1, file);
   fread(&cur_ship->import_rec, sizeof(unsigned int), 1, file);
   fread(&cur_ship->num_mercenaries, sizeof(unsigned int), 1, file);
+  fread(cur_ship->desc, sizeof(char), MAX_TRADE_SHIP_DESC, file);
   fread(&cur_ship->speed, sizeof(float), 1, file);
 }
 
@@ -535,6 +560,7 @@ void save_island(FILE *file, ISLAND *island) {
 void save_merchant(FILE *file, MERCHANT *merchant) {
   fwrite(merchant->chunk, sizeof(int), 2, file);
   fwrite(merchant->coords, sizeof(float), 2, file);
+  fwrite(&merchant->has_trade_route, sizeof(unsigned int), 1, file);
   fwrite(&merchant->num_mercenaries, sizeof(unsigned int), 1, file);
   fwrite(&merchant->num_listings, sizeof(unsigned int), 1, file);
   fwrite(&merchant->relationship, sizeof(float), 1, file);
@@ -617,6 +643,7 @@ int load_island(FILE *file, ISLAND *dest) {
 int load_merchant(FILE *file, MERCHANT *dest) {
   fread(dest->chunk, sizeof(int), 2, file);
   fread(dest->coords, sizeof(float), 2, file);
+  fread(&dest->has_trade_route, sizeof(unsigned int), 1, file);
   fread(&dest->num_mercenaries, sizeof(unsigned int), 1, file);
   fread(&dest->num_listings, sizeof(unsigned int), 1, file);
   fread(&dest->relationship, sizeof(float), 1, file);

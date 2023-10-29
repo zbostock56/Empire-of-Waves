@@ -232,8 +232,9 @@ Args:
 T_TRADE trade_type
   type of trade, e.g. BUY
 */
-int set_trade(T_TRADE trade_type) {
-  if (dialog.merchant) {
+int set_trade(MERCHANT *merchant, T_TRADE trade_type) {
+  if (merchant) {
+    trade.merchant = merchant;
     trade.type = trade_type;
     // Set trade UI components with given trade type
     switch (trade_type) {
@@ -241,7 +242,7 @@ int set_trade(T_TRADE trade_type) {
       case BUY: {
         for (int i = 0; i < 9; i++) {
           trade.ui_listing[i]->text = get_item_name_by_ID(
-                                        get_merchant_listing_item_by_index(dialog.merchant, i)->item_id);
+                                        get_merchant_listing_item_by_index(trade.merchant, i)->item_id);
         }
         return 1;
       }
@@ -277,7 +278,7 @@ void on_click_ui_listing(void *listing_ui_index) {
   ITEM item;
   if (trade.type == BUY) {
     item = get_item_info_by_name(trade.ui_listing[listing_index]->text);
-    listing_slot = get_merchant_listing_item_by_index(dialog.merchant, listing_index);
+    listing_slot = get_merchant_listing_item_by_index(trade.merchant, listing_index);
     // If player have enough money to buy the listing item
     // Decrease the quatity of merchant listing slot
     if (e_player.money >= item.value && listing_slot->quantity > 0) {
@@ -288,12 +289,12 @@ void on_click_ui_listing(void *listing_ui_index) {
       // Other wise, add the item to the first empty slot
       slot = search_player_inventory_with_ID(
                get_merchant_listing_item_by_index(
-               dialog.merchant, listing_index)->item_id);
+               trade.merchant, listing_index)->item_id);
       if (slot) {
         slot->quantity += 1;
       } else if (get_player_first_empty_inventory_slot()) {
         I_SLOT *empty_inventory_slot = get_player_first_empty_inventory_slot();
-        empty_inventory_slot->item_id = get_merchant_listing_item_by_index(dialog.merchant, listing_index)->item_id;
+        empty_inventory_slot->item_id = get_merchant_listing_item_by_index(trade.merchant, listing_index)->item_id;
         empty_inventory_slot->quantity = 1;
       } else {
         listing_slot->quantity += 1;
@@ -309,20 +310,20 @@ void on_click_ui_listing(void *listing_ui_index) {
       }
 
       // Increase the merchant relationship, maximum 100.0
-      dialog.merchant->relationship += 10.0;
-      if (dialog.merchant->relationship > 100.0) {
-        dialog.merchant->relationship = 100.0;
+      trade.merchant->relationship += 10.0;
+      if (trade.merchant->relationship > 100.0) {
+        trade.merchant->relationship = 100.0;
       }
 
 #ifndef __linux__
       printf("**** [SLOT %lld] [ITEM \"%s\"] [QUATITY %d] ****\n",
              listing_index + 1, trade.ui_listing[listing_index]->text,
-             get_merchant_listing_item_by_index(dialog.merchant,
+             get_merchant_listing_item_by_index(trade.merchant,
                                                 listing_index)->quantity);
 #else
       printf("**** [SLOT %ld] [ITEM \"%s\"] [QUATITY %d] ****\n",
              listing_index + 1, trade.ui_listing[listing_index]->text,
-             get_merchant_listing_item_by_index(dialog.merchant,
+             get_merchant_listing_item_by_index(trade.merchant,
                                                 listing_index)->quantity);
 #endif
     }
@@ -347,7 +348,7 @@ void on_click_ui_listing(void *listing_ui_index) {
     // If merchant already have this item, increase its quatity
     // Other wise, add the item to the first empty slot
     for (int i = 0; i < 9; i++) {
-      listing_slot = get_merchant_listing_item_by_index(dialog.merchant, i);
+      listing_slot = get_merchant_listing_item_by_index(trade.merchant, i);
       if (listing_slot->item_id == sold_item_id) {
         listing_slot->quantity += 1;
         break;
@@ -359,9 +360,9 @@ void on_click_ui_listing(void *listing_ui_index) {
     }
 
     // Increase the merchant relationship, maximum 100.0
-    dialog.merchant->relationship += 10.0;
-    if (dialog.merchant->relationship > 100.0) {
-      dialog.merchant->relationship = 100.0;
+    trade.merchant->relationship += 10.0;
+    if (trade.merchant->relationship > 100.0) {
+      trade.merchant->relationship = 100.0;
     }
 
 #ifndef __linux__
@@ -378,18 +379,18 @@ void on_click_ui_listing(void *listing_ui_index) {
 
 /* Render buy menu, called by dialog "buy" button */
 void open_buy() {
-  close_dialog();
-  if (set_trade(BUY)) {
+  if (set_trade(dialog.merchant, BUY)) {
     open_trade();
   }
+  close_dialog();
 }
 
 /* Render sell menu, called by dialog "sell" button */
 void open_sell() {
-  close_dialog();
-  if (set_trade(SELL)) {
+  if (set_trade(dialog.merchant, SELL)) {
     open_trade();
   }
+  close_dialog();
 }
 
 /* Click lisnter of establish trade route button */
@@ -408,6 +409,7 @@ void open_establish_trade_route(int island_index) {
   dialog.ui_text_schedule_trade_route_prompt->enabled = 1;
   time_schdule_trade_toute_prompt = 2.0;
 
-  init_trade_ship(dialog.merchant->chunk, island_index);
+  init_trade_ship(merchant_name_list[target_merch->name],
+                  dialog.merchant->chunk, island_index);
   target_merch->has_trade_route = 1;
 }

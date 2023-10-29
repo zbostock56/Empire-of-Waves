@@ -46,7 +46,7 @@ void reset_state();
 void save_state(FILE *);
 void save_trade_ship(TRADE_SHIP *, FILE *);
 void load_player_state(FILE *);
-void load_game_state(FILE *);
+int load_game_state(FILE *);
 void load_trade_ship(FILE *);
 
 int chunk_from_disk(char *, CHUNK *);
@@ -71,5 +71,5 @@ void clear_chunk_buffer();
 int out_of_bounds(ivec2, int, int);
 void populate_tile_pixel_buffer(ISLAND *, unsigned char (*)[3]);
 unsigned int texture_from_buffer(unsigned char *, int, int, int);
-TRADE_SHIP *init_trade_ship(ivec2, unsigned int);
+TRADE_SHIP *init_trade_ship(char *, ivec2, unsigned int);
 int double_buffer(void **, unsigned int *, unsigned int);

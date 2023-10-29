@@ -21,7 +21,7 @@ void init_dialog();
 void free_dialog();
 void open_dialog();
 void close_dialog();
-int set_dialog(T_DIALOG, char *, char *);
+int set_dialog(MERCHANT *, T_DIALOG, char *, char *);
 void update_dialog_buffers();
 
 /* ================= EXTERNALLY DEFINED FUNCTIONS ================ */

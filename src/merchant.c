@@ -24,3 +24,7 @@ LISTING *get_merchant_listing_item_by_index(MERCHANT * merchant, unsigned int li
   }
   return NULL;
 }
+
+char *get_merchant_name(short index) {
+  return merchant_name_list[index];
+}

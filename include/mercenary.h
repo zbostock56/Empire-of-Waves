@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <ui_component.h>
 #include <ui_list_str.h>
+#include <merchant_str.h>
+#include <dialog_str.h>
 #include <menu.h>
 #include <globals.h>
 
@@ -10,6 +12,7 @@
 #define MY_SHIP_MERC_LEN (48)
 
 extern UI_LIST list;
+extern DIALOG dialog;
 int reassignment_menu_open = 0;
 char avail_mercenaries[AVAIL_MERC_BUFF_LEN];
 int mercenary_listing_selected[TOT_LISTING_NUM];

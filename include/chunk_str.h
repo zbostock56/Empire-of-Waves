@@ -15,7 +15,7 @@ reads/manipulates chunks and/or islands.
 #define UNSAVED_DIR_PATH ("unsaved")
 #define C_WIDTH (128) // Width of a chunk in tiles
 #define I_WIDTH (96) // Width of an island in tiles
-#define MAX_ISLANDS (5) // Max islands per chunk
+#define MAX_ISLANDS (2) // Max islands per chunk
 #define CHUNKS_SIMULATED (9)
 #define STARTING_BUFF_SIZE (10)
 

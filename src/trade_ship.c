@@ -25,7 +25,8 @@ int init_trade_ship_buffers() {
   Returns:
   A pointer to the newly created trade ship
 */
-TRADE_SHIP *init_trade_ship(ivec2 target_chunk, unsigned int target_island) {
+TRADE_SHIP *init_trade_ship(char *merch_name, ivec2 target_chunk,
+                            unsigned int target_island) {
   TRADE_SHIP *trade_ship = trade_ships + num_trade_ships;
 
   trade_ship->target_chunk_index = add_chunk(target_chunk);
@@ -42,6 +43,9 @@ TRADE_SHIP *init_trade_ship(ivec2 target_chunk, unsigned int target_island) {
   trade_ships[num_trade_ships].target_island = target_island;
   trade_ships[num_trade_ships].num_mercenaries = 0;
   trade_ships[num_trade_ships].speed = 10.0;
+  for (int i = 0; i < 20; i++) {
+    trade_ships[num_trade_ships].desc[i] = merch_name[i];
+  }
   num_trade_ships++;
 
   if (num_trade_ships == trade_ship_buf_size) {

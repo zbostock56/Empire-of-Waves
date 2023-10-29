@@ -355,8 +355,6 @@ void pathfind_enemy(E_ENEMY *enemy, unsigned int enemy_chunk) {
       glm_vec2_add(movement, enemy_world_coords, enemy_world_coords);
       world_to_chunk(enemy_world_coords, enemy->chunk, enemy->coords);
     }
-    vector_free(path_list);
-    free(nodes);
     free(path_list);
   }
 }

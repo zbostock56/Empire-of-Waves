@@ -281,6 +281,7 @@ void open_dialog() {
 
 /* Close dialog and reset schedule trade route prompt timer to 2.0 */
 void close_dialog() {
+  dialog.merchant = NULL;
   dialog.ui_text_content->enabled = 0;
   dialog.ui_text_name->enabled = 0;
   dialog.ui_text_relationship->enabled = 0;
@@ -302,8 +303,10 @@ char *name
 char *content
   content string of the dialog, do not exceed line length (20)
 */
-int set_dialog(T_DIALOG dialog_type, char *name, char *content) {
+int set_dialog(MERCHANT *merchant, T_DIALOG dialog_type, char *name,
+               char *content) {
   if (strlen(name) < MAX_NAME_STR_LENGTH && strlen(content) < MAX_CONTENT_STR_LENGTH) {
+    dialog.merchant = merchant;
     dialog.type = dialog_type;
     strncpy(dialog.name, name, MAX_NAME_STR_LENGTH);
     dialog.name[MAX_NAME_STR_LENGTH - 1] = '\0'; // Ensures null termination
@@ -315,11 +318,11 @@ int set_dialog(T_DIALOG dialog_type, char *name, char *content) {
 }
 
 void update_dialog_buffers() {
-  if (cur_merchant) {
+  if (dialog.merchant) {
     snprintf(dialog.ui_text_relationship->text, TEXT_BUFFER_LEN,
-             "Relationship: %.1f", cur_merchant->relationship);
+             "Relationship: %.1f", dialog.merchant->relationship);
     snprintf(dialog.ui_mercenary_buy->text, TEXT_BUFFER_LEN,
              "4. Purchase Mercenary (%d available)",
-             cur_merchant->num_mercenaries);
+             dialog.merchant->num_mercenaries);
   }
 }

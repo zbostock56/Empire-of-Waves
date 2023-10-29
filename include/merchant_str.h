@@ -26,8 +26,8 @@ typedef struct merchant {
   ivec2 chunk;
   vec2 coords;
   LISTING *listings;
-  unsigned int has_trade_route;
   unsigned int listings_buf_size;
+  unsigned int has_trade_route;
   unsigned int num_mercenaries;
   unsigned int num_listings;
   float relationship;
