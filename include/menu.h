@@ -1,12 +1,17 @@
 
 /* DEFINES  */
-#define NUM_COMPONENTS (29) // UI COMPONENT:: Max number of UI component
+#define NUM_COMPONENTS (136) // UI COMPONENT:: Max number of UI component
 
 /*
   Enum mapping human-readable component names to the index of the ui component
   in ui_tab
 */
 typedef enum component_ids {
+  /*
+    WARNING:
+    Zero indexed. Make sure to update above define statment
+    when adding more components.
+  */
   INVALID_MENU = -1,
   TEST_MENU = 0,
   DIALOG_NAME = 1,
@@ -29,13 +34,36 @@ typedef enum component_ids {
   SCHEDULED_TRADE_ROUTE_PROMPT = 18,
   STATUS_HEALTH = 19,
   STATUS_MONEY = 20,
-  NEW_GAME = 21,
-  SAVE = 22,
-  LOAD = 23,
-  SAVE_CLOSE = 24,
-  SAVE_PROMPT = 25,
-  SAVE_INPUT = 26,
-  SAVE_STATUS = 27
+  LIST_BUTTON_RIGHT = 21,
+  LIST_BUTTON_LEFT = 22,
+  LIST_ITEM = 23,
+  MERCENARY_BUY_PROMPT = 39,
+  MERCENARY_AVAIL = 40,
+  ADD_MERCENARY = 41,
+  SUB_MERCENARY = 42,
+  REASSIGN_MENU_TITLE = 43,
+  MY_SHIP_MERC = 44,
+  CONSOLE = 45,
+  CONSOLE_CURSOR = 46,
+  CONSOLE_WORLD_COORDS = 47,
+  CONSOLE_INTRA_CHUNK_COORDS = 48,
+  CONSOLE_CHUNK_COORDS = 49,
+  CONSOLE_ERROR = 50,
+  CONTAINER_1_SLOTS = 51,
+  CONTAINER_1_NEXT = 87,
+  CONTAINER_1_PREV = 88,
+  CONTAINER_1_MOVE = 89,
+  CONTAINER_2_SLOTS = 90,
+  CONTAINER_2_NEXT = 126,
+  CONTAINER_2_PREV = 127,
+  CONTAINER_2_MOVE = 128,
+  NEW_GAME = 129,
+  SAVE = 130,
+  LOAD = 131,
+  SAVE_CLOSE = 132,
+  SAVE_PROMPT = 133,
+  SAVE_INPUT = 134,
+  SAVE_STATUS = 135
   // Populate as more components are added
 } UI_ID;
 

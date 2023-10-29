@@ -7,6 +7,8 @@ int main() {
   init_dialog();
   init_trade();
   init_status_bar();
+  init_ui_lists();
+  init_container_ui();
   open_status_bar();
 
   int status = 0;
@@ -16,6 +18,11 @@ int main() {
   }
 
   status = init_chunks();
+  if (status) {
+    return -1;
+  }
+
+  status = init_containers();
   if (status) {
     return -1;
   }
@@ -40,12 +47,19 @@ int main() {
     }
 
     update_trade_ships();
+    update_projectiles();
 
     status = detect_collisions();
     if (status) {
       return -1;
     }
 
+    update_timers();
+    print_coords();
+    update_console_prompt();
+    update_dialog_buffers();
+    update_available_mercenaries();
+    update_mercenary_reassignment();
     render_scene(window);
     update_combat_state();
     update_event_timer();

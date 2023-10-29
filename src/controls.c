@@ -7,7 +7,7 @@ events.
 */
 
 void keyboard_input(GLFWwindow *window) {
-  if (mode == EXPLORATION) {
+  if (mode == EXPLORATION && !console_enabled) {
     if (get_ui_component_by_ID(SAVE_INPUT)->enabled) {
       load_keys(window);
     } else {
@@ -15,11 +15,14 @@ void keyboard_input(GLFWwindow *window) {
       exploration_movement(window);
       close_merchant_menu(window);
     }
-  } else {
-    // Combat mode keyboard handlers here
+  } else if (mode == COMBAT && !console_enabled) {
     combat_movement(window);
   }
+  modifier_keys(window);
   debug_keys(window);
+  if (console_enabled) {
+    console_keys(window);
+  }
 }
 
 void mouse_pos(GLFWwindow *window, double x_pos, double y_pos) {
@@ -47,13 +50,7 @@ void mouse_pos(GLFWwindow *window, double x_pos, double y_pos) {
 
 void mouse_click(GLFWwindow *window, int button, int action, int mods) {
   if (mode == COMBAT) {
-    if (action == GLFW_PRESS && c_player.attack_cooldown == 0.0) {
-      c_player.speed = 0.5;
-    } else if (action != GLFW_PRESS && c_player.attack_cooldown == 0.0) {
-      c_player.attack_cooldown = c_player.fire_rate;
-      c_player.attack_active = 0.1;
-      c_player.speed = 1.0;
-    }
+    combat_mode_attack(action);
   }
   if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
     ui_click_listener(mouse_position[0], mouse_position[1]);
@@ -95,12 +92,12 @@ void exploration_movement(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
     vec2 movement = GLM_VEC2_ZERO_INIT;
     if (e_player.embarked) {
-      glm_vec2_scale(e_player.ship_direction, delta_time, movement);
+      glm_vec2_scale(e_player.ship_direction, delta_time * e_player.speed, movement);
       glm_vec2_add(movement, world_coords, world_coords);
       world_to_chunk(world_coords, e_player.ship_chunk,
                      e_player.ship_coords);
     } else {
-        glm_vec2_scale(e_player.direction, delta_time, movement);
+        glm_vec2_scale(e_player.direction, delta_time * e_player.speed, movement);
         glm_vec2_add(movement, world_coords, world_coords);
         world_to_chunk(world_coords, e_player.chunk,
                       e_player.coords);
@@ -139,6 +136,14 @@ void exploration_movement(GLFWwindow *window) {
       }
       get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
       dialog.merchant = NULL;
+    } else if (!e_player.embarked && home_interaction_enabled) {
+      /* Mercenary Reassignment list open */
+      open_mercenary_reassignment_menu();
+      get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
+    } else if (!e_player.embarked && container_interaction_enabled) {
+      CONTAINER player_inv = { e_player.inventory, INV_SIZE };
+      open_container(home_box, player_inv);
+      get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
     }
     holding_interaction = 1;
   } else if (glfwGetKey(window, GLFW_KEY_E) != GLFW_PRESS) {
@@ -189,7 +194,7 @@ void debug_keys(GLFWwindow *window) {
     }
   }
 
-  if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS && !holding_minus) {
+  if (glfwGetKey(window, GLFW_KEY_LEFT_BRACKET) == GLFW_PRESS && !holding_left_bracket) {
     if (mode == EXPLORATION) {
       CHUNK *cur_chunk = chunk_buffer + player_chunks[PLAYER_CHUNK];
       // Make a dummy enemy ship to fight
@@ -200,13 +205,84 @@ void debug_keys(GLFWwindow *window) {
     } else {
       from_combat_mode();
     }
-    holding_minus = 1;
-  } else if (glfwGetKey(window, GLFW_KEY_MINUS) != GLFW_PRESS) {
-    holding_minus = 0;
+    holding_left_bracket = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_LEFT_BRACKET) != GLFW_PRESS) {
+    holding_left_bracket = 0;
+  }
+
+  /* Console enable/disable  */
+  if (glfwGetKey(window, GLFW_KEY_SLASH) == GLFW_PRESS && !holding_tilde) {
+    // Enter console
+    holding_tilde = 1;
+    if (console_enabled) {
+      console_enabled = 0;
+      cons_cmd_len = 0;
+      close_console_prompt();
+    } else {
+      console_enabled = 1;
+    }
+  } else if (glfwGetKey(window, GLFW_KEY_SLASH) != GLFW_PRESS) {
+    holding_tilde = 0;
+  }
+}
+
+void modifier_keys(GLFWwindow *window) {
+  if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
+       glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) &&
+       !holding_shift) {
+    holding_shift = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) != GLFW_PRESS &&
+             glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) != GLFW_PRESS &&
+             holding_shift) {
+    holding_shift = 0;
+  }
+
+  if ((glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS ||
+       glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS) &&
+       !holding_alt) {
+    holding_alt = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) != GLFW_PRESS &&
+             glfwGetKey(window, GLFW_KEY_RIGHT_ALT) != GLFW_PRESS &&
+             holding_alt) {
+    holding_alt = 0;
+  }
+
+  if ((glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
+       glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS) &&
+       !holding_ctrl) {
+    holding_ctrl = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) != GLFW_PRESS &&
+             glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) != GLFW_PRESS &&
+             holding_ctrl) {
+    holding_ctrl = 0;
   }
 }
 
 // =============================== HELPERS ===================================
+
+void combat_mode_attack(int action) {
+  if (c_player.weapon_type == MELEE || c_player.ammo == 0) {
+    if (action == GLFW_PRESS && c_player.attack_cooldown == 0.0) {
+      c_player.speed = 0.5;
+    } else if (action != GLFW_PRESS && c_player.attack_cooldown == 0.0) {
+      c_player.attack_cooldown = c_player.fire_rate;
+      c_player.attack_active = 0.1;
+      c_player.speed = 1.0;
+    }
+  } else {
+    if (action != GLFW_PRESS && c_player.attack_cooldown == 0.0) {
+      c_player.attack_cooldown = c_player.fire_rate;
+      vec2 proj_coords = { 0.0, 0.0 };
+      vec2 proj_dir = { 0.0, 0.0 };
+      glm_vec2_scale(c_player.coords, T_WIDTH, proj_coords);
+      proj_coords[1] += T_WIDTH;
+      glm_vec2_copy(c_player.direction, proj_dir);
+      proj_dir[1] -= T_WIDTH;
+      spawn_projectile(proj_coords, proj_dir, c_player.proj_speed,
+                       ENEMY);
+    }
+  }
+}
 
 void close_merchant_menu(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -216,6 +292,124 @@ void close_merchant_menu(GLFWwindow *window) {
     if (trade.ui_listing[0]->enabled) {
       close_trade();
     }
+    close_mercenary_reassignment_menu();
+    close_container();
+  }
+}
+
+
+void console_keys(GLFWwindow *window) {
+  // LETTERS
+  for (int i = GLFW_KEY_A; i <= GLFW_KEY_Z; i++) {
+    if (glfwGetKey(window, i) == GLFW_PRESS && !holding_alpha[i - GLFW_KEY_A]) {
+      holding_alpha[i - GLFW_KEY_A] = 1;
+      if (cons_cmd_len < MAX_CMD_LEN - 1) {
+        cons_cmd[cons_cmd_len++] = i + 32;
+        cursor_enabled = 1;
+        console_cursor_interval = 0.25;
+      }
+    } else if (glfwGetKey(window, i) != GLFW_PRESS) {
+      holding_alpha[i - GLFW_KEY_A] = 0;
+    }
+  }
+
+  // NUMBERS
+  for (int i = GLFW_KEY_0; i <= GLFW_KEY_9; i++) {
+    if (glfwGetKey(window, i) == GLFW_PRESS && !holding_num[i - GLFW_KEY_0]) {
+      holding_num[i - GLFW_KEY_0] = 1;
+      if (cons_cmd_len < MAX_CMD_LEN - 1) {
+        cons_cmd[cons_cmd_len++] = i;
+        cursor_enabled = 1;
+        console_cursor_interval = 0.25;
+      }
+    } else if (glfwGetKey(window, i) != GLFW_PRESS) {
+      holding_num[i - GLFW_KEY_0] = 0;
+    }
+  }
+
+  // MINUS KEY
+  if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS &&
+      (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) != GLFW_PRESS &&
+      glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) != GLFW_PRESS)
+      && !holding_minus) {
+    holding_minus = 1;
+    if (cons_cmd_len < MAX_CMD_LEN - 1) {
+      cons_cmd[cons_cmd_len++] = '-';
+      cursor_enabled = 1;
+      console_cursor_interval = 0.25;
+    }
+  } else if (glfwGetKey(window, GLFW_KEY_MINUS) != GLFW_PRESS &&
+      (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) != GLFW_PRESS &&
+      glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) != GLFW_PRESS)
+      && holding_minus) {
+    holding_minus = 0;
+  }
+
+  // SPACE
+  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !holding_space) {
+    holding_space = 1;
+    if (cons_cmd_len < MAX_CMD_LEN - 1) {
+      cons_cmd[cons_cmd_len++] = ' ';
+      cursor_enabled = 1;
+      console_cursor_interval = 0.25;
+    }
+  } else if (glfwGetKey(window, GLFW_KEY_SPACE) != GLFW_PRESS) {
+    holding_space = 0;
+  }
+
+  // UNDERSCORE
+  if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS &&
+      (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
+      glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) &&
+      !holding_underscore) {
+    holding_underscore = 1;
+    if (cons_cmd_len < MAX_CMD_LEN - 1) {
+      cons_cmd[cons_cmd_len++] = '_';
+      cursor_enabled = 1;
+      console_cursor_interval = 0.25;
+    }
+  } else if (glfwGetKey(window, GLFW_KEY_MINUS) != GLFW_PRESS &&
+      (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) != GLFW_PRESS ||
+      glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) != GLFW_PRESS) &&
+      holding_underscore) {
+    holding_underscore = 0;
+  }
+
+  // ENTER
+  if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS && !holding_enter) {
+    holding_enter = 1;
+    cons_cmd[cons_cmd_len++] = '\0';
+    tokenize(cons_cmd, cons_cmd_len);
+    cons_cmd_len = 0;
+    for (int i = 0; i < 100; i++) {
+      cons_cmd[i] = '\0';
+    }
+  } else if (glfwGetKey(window, GLFW_KEY_ENTER) != GLFW_PRESS) {
+    holding_enter = 0;
+  }
+
+  // PERIOD / DOT
+  if (glfwGetKey(window, GLFW_KEY_PERIOD) == GLFW_PRESS && !holding_dot) {
+    holding_dot = 1;
+    if (cons_cmd_len < MAX_CMD_LEN - 1) {
+      cons_cmd[cons_cmd_len++] = '.';
+      cursor_enabled = 1;
+      console_cursor_interval = 0.25;
+    }
+  } else if (glfwGetKey(window, GLFW_KEY_PERIOD) != GLFW_PRESS) {
+    holding_dot = 0;
+  }
+
+  // BACKSPACE
+  if (glfwGetKey(window, GLFW_KEY_BACKSPACE) == GLFW_PRESS && !holding_backspace) {
+    holding_backspace = 1;
+    if (cons_cmd_len > 0) {
+      cons_cmd[--cons_cmd_len] = '\0';
+      cursor_enabled = 1;
+      console_cursor_interval = 0.25;
+    }
+  } else if (glfwGetKey(window, GLFW_KEY_BACKSPACE) != GLFW_PRESS) {
+    holding_backspace = 0;
   }
 }
 

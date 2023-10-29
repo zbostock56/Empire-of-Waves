@@ -87,6 +87,7 @@ void trade_ship_pathfind(TRADE_SHIP *ship) {
   glm_vec2_scale(to_target, delta_time, to_target);
   glm_vec2_add(to_target, ship->direction, ship->direction);
 
+
   // Steer away from non-target island tiles
   trade_ship_steering(ship, ship->direction);
   glm_vec2_normalize(ship->direction);

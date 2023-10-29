@@ -20,10 +20,10 @@ UI_ID ui_id
 */
 UI_COMPONENT * get_ui_component_by_ID(UI_ID ui_id) {
   // Check for invalid ui_id
-  if (ui_id < 0 || ui_id > NUM_COMPONENTS - 2) {
+  if (ui_id < 0 || ui_id > NUM_COMPONENTS) {
     return &ui_tab[0];
   }
-  return &ui_tab[ui_id + 1]; // +1 to account for INVALID_MENU being -1
+  return &ui_tab[ui_id]; // +1 to account for INVALID_MENU being -1
 }
 
 /*
@@ -169,17 +169,4 @@ void init_menus() {
     T_CENTER,
     get_ui_component_by_ID(INTERACT_PROMPT)
   );
-
-/* Past logic, commented by Zack */
-#if 0
-  // Init dialog menu
-  init_dialog();
-  // Init trade menu
-  init_trade();
-  // Give Init Money
-  e_player.money = 100;
-  // Init status bar
-  init_status_bar();
-  open_status_bar();
-#endif
 }

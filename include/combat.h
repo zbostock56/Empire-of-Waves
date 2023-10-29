@@ -8,11 +8,16 @@
 
 #define X (0)
 #define Y (1)
+#define MELEE_CUTOFF (75)
+#define PROJ_BUF_START_LEN (10)
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 
 float decrement_timer(float);
+void update_projectiles();
+int spawn_projectile(vec2, vec2, float, UNIT_T);
 
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 
 void c_enemy_pathfind(C_UNIT *, vec2);
+int double_buffer(void **, unsigned int *, unsigned int);

@@ -76,11 +76,14 @@ FRAMEBUFFER entity_framebuffer;
 MODEL *player;
 MODEL *enemy;
 MODEL *merchant;
+MODEL *mercenary;
 MODEL *player_ship;
 MODEL *enemy_ship;
 MODEL *trade_ship;
 MODEL *house;
+MODEL *chest;
 MODEL *quad;
+MODEL *circle;
 CHARACTER font[FONT_LEN];
 
 mat4 persp_proj;
@@ -102,13 +105,14 @@ void render_unit(C_UNIT *);
 void render_merchant(MERCHANT *);
 void render_e_npc(MODEL *, ivec2, vec2, vec2, float);
 void render_c_npc(MODEL *, vec2, vec2, float);
+void render_obstacle(MODEL *, ivec2, vec2, float);
 void render_fbo_entity(MODEL *, mat4, mat4, mat4, mat4, mat4, mat4);
 void render_ui(UI_COMPONENT *);
 void render_text(char *, int, mat4);
 void render_island(ISLAND *);
 void render_chunk(ivec2);
 void render_arena();
-void render_hitbox(vec2);
+void render_hitbox(vec2, float);
 
 void calc_screen_scale();
 
@@ -119,6 +123,7 @@ void refresh_framebuffers();
 void calc_rot_mat(vec3, mat4);
 
 float get_text_width(char *, int);
+float get_screen_text_scale();
 
 void set_mat4(char *, mat4, unsigned int);
 void set_mat3(char *, mat3, unsigned int);

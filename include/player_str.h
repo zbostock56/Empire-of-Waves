@@ -3,7 +3,9 @@
 
 #include <cglm/vec2.h>
 #include <cglm/ivec2.h>
+#include <combat_str.h>
 #include <items.h>
+#include <container_str.h>
 /*
                                 PLAYER_STR.h
 Describes the struct representing player state in exploration mode, and the
@@ -12,23 +14,6 @@ which reads/manipulates player state.
 */
 
 #define INV_SIZE (9)
-
-/*
-  Enum describing weapon types
-  Wrapped in def guards because WEAPON_T is also defined in enemy_str.h
-*/
-#ifndef WT
-#define WT
-typedef enum weapon_t {
-  MELEE,
-  RANGED
-} WEAPON_T;
-#endif
-
-typedef struct inventory_slot {
-  int item_id;
-  unsigned int quantity;
-} I_SLOT;
 
 /*
   Player state in exploration mode
@@ -45,6 +30,9 @@ typedef struct exploration_player {
   unsigned int resources[NUM_RESOURCES];
   unsigned int money;
   unsigned int total_mercenaries;
+  /* Number of mercenaries assigned to */
+  /* player's ship */
+  unsigned int ship_mercenaries;
   float max_health;
   float health;
   float speed;
@@ -61,6 +49,7 @@ typedef struct combat_player {
   float max_health;
   float health;
   float speed;
+  float proj_speed;
   // Indicates the current cool down of a players active hitbox in seconds.
   // When non-zero, the hitbox is currently active. When 0, the hitbox is not
   // active

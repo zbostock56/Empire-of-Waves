@@ -66,7 +66,7 @@ void spawn_enemy() {
           enemy->coords[1] = posy;
           enemy->direction[0] = 0;
           enemy->direction[1] = 1;
-          enemy->speed = 10.0;
+          enemy->speed = 15.0;
           enemy->crew_count = 3;
           not_found = 0;
         }
@@ -143,88 +143,206 @@ void update_enemy_position(E_ENEMY *enemy) {
   vec2 enemy_world_coords = GLM_VEC2_ZERO_INIT;
   vec2 movement = GLM_VEC2_ZERO_INIT;
   chunk_to_world(enemy->chunk, enemy->coords, enemy_world_coords);
-  glm_vec2_scale(enemy->direction, delta_time * enemy->speed * T_WIDTH, movement);
+  glm_vec2_scale(enemy->direction, delta_time * enemy->speed * T_WIDTH,
+                 movement);
   glm_vec2_add(movement, enemy_world_coords, enemy_world_coords);
   world_to_chunk(enemy_world_coords, enemy->chunk, enemy->coords);
 }
 
-void pathfind_enemy(E_ENEMY *enemy) {
-  /* If Enemy ship is not in player's current chunk, manually move it to our chunk*/
-  if (e_player.ship_chunk[0] != enemy->chunk[0] || e_player.ship_chunk[1] != enemy->chunk[1]) {
-    vec2 target_dir = GLM_VEC2_ZERO_INIT;
-    /* If the enemy is in the left chunk of the player. */
-    if (enemy->chunk[0] == e_player.ship_chunk[0] - 1 && enemy->chunk[1] == e_player.ship_chunk[1]) {
-      target_dir[0] = 1.0;
-    }
-    /* If the enemy is in the upper chunk of the player*/
-    else if (enemy->chunk[0] == e_player.ship_chunk[0] && enemy->chunk[1] == e_player.ship_chunk[1] + 1) {
-      target_dir[1] = -1.0;
-    }
-    else if (enemy->chunk[0] == e_player.ship_chunk[0] + 1 && enemy->chunk[1] == e_player.ship_chunk[1]) {
-      target_dir[0] = -1.0;
-    }
-    else if (enemy->chunk[0] == e_player.ship_chunk[0] && enemy->chunk[1] == e_player.ship_chunk[1] - 1) {
-      target_dir[1] = 1.0;
-    } else {
-      /*If the enemy on diagonal*/
-    }
-    // update_enemy_position(enemy);
-
-    glm_vec2_scale(target_dir, delta_time * STEER_SPEED, target_dir);
-    glm_vec2_add(target_dir, enemy->direction, enemy->direction);
-    if (enemy->direction[0] == 0) {
-        enemy->direction[0] = 0.05;
+/*
+  Searches the given enemy's boundary and selects the target, pathfind towards it.
+  Currently, I will make enemy ships to halt to follow the trade ship if it's in a diff chunk
+*/
+void pathfind_enemy(E_ENEMY *enemy, unsigned int enemy_chunk) {
+  vec2 player_ship_world_coords = GLM_VEC2_ZERO_INIT;
+  chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
+                 player_ship_world_coords);
+  vec2 enemy_world_coords = GLM_VEC2_ZERO_INIT;
+  chunk_to_world(enemy->chunk, enemy->coords, enemy_world_coords);
+  float min_distance = FLT_MAX;
+  float distance = 0.0;
+  bool prioritize_player = false;
+  TRADE_SHIP *target_tradeship = NULL;
+  int goal_col;
+  int goal_row;
+  // Adjust this value to control the smoothness of the transition.
+  float lerp_factor = 0.1;
+  /*
+    the enemy finds all possible targets in range and
+    sets the closet ship (either tradeship or player_ship) as the target
+  */
+  float ship_search_radius = SHIP_COLLISION_RADIUS * SHIP_CHASE_RADIUS *
+                             T_WIDTH;
+  if (circle_circle_collision(player_ship_world_coords, ship_search_radius,
+                              enemy_world_coords, ship_search_radius)) {
+    /* player ship Detected by enemy */
+    enemy->on_path = true;
+    min_distance = glm_vec2_distance(player_ship_world_coords,
+                                     enemy_world_coords);
+    prioritize_player = true;
+  }
+  for (int i = 0; i < num_trade_ships; i++) {
+    vec2 trade_world_coords = GLM_VEC2_ZERO_INIT;
+    chunk_to_world((trade_ships+i)->chunk_coords, (trade_ships+i)->coords,
+                   trade_world_coords);
+    if (circle_circle_collision(trade_world_coords, ship_search_radius,
+                                enemy_world_coords, ship_search_radius)) {
+      /* trade ship detected by enemy */
+      enemy->on_path = true;
+      distance = glm_vec2_distance(enemy_world_coords, trade_world_coords);
+      if (distance < min_distance) {
+        min_distance = distance;
+        prioritize_player = false;
+        target_tradeship = trade_ships+i;
       }
-    if (enemy->direction[1] == 0) {
-      enemy->direction[1] = 0.05;
     }
-    glm_vec2_normalize(enemy->direction);
+  }
 
-    update_enemy_position(enemy);
+  /* Return if there was no target found */
+  if (min_distance == FLT_MAX) {
     enemy->on_path = false;
     return;
   }
 
-  /* If enemy ship is on path to the goal col, do the search */
+  /* if target is player_ship */
+  if (prioritize_player) {
+     /* if player is not on board, don't chase */
+    if (!e_player.embarked) {
+      enemy->on_path = false;
+      return;
+    }
+
+    /* If Enemy ship is not in player's current chunk, manually move it to our
+       chunk instead of targetng */
+    if (e_player.ship_chunk[0] != enemy->chunk[0] ||
+        e_player.ship_chunk[1] != enemy->chunk[1]) {
+      vec2 target_dir = GLM_VEC2_ZERO_INIT;
+      if (enemy->chunk[0] == e_player.ship_chunk[0] - 1 &&
+          enemy->chunk[1] == e_player.ship_chunk[1]) {
+        /* If the enemy is in the left chunk of the player. */
+        target_dir[0] = 1.0;
+      } else if (enemy->chunk[0] == e_player.ship_chunk[0] &&
+                 enemy->chunk[1] == e_player.ship_chunk[1] + 1) {
+        /* If the enemy is in the upper chunk of the player*/
+        target_dir[1] = -1.0;
+      } else if (enemy->chunk[0] == e_player.ship_chunk[0] + 1 &&
+                 enemy->chunk[1] == e_player.ship_chunk[1]) {
+        target_dir[0] = -1.0;
+      } else if (enemy->chunk[0] == e_player.ship_chunk[0] &&
+                 enemy->chunk[1] == e_player.ship_chunk[1] - 1) {
+        target_dir[1] = 1.0;
+      } else {
+        /*If the enemy on diagonal. Currently doesn't manually move it*/
+      }
+
+      vec2 smoothed_direction = GLM_VEC2_ZERO_INIT;
+      glm_vec2_lerp(enemy->direction, target_dir, lerp_factor,
+                    smoothed_direction);
+      if (smoothed_direction[0] == 0) {
+        smoothed_direction[0] = 0.05;
+      }
+      if (smoothed_direction[1] == 0) {
+        smoothed_direction[1] = 0.05;
+      }
+      glm_vec2_normalize(smoothed_direction);
+      glm_vec2_copy(smoothed_direction, enemy->direction);
+
+      update_enemy_position(enemy);
+      enemy->on_path = false;
+      return;
+    } else {
+      goal_col = (int)(e_player.ship_coords[0]);
+      goal_row = (int)(e_player.ship_coords[1]);
+    }
+  } else {
+    /* If target is a trade_ship. */
+    /* If Enemy ship is not in tradeship's current chunk, manually move it to
+       its chunk instead of targetng */
+    if (target_tradeship->chunk_coords[0] != enemy->chunk[0] ||
+        target_tradeship->chunk_coords[1] != enemy->chunk[1]) {
+      vec2 target_dir = GLM_VEC2_ZERO_INIT;
+      /* If the enemy is in the left chunk of the player. */
+      if (enemy->chunk[0] == target_tradeship->chunk_coords[0] - 1 &&
+          enemy->chunk[1] == target_tradeship->chunk_coords[1]) {
+        target_dir[0] = 1.0;
+      } else if (enemy->chunk[0] == target_tradeship->chunk_coords[0] &&
+                 enemy->chunk[1] == target_tradeship->chunk_coords[1] + 1) {
+        /* If the enemy is in the upper chunk of the player*/
+        target_dir[1] = -1.0;
+      } else if (enemy->chunk[0] == target_tradeship->chunk_coords[0] + 1 &&
+                 enemy->chunk[1] == target_tradeship->chunk_coords[1]) {
+        target_dir[0] = -1.0;
+      } else if (enemy->chunk[0] == target_tradeship->chunk_coords[0] &&
+                 enemy->chunk[1] == target_tradeship->chunk_coords[1] - 1) {
+        target_dir[1] = 1.0;
+      } else {
+        /*If the enemy on diagonal. Currently doesn't manually move it*/
+      }
+
+      vec2 smoothed_direction = GLM_VEC2_ZERO_INIT;
+      glm_vec2_lerp(enemy->direction, target_dir, lerp_factor,
+                    smoothed_direction);
+      if (smoothed_direction[0] == 0) {
+        smoothed_direction[0] = 0.05;
+      }
+      if (smoothed_direction[1] == 0) {
+        smoothed_direction[1] = 0.05;
+      }
+      glm_vec2_normalize(smoothed_direction);
+      glm_vec2_copy(smoothed_direction, enemy->direction);
+
+      update_enemy_position(enemy);
+      enemy->on_path = false;
+      return;
+    }
+    else {
+      goal_col = (int)(target_tradeship->coords[0]);
+      goal_row = (int)(target_tradeship->coords[1]);
+    }
+  }
+
+  /* If enemy ship is on path to the goal col, row, do the search */
   if (enemy->on_path) {
-    int goal_col = (int)(e_player.ship_coords[0]);
-    int goal_row = (int)(e_player.ship_coords[1]);
-    // int goal_col = 110;
-    // int goal_row = 80;
     int start_col = (int)(enemy->coords[0]);
     int start_row = (int)(enemy->coords[1]);
-    Node (*nodes)[C_WIDTH] = malloc(sizeof(Node) * C_WIDTH * C_WIDTH);
-    vector *path_list = (vector *)malloc(sizeof(vector));
-    path_list->items = NULL;
-    path_list->capacity = 0;
-    path_list->total = 0;
-    if (search(start_col, start_row, goal_col, goal_row, enemy, path_list,
-               nodes)) {
+    Node *path_list = NULL;
+    unsigned int path_list_len = 0;
+    unsigned int path_list_size = 0;
 
-      Node *n = ((Node *)vector_get(path_list, vector_total(path_list) - 1));
-      int next_x = n->col;
-      int next_y = n->row;
+    if (search(enemy->coords, start_col, start_row, goal_col, goal_row, enemy,
+               enemy_chunk, &path_list, &path_list_len, &path_list_size)) {
+      int min_x = start_col - SHIP_CHASE_RADIUS*2;
+      int max_x = start_col + SHIP_CHASE_RADIUS*2;
+      int min_y = start_row - SHIP_CHASE_RADIUS*2;
+      int max_y = start_row + SHIP_CHASE_RADIUS*2;
+      min_x = MAX(min_x, 0);
+      max_x = MIN(max_x, C_WIDTH - 1);
+      min_y = MAX(min_y, 0);
+      max_y = MIN(max_y, C_WIDTH - 1);
+      Node n = path_list[path_list_len - 1];
+      int next_x = n.col+min_x;
+      int next_y = n.row+min_y;
 
-      // printf("next_x : %d next_y : %d\n\n", next_x, next_y);
       vec2 next_tile = {next_x, next_y};
       vec2 difference = GLM_VEC2_ZERO_INIT;
       vec2 enemy_coords = {(int)enemy->coords[0], (int)enemy->coords[1]};
       glm_vec2_sub(next_tile, enemy_coords, difference);
       glm_vec2_normalize(difference);
       difference[1] *= -1;
-      glm_vec2_scale(difference, delta_time*3, difference);
-      glm_vec2_add(difference, enemy->direction, enemy->direction);
 
-      if (enemy->direction[0] == 0) {
-        enemy->direction[0] = 0.05;
+      vec2 smoothed_direction = GLM_VEC2_ZERO_INIT;
+      glm_vec2_lerp(enemy->direction, difference, lerp_factor,
+                    smoothed_direction);
+      if (smoothed_direction[0] == 0) {
+        smoothed_direction[0] = 0.05;
       }
-      if (enemy->direction[1] == 0) {
-        enemy->direction[1] = 0.05;
+      if (smoothed_direction[1] == 0) {
+        smoothed_direction[1] = 0.05;
       }
-      glm_vec2_normalize(enemy->direction);
-
-      int next_col = ((Node *)vector_get(path_list, vector_total(path_list) - 1))->col;
-      int next_row = ((Node *)vector_get(path_list, vector_total(path_list) - 1))->row;
+      glm_vec2_normalize(smoothed_direction);
+      glm_vec2_copy(smoothed_direction, enemy->direction);
+      int next_col = path_list[path_list_len - 1].col + min_x;
+      int next_row = path_list[path_list_len - 1].row + min_y;
 
       if (next_col == goal_col && next_row == goal_row) {
         enemy->on_path = false;
@@ -232,7 +350,8 @@ void pathfind_enemy(E_ENEMY *enemy) {
       vec2 enemy_world_coords = GLM_VEC2_ZERO_INIT;
       vec2 movement = GLM_VEC2_ZERO_INIT;
       chunk_to_world(enemy->chunk, enemy->coords, enemy_world_coords);
-      glm_vec2_scale(enemy->direction, delta_time * enemy->speed * T_WIDTH, movement);
+      glm_vec2_scale(enemy->direction, delta_time * enemy->speed * T_WIDTH,
+                     movement);
       glm_vec2_add(movement, enemy_world_coords, enemy_world_coords);
       world_to_chunk(enemy_world_coords, enemy->chunk, enemy->coords);
     }
@@ -245,60 +364,77 @@ void pathfind_enemy(E_ENEMY *enemy) {
 /*
     A* search algorithm
 */
-int search(int start_col, int start_row, int goal_col, int goal_row,
-           E_ENEMY *enemy, vector *path_list, Node (*nodes)[C_WIDTH]) {
+int search(
+    vec2 start_coords, int start_col, int start_row,
+    int goal_col, int goal_row,
+    E_ENEMY *enemy, unsigned int enemy_chunk,
+    Node **path_list, unsigned int *path_list_len, unsigned int *path_list_size
+) {
   if (start_col >= C_WIDTH || start_col < 0 ||
       start_row >= C_WIDTH || start_row < 0 ||
       goal_col >= C_WIDTH || goal_col < 0 ||
       goal_row >= C_WIDTH || goal_row < 0) {
-
     return 0;
   }
+
+  Node *openList = malloc(sizeof(Node) * NODE_BUF_START_LEN);
+  if (openList == NULL) {
+    // error check
+  }
+  unsigned int open_list_len = 0;
+  unsigned int open_list_size = NODE_BUF_START_LEN;
+
+  *path_list = malloc(sizeof(Node) * NODE_BUF_START_LEN);
+  if (*path_list == NULL) {
+    // error check
+  }
+  *path_list_len = 0;
+  *path_list_size = NODE_BUF_START_LEN;
+
+  int min_x = start_col - SHIP_CHASE_RADIUS*2;
+  int max_x = start_col + SHIP_CHASE_RADIUS*2;
+  int min_y = start_row - SHIP_CHASE_RADIUS*2;
+  int max_y = start_row + SHIP_CHASE_RADIUS*2;
+  min_x = MAX(min_x, 0);
+  max_x = MIN(max_x, C_WIDTH - 1);
+  min_y = MAX(min_y, 0);
+  max_y = MIN(max_y, C_WIDTH - 1);
+  int localized_goal_col = goal_col - min_x;
+  int localized_goal_row = goal_row - min_y;
+  int localized_start_col = start_col-min_x;
+  int localized_start_row = start_row-min_y;
+  int X_WIDTH = max_x - min_x + 1;
+  int Y_WIDTH = max_y - min_y + 1;
+  Node nodes[X_WIDTH][Y_WIDTH];
 
   /*
-      Setting the nodes and arrays
-      tiles = returns 1 if the tile is an ocean in the given tile index
+      Setting the nodes, arrays and costs for A*
+      valid_tile = returns 1 if the tile is an ocean in the given tile index
       open = returns 1 if the tile is open in the given tile index
       checked = returns 1 if the tile was checked before in the given tile index
+      Array Size :
+      It is maximum SHIP_CHASE_RADIUS * 2 + SHIP_CHASE_RADIUS * 2 + 1
+      Can shrink if it's right next to the borderline of chunks.
   */
-  int tiles[C_WIDTH][C_WIDTH] = {
-      [0 ... C_WIDTH - 1] = {[0 ... C_WIDTH - 1] = 1}};
-  int open[C_WIDTH][C_WIDTH] = {
-      [0 ... C_WIDTH - 1] = {[0 ... C_WIDTH - 1] = 0}};
-  int checked[C_WIDTH][C_WIDTH] = {
-      [0 ... C_WIDTH - 1] = {[0 ... C_WIDTH - 1] = 0}};
-  //Node nodes[C_WIDTH][C_WIDTH];
-  //Node (*nodes)[C_WIDTH] = malloc(sizeof(Node) * C_WIDTH * C_WIDTH);
+  for (int i = 0; i < X_WIDTH; i++) {
+    for (int j = 0; j < Y_WIDTH; j++) {
+      nodes[i][j].open = 0;
+      nodes[i][j].checked = 0;
+      ivec2 coords = { i, j };
+      ivec2 s_coords = { start_coords[0]-min_x, start_coords[1]-min_y };
+      ivec2 g_coords = { localized_goal_col, localized_goal_row };
+      get_cost(&nodes[i][j], coords, s_coords, g_coords);
 
-  /* getting the chunk of the enemy and creating a tilemap to check which objects are able/unable to pass through*/
-  ivec2 chunk_offset = GLM_VEC2_ZERO_INIT;
-  glm_ivec2_sub(enemy->chunk, e_player.ship_chunk, chunk_offset);
-  CHUNK *enemy_chunk;
-  int chunk_index = (chunk_offset[0] + 1) + 3 * (1 - chunk_offset[1]);
-  enemy_chunk = chunk_buffer + player_chunks[chunk_index];
-  int in_player_chunk = chunk_index == CURRENT_CHUNK ? 1 : 0;
-  if (!in_player_chunk) {
-    printf("Not in player chunk\n\n");
-    enemy->on_path = false;
-    return 0;
-  }
-  generate_chunk_tiles(tiles, *enemy_chunk);
-
-  // Node goal_node = nodes[goal_col][goal_row];
-
-  /* Setting up the costs needed for A * algorithm on each node of the tilemap */
-  for (int i = 0; i < C_WIDTH; i++) {
-    for (int j = 0; j < C_WIDTH; j++) {
-      get_cost(&nodes[i][j], i, j, start_col, start_row, goal_col, goal_row);
+      vec2 cur_coords = { i + min_x, j + min_y };
+      TILE cur_tile = get_tile(enemy_chunk, cur_coords);
+      nodes[i][j].valid_tile = cur_tile == OCEAN || cur_tile == SHORE ? 1 : 0;
     }
   }
-
-  Node start_node = nodes[start_col][start_row];
+  Node start_node = nodes[localized_start_col][localized_start_row];
   Node cur_node = start_node;
-  vector openList;
-  vector_init(&openList);
-  vector_add(&openList, (void *)&cur_node);
-  vector_init(path_list);
+
+  add_node(&openList, &open_list_len, &open_list_size, &cur_node);
+
   int goal_reached = 0;
   int step = 0;
   int best_node_idx = 0;
@@ -307,92 +443,106 @@ int search(int start_col, int start_row, int goal_col, int goal_row,
     int row = cur_node.row;
 
     /* check the current node and remove it from the openList */
-    checked[col][row] = 1;
-    vector_delete(&openList, best_node_idx);
+    nodes[col][row].checked = 1;
+    delete_node(openList, &open_list_len, best_node_idx);
+    cur_node.checked = 0;
 
     /* Open the node UP if it's possible, and add to openList */
     if (row - 1 >= 0) {
-      open_node(&nodes[col][row - 1], &cur_node, open, checked, tiles, &openList);
+      open_node(&nodes[col][row - 1], &cur_node, &openList, &open_list_len,
+                &open_list_size);
     }
 
     /* Open the node LEFT if it's possible, and add to openList */
     if (col - 1 >= 0) {
-      open_node(&nodes[col - 1][row], &cur_node, open, checked, tiles, &openList);
+      open_node(&nodes[col - 1][row], &cur_node, &openList, &open_list_len,
+                &open_list_size);
     }
 
     /* Open the node DOWN if it's possible, and add to openList */
-    if (row + 1 < C_WIDTH) {
-      open_node(&nodes[col][row + 1], &cur_node, open, checked, tiles, &openList);
+    if (row + 1 < Y_WIDTH) {
+      open_node(&nodes[col][row + 1], &cur_node, &openList, &open_list_len,
+                &open_list_size);
     }
 
     /* Open the node RIGHT if it's possible, and add to openList */
-    if (col + 1 < C_WIDTH) {
-      open_node(&nodes[col + 1][row], &cur_node, open, checked, tiles, &openList);
+    if (col+ 1 < X_WIDTH) {
+      open_node(&nodes[col + 1][row], &cur_node, &openList, &open_list_len,
+                &open_list_size);
     }
 
     /* For 8-way feature */
     /* OPEN the RIGHT UP if it it's possible, and add to openList*/
-    if (col + 1 < C_WIDTH && row - 1 >= 0) {
-      open_node(&nodes[col + 1][row - 1], &cur_node, open, checked, tiles, &openList);
+    if (col + 1 < X_WIDTH && row - 1 >= 0) {
+      open_node(&nodes[col + 1][row - 1], &cur_node, &openList, &open_list_len,
+                &open_list_size);
     }
     /* Open the right down if it's possible*/
-    if (col + 1 < C_WIDTH && row + 1 < C_WIDTH) {
-      open_node(&nodes[col + 1][row], &cur_node, open, checked, tiles, &openList);
+    if (col + 1 < X_WIDTH && row + 1 < Y_WIDTH) {
+      open_node(&nodes[col + 1][row + 1], &cur_node, &openList, &open_list_len,
+                &open_list_size);
     }
     /* open the LEFT UP if it's possible*/
     if (col - 1 >= 0 && row - 1 >= 0) {
-      open_node(&nodes[col - 1][row - 1], &cur_node, open, checked, tiles, &openList);
+      open_node(&nodes[col - 1][row - 1], &cur_node, &openList, &open_list_len,
+                &open_list_size);
     }
     /* open the LEFT down if it's possible*/
-    if (col - 1 >= 0 && row + 1 < C_WIDTH) {
-      open_node(&nodes[col - 1][row + 1], &cur_node, open, checked, tiles, &openList);
+    if (col - 1 >= 0 && row + 1 < Y_WIDTH) {
+      open_node(&nodes[col - 1][row + 1], &cur_node, &openList, &open_list_len,
+                &open_list_size);
     }
 
     best_node_idx = 0;
-    int best_node_fCost = 1000;
-    for (int i = 0; i < vector_total(&openList); i++) {
-
-      /* Check if the openList's node we checking has a smaller F cost than the previous best and update */
-      if (((Node *)vector_get(&openList, i))->f_cost < best_node_fCost) {
+    float best_node_fCost = 1000;
+    for (int i = 0; i < open_list_len; i++) {
+      /* Check if the openList's node we checking has a smaller F cost than the
+         previous best and update */
+      if (openList[i].f_cost < best_node_fCost) {
         best_node_idx = i;
-        best_node_fCost = ((Node *)vector_get(&openList, i))->f_cost;
+        best_node_fCost = openList[i].f_cost;
       }
       /* if F cost is equal, check the G cost and update */
-      else if (((Node *)vector_get(&openList, i))->f_cost == best_node_fCost) {
-        if (((Node *)vector_get(&openList, i))->g_cost < ((Node *)vector_get(&openList, best_node_idx))->g_cost) {
-          best_node_idx = i;
-        }
+      else if (openList[i].f_cost == best_node_fCost &&
+               openList[i].g_cost < openList[best_node_idx].g_cost) {
+        best_node_idx = i;
       }
     }
 
     /* If no more node in the openList, end the loop */
-    if (vector_total(&openList) == 0) {
+    if (open_list_len == 0) {
       break;
     }
 
-    cur_node = *(Node *)vector_get(&openList, best_node_idx);
+    cur_node = openList[best_node_idx];
 
     /* If we reached to the goal node, we start tracking the path */
-    if (cur_node.col == goal_col && cur_node.row == goal_row) {
+    if (cur_node.col == localized_goal_col &&
+        cur_node.row == localized_goal_row) {
       goal_reached = 1;
-      track_path(nodes, path_list, start_col, start_row, goal_col, goal_row);
+      track_path(X_WIDTH, Y_WIDTH, nodes, path_list, path_list_len,
+                 path_list_size, localized_start_col, localized_start_row,
+                 localized_goal_col, localized_goal_row);
     }
     step++;
   }
-  vector_free(&openList);
-  //vector_free(path_list);
+  free(openList);
   return goal_reached;
 }
 
 /*
-    function for tracking the best path we got from A * search alg. by backtracking
+    function for tracking the best path we got from A * search alg. by
+    backtracking
 */
-void track_path(Node nodes[C_WIDTH][C_WIDTH], vector *path_list, int start_col,
-                int start_row, int goal_col, int goal_row) {
+void track_path(int arr_size_x, int arr_size_y,
+                Node nodes[arr_size_x][arr_size_y],
+                Node **path_list, unsigned int *path_list_len,
+                unsigned int *path_list_size, int start_col, int start_row,
+                int goal_col, int goal_row) {
   Node *current = &nodes[goal_col][goal_row];
   while (current->col != start_col || current->row != start_row) {
     // printf("X %d Y %d\n",current->col, current->row);
-    vector_add(path_list, (void *)current);
+    add_node(path_list, path_list_len, path_list_size, current);
     current = &nodes[current->parent_col][current->parent_row];
   }
 }
@@ -400,20 +550,16 @@ void track_path(Node nodes[C_WIDTH][C_WIDTH], vector *path_list, int start_col,
 /*
     function for getting the cost needed for A * algorithm of the given node
 */
-void get_cost(Node *node, int col, int row, int start_col, int start_row,
-              int goal_col, int goal_row) {
+void get_cost(Node *node, ivec2 coords, ivec2 start_coords,
+              ivec2 goal_coords) {
   // G cost
-  int x_distance = abs(col - start_col);
-  int y_distance = abs(row - start_row);
-  node->g_cost = x_distance + y_distance;
+  node->g_cost = glm_ivec2_distance(coords, start_coords);
   // H cost
-  x_distance = abs(col - goal_col);
-  y_distance = abs(row - goal_row);
-  node->h_cost = x_distance + y_distance;
+  node->h_cost = glm_ivec2_distance(coords, goal_coords);
   // F cost
   node->f_cost = node->g_cost + node->h_cost;
-  node->row = row;
-  node->col = col;
+  node->row = coords[Y];
+  node->col = coords[X];
 }
 
 /*
@@ -421,30 +567,47 @@ void get_cost(Node *node, int col, int row, int start_col, int start_row,
     If so, add to the openList
     tiles = 1 mean it is ocean
 */
-void open_node(Node *node, Node *cur_node, int open[C_WIDTH][C_WIDTH],
-               int checked[C_WIDTH][C_WIDTH], int tiles[C_WIDTH][C_WIDTH],
-               vector *openList) {
-  if (open[node->col][node->row] == 0 && checked[node->col][node->row] == 0 && tiles[node->col][node->row] == 1) {
-    open[node->col][node->row] = 1;
+void open_node(Node *node, Node *cur_node,
+               Node **open_list, unsigned int *open_list_len,
+               unsigned int *open_list_size) {
+  if (!node->open && !node->checked && node->valid_tile) {
+    node->open = 1;
     node->parent_col = cur_node->col;
     node->parent_row = cur_node->row;
-    vector_add(openList, (void *)node);
+    add_node(open_list, open_list_len, open_list_size, node);
     // printf("Opened node %d %d\n", node->col,node->row);
   }
+}
+
+int add_node(Node **list, unsigned int *list_len, unsigned int *list_size,
+             Node *node) {
+  (*list)[*list_len] = *node;
+  (*list_len)++;
+  if (*list_len == *list_size) {
+    return double_buffer((void **) list, list_size, sizeof(Node));
+  }
+  return 0;
+}
+
+void delete_node (Node *list, unsigned int *list_len, unsigned int index) {
+  (*list_len)--;
+  list[index] = list[*list_len];
 }
 
 /*
   Updates the CHUNK's num_enemies and enemies buffer when changes are made
 */
 void update_enemy_chunk(E_ENEMY *cur_enemy, CHUNK *chunk, int i) {
-  if (cur_enemy->chunk[0] != chunk->coords[0] || cur_enemy->chunk[1] != chunk->coords[1]) {
+  if (cur_enemy->chunk[0] != chunk->coords[0] ||
+      cur_enemy->chunk[1] != chunk->coords[1]) {
     // printf("Enemy chunk changed\n");
     ivec2 chunk_offset = GLM_VEC2_ZERO_INIT;
     glm_ivec2_sub(cur_enemy->chunk, e_player.ship_chunk, chunk_offset);
     CHUNK *new_enemy_chunk;
     int chunk_index = (chunk_offset[0] + 1) + 3 * (1 - chunk_offset[1]);
     new_enemy_chunk = chunk_buffer + player_chunks[chunk_index];
-    memcpy(&new_enemy_chunk->enemies[new_enemy_chunk->num_enemies], cur_enemy, sizeof(E_ENEMY));
+    memcpy(&new_enemy_chunk->enemies[new_enemy_chunk->num_enemies], cur_enemy,
+           sizeof(E_ENEMY));
     new_enemy_chunk->num_enemies++;
 
     chunk->num_enemies--;
@@ -470,8 +633,7 @@ void update_enemy_chunk(E_ENEMY *cur_enemy, CHUNK *chunk, int i) {
 void c_enemy_pathfind(C_UNIT *enemy, vec2 target_coords) {
   float target_dist = glm_vec2_distance(target_coords, enemy->coords);
   if (target_dist <= 1.5 && enemy->attack_cooldown == 0.0) {
-    enemy->attack_cooldown = enemy->fire_rate;
-    enemy->attack_active = 0.1;
+    npc_melee_attack(enemy);
   }
 
   vec2 movement = GLM_VEC2_ZERO_INIT;

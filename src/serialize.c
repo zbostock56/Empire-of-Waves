@@ -535,8 +535,10 @@ void save_island(FILE *file, ISLAND *island) {
 void save_merchant(FILE *file, MERCHANT *merchant) {
   fwrite(merchant->chunk, sizeof(int), 2, file);
   fwrite(merchant->coords, sizeof(float), 2, file);
+  fwrite(&merchant->num_mercenaries, sizeof(unsigned int), 1, file);
   fwrite(&merchant->num_listings, sizeof(unsigned int), 1, file);
   fwrite(&merchant->relationship, sizeof(float), 1, file);
+  fwrite(&merchant->name, sizeof(short), 1, file);
   if (merchant->num_listings) {
     fwrite(merchant->listings, sizeof(LISTING), merchant->num_listings, file);
   }
@@ -615,8 +617,10 @@ int load_island(FILE *file, ISLAND *dest) {
 int load_merchant(FILE *file, MERCHANT *dest) {
   fread(dest->chunk, sizeof(int), 2, file);
   fread(dest->coords, sizeof(float), 2, file);
+  fread(&dest->num_mercenaries, sizeof(unsigned int), 1, file);
   fread(&dest->num_listings, sizeof(unsigned int), 1, file);
   fread(&dest->relationship, sizeof(float), 1, file);
+  fread(&dest->name, sizeof(short), 1, file);
 
   dest->listings = NULL;
   if (dest->num_listings) {

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <glad/glad.h>
+#include <combat_str.h>
 #include <player_str.h>
 #include <chunk_str.h>
 #include <trade_ship_str.h>
@@ -34,6 +35,11 @@ void populate_tile_pixel_buffer(ISLAND *, unsigned char (*)[3]);
 unsigned int texture_from_buffer(unsigned char *, int, int, int);
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
+
+/* NATIVE */
+void chunk_to_world(ivec2, vec2, vec2);
+void world_to_chunk(vec2, ivec2, vec2);
+int chunk_loaded_by_player(ivec2);
 void place_home(ISLAND *, CHUNK *);
 
 int generate_chunk(CHUNK *chunk);

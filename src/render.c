@@ -5,19 +5,20 @@ void init_scene() {
   glm_ivec2_zero(e_player.chunk);
   glm_vec2_zero(e_player.direction);
   glm_vec2_zero(e_player.ship_direction);
+  e_player.speed = 1.0;
   e_player.direction[1] = 1.0;
   e_player.ship_direction[1] = 1.0;
   e_player.embarked = 1;
   e_player.inventory[0].item_id = RUM;
-  e_player.inventory[0].quantity = 1;
+  e_player.inventory[0].quantity = 2;
   e_player.inventory[1].item_id = CITRUS;
   e_player.inventory[1].quantity = 1;
   e_player.inventory[2].item_id = KNIVE;
   e_player.inventory[2].quantity = 1;
 
   // TEST MODELS
-  unsigned char ocean_buffer[3] = { 3, 157, 252 };
-  ocean_texture = texture_from_buffer(ocean_buffer, 1, 1, GL_RGB);
+    unsigned char ocean_buffer[3] = { 3, 157, 252 };
+    ocean_texture = texture_from_buffer(ocean_buffer, 1, 1, GL_RGB);
   // END TEST
 
   // Initialize offscreen framebuffer
@@ -32,13 +33,16 @@ void init_scene() {
 
   // Initialize models
   player = load_model("assets/player.bin", "assets/3A.png");
+  mercenary = load_model("assets/player.bin", "assets/1A.png");
   enemy = load_model("assets/enemy.bin", "assets/2A.png");
   merchant = load_model("assets/merchant.bin", "assets/2A.png");
   player_ship = load_model("assets/player_ship.bin", "assets/1A.png");
   enemy_ship = load_model("assets/enemy_ship.bin", "assets/1B.png");
   trade_ship = load_model("assets/trade_ship.bin", "assets/2A.png");
   house = load_model("assets/quad.bin", "assets/House.png");
+  chest = load_model("assets/chest.bin", "assets/1A.png");
   quad = load_model("assets/quad.bin", NULL);
+  circle = load_model("assets/circle.bin", NULL);
   char default_path[50] = "assets/Dinklebitmap/x.bin";
   char lowercase_path[50] = "assets/Dinklebitmap/x_lower.bin";
   for (char cur = ' '; cur <= '~'; cur++) {
@@ -190,11 +194,6 @@ void render_scene(GLFWwindow *window) {
 
   render_player();
   if (mode == EXPLORATION) {
-    if (dialog.merchant) {
-      snprintf(dialog.ui_text_relationship->text, TEXT_BUFFER_LEN,
-               "Relationship: %.1f", dialog.merchant->relationship);
-    }
-
     for (int i = 0; i < 5; i++) {
       for (int j = 0; j < 5; j++) {
         ivec2 chunk = {
@@ -229,12 +228,18 @@ void render_scene(GLFWwindow *window) {
         render_unit(npc_units + i);
         if (npc_units[i].attack_active) {
           vec2 hitbox_pos = GLM_VEC2_ZERO_INIT;
-          glm_vec2_scale(npc_units[i].coords, T_WIDTH, hitbox_pos);
           vec2 hitbox_offset = GLM_VEC2_ZERO_INIT;
+          glm_vec2_scale(npc_units[i].coords, T_WIDTH, hitbox_pos);
           glm_vec2_scale_as(npc_units[i].direction, T_WIDTH, hitbox_offset);
+          hitbox_offset[1] += T_WIDTH;
           glm_vec2_add(hitbox_pos, hitbox_offset, hitbox_pos);
-          render_hitbox(hitbox_pos);
+          render_hitbox(hitbox_pos, 1.0);
         }
+
+        vec2 hitbox_pos = GLM_VEC2_ZERO_INIT;
+        glm_vec2_scale(npc_units[i].coords, T_WIDTH, hitbox_pos);
+        hitbox_pos[1] += T_WIDTH;
+        render_hitbox(hitbox_pos, 1.0);
       }
     }
 
@@ -242,11 +247,18 @@ void render_scene(GLFWwindow *window) {
 
     if (c_player.attack_active) {
       vec2 hitbox_pos = GLM_VEC2_ZERO_INIT;
-      glm_vec2_scale(c_player.coords, T_WIDTH, hitbox_pos);
       vec2 hitbox_offset = GLM_VEC2_ZERO_INIT;
+      glm_vec2_scale(c_player.coords, T_WIDTH, hitbox_pos);
       glm_vec2_scale_as(c_player.direction, T_WIDTH, hitbox_offset);
+      hitbox_offset[1] += T_WIDTH;
       glm_vec2_add(hitbox_pos, hitbox_offset, hitbox_pos);
-      render_hitbox(hitbox_pos);
+      render_hitbox(hitbox_pos, 1.0);
+    }
+
+    PROJ *cur_proj = NULL;
+    for (unsigned int i = 0; i < num_projectiles; i++) {
+      cur_proj = projectiles + i;
+      render_hitbox(cur_proj->pos, PROJ_RAD);
     }
   }
 
@@ -355,12 +367,15 @@ void render_player() {
 }
 
 void render_unit(C_UNIT *unit) {
-  // TODO Sprint 2: render allies here as well
   float scale = 0.25;
   if (unit->death_animation >= 0.0) {
     scale = scale * unit->death_animation;
   }
-  render_c_npc(enemy, unit->coords, unit->direction, scale);
+  if (unit->type == ENEMY) {
+    render_c_npc(enemy, unit->coords, unit->direction, scale);
+  } else if (unit->type == ALLY) {
+    render_c_npc(mercenary, unit->coords, unit->direction, scale);
+  }
 }
 
 void render_merchant(MERCHANT *m) {
@@ -432,6 +447,38 @@ void render_c_npc(MODEL *model, vec2 coords, vec2 direction, float scale) {
                     view_mat, persp_proj, ortho_proj);
 }
 
+void render_obstacle(MODEL *model, ivec2 chunk, vec2 coords, float scale) {
+  mat4 fbo_model_mat = GLM_MAT4_IDENTITY_INIT;
+  glm_scale_uni(fbo_model_mat, scale);
+  glm_rotate_x(fbo_model_mat, glm_rad(-50.0), fbo_model_mat);
+  //glm_rotate_z(fbo_model_mat, glm_rad(180.0), fbo_model_mat);
+
+  mat4 fbo_view_mat = GLM_MAT4_IDENTITY_INIT;
+  glm_translate_z(fbo_view_mat, -3.0);
+
+  mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+  vec3 world_coords = { 0.0, 0.0, OBSTACLE_DEPTH };
+  chunk_to_world(chunk, coords, world_coords);
+  world_coords[0] += 0.5 * T_WIDTH;
+  world_coords[1] -= 0.5 * T_WIDTH;
+  glm_translate(model_mat, world_coords);
+  glm_scale_uni(model_mat, FBO_QUAD_WIDTH * T_WIDTH / 2.0);
+
+  mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+  vec3 player_world_coords = GLM_VEC2_ZERO_INIT;
+  if (e_player.embarked) {
+    chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
+                   player_world_coords);
+  } else {
+    chunk_to_world(e_player.chunk, e_player.coords, player_world_coords);
+  }
+  glm_vec3_negate(player_world_coords);
+  glm_translate(view_mat, player_world_coords);
+
+  render_fbo_entity(model, fbo_model_mat, model_mat, fbo_view_mat,
+                    view_mat, persp_proj, ortho_proj);
+}
+
 void render_ui(UI_COMPONENT *comp) {
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   // Dimensions of UI component (width, height)
@@ -442,10 +489,7 @@ void render_ui(UI_COMPONENT *comp) {
   // Number of characters in ui component text
   int text_len = 0;
   // Scale text based on screen size
-  float screen_text_scale = RES_X / BASE_RES_X;
-  if (screen_text_scale < MIN_TEXT_SCALE) {
-    screen_text_scale = MIN_TEXT_SCALE;
-  }
+  float screen_text_scale = get_screen_text_scale();
   // Width of ui component text
   float text_width = 0.0;
   float text_height = 0.0;
@@ -665,20 +709,22 @@ void render_island(ISLAND *island) {
   quad->texture = island->texture;
   draw_model(quad, std_shader);
 
-  glm_mat4_identity(model_mat);
-  vec3 house_coords = { 0.0, 0.0, OBSTACLE_DEPTH };
-  chunk_to_world(island->chunk, house_tile, house_coords);
-  glm_translate(model_mat, house_coords);
-  glm_translate_x(model_mat, 2.0 * T_WIDTH);
-  glm_translate_y(model_mat, 4.0 * T_WIDTH);
-  glm_scale_uni(model_mat, T_WIDTH * 5.0);
-
   if (island->chunk[0] == 0 && island->chunk[1] == 0) {
+    glm_mat4_identity(model_mat);
+    vec3 house_coords = { 0.0, 0.0, OBSTACLE_DEPTH };
+    chunk_to_world(island->chunk, house_tile, house_coords);
+    glm_translate(model_mat, house_coords);
+    glm_translate_x(model_mat, 2.0 * T_WIDTH);
+    glm_translate_y(model_mat, 4.0 * T_WIDTH);
+    glm_scale_uni(model_mat, T_WIDTH * 5.0);
+
     glUseProgram(pixel_shader);
     set_mat4("model", model_mat, pixel_shader);
     set_mat4("view", view_mat, pixel_shader);
     set_mat4("proj", ortho_proj, pixel_shader);
     draw_model(house, pixel_shader);
+
+    render_obstacle(chest, island->chunk, home_box_tile, 0.25);
   }
 }
 
@@ -740,14 +786,14 @@ void render_arena() {
   draw_model(quad, color_shader);
 }
 
-void render_hitbox(vec2 world_coords) {
+void render_hitbox(vec2 world_coords, float radius) {
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
 
   vec3 hitbox_pos = { 0.0, 0.0, AVATAR_DEPTH };
   glm_vec2_copy(world_coords, hitbox_pos);
   glm_translate(model_mat, hitbox_pos);
-  glm_scale_uni(model_mat, T_WIDTH);
+  glm_scale_uni(model_mat, T_WIDTH * radius);
 
   vec3 player_coords = GLM_VEC3_ZERO_INIT;
   glm_vec2_scale(c_player.coords, T_WIDTH, player_coords);
@@ -760,7 +806,7 @@ void render_hitbox(vec2 world_coords) {
   set_mat4("view", view_mat, color_shader);
   set_mat4("proj", ortho_proj, color_shader);
   set_vec3("color", hit_box_col, color_shader);
-  draw_model(quad, color_shader);
+  draw_model(circle, color_shader);
 }
 
 /*
@@ -916,6 +962,14 @@ void get_ui_min_max(UI_COMPONENT *comp, vec4 dest) {
   dest[X_MAX] = comp_pivot[0] + comp_scale[0];
   dest[Y_MIN] = comp_pivot[1] - comp_scale[1];
   dest[Y_MAX] = comp_pivot[1] + comp_scale[1];
+}
+
+float get_screen_text_scale() {
+  float screen_text_scale = RES_X / BASE_RES_X;
+  if (screen_text_scale < MIN_TEXT_SCALE) {
+    screen_text_scale = MIN_TEXT_SCALE;
+  }
+  return screen_text_scale;
 }
 
 /*
