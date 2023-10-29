@@ -291,7 +291,7 @@ int trade_ship_detect_enemies(TRADE_SHIP *trade_ship, CHUNK *trade_ship_chunk, i
   /* AVOID Steering behavior added across chunks if tradeship is in player_chunk[9]
     Assumption: e_player.ship_chunk corresponds to player_chunks[4]
   */
-  if (trade_ship->chunk_coords[0] <= e_player.ship_chunk[0]+1 && 
+  if (trade_ship->chunk_coords[0] <= e_player.ship_chunk[0]+1 &&
       trade_ship->chunk_coords[0] >= e_player.ship_chunk[0]-1 &&
       trade_ship->chunk_coords[1] <= e_player.ship_chunk[1]+1 &&
       trade_ship->chunk_coords[1] >= e_player.ship_chunk[1]-1) {
@@ -312,7 +312,7 @@ int trade_ship_detect_enemies(TRADE_SHIP *trade_ship, CHUNK *trade_ship_chunk, i
                                     SHIP_COLLISION_RADIUS *SHIP_CHASE_RADIUS*T_WIDTH)) {
           /* some steering */
           vec2 steer_force = GLM_VEC2_ZERO_INIT;
-          glm_vec2_sub(world_coords, cur_enemy_world_coords, steer_force); 
+          glm_vec2_sub(world_coords, cur_enemy_world_coords, steer_force);
           glm_vec2_normalize(steer_force);
           glm_vec2_scale(steer_force, delta_time, steer_force);
           glm_vec2_add(trade_ship->direction, steer_force, trade_ship->direction);
@@ -320,8 +320,8 @@ int trade_ship_detect_enemies(TRADE_SHIP *trade_ship, CHUNK *trade_ship_chunk, i
       }
     }
   }
-  /* Don't need to account for across chunks if tradeship chunk is outside of player_chunk[9] 
-     This is because the enemies allocated in that 1 chunk is only care 
+  /* Don't need to account for across chunks if tradeship chunk is outside of player_chunk[9]
+     This is because the enemies allocated in that 1 chunk is only care
   */
   else {
     if (trade_ship_chunk->enemies) {
@@ -344,7 +344,7 @@ int trade_ship_detect_enemies(TRADE_SHIP *trade_ship, CHUNK *trade_ship_chunk, i
                                     SHIP_COLLISION_RADIUS *SHIP_CHASE_RADIUS*T_WIDTH)) {
           /* some steering */
           vec2 steer_force = GLM_VEC2_ZERO_INIT;
-          glm_vec2_sub(world_coords, cur_enemy_world_coords, steer_force); 
+          glm_vec2_sub(world_coords, cur_enemy_world_coords, steer_force);
           glm_vec2_normalize(steer_force);
           glm_vec2_scale(steer_force, delta_time, steer_force);
           glm_vec2_add(trade_ship->direction, steer_force, trade_ship->direction);
@@ -352,7 +352,6 @@ int trade_ship_detect_enemies(TRADE_SHIP *trade_ship, CHUNK *trade_ship_chunk, i
       }
     }
   }
-  
 
   return 0;
 }
@@ -543,13 +542,16 @@ void unit_collision(vec2 coords) {
 }
 
 void attack_collision() {
-  float hurt_radius = CHARACTER_COLLISION_RADIUS * T_WIDTH;
-  vec2 collision_correction = GLM_VEC2_ZERO_INIT;
+  float hurt_radius = CHARACTER_HURT_RADIUS * T_WIDTH;
+
   vec2 player_coords = GLM_VEC2_ZERO_INIT;
   glm_vec2_scale(c_player.coords, T_WIDTH, player_coords);
+  player_coords[Y] += T_WIDTH;
+
   vec2 player_attack_pos = GLM_VEC2_ZERO_INIT;
   glm_vec2_scale_as(c_player.direction, T_WIDTH, player_attack_pos);
   glm_vec2_add(player_attack_pos, player_coords, player_attack_pos);
+
   // Because circle_aabb_collision utilizes the top left corner of the aabb,
   // we must calculate the top left corner of the hitbox, since
   // player_attack_pos currently contains the middle of the hitbox
@@ -557,29 +559,90 @@ void attack_collision() {
   glm_vec2_add(to_top_left, player_attack_pos, player_attack_pos);
 
   C_UNIT *unit = NULL;
+  C_UNIT *target = NULL;
   vec2 unit_coords = GLM_VEC2_ZERO_INIT;
+  vec2 target_coords = GLM_VEC2_ZERO_INIT;
   vec2 unit_attack_pos = GLM_VEC2_ZERO_INIT;
+  // Check melee collisions
   for (unsigned int i = 0; i < num_npc_units; i++) {
     unit = npc_units + i;
     glm_vec2_scale(unit->coords, T_WIDTH, unit_coords);
+    unit_coords[Y] += T_WIDTH;
+    glm_vec2_scale_as(unit->direction, T_WIDTH, unit_attack_pos);
+    glm_vec2_add(unit_attack_pos, unit_coords, unit_attack_pos);
     if (unit->type == ENEMY && unit->death_animation == -1.0) {
       // Check player collision with enemy hitbox
-      glm_vec2_scale_as(npc_units[i].direction, T_WIDTH, unit_attack_pos);
-      glm_vec2_add(unit_attack_pos, unit_coords, unit_attack_pos);
-      glm_vec2_add(to_top_left, unit_attack_pos, unit_attack_pos);
-      if (c_player.invuln_timer == 0.0 && npc_units[i].attack_active &&
-          circle_aabb_collision(player_coords, hurt_radius, unit_attack_pos,
-                                T_WIDTH, T_WIDTH, collision_correction)) {
+      if (c_player.invuln_timer == 0.0 && unit->attack_active &&
+          circle_circle_collision(player_coords, hurt_radius, unit_attack_pos,
+                                  T_WIDTH)) {
         c_player.health -= 10.0;
         c_player.invuln_timer = 0.5;
       }
 
       // Check enemy collision with player hitbox
       if (c_player.attack_active &&
-          circle_aabb_collision(unit_coords, hurt_radius, player_attack_pos,
-                                T_WIDTH, T_WIDTH, collision_correction)) {
+          circle_circle_collision(unit_coords, hurt_radius, player_attack_pos,
+                                  T_WIDTH)) {
         unit->death_animation = 1.0;
       }
+    }
+
+    // Check collision with other npcs
+    if (unit->death_animation == -1.0 && unit->attack_active) {
+      for (unsigned int j = 0; j < num_npc_units; j++) {
+        target = npc_units + j;
+        glm_vec2_scale(target->coords, T_WIDTH, target_coords);
+        target_coords[Y] += T_WIDTH;
+        if (unit->type == target->type || target->death_animation != -1.0) {
+          continue;
+        }
+        if (circle_circle_collision(target_coords, hurt_radius,
+                                    unit_attack_pos, T_WIDTH)) {
+          target->death_animation = 1.0;
+        }
+      }
+    }
+  }
+
+  PROJ *cur_proj = NULL;
+  int to_despawn = 0;
+  // Check ranged collisions
+  for (unsigned int i = 0; i < num_projectiles; i++) {
+    to_despawn = 0;
+    cur_proj = projectiles + i;
+    if (cur_proj->pos[X] <= -0.5 * arena_dimensions[X] * T_WIDTH ||
+        cur_proj->pos[X] >=  0.5 * arena_dimensions[X] * T_WIDTH ||
+        cur_proj->pos[Y] <= -0.5 * arena_dimensions[Y] * T_WIDTH ||
+        cur_proj->pos[Y] >=  0.5 * arena_dimensions[Y] * T_WIDTH) {
+      to_despawn = 1;
+    }
+
+    for (unsigned int j = 0; j < num_npc_units && !to_despawn; j++) {
+      unit = npc_units + j;
+      glm_vec2_scale(unit->coords, T_WIDTH, unit_coords);
+      unit_coords[Y] += T_WIDTH;
+      if (((cur_proj->target == ENEMY && unit->type == ENEMY) ||
+           (cur_proj->target == ALLY && unit->type == ALLY)) &&
+          unit->death_animation == -1.0 &&
+          circle_circle_collision(unit_coords, hurt_radius, cur_proj->pos,
+                                  PROJ_RAD * T_WIDTH)) {
+        unit->death_animation = 1.0;
+        to_despawn = 1;
+      }
+    }
+
+    if (cur_proj->target == ALLY && c_player.invuln_timer == 0.0 &&
+        !to_despawn && circle_circle_collision(player_coords, hurt_radius,
+                                               cur_proj->pos,
+                                               PROJ_RAD * T_WIDTH)) {
+      c_player.health -= 10.0;
+      c_player.invuln_timer = 0.5;
+      to_despawn = 1;
+    }
+
+    if (to_despawn) {
+      despawn_projectile(i);
+      i--;
     }
   }
 }

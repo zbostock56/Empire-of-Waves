@@ -45,13 +45,7 @@ void mouse_pos(GLFWwindow *window, double x_pos, double y_pos) {
 
 void mouse_click(GLFWwindow *window, int button, int action, int mods) {
   if (mode == COMBAT) {
-    if (action == GLFW_PRESS && c_player.attack_cooldown == 0.0) {
-      c_player.speed = 0.5;
-    } else if (action != GLFW_PRESS && c_player.attack_cooldown == 0.0) {
-      c_player.attack_cooldown = c_player.fire_rate;
-      c_player.attack_active = 0.1;
-      c_player.speed = 1.0;
-    }
+    combat_mode_attack(action);
   }
   if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
     ui_click_listener(mouse_position[0], mouse_position[1]);
@@ -210,6 +204,30 @@ void debug_keys(GLFWwindow *window) {
 }
 
 // =============================== HELPERS ===================================
+
+void combat_mode_attack(int action) {
+  if (c_player.weapon_type == MELEE || c_player.ammo == 0) {
+    if (action == GLFW_PRESS && c_player.attack_cooldown == 0.0) {
+      c_player.speed = 0.5;
+    } else if (action != GLFW_PRESS && c_player.attack_cooldown == 0.0) {
+      c_player.attack_cooldown = c_player.fire_rate;
+      c_player.attack_active = 0.1;
+      c_player.speed = 1.0;
+    }
+  } else {
+    if (action != GLFW_PRESS && c_player.attack_cooldown == 0.0) {
+      c_player.attack_cooldown = c_player.fire_rate;
+      vec2 proj_coords = { 0.0, 0.0 };
+      vec2 proj_dir = { 0.0, 0.0 };
+      glm_vec2_scale(c_player.coords, T_WIDTH, proj_coords);
+      proj_coords[1] += T_WIDTH;
+      glm_vec2_copy(c_player.direction, proj_dir);
+      proj_dir[1] -= T_WIDTH;
+      spawn_projectile(proj_coords, proj_dir, c_player.proj_speed,
+                       ENEMY);
+    }
+  }
+}
 
 void close_merchant_menu(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {

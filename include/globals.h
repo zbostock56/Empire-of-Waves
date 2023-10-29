@@ -35,9 +35,12 @@ extern MERCHANT *cur_merchant;
 // COMBAT MODE STATE
 extern C_PLAYER c_player;
 extern C_UNIT *npc_units;
+extern unsigned int num_npc_units;
+extern PROJ *projectiles;
+extern unsigned int num_projectiles;
+extern unsigned int proj_buf_size;
 // Index of enemy ship in chunk buffer which is currently engaged in combat
 // with player
 extern unsigned int e_enemy_index;
-extern unsigned int num_npc_units;
 // Specifies width and height of game arena in tiles
 extern ivec2 arena_dimensions;

@@ -53,3 +53,5 @@ void chunk_to_world(ivec2, vec2, vec2);
 void world_to_chunk(vec2, ivec2, vec2);
 int circle_circle_collision(vec2, float, vec2, float);
 int get_tile(unsigned int chunk, vec2 coords);
+int spawn_projectile(vec2, vec2, float, UNIT_T);
+int npc_melee_attack(C_UNIT *);

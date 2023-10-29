@@ -12,14 +12,15 @@ int to_combat_mode(unsigned int enemy_index) {
   E_ENEMY *enemy_ship = cur_chunk->enemies + enemy_index;
 
   // Initialize combat mode player
-  c_player.weapon_type = MELEE;
-  c_player.ammo = 0;
+  c_player.weapon_type = RANGED;
+  c_player.ammo = 5;
   c_player.max_health = 100.0;
   c_player.health = 100.0;
   c_player.speed = 1.0;
+  c_player.proj_speed = 5.0;
   c_player.attack_active = 0.0;
   c_player.attack_cooldown = 0.0;
-  c_player.fire_rate = 1.0;
+  c_player.fire_rate = 0.5;
   c_player.invuln_timer = 0.0;
   glm_vec2_zero(c_player.direction);
   glm_vec2_zero(c_player.coords);
@@ -35,10 +36,24 @@ int to_combat_mode(unsigned int enemy_index) {
     fprintf(stderr, "combat.c: unable to allocate npc_units buffer\n");
     return -1;
   }
+  projectiles = malloc(sizeof(PROJ) * PROJ_BUF_START_LEN);
+  if (projectiles == NULL) {
+    fprintf(stderr, "combat.c: unable to allocate projectiles buffer\n");
+    return -1;
+  }
+  num_projectiles = 0;
+  proj_buf_size = PROJ_BUF_START_LEN;
+
   for (int i = 0; i < enemy_ship->crew_count; i++) {
     npc_units[i].type = ENEMY;
-    npc_units[i].weapon_type = MELEE;
+    int weapon_type = rand() % 100;
     npc_units[i].ammo = 0;
+    if (weapon_type < MELEE_CUTOFF) {
+      npc_units[i].weapon_type = MELEE;
+    } else {
+      npc_units[i].weapon_type = RANGED;
+      npc_units[i].ammo = 5;
+    }
     npc_units[i].speed = 0.5;
     npc_units[i].death_animation = -1.0;
     npc_units[i].attack_active = 0.0;
@@ -54,8 +69,14 @@ int to_combat_mode(unsigned int enemy_index) {
 
   for (int i = enemy_ship->crew_count; i < num_npc_units; i++) {
     npc_units[i].type = ALLY;
-    npc_units[i].weapon_type = MELEE;
+    int weapon_type = rand() % 100;
     npc_units[i].ammo = 0;
+    if (weapon_type < MELEE_CUTOFF) {
+      npc_units[i].weapon_type = MELEE;
+    } else {
+      npc_units[i].weapon_type = RANGED;
+      npc_units[i].ammo = 5;
+    }
     npc_units[i].speed = 0.5;
     npc_units[i].death_animation = -1.0;
     npc_units[i].attack_active = 0.0;
@@ -76,6 +97,12 @@ int to_combat_mode(unsigned int enemy_index) {
 void from_combat_mode() {
   mode = EXPLORATION;
   free(npc_units);
+  free(projectiles);
+  projectiles = NULL;
+  npc_units = NULL;
+  num_npc_units = 0;
+  num_projectiles = 0;
+  proj_buf_size = 0;
   CHUNK *cur_chunk = chunk_buffer + player_chunks[PLAYER_CHUNK];
   // Remove enemy ship from exploration mode
   cur_chunk->num_enemies--;
@@ -129,3 +156,71 @@ float decrement_timer(float timer) {
   }
   return timer;
 }
+
+void update_projectiles() {
+  if (mode != COMBAT) {
+    return;
+  }
+
+  PROJ *cur_proj = NULL;
+  vec2 movement = GLM_VEC2_ZERO_INIT;
+  for (unsigned int i = 0; i < num_projectiles; i++) {
+    cur_proj = projectiles + i;
+    glm_vec2_scale(cur_proj->dir, delta_time * cur_proj->speed, movement);
+    glm_vec2_add(movement, cur_proj->pos, cur_proj->pos);
+  }
+}
+
+/*
+  Spawns a projectile in combat mode
+  Args:
+  - vec2 pos: starting position of the projectile
+  - vec2 dir: direction of travel
+  - float speed: speed of travel
+  - UNIT_T target: Target team of projectile. If ALLY, projectile will only hit
+    the player and mercenaries. If enemy, the projectile will only hit enemies.
+  Returns:
+  0 if successful, nonzero if failed due to buffer reallocation failure
+*/
+int spawn_projectile(vec2 pos, vec2 dir, float speed, UNIT_T target) {
+  if (mode != COMBAT) {
+    return 0;
+  }
+
+  PROJ *new_proj = projectiles + num_projectiles;
+  glm_vec2_copy(pos, new_proj->pos);
+  glm_vec2_copy(dir, new_proj->dir);
+  new_proj->speed = speed;
+  new_proj->target = target;
+  num_projectiles++;
+  if (num_projectiles == proj_buf_size) {
+    int status = double_buffer((void **) &projectiles, &proj_buf_size,
+                               sizeof(PROJ));
+    if (status) {
+      fprintf(stderr, "combat.c: Failed to reallocate projectile buffer\n");
+      return -1;
+    }
+  }
+
+  return 0;
+}
+
+void despawn_projectile(unsigned int index) {
+  if (index >= num_projectiles) {
+    return;
+  }
+
+  num_projectiles--;
+  projectiles[index] = projectiles[num_projectiles];
+}
+
+/*
+  Spawns a melee attack from a unit in combat mode
+  Args:
+  - C_UNIT *unit: Combat mode unit from which to spawn the attack
+*/
+void npc_melee_attack(C_UNIT *unit) {
+  unit->attack_cooldown = unit->fire_rate;
+  unit->attack_active = 0.1;
+}
+

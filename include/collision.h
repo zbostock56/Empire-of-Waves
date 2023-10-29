@@ -17,6 +17,7 @@
 #define SHIP_COMPLETION_RADIUS (5.0)
 #define SHIP_PATHFIND_RADIUS (40.0)
 #define CHARACTER_COLLISION_RADIUS (0.5)
+#define CHARACTER_HURT_RADIUS (1.0)
 #define SHIP_CHASE_RADIUS (20)
 
 extern float T_WIDTH;
@@ -57,6 +58,7 @@ void pathfind_enemy(E_ENEMY *, unsigned int);
 int double_buffer(void **, unsigned int *, unsigned int);
 void update_enemy_chunk(E_ENEMY*, CHUNK*, int);
 
+void despawn_projectile(unsigned int);
 int to_combat_mode(unsigned int);
 void from_combat_mode();
 void close_dialog();
