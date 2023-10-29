@@ -631,8 +631,7 @@ void update_enemy_chunk(E_ENEMY *cur_enemy, CHUNK *chunk, int i) {
 void c_enemy_pathfind(C_UNIT *enemy, vec2 target_coords) {
   float target_dist = glm_vec2_distance(target_coords, enemy->coords);
   if (target_dist <= 1.5 && enemy->attack_cooldown == 0.0) {
-    enemy->attack_cooldown = enemy->fire_rate;
-    enemy->attack_active = 0.1;
+    npc_melee_attack(enemy);
   }
 
   vec2 movement = GLM_VEC2_ZERO_INIT;

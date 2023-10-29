@@ -171,6 +171,17 @@ void update_projectiles() {
   }
 }
 
+/*
+  Spawns a projectile in combat mode
+  Args:
+  - vec2 pos: starting position of the projectile
+  - vec2 dir: direction of travel
+  - float speed: speed of travel
+  - UNIT_T target: Target team of projectile. If ALLY, projectile will only hit
+    the player and mercenaries. If enemy, the projectile will only hit enemies.
+  Returns:
+  0 if successful, nonzero if failed due to buffer reallocation failure
+*/
 int spawn_projectile(vec2 pos, vec2 dir, float speed, UNIT_T target) {
   if (mode != COMBAT) {
     return 0;
@@ -202,3 +213,14 @@ void despawn_projectile(unsigned int index) {
   num_projectiles--;
   projectiles[index] = projectiles[num_projectiles];
 }
+
+/*
+  Spawns a melee attack from a unit in combat mode
+  Args:
+  - C_UNIT *unit: Combat mode unit from which to spawn the attack
+*/
+void npc_melee_attack(C_UNIT *unit) {
+  unit->attack_cooldown = unit->fire_rate;
+  unit->attack_active = 0.1;
+}
+
