@@ -189,7 +189,7 @@ void teleport_home() {
 /* Updates the buffer of what is in the console on the screen */
 /* for every frame */
 void update_console_prompt() {
-  if (console_enabled) {
+  if (console_input_enabled) {
     vec2 console_pos = { 0.0, -1.0 };
     init_menu(
       console_pos, // position

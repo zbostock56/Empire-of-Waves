@@ -24,7 +24,7 @@
 float console_cursor_interval = 0.0;
 float console_error_interval = 0.0;
 /* Event Flags */
-extern int console_enabled;
+int console_input_enabled;
 int cursor_enabled = 0;
 int coords_enabled = 0;
 int console_error = 0;
@@ -34,7 +34,9 @@ char console_intra_chunk[CONSOLE_BUFFER_MAX];
 char console_chunk_coords[CONSOLE_BUFFER_MAX];
 char console_error_buffer[CONSOLE_BUFFER_MAX];
 extern vec2 screen_scale;
-extern char cons_cmd[CONSOLE_BUFFER_MAX];
+char cons_cmd[CONSOLE_BUFFER_MAX];
+unsigned int cons_cmd_len = 0;
+
 /* ---------------------------------  */
 
 /* STRUCTS */

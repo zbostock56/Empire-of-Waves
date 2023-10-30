@@ -9,8 +9,10 @@
 float save_status_interval = 0.0;
 UI_ID open_prompt = INVALID_MENU;
 char input_buffer[INPUT_BUFFER_SIZE];
-unsigned int load_input_len = 0;
 char status_buffer[STATUS_BUFFER_SIZE];
+int save_input_enabled = 0;
+char *save_input_buffer = NULL;
+unsigned int save_input_len = 0;
 
 /* ================= INTERNALLY DEFINED FUNCTIONS ================= */
 void new_game_callback(void *);

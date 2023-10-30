@@ -25,7 +25,7 @@ void spawn_event() {
 }
 
 void update_timers() {
-  if (console_enabled) {
+  if (console_input_enabled) {
     console_cursor_interval -= delta_time;
     if (console_cursor_interval <= 0.0 && cursor_enabled) {
       console_cursor_interval = 0.25;

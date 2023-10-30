@@ -15,7 +15,6 @@ GAME_MODE mode = EXPLORATION;
 float delta_time = 0.0;
 float last_frame = 0.0;
 char game_save_name[MAX_SAVE_NAME_LEN] = "test";
-int console_enabled = 0;
 
 // ======================== EXPLORATION MODE STATE ===========================
 CHUNK *chunk_buffer = NULL;

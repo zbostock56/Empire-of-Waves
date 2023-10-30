@@ -16,7 +16,6 @@ extern GAME_MODE mode;
 extern float delta_time;
 extern float last_frame;
 extern char game_save_name[MAX_SAVE_NAME_LEN];
-extern int console_enabled;
 
 // ======================== EXPLORATION MODE STATE ===========================
 extern CHUNK *chunk_buffer;

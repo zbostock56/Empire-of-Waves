@@ -22,11 +22,30 @@
 // X: [-1, 1], Y: [-1, 1]
 vec2 mouse_position = GLM_VEC2_ZERO_INIT;
 
+extern int save_input_enabled;
+extern int console_input_enabled;
+extern int shore_interaction_enabled;
+extern int home_interaction_enabled;
+extern int container_interaction_enabled;
+extern int reassignment_menu_open;
+extern float console_cursor_interval;
+extern int cursor_enabled;
+extern UI_ID open_prompt;
+extern MERCHANT *close_merchant;
+extern TRADE trade;
+extern DIALOG dialog;
+extern int RES_X;
+extern int RES_Y;
+extern float save_status_interval;
+extern char cons_cmd[MAX_CMD_LEN];
+extern unsigned int cons_cmd_len;
+extern char *save_input_buffer;
+extern unsigned int save_input_len;
+
 int holding_left_click = 0;
 int holding_equals = 0;
 int holding_left_bracket = 0;
 int holding_tilde = 0;
-int cons_cmd_len = 0;
 int holding_alpha[26];
 int holding_num[10];
 int holding_space = 0;
@@ -45,28 +64,12 @@ int holding_load = 0;
 int holding_esc = 0;
 int holding_enter;
 
-extern int shore_interaction_enabled;
-extern int home_interaction_enabled;
-extern int container_interaction_enabled;
-extern int reassignment_menu_open;
-char cons_cmd[MAX_CMD_LEN];
-extern float console_cursor_interval;
-extern int cursor_enabled;
-extern UI_ID open_prompt;
-extern unsigned int load_input_len;
-extern MERCHANT *close_merchant;
-extern TRADE trade;
-extern DIALOG dialog;
-extern int RES_X;
-extern int RES_Y;
-extern float save_status_interval;
-
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 
 void exploration_movement(GLFWwindow *);
 void combat_movement(GLFWwindow *);
 void debug_keys(GLFWwindow *);
-void console_keys(GLFWwindow *);
+void input_keys(GLFWwindow *);
 void ui_click_listener(double, double);
 void ui_hover_listener(double, double);
 void close_merchant_menu(GLFWwindow *window);
