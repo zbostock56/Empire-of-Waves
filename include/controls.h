@@ -10,6 +10,7 @@
 #include <dialog_str.h>
 #include <trade_str.h>
 #include <menu.h>
+#include <event_str.h>
 
 #define MAX_CMD_LEN (100)
 #define X_MIN (0)
@@ -26,8 +27,11 @@ extern int shore_interaction_enabled;
 extern int home_interaction_enabled;
 extern int reassignment_menu_open;
 char cons_cmd[MAX_CMD_LEN];
-extern float console_cursor_interval;
-extern int cursor_enabled;
+//extern float console_cursor_interval;
+//extern int cursor_enabled;
+extern float timers[NUM_TIMERS];
+extern int event_flags[NUM_TIMERS];
+extern int console_enabled;
 
 int holding_equals = 0;
 int holding_left_bracket = 0;

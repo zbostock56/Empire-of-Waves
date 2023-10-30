@@ -268,7 +268,7 @@ void update_console_prompt() {
       NULL, // on_click_args
       NULL, // on_hover_args
       "_", // text
-      cursor_enabled, // enabled
+      event_flags[CONS_CURSOR],
       0, // textured
       0, // texture
       0.05, // text_padding
@@ -282,7 +282,9 @@ void update_console_prompt() {
   }
 }
 
-/* Prints current coordinates to the screen using the command "coords" */
+/*
+  Prints current coordinates to the screen using the command "coords"
+*/
 void print_coords() {
   if (coords_enabled) {
     //vec2 world_tile_coords = GLM_VEC2_ZERO_INIT;
@@ -396,13 +398,18 @@ void print_coords() {
   }
 }
 
+/*
+  Closes all parts related to the coords
+*/
 void close_coords() {
   get_ui_component_by_ID(CONSOLE_WORLD_COORDS)->enabled = 0;
   get_ui_component_by_ID(CONSOLE_INTRA_CHUNK_COORDS)->enabled = 0;
   get_ui_component_by_ID(CONSOLE_CHUNK_COORDS)->enabled = 0;
 }
 
-/* Resets the console buffer and closes the prompt  */
+/*
+  Resets the console buffer and closes the prompt
+*/
 void close_console_prompt() {
   get_ui_component_by_ID(CONSOLE)->enabled = 0;
   get_ui_component_by_ID(CONSOLE_CURSOR)->enabled = 0;
@@ -411,16 +418,21 @@ void close_console_prompt() {
   }
 }
 
+/*
+  Find the position in the console box to put the cursor
+*/
 void calc_cursor_pos(vec2 dest) {
   float screen_text_scale = get_screen_text_scale();
   UI_COMPONENT *console = get_ui_component_by_ID(CONSOLE);
   float text_width = get_text_width(cons_cmd, strlen(cons_cmd))
                      * screen_text_scale / screen_scale[0];
-  //text_width += console->text_padding;
   dest[1] = console->position[1];
   dest[0] = (text_width) - (0.5 * console->width);
 }
 
+/*
+  Open the error menu
+*/
 void console_error_init() {
   vec2 console_error_pos = { 0.0, 0.0 };
   init_menu(
@@ -430,7 +442,7 @@ void console_error_init() {
       NULL, // on_click_args
       NULL, // on_hover_args
       console_error_buffer, // text
-      console_error, // enabled
+      event_flags[CONS_ERROR],
       1, // textured
       0, // texture
       0.05, // text_padding
@@ -440,13 +452,16 @@ void console_error_init() {
       PIVOT_TOP, // pivot
       T_CENTER, // text_anchor
       get_ui_component_by_ID(CONSOLE_ERROR) // dest
-    );
+  );
 }
 
+/*
+Helper function to raise errors when they occur
+*/
 void set_console_error(const char *error) {
   strncpy(console_error_buffer, error, strlen(error));
-  console_error_interval = 1.5;
-  console_error = 1;
+  timers[CONS_ERROR] = 1.5;
+  event_flags[CONS_ERROR] = 1;
   console_error_init();
 }
 

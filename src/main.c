@@ -8,6 +8,7 @@ int main() {
   init_trade();
   init_status_bar();
   init_ui_lists();
+  init_timers();
   open_status_bar();
 
   int status = 0;

@@ -12,6 +12,7 @@
 #include <float.h>
 #include <ui_component.h>
 #include <menu.h>
+#include <event_str.h>
 
 /* DEFINES */
 #define MAX_TOKENS (10)
@@ -21,13 +22,15 @@
 
 /* ------------- GLOBALS ------------ */
 /* Timers */
-float console_cursor_interval = 0.0;
-float console_error_interval = 0.0;
+//float console_cursor_interval = 0.0;
+//float console_error_interval = 0.0;
 /* Event Flags */
 extern int console_enabled;
-int cursor_enabled = 0;
+//int cursor_enabled = 0;
 int coords_enabled = 0;
-int console_error = 0;
+//int console_error = 0;
+extern float timers[NUM_TIMERS];
+extern int event_flags[NUM_TIMERS];
 /* Buffers */
 char console_world_coords[CONSOLE_BUFFER_MAX];
 char console_intra_chunk[CONSOLE_BUFFER_MAX];

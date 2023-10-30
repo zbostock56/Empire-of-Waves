@@ -29,3 +29,4 @@ void update_mercenary_reassignment();
 void update_console_prompt();
 void update_timers();
 void print_coords();
+void init_timers();
