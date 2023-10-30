@@ -55,3 +55,4 @@ TRADE_SHIP *init_trade_ship(char *, ivec2, unsigned int);
 int resize_listings(MERCHANT *);
 void add_listing(MERCHANT *, ITEM_IDS, unsigned int);
 void clear_listing(MERCHANT *merchant, unsigned int index);
+void coalesce_currency(CONTAINER cont);

@@ -99,3 +99,54 @@ int get_player_copper() {
   return 0;
 }
 
+/*
+  Perform calculation to automatically coalesce coins into higher
+  denomnations given there is enought of them.
+  Ex: 10 copper becomes 1 silver
+*/
+void coalesce_currency(CONTAINER cont) {
+  unsigned int num_copper = 0;
+  unsigned int num_silver = 0;
+  unsigned int num_gold = 0;
+  for (int i = 0; i < cont.capacity; i++) {
+    I_SLOT *slot = cont.items + i;
+    if (slot->item_id == GOLD_COIN) {
+      num_gold += slot->quantity;
+      slot->item_id = EMPTY;
+      slot->quantity = 0;
+    } else if (slot->item_id == SILVER_COIN) {
+      num_silver += slot->quantity;
+      slot->item_id = EMPTY;
+      slot->quantity = 0;
+    } else if (slot->item_id == COPPER_COIN) {
+      num_copper += slot->quantity;
+      slot->item_id = EMPTY;
+      slot->quantity = 0;
+    }
+  }
+
+  num_silver += num_copper / COPPER_PER_SILVER;
+  num_copper = num_copper % COPPER_PER_SILVER;
+  num_gold += num_silver / SILVER_PER_GOLD;
+  num_silver = num_silver % SILVER_PER_GOLD;
+
+  for (int i = 0; i < cont.capacity; i++) {
+    I_SLOT *slot = cont.items + i;
+    if (slot->item_id == EMPTY && num_gold) {
+      slot->item_id = GOLD_COIN;
+      slot->quantity = num_gold;
+      num_gold = 0;
+    } else if (slot->item_id == EMPTY && num_silver) {
+      slot->item_id = SILVER_COIN;
+      slot->quantity = num_silver;
+      num_silver = 0;
+    } else if (slot->item_id == EMPTY && num_copper) {
+      slot->item_id = COPPER_COIN;
+      slot->quantity = num_copper;
+      num_copper = 0;
+      return;
+    } else if (slot->item_id == EMPTY) {
+      return;
+    }
+  }
+}

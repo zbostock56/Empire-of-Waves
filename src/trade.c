@@ -1024,6 +1024,13 @@ void on_click_trade() {
         clear_listing(trade.merchant, i);
       }
     }
+
+    CONTAINER player_inv = {
+      e_player.inventory,
+      MAX_PLAYER_INV_SIZE
+    };
+    coalesce_currency(player_inv);
+
     // Set Values Back
     trade.player_value = 0;
     sprintf(trade.ui_text_player_value->text, "PLAYER VALUE [%d]",
