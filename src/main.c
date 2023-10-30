@@ -3,7 +3,7 @@
 int main() {
   GLFWwindow *window = init_gl();
 
-  init_game("EOW");
+  init_game("eow");
   init_scene();
 
   int status = 0;
