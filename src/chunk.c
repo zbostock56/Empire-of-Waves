@@ -61,12 +61,6 @@ int manage_chunks() {
     updated_chunks[i] = new_chunk;
   }
 
-  // Write updated chunks to tracked player chunks
-  for (int i = 0; i < CHUNKS_SIMULATED; i++) {
-    remove_chunk(player_chunks[i]);
-    player_chunks[i] = updated_chunks[i];
-  }
-
   TRADE_SHIP *trade_ship = NULL;
   // Detect updated trade ship chunks
   for (int i = 0; i < num_trade_ships; i++) {
@@ -77,6 +71,12 @@ int manage_chunks() {
     }
 
     trade_ship->updated_chunk_index = new_chunk;
+  }
+
+  // Write updated chunks to tracked player chunks
+  for (int i = 0; i < CHUNKS_SIMULATED; i++) {
+    remove_chunk(player_chunks[i]);
+    player_chunks[i] = updated_chunks[i];
   }
 
   // Write updated chunks to trade ship chunks
@@ -113,6 +113,7 @@ void clear_chunk_buffer() {
     free_chunk(chunk_buffer + i);
   }
   chunk_buff_len = 0;
+  chunk_buff_size = 0;
   free(chunk_buffer);
   chunk_buffer = NULL;
 }

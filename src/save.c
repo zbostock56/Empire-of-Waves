@@ -144,6 +144,7 @@ void open_save_menu() {
   open_prompt = INVALID_MENU;
   save_input_enabled = 0;
   save_input_buffer = NULL;
+  save_input_len = 0;
 }
 
 void close_save_menu() {
@@ -159,6 +160,7 @@ void close_save_menu() {
   open_prompt = INVALID_MENU;
   save_input_enabled = 0;
   save_input_buffer = NULL;
+  save_input_len = 0;
 }
 
 void open_save_status(char *status) {
@@ -197,6 +199,7 @@ void new_game_callback(void *arg) {
   open_prompt = NEW_GAME;
   save_input_enabled = 1;
   save_input_buffer = get_ui_component_by_ID(SAVE_INPUT)->text;
+  save_input_len = 0;
 }
 
 void save_callback(void *arg) {
@@ -220,6 +223,7 @@ void load_callback(void *arg) {
   open_prompt = LOAD;
   save_input_enabled = 1;
   save_input_buffer = get_ui_component_by_ID(SAVE_INPUT)->text;
+  save_input_len = 0;
 }
 
 void close_callback(void *arg) {

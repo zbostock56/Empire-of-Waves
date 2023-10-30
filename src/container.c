@@ -11,6 +11,10 @@ int init_containers() {
   return 0;
 }
 
+void free_containers() {
+  free_container(&home_box);
+}
+
 int init_container(CONTAINER *cont, unsigned int capacity) {
   cont->capacity = capacity;
   cont->items = malloc(sizeof(I_SLOT) * capacity);

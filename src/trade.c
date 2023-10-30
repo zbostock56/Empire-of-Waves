@@ -472,6 +472,18 @@ void init_trade() {
 
 }
 
+void free_trade() {
+  free(trade.ui_text_on_hover_item->text);
+  free(trade.ui_text_merchant_value->text);
+  free(trade.ui_text_player_value->text);
+  free(trade.ui_text_event_prompt->text);
+
+  trade.ui_text_on_hover_item->text = NULL;
+  trade.ui_text_merchant_value = NULL;
+  trade.ui_text_player_value = NULL;
+  trade.ui_text_event_prompt = NULL;
+}
+
 /* Render trade menu in frontend */
 void open_trade() {
   int is_ui_buy_sell_enabled = 0;

@@ -5,6 +5,7 @@
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 
 GLFWwindow *init_gl();
+void init_player();
 void init_scene();
 int init_chunks();
 void keyboard_input(GLFWwindow *);
@@ -35,3 +36,5 @@ void update_timers();
 void print_coords();
 int init_containers();
 void init_container_ui();
+void init_game(char *);
+void free_game();

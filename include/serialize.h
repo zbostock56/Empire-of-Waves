@@ -74,3 +74,5 @@ unsigned int texture_from_buffer(unsigned char *, int, int, int);
 TRADE_SHIP *init_trade_ship(char *, ivec2, unsigned int);
 int double_buffer(void **, unsigned int *, unsigned int);
 void free_chunk(CHUNK *);
+void init_game(char *);
+void free_game();

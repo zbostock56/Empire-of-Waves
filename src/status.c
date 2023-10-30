@@ -67,10 +67,10 @@ void init_status_bar() {
 
 /* Function used for free status bar whe needed */
 void free_status_bar() {
-  free(status.ui_health_status);
+  free(status.ui_health_status->text);
   status.ui_health_status=NULL;
 
-  free(status.ui_money_status);
+  free(status.ui_money_status->text);
   status.ui_money_status=NULL;
 }
 

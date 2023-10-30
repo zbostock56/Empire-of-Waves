@@ -3,36 +3,10 @@
 int main() {
   GLFWwindow *window = init_gl();
 
-  init_menus();
-  init_dialog();
-  init_trade();
-  init_status_bar();
-  init_ui_lists();
-  init_container_ui();
-  open_status_bar();
+  init_game("EOW");
+  init_scene();
 
   int status = 0;
-  status = init_save_menu();
-  if (status) {
-    return -1;
-  }
-
-  status = init_chunks();
-  if (status) {
-    return -1;
-  }
-
-  status = init_containers();
-  if (status) {
-    return -1;
-  }
-
-  init_scene();
-  status = init_trade_ship_buffers();
-  if (status) {
-    return -1;
-  }
-
   while (!glfwWindowShouldClose(window)) {
     keyboard_input(window);
 
@@ -68,6 +42,7 @@ int main() {
   }
 
   // Insert all "cleanup" functionality here
+  free_game();
   cleanup_scene();
 
   glfwTerminate();

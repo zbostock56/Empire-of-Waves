@@ -19,6 +19,12 @@ int init_trade_ship_buffers() {
   return 0;
 }
 
+void free_trade_ship_buffers() {
+  free(trade_ships);
+  num_trade_ships = 0;
+  trade_ship_buf_size = 0;
+}
+
 /*
   Initializes a trade ship located at the home island, targeting an island
   at a given chunk
@@ -30,7 +36,6 @@ TRADE_SHIP *init_trade_ship(char *merch_name, ivec2 target_chunk,
   TRADE_SHIP *trade_ship = trade_ships + num_trade_ships;
 
   trade_ship->target_chunk_index = add_chunk(target_chunk);
-
   ivec2 cur_chunk_coords = { 0, 0 };
   trade_ship->cur_chunk_index = add_chunk(cur_chunk_coords);
 

@@ -23,17 +23,14 @@ int new_game(char *save_name) {
   }
 
   // Reset global state
-  clear_chunk_buffer();
+  free_game();
   clear_unsaved_chunks();
-  reset_state();
+  init_game(save_name);
 
-  status = save_game(save_name);
+  status = save_game(game_save_name);
   if (status) {
     return -1;
   }
-
-  // Re-initialize chunk management for newly loaded player state
-  init_chunks();
 
   return 0;
 }
@@ -124,18 +121,13 @@ int load_game(char *save_name) {
   }
 
   // Clear chunk buffer of possibly stale chunks with hanging references
-  clear_chunk_buffer();
+  free_game();
   clear_unsaved_chunks();
-
-  copy_valid_path(save_name, game_save_name, strlen(save_name));
-  game_save_name[strlen(save_name)] = '\0';
+  init_game(save_name);
 
   // Load player data before reinitializing chunks in order to properly load
   // player's 9 chunks
   load_player_state(save_file);
-
-  // Re-initialize chunk management for newly loaded player state
-  init_chunks();
 
   // Load rest of the data now that the initial chunk buffer is set up
   status = load_game_state(save_file);
@@ -428,25 +420,6 @@ void clear_unsaved_chunks() {
   free(unsaved_chunks);
 }
 
-void reset_state() {
-  glm_ivec2_zero(e_player.chunk);
-  glm_vec2_zero(e_player.coords);
-  glm_vec2_zero(e_player.direction);
-  e_player.direction[0] = 1.0;
-  glm_ivec2_zero(e_player.ship_chunk);
-  glm_vec2_zero(e_player.ship_coords);
-  glm_vec2_zero(e_player.ship_direction);
-  e_player.ship_direction[0] = 1.0;
-  e_player.embarked = 1;
-  e_player.money = 0;
-  e_player.total_mercenaries = 0;
-  e_player.max_health = 100.0;
-  e_player.health = 100.0;
-  e_player.speed = 1.0;
-  global_time = 0.0;
-  num_trade_ships = 0;
-}
-
 void save_state(FILE *file) {
   fwrite(&e_player, sizeof(E_PLAYER), 1, file);
   fwrite(&mode, sizeof(GAME_MODE), 1, file);
@@ -500,11 +473,6 @@ int load_game_state(FILE *file) {
   }
 
   fread(&home_box.capacity, sizeof(unsigned int), 1, file);
-  home_box.items = malloc(sizeof(I_SLOT) * home_box.capacity);
-  if (home_box.items == NULL) {
-    fprintf(stderr, "serialize.c: Failed to allocate home box items\n");
-    return -1;
-  }
   for (int i = 0; i < home_box.capacity; i++) {
     fread(home_box.items + i, sizeof(I_SLOT), 1, file);
   }

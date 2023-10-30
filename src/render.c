@@ -1,37 +1,6 @@
 #include <render.h>
 
 void init_scene() {
-  glm_vec2_zero(e_player.coords);
-  glm_ivec2_zero(e_player.chunk);
-  glm_vec2_zero(e_player.direction);
-  glm_vec2_zero(e_player.ship_direction);
-  e_player.speed = 1.0;
-  e_player.direction[1] = 1.0;
-  e_player.ship_direction[1] = 1.0;
-  e_player.embarked = 1;
-  e_player.inventory[0].item_id = RUM;
-  e_player.inventory[0].quantity = 2;
-  e_player.inventory[1].item_id = CITRUS;
-  e_player.inventory[1].quantity = 1;
-  e_player.inventory[2].item_id = KNIVE;
-  e_player.inventory[2].quantity = 1;
-  e_player.inventory[3].item_id = GOLD_COIN;
-  e_player.inventory[3].quantity = 1;
-  e_player.inventory[4].item_id = SILVER_COIN;
-  e_player.inventory[4].quantity = 1;
-  e_player.inventory[5].item_id = COPPER_COIN;
-  e_player.inventory[5].quantity = 1;
-  e_player.inventory[6].item_id = CROSSBOW;
-  e_player.inventory[6].quantity = 1;
-  e_player.inventory[7].item_id = FLINTLOCK;
-  e_player.inventory[7].quantity = 1;  
-  e_player.inventory[8].item_id = MIDIUM_ARMOR;
-  e_player.inventory[8].quantity = 1;  
-  e_player.inventory[9].item_id = HEAVY_ARMOR;
-  e_player.inventory[9].quantity = 1;
-  e_player.inventory[10].item_id = PLATE_ARMOR;
-  e_player.inventory[10].quantity = 1;
-
   // TEST MODELS
     unsigned char ocean_buffer[3] = { 3, 157, 252 };
     ocean_texture = texture_from_buffer(ocean_buffer, 1, 1, GL_RGB);
@@ -192,7 +161,6 @@ void cleanup_scene() {
   free_model(enemy_ship);
   free_model(trade_ship);
   free_model(quad);
-  free(trade_ships);
   for (int i = 0; i < FONT_LEN; i++) {
     free_model(font[i].model);
   }
