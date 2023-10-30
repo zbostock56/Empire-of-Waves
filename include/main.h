@@ -17,6 +17,7 @@ void init_lexer();
 int detect_collisions();
 int init_trade_ship_buffers();
 void update_trade_ships();
+void update_enemy_ships();
 void update_combat_state();
 void update_projectiles();
 void init_dialog();

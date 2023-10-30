@@ -6,6 +6,20 @@ exploration mode, and helper functions for common enemy operations such as
 respawn, despawn, move, attack, and rotate.
 */
 
+/*
+  Perform enemy pathfinding and movement for all simulated enemy ships
+*/
+void update_enemy_ships() {
+  E_ENEMY *cur_enemy = NULL;
+  for (int i = 0; i < chunk_buff_len; i++) {
+    for (int j = 0; j < chunk_buffer[i].num_enemies; j++) {
+      cur_enemy = &chunk_buffer[i].enemies[j];
+      pathfind_enemy(cur_enemy, i);
+      update_enemy_chunk(cur_enemy, &chunk_buffer[i], j);
+    }
+  }
+}
+
 /* Reponsible for spawning enemy in a chunk that is not */
 /* at enemy cap nor is outside of the simulation range */
 

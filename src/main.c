@@ -47,6 +47,7 @@ int main() {
     }
 
     update_trade_ships();
+    update_enemy_ships();
     update_projectiles();
 
     status = detect_collisions();

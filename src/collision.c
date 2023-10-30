@@ -25,8 +25,6 @@ int detect_collisions() {
     for (int i = 0; i < chunk_buff_len; i++) {
       for (int j = 0; j < chunk_buffer[i].num_enemies; j++) {
         cur_enemy = &chunk_buffer[i].enemies[j];
-        pathfind_enemy(cur_enemy, i);
-        update_enemy_chunk(cur_enemy, &chunk_buffer[i], j);
         ship_collisions(chunk_buffer + i, cur_enemy->chunk, cur_enemy->coords);
       }
     }
