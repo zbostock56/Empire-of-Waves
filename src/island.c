@@ -40,12 +40,13 @@ int generate_island(ISLAND *island) {
       return -1;
     }
 
-    island->merchant.num_listings = 16;
+    // TODO Generate random listings
+    island->merchant.num_listings = 9;
     // List of items to be populated in merchant
     ITEM_IDS ids[9] = { CITRUS, RUM, LIFE_POTION, SPEED_POTION, BOW, CLOTH_ARMOR,
                    CROSSBOW, LIGHT_ARMOR, PLATE_ARMOR };
     for (int i = 0; i < MAX_MERCHANT_ITEM; i++) {
-      if (i < 8) {
+      if (i < 9) {
         island->merchant.listings[i].item_id = ids[i];
         island->merchant.listings[i].quantity = 1;
         island->merchant.listings[i].barter_range = 0.1;

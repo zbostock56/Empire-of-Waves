@@ -128,8 +128,13 @@ char merchant_name_list[NUM_NAMES][NAME_SIZE] = {
 "Helmhart", "Raganald", "Ariaric", "Methodius"
 };
 
+// ======================= INTERNALLY DEFINED FUNCTIONS ======================
 
 MERCHANT * get_closest_merchant(E_PLAYER e_player);
 LISTING * get_merchant_listing_item_by_index(MERCHANT * merchant, unsigned int listing_index);
 LISTING * search_merchant_listing_by_ID(MERCHANT * merchant, ITEM_IDS item_id);
 LISTING * get_merchant_first_empty_listing(MERCHANT * merchant);
+
+// ======================= EXTERNALLY DEFINED FUNCTIONS ======================
+
+int double_buffer(void **, unsigned int *, unsigned int);
