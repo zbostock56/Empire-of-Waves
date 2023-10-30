@@ -81,6 +81,15 @@ ITEM item_tab[NUM_ITEMS] = {
   
   // PLATE_ARMOR
   {180, 0, 1, 0.0, -0.2, -0.5, 200.0},
+
+  // GOLD_COIN
+  {100, 0, 0, 0.0, 0.0, 0.0, 0.0},
+
+  // SILVER_COIN
+  {10, 0, 0, 0.0, 0.0, 0.0, 0.0},
+
+  // COPPER_COIN
+  {1, 0, 0, 0.0, 0.0, 0.0, 0.0},
 };
 
 // Resource table definition
@@ -116,7 +125,7 @@ REC_IDS resources_id
 */
 unsigned int get_resource_value_by_ID(REC_IDS resource_id) {
   // Check for invalid resource_id
-  if (resource_id < GRAIN || resource_id > SAFFRON) {
+  if (resource_id < 0 || resource_id >= NUM_RESOURCES) {
     return 0;
   }
   return resource_tab[resource_id + 1]; // +1 to account for INVALID_REC being -1
@@ -130,7 +139,7 @@ ITEM_IDS item_id
 */
 ITEM get_item_info_by_ID(ITEM_IDS item_id) {
   // Check for invalid resource_id
-  if (item_id < EMPTY || item_id > PLATE_ARMOR) {
+  if (item_id < 0 || item_id >= NUM_RESOURCES) {
     return item_tab[0];
   }
   return item_tab[item_id + 1]; // +1 to account for INVALID_ITEM being -1
@@ -143,7 +152,7 @@ ITEM_IDS item_id
   the item ID of the item info needs to from listing::item_id
 */
 char * get_item_name_by_ID(int item_id) {
-  if (item_id < 0 || item_id > 17) {
+  if (item_id < 0 || item_id >= NUM_RESOURCES) {
     return "INVALID_ITEM";
   }
   switch (item_id) {
@@ -165,6 +174,9 @@ char * get_item_name_by_ID(int item_id) {
     case 15: return "MIDIUM_ARMOR";
     case 16: return "HEAVY_ARMOR";
     case 17: return "PLATE_ARMOR";
+    case 18: return "GOLD_COIN";
+    case 19: return "SILVER_COIN";
+    case 20: return "COPPER_COIN";
     default: return "INVALID_ITEM";
   }
 }
@@ -195,6 +207,9 @@ ITEM get_item_info_by_name(char * item_name) {
     else if (strcmp(item_name, "MIDIUM_ARMOR") == 0) return get_item_info_by_ID(MIDIUM_ARMOR);
     else if (strcmp(item_name, "HEAVY_ARMOR") == 0) return get_item_info_by_ID(HEAVY_ARMOR);
     else if (strcmp(item_name, "PLATE_ARMOR") == 0) return get_item_info_by_ID(PLATE_ARMOR);
+    else if (strcmp(item_name, "GOLD_COIN") == 0) return get_item_info_by_ID(GOLD_COIN);
+    else if (strcmp(item_name, "SILVER_COIN") == 0) return get_item_info_by_ID(SILVER_COIN);
+    else if (strcmp(item_name, "COPPER_COIN") == 0) return get_item_info_by_ID(COPPER_COIN);
   }
   return get_item_info_by_ID(INVALID_ITEM);
 }

@@ -142,7 +142,7 @@ void exploration_movement(GLFWwindow *window) {
       open_mercenary_reassignment_menu();
       get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
     } else if (!e_player.embarked && container_interaction_enabled) {
-      CONTAINER player_inv = { e_player.inventory, INV_SIZE };
+      CONTAINER player_inv = { e_player.inventory, MAX_PLAYER_INV_SIZE };
       open_container(home_box, player_inv);
       get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
     }
@@ -287,12 +287,8 @@ void combat_mode_attack(int action) {
 
 void close_merchant_menu(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-    if (dialog.ui_text_name->enabled) {
-      close_dialog();
-    }
-    if (trade.ui_listing[0]->enabled) {
-      close_trade();
-    }
+    close_dialog();
+    close_trade();
     close_mercenary_reassignment_menu();
     close_container();
   }
@@ -537,4 +533,3 @@ void ui_hover_listener(double x_pos, double y_pos) {
     }
   }
 }
-

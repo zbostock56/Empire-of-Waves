@@ -1,3 +1,6 @@
+#ifndef __GLOBALS_H__
+#define __GLOBALS_H__
+
 #include <player_str.h>
 #include <chunk_str.h>
 #include <trade_ship_str.h>
@@ -48,3 +51,5 @@ extern unsigned int proj_buf_size;
 extern unsigned int e_enemy_index;
 // Specifies width and height of game arena in tiles
 extern ivec2 arena_dimensions;
+
+#endif

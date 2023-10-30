@@ -1,7 +1,7 @@
 #ifndef __ITEMS_H__
 #define __ITEMS_H__
 
-#define NUM_ITEMS (19)
+#define NUM_ITEMS (22)
 #define NUM_RESOURCES (21)
 
 /*
@@ -60,7 +60,11 @@ typedef enum item_ids {
   LIGHT_ARMOR = 14,
   MIDIUM_ARMOR = 15,
   HEAVY_ARMOR = 16,
-  PLATE_ARMOR = 17
+  PLATE_ARMOR = 17,
+  // Currency 1 GOLD = 10 SILVER = 100 COPPER
+  GOLD_COIN = 18,
+  SILVER_COIN = 19,
+  COPPER_COIN = 20
 } ITEM_IDS;
 
 /*

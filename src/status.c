@@ -79,8 +79,8 @@ void update_status_bar() {
   open_status_bar();
   snprintf(status.ui_health_status->text, MAX_STATUS_STR_LENGTH,
            " HEALTH %3.1f / %3.1f ", c_player.health, c_player.max_health);
-  snprintf(status.ui_money_status->text, MAX_STATUS_STR_LENGTH, " MONEY %4d ",
-           e_player.money);
+  snprintf(status.ui_money_status->text, MAX_STATUS_STR_LENGTH, " G [%2d] S [%2d] C [%2d] ",
+           get_player_gold(), get_player_silver(), get_player_copper());
 }
 
 /* Render status bar */
