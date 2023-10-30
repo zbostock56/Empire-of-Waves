@@ -10,10 +10,9 @@
 #define EVENT_TIMER (10.0)
 
 /* GLOBALS */
-float global_time = EVENT_TIMER;
 extern float console_cursor_interval;
 extern float console_error_interval;
-extern int console_enabled;
+extern int console_input_enabled;
 extern int cursor_enabled;
 extern int console_error;
 

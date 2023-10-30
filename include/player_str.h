@@ -5,6 +5,7 @@
 #include <cglm/ivec2.h>
 #include <combat_str.h>
 #include <items.h>
+#include <container_str.h>
 /*
                                 PLAYER_STR.h
 Describes the struct representing player state in exploration mode, and the
@@ -12,12 +13,7 @@ struct representing player state in combat mode. Can be included by any file
 which reads/manipulates player state.
 */
 
-#define INV_SIZE (9)
-
-typedef struct inventory_slot {
-  int item_id;
-  unsigned int quantity;
-} I_SLOT;
+#define MAX_PLAYER_INV_SIZE (16)
 
 /*
   Player state in exploration mode
@@ -30,7 +26,7 @@ typedef struct exploration_player {
   vec2 direction;
   vec2 ship_direction;
   int embarked;
-  I_SLOT inventory[INV_SIZE];
+  I_SLOT inventory[MAX_PLAYER_INV_SIZE];
   unsigned int resources[NUM_RESOURCES];
   unsigned int money;
   unsigned int total_mercenaries;

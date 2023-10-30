@@ -7,16 +7,17 @@ events.
 */
 
 void keyboard_input(GLFWwindow *window) {
-  if (mode == EXPLORATION && !console_enabled) {
+  if (mode == EXPLORATION && !console_input_enabled && !save_input_enabled) {
     // Exploration mode keyboard handlers here
     exploration_movement(window);
     close_merchant_menu(window);
-  } else if (mode == COMBAT && !console_enabled) {
+  } else if (mode == COMBAT && !console_input_enabled) {
     combat_movement(window);
   }
+  modifier_keys(window);
   debug_keys(window);
-  if (console_enabled) {
-    console_keys(window);
+  if (console_input_enabled || save_input_enabled) {
+    input_keys(window);
   }
 }
 
@@ -123,21 +124,40 @@ void exploration_movement(GLFWwindow *window) {
         e_player.embarked = 1;
       }
     }
-    if (!e_player.embarked && cur_merchant && !trade.ui_listing[0]->enabled) {
-      if (set_dialog(MERCHANT_OPTION, "Merchant",
+    if (!e_player.embarked && close_merchant &&
+        !trade.ui_listing[0]->enabled) {
+      if (set_dialog(close_merchant, MERCHANT_OPTION,
+                     get_merchant_name(close_merchant->name),
                      "Hail, Captain! What brings you to my humble stall")) {
         open_dialog();
       }
       get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
-      cur_merchant = NULL;
+      close_merchant = NULL;
     } else if (!e_player.embarked && home_interaction_enabled) {
       /* Mercenary Reassignment list open */
       open_mercenary_reassignment_menu();
+      get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
+    } else if (!e_player.embarked && container_interaction_enabled) {
+      CONTAINER player_inv = { e_player.inventory, MAX_PLAYER_INV_SIZE };
+      open_container(home_box, player_inv);
       get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
     }
     holding_interaction = 1;
   } else if (glfwGetKey(window, GLFW_KEY_E) != GLFW_PRESS) {
     holding_interaction = 0;
+  }
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS && !holding_esc) {
+    if (!trade.ui_listing[0]->enabled && !dialog.ui_text_name->enabled) {
+      if (save_menu_opened()) {
+        close_save_menu();
+      } else {
+        open_save_menu();
+        close_save_status();
+      }
+    }
+    holding_esc = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS) {
+    holding_esc = 0;
   }
 }
 
@@ -191,15 +211,47 @@ void debug_keys(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_SLASH) == GLFW_PRESS && !holding_tilde) {
     // Enter console
     holding_tilde = 1;
-    if (console_enabled) {
-      console_enabled = 0;
+    if (console_input_enabled) {
+      console_input_enabled = 0;
       cons_cmd_len = 0;
       close_console_prompt();
     } else {
-      console_enabled = 1;
+      console_input_enabled = 1;
     }
   } else if (glfwGetKey(window, GLFW_KEY_SLASH) != GLFW_PRESS) {
     holding_tilde = 0;
+  }
+}
+
+void modifier_keys(GLFWwindow *window) {
+  if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
+       glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) &&
+       !holding_shift) {
+    holding_shift = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) != GLFW_PRESS &&
+             glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) != GLFW_PRESS &&
+             holding_shift) {
+    holding_shift = 0;
+  }
+
+  if ((glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS ||
+       glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS) &&
+       !holding_alt) {
+    holding_alt = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) != GLFW_PRESS &&
+             glfwGetKey(window, GLFW_KEY_RIGHT_ALT) != GLFW_PRESS &&
+             holding_alt) {
+    holding_alt = 0;
+  }
+
+  if ((glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
+       glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS) &&
+       !holding_ctrl) {
+    holding_ctrl = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) != GLFW_PRESS &&
+             glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) != GLFW_PRESS &&
+             holding_ctrl) {
+    holding_ctrl = 0;
   }
 }
 
@@ -231,26 +283,27 @@ void combat_mode_attack(int action) {
 
 void close_merchant_menu(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-    if (dialog.ui_text_name->enabled) {
-      close_dialog();
-    }
-    if (trade.ui_listing[0]->enabled) {
-      close_trade();
-    }
+    close_dialog();
+    close_trade();
     close_mercenary_reassignment_menu();
+    close_container();
   }
 }
 
-
-void console_keys(GLFWwindow *window) {
+void input_keys(GLFWwindow *window) {
   // LETTERS
   for (int i = GLFW_KEY_A; i <= GLFW_KEY_Z; i++) {
     if (glfwGetKey(window, i) == GLFW_PRESS && !holding_alpha[i - GLFW_KEY_A]) {
       holding_alpha[i - GLFW_KEY_A] = 1;
-      if (cons_cmd_len < MAX_CMD_LEN - 1) {
+      if (console_input_enabled && cons_cmd_len < MAX_CMD_LEN - 1) {
         cons_cmd[cons_cmd_len++] = i + 32;
         cursor_enabled = 1;
         console_cursor_interval = 0.25;
+      }
+
+      if (save_input_enabled && save_input_len < INPUT_BUFFER_SIZE - 1) {
+        save_input_buffer[save_input_len] = i + 32;
+        save_input_buffer[++save_input_len] = '\0';
       }
     } else if (glfwGetKey(window, i) != GLFW_PRESS) {
       holding_alpha[i - GLFW_KEY_A] = 0;
@@ -261,10 +314,15 @@ void console_keys(GLFWwindow *window) {
   for (int i = GLFW_KEY_0; i <= GLFW_KEY_9; i++) {
     if (glfwGetKey(window, i) == GLFW_PRESS && !holding_num[i - GLFW_KEY_0]) {
       holding_num[i - GLFW_KEY_0] = 1;
-      if (cons_cmd_len < MAX_CMD_LEN - 1) {
+      if (console_input_enabled && cons_cmd_len < MAX_CMD_LEN - 1) {
         cons_cmd[cons_cmd_len++] = i;
         cursor_enabled = 1;
         console_cursor_interval = 0.25;
+      }
+
+      if (save_input_enabled && save_input_len < INPUT_BUFFER_SIZE - 1) {
+        save_input_buffer[save_input_len] = i;
+        save_input_buffer[++save_input_len] = '\0';
       }
     } else if (glfwGetKey(window, i) != GLFW_PRESS) {
       holding_num[i - GLFW_KEY_0] = 0;
@@ -273,14 +331,17 @@ void console_keys(GLFWwindow *window) {
 
   // MINUS KEY
   if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS &&
-      (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) != GLFW_PRESS &&
-      glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) != GLFW_PRESS)
-      && !holding_minus) {
+      !holding_shift && !holding_minus) {
     holding_minus = 1;
-    if (cons_cmd_len < MAX_CMD_LEN - 1) {
+    if (console_input_enabled && cons_cmd_len < MAX_CMD_LEN - 1) {
       cons_cmd[cons_cmd_len++] = '-';
       cursor_enabled = 1;
       console_cursor_interval = 0.25;
+    }
+
+    if (save_input_enabled && save_input_len < INPUT_BUFFER_SIZE - 1) {
+      save_input_buffer[save_input_len] = '-';
+      save_input_buffer[++save_input_len] = '\0';
     }
   } else if (glfwGetKey(window, GLFW_KEY_MINUS) != GLFW_PRESS &&
       (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) != GLFW_PRESS &&
@@ -292,25 +353,33 @@ void console_keys(GLFWwindow *window) {
   // SPACE
   if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !holding_space) {
     holding_space = 1;
-    if (cons_cmd_len < MAX_CMD_LEN - 1) {
+    if (console_input_enabled && cons_cmd_len < MAX_CMD_LEN - 1) {
       cons_cmd[cons_cmd_len++] = ' ';
       cursor_enabled = 1;
       console_cursor_interval = 0.25;
+    }
+
+    if (save_input_enabled && save_input_len < INPUT_BUFFER_SIZE - 1) {
+      save_input_buffer[save_input_len] = ' ';
+      save_input_buffer[++save_input_len] = '\0';
     }
   } else if (glfwGetKey(window, GLFW_KEY_SPACE) != GLFW_PRESS) {
     holding_space = 0;
   }
 
   // UNDERSCORE
-  if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS &&
-      (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
-      glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) &&
+  if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS && holding_shift &&
       !holding_underscore) {
     holding_underscore = 1;
-    if (cons_cmd_len < MAX_CMD_LEN - 1) {
+    if (console_input_enabled && cons_cmd_len < MAX_CMD_LEN - 1) {
       cons_cmd[cons_cmd_len++] = '_';
       cursor_enabled = 1;
       console_cursor_interval = 0.25;
+    }
+
+    if (save_input_enabled && save_input_len < INPUT_BUFFER_SIZE - 1) {
+      save_input_buffer[save_input_len] = '_';
+      save_input_buffer[++save_input_len] = '\0';
     }
   } else if (glfwGetKey(window, GLFW_KEY_MINUS) != GLFW_PRESS &&
       (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) != GLFW_PRESS ||
@@ -322,11 +391,34 @@ void console_keys(GLFWwindow *window) {
   // ENTER
   if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS && !holding_enter) {
     holding_enter = 1;
-    cons_cmd[cons_cmd_len++] = '\0';
-    tokenize(cons_cmd, cons_cmd_len);
-    cons_cmd_len = 0;
-    for (int i = 0; i < 100; i++) {
-      cons_cmd[i] = '\0';
+    if (console_input_enabled) {
+      cons_cmd[cons_cmd_len++] = '\0';
+      tokenize(cons_cmd, cons_cmd_len);
+      cons_cmd_len = 0;
+      for (int i = 0; i < 100; i++) {
+        cons_cmd[i] = '\0';
+      }
+    }
+
+    if (save_input_enabled) {
+      int status = 0;
+      if (open_prompt == LOAD) {
+        status = load_game(save_input_buffer);
+        if (status) {
+          open_save_status("Failed to load game");
+        } else {
+          open_save_status("Game loaded");
+        }
+      } else if (open_prompt == NEW_GAME) {
+        status = new_game(save_input_buffer);
+        if (status) {
+          open_save_status("Failed to create new game");
+        } else {
+          open_save_status("New game created");
+        }
+      }
+      save_status_interval = 1.0;
+      close_save_menu();
     }
   } else if (glfwGetKey(window, GLFW_KEY_ENTER) != GLFW_PRESS) {
     holding_enter = 0;
@@ -335,7 +427,7 @@ void console_keys(GLFWwindow *window) {
   // PERIOD / DOT
   if (glfwGetKey(window, GLFW_KEY_PERIOD) == GLFW_PRESS && !holding_dot) {
     holding_dot = 1;
-    if (cons_cmd_len < MAX_CMD_LEN - 1) {
+    if (console_input_enabled && cons_cmd_len < MAX_CMD_LEN - 1) {
       cons_cmd[cons_cmd_len++] = '.';
       cursor_enabled = 1;
       console_cursor_interval = 0.25;
@@ -347,10 +439,15 @@ void console_keys(GLFWwindow *window) {
   // BACKSPACE
   if (glfwGetKey(window, GLFW_KEY_BACKSPACE) == GLFW_PRESS && !holding_backspace) {
     holding_backspace = 1;
-    if (cons_cmd_len > 0) {
+    if (console_input_enabled && cons_cmd_len > 0) {
       cons_cmd[--cons_cmd_len] = '\0';
       cursor_enabled = 1;
       console_cursor_interval = 0.25;
+    }
+
+    if (save_input_enabled && save_input_len) {
+      save_input_len--;
+      save_input_buffer[save_input_len] = '\0';
     }
   } else if (glfwGetKey(window, GLFW_KEY_BACKSPACE) != GLFW_PRESS) {
     holding_backspace = 0;
@@ -390,4 +487,3 @@ void ui_hover_listener(double x_pos, double y_pos) {
     }
   }
 }
-

@@ -11,11 +11,13 @@ representing an exploration mode island. Can be included in any file which
 reads/manipulates chunks and/or islands.
 */
 
-#define C_WIDTH (450) // Width of a chunk in tiles
+#define CHUNK_DIR_PATH ("chunks")
+#define UNSAVED_DIR_PATH ("unsaved")
+#define C_WIDTH (128) // Width of a chunk in tiles
 #define I_WIDTH (96) // Width of an island in tiles
-#define MAX_ISLANDS (5) // Max islands per chunk
+#define MAX_ISLANDS (2) // Max islands per chunk
 #define CHUNKS_SIMULATED (9)
-#define STARTING_BUFF_SIZE (10)
+#define STARTING_BUFF_SIZE (32)
 
 // Macros specifying index names for player_chunks
 #define CHUNK_UPPER_LEFT (0)
@@ -41,7 +43,8 @@ typedef enum tile {
   GRASS = 3,
   ROCK = 4,
   MERCH = 5,
-  HOME = 6
+  HOME = 6,
+  CHEST = 7,
 } TILE;
 
 typedef struct island {

@@ -3,25 +3,10 @@
 int main() {
   GLFWwindow *window = init_gl();
 
-  init_menus();
-  init_dialog();
-  init_trade();
-  init_status_bar();
-  init_ui_lists();
-  open_status_bar();
+  init_game("eow");
+  init_scene();
 
   int status = 0;
-  status = init_chunks();
-  if (status) {
-    return -1;
-  }
-
-  init_scene();
-  status = init_trade_ship_buffers();
-  if (status) {
-    return -1;
-  }
-
   while (!glfwWindowShouldClose(window)) {
     keyboard_input(window);
 
@@ -36,6 +21,7 @@ int main() {
     }
 
     update_trade_ships();
+    update_enemy_ships();
     update_projectiles();
 
     status = detect_collisions();
@@ -52,9 +38,11 @@ int main() {
     render_scene(window);
     update_combat_state();
     update_event_timer();
+    update_save_interval();
   }
 
   // Insert all "cleanup" functionality here
+  free_game();
   cleanup_scene();
 
   glfwTerminate();

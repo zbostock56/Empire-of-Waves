@@ -8,6 +8,7 @@
 #include <chunk_str.h>
 #include <ui_component.h>
 #include <dialog_str.h>
+#include <trade_str.h>
 #include <menu.h>
 #include <items.h>
 #include <trade_ship_str.h>
@@ -54,6 +55,8 @@ vec3 UI_PIVOT_OFFSETS[9] = {
 
 extern DIALOG dialog;
 extern float time_schdule_trade_toute_prompt;
+extern TRADE trade;
+extern float time_trade_event_prompt;
 
 // Insert declarations of global render elemements:
 // - models
@@ -81,6 +84,7 @@ MODEL *player_ship;
 MODEL *enemy_ship;
 MODEL *trade_ship;
 MODEL *house;
+MODEL *chest;
 MODEL *quad;
 MODEL *circle;
 CHARACTER font[FONT_LEN];
@@ -104,6 +108,7 @@ void render_unit(C_UNIT *);
 void render_merchant(MERCHANT *);
 void render_e_npc(MODEL *, ivec2, vec2, vec2, float);
 void render_c_npc(MODEL *, vec2, vec2, float);
+void render_obstacle(MODEL *, ivec2, vec2, float);
 void render_fbo_entity(MODEL *, mat4, mat4, mat4, mat4, mat4, mat4);
 void render_ui(UI_COMPONENT *);
 void render_text(char *, int, mat4);
