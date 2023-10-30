@@ -1,6 +1,6 @@
 
 /* DEFINES  */
-#define NUM_COMPONENTS (79) // UI COMPONENT:: Max number of UI component
+#define NUM_COMPONENTS (162) // UI COMPONENT:: Max number of UI component
 
 /*
   Enum mapping human-readable component names to the index of the ui component
@@ -50,7 +50,7 @@ typedef enum component_ids {
   CONSOLE_INTRA_CHUNK_COORDS = 48,
   CONSOLE_CHUNK_COORDS = 49,
   CONSOLE_ERROR = 50,
-  
+
   TRADE_BUTTON_MERCHANT_ITEM_0 = 51,
   TRADE_BUTTON_MERCHANT_ITEM_1 = 52,
   TRADE_BUTTON_MERCHANT_ITEM_2 = 53,
@@ -77,7 +77,24 @@ typedef enum component_ids {
   TRADE_TEXT_MERCHANT_VALUE = 74,
   TRADE_TEXT_PLAYER_VALUE = 75,
   TRADE_BUTTON_TRADE = 76,
-  TRADE_TEXT_EVENT_PROMPT = 77
+  TRADE_TEXT_EVENT_PROMPT = 77,
+
+  CONTAINER_1_SLOTS = 78,
+  CONTAINER_1_NEXT = 113,
+  CONTAINER_1_PREV = 114,
+  CONTAINER_1_MOVE = 115,
+  CONTAINER_2_SLOTS = 116,
+  CONTAINER_2_NEXT = 152,
+  CONTAINER_2_PREV = 153,
+  CONTAINER_2_MOVE = 154,
+
+  NEW_GAME = 155,
+  SAVE = 156,
+  LOAD = 157,
+  SAVE_CLOSE = 158,
+  SAVE_PROMPT = 159,
+  SAVE_INPUT = 160,
+  SAVE_STATUS = 161,
   // Populate as more components are added
 } UI_ID;
 

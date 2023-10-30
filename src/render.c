@@ -1,38 +1,7 @@
-  #include <render.h>
+#include <render.h>
 
 void init_scene() {
-  glm_vec2_zero(e_player.coords);
-  glm_ivec2_zero(e_player.chunk);
-  glm_vec2_zero(e_player.direction);
-  glm_vec2_zero(e_player.ship_direction);
-  e_player.speed = 1.0;
-  e_player.direction[1] = 1.0;
-  e_player.ship_direction[1] = 1.0;
-  e_player.embarked = 1;
-  e_player.inventory[0].item_id = FIRERATE_POTION;
-  e_player.inventory[0].quantity = 1;
-  e_player.inventory[1].item_id = AXE;
-  e_player.inventory[1].quantity = 1;
-  e_player.inventory[2].item_id = KNIVE;
-  e_player.inventory[2].quantity = 1;
-  e_player.inventory[3].item_id = GOLD_COIN;
-  e_player.inventory[3].quantity = 1;
-  e_player.inventory[4].item_id = SILVER_COIN;
-  e_player.inventory[4].quantity = 1;
-  e_player.inventory[5].item_id = COPPER_COIN;
-  e_player.inventory[5].quantity = 1;
-  e_player.inventory[6].item_id = CROSSBOW;
-  e_player.inventory[6].quantity = 1;
-  e_player.inventory[7].item_id = FLINTLOCK;
-  e_player.inventory[7].quantity = 1;  
-  e_player.inventory[8].item_id = MIDIUM_ARMOR;
-  e_player.inventory[8].quantity = 1;  
-  e_player.inventory[9].item_id = HEAVY_ARMOR;
-  e_player.inventory[9].quantity = 1;
-  e_player.inventory[10].item_id = PLATE_ARMOR;
-  e_player.inventory[10].quantity = 1;
-
-    // TEST MODELS
+  // TEST MODELS
     unsigned char ocean_buffer[3] = { 3, 157, 252 };
     ocean_texture = texture_from_buffer(ocean_buffer, 1, 1, GL_RGB);
   // END TEST
@@ -56,6 +25,7 @@ void init_scene() {
   enemy_ship = load_model("assets/enemy_ship.bin", "assets/1B.png");
   trade_ship = load_model("assets/trade_ship.bin", "assets/2A.png");
   house = load_model("assets/quad.bin", "assets/House.png");
+  chest = load_model("assets/chest.bin", "assets/1A.png");
   quad = load_model("assets/quad.bin", NULL);
   circle = load_model("assets/circle.bin", NULL);
   char default_path[50] = "assets/Dinklebitmap/x.bin";
@@ -191,7 +161,6 @@ void cleanup_scene() {
   free_model(enemy_ship);
   free_model(trade_ship);
   free_model(quad);
-  free(trade_ships);
   for (int i = 0; i < FONT_LEN; i++) {
     free_model(font[i].model);
   }
@@ -469,6 +438,38 @@ void render_c_npc(MODEL *model, vec2 coords, vec2 direction, float scale) {
                     view_mat, persp_proj, ortho_proj);
 }
 
+void render_obstacle(MODEL *model, ivec2 chunk, vec2 coords, float scale) {
+  mat4 fbo_model_mat = GLM_MAT4_IDENTITY_INIT;
+  glm_scale_uni(fbo_model_mat, scale);
+  glm_rotate_x(fbo_model_mat, glm_rad(-50.0), fbo_model_mat);
+  //glm_rotate_z(fbo_model_mat, glm_rad(180.0), fbo_model_mat);
+
+  mat4 fbo_view_mat = GLM_MAT4_IDENTITY_INIT;
+  glm_translate_z(fbo_view_mat, -3.0);
+
+  mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+  vec3 world_coords = { 0.0, 0.0, OBSTACLE_DEPTH };
+  chunk_to_world(chunk, coords, world_coords);
+  world_coords[0] += 0.5 * T_WIDTH;
+  world_coords[1] -= 0.5 * T_WIDTH;
+  glm_translate(model_mat, world_coords);
+  glm_scale_uni(model_mat, FBO_QUAD_WIDTH * T_WIDTH / 2.0);
+
+  mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+  vec3 player_world_coords = GLM_VEC2_ZERO_INIT;
+  if (e_player.embarked) {
+    chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
+                   player_world_coords);
+  } else {
+    chunk_to_world(e_player.chunk, e_player.coords, player_world_coords);
+  }
+  glm_vec3_negate(player_world_coords);
+  glm_translate(view_mat, player_world_coords);
+
+  render_fbo_entity(model, fbo_model_mat, model_mat, fbo_view_mat,
+                    view_mat, persp_proj, ortho_proj);
+}
+
 void render_ui(UI_COMPONENT *comp) {
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   // Dimensions of UI component (width, height)
@@ -699,20 +700,22 @@ void render_island(ISLAND *island) {
   quad->texture = island->texture;
   draw_model(quad, std_shader);
 
-  glm_mat4_identity(model_mat);
-  vec3 house_coords = { 0.0, 0.0, OBSTACLE_DEPTH };
-  chunk_to_world(island->chunk, house_tile, house_coords);
-  glm_translate(model_mat, house_coords);
-  glm_translate_x(model_mat, 2.0 * T_WIDTH);
-  glm_translate_y(model_mat, 4.0 * T_WIDTH);
-  glm_scale_uni(model_mat, T_WIDTH * 5.0);
-
   if (island->chunk[0] == 0 && island->chunk[1] == 0) {
+    glm_mat4_identity(model_mat);
+    vec3 house_coords = { 0.0, 0.0, OBSTACLE_DEPTH };
+    chunk_to_world(island->chunk, house_tile, house_coords);
+    glm_translate(model_mat, house_coords);
+    glm_translate_x(model_mat, 2.0 * T_WIDTH);
+    glm_translate_y(model_mat, 4.0 * T_WIDTH);
+    glm_scale_uni(model_mat, T_WIDTH * 5.0);
+
     glUseProgram(pixel_shader);
     set_mat4("model", model_mat, pixel_shader);
     set_mat4("view", view_mat, pixel_shader);
     set_mat4("proj", ortho_proj, pixel_shader);
     draw_model(house, pixel_shader);
+
+    render_obstacle(chest, island->chunk, home_box_tile, 0.25);
   }
 }
 

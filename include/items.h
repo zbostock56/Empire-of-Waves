@@ -3,6 +3,8 @@
 
 #define NUM_ITEMS (22)
 #define NUM_RESOURCES (21)
+#define COPPER_PER_SILVER (10)
+#define SILVER_PER_GOLD (10)
 
 /*
   Enum mapping human-readable resource names to the index of the resource in

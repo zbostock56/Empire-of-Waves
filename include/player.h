@@ -1,5 +1,5 @@
-#include <player_str.h>
 #include <items.h>
+#include <globals.h>
 
 I_SLOT * get_player_inventory_slot_by_index(unsigned int item_index);
 I_SLOT * get_player_first_empty_inventory_slot();

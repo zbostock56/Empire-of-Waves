@@ -25,8 +25,6 @@ int detect_collisions() {
     for (int i = 0; i < chunk_buff_len; i++) {
       for (int j = 0; j < chunk_buffer[i].num_enemies; j++) {
         cur_enemy = &chunk_buffer[i].enemies[j];
-        pathfind_enemy(cur_enemy, i);
-        update_enemy_chunk(cur_enemy, &chunk_buffer[i], j);
         ship_collisions(chunk_buffer + i, cur_enemy->chunk, cur_enemy->coords);
       }
     }
@@ -129,9 +127,12 @@ void detect_context_interaction() {
     }
 
     // Merchant Interaction
+    get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
     check_merchant_prompt(world_coords_char);
     // Check mercenary reassignment prompt
     check_mercenary_reassignment_prompt(world_coords_char);
+    // Check chest interaction prompt
+    check_chest_prompt(world_coords_char);
   }
 }
 
@@ -155,16 +156,40 @@ void check_mercenary_reassignment_prompt(vec2 coords) {
   chunk_to_world(island->chunk, house_tile, house_tile_world);
   float dist = glm_vec2_distance(house_tile_world, coords);
   UI_COMPONENT *interaction_prompt = get_ui_component_by_ID(INTERACT_PROMPT);
+  home_interaction_enabled = 0;
   if (dist <= 3.0 * T_WIDTH && !reassignment_menu_open) {
     // prompt to reassign mercenaries
     interaction_prompt->enabled = 1;
     home_interaction_enabled = 1;
-  } else if (dist > 3.0 * T_WIDTH) {
-    // close prompt
-    interaction_prompt->enabled = 0;
-    home_interaction_enabled = 0;
+  } else if (dist > 3.0) {
     close_mercenary_reassignment_menu();
   }
+}
+
+void check_chest_prompt(vec2 coords) {
+  CHUNK *chunk = chunk_buffer + player_chunks[PLAYER_CHUNK];
+  /* If the current chunk is not the home chunk, return. */
+  if (chunk->coords[0] != 0 || chunk->coords[1] != 0) {
+    return;
+  }
+  ISLAND *island = cur_island(chunk, coords);
+  /* Check if on the home island, if not return */
+  if (island != chunk->islands) {
+    return;
+  }
+  vec2 home_box_world = GLM_VEC2_ZERO_INIT;
+  chunk_to_world(island->chunk, home_box_tile, home_box_world);
+  float dist = glm_vec2_distance(home_box_world, coords);
+  UI_COMPONENT *interaction_prompt = get_ui_component_by_ID(INTERACT_PROMPT);
+  container_interaction_enabled = 0;
+  if (dist <= 3.0 * T_WIDTH && !container_menu_open) {
+    // prompt to reassign mercenaries
+    interaction_prompt->enabled = 1;
+    container_interaction_enabled = 1;
+  } else if (dist > 3.0) {
+    close_container();
+  }
+
 }
 
 // Exploration mode collision:
@@ -174,7 +199,7 @@ void check_merchant_prompt(vec2 world_player_coords) {
   ISLAND *cur_island = NULL;
   vec2 world_merchant_coords = GLM_VEC2_ZERO_INIT;
   float dist_to_merchant = 0.0;
-  cur_merchant = NULL;
+  MERCHANT *cur_merchant = NULL;
   for (int i = 0; i < cur_chunk->num_islands && !cur_merchant; i++) {
     cur_island = cur_chunk->islands + i;
     if (cur_island->has_merchant) {
@@ -185,18 +210,20 @@ void check_merchant_prompt(vec2 world_player_coords) {
       if (dist_to_merchant <= INTERACTION_RADIUS * T_WIDTH) {
         get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 1;
         cur_merchant = &cur_island->merchant;
-        strncpy(dialog.name, merchant_name_list[cur_merchant->name], MAX_NAME_STR_LENGTH);
+        size_t island_index = i;
+        UI_COMPONENT *tr_btn = dialog.ui_button_establish_trade_route;
+        tr_btn->on_click_args = (void *) island_index;
       }
     }
   }
-  if (!cur_merchant || dialog.ui_text_name->enabled ||
-      trade.ui_listing[0]->enabled) {
+  if (dialog.ui_text_name->enabled || trade.ui_listing[0]->enabled) {
     get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
   }
   if (!cur_merchant) {
     close_dialog();
     close_trade();
   }
+  close_merchant = cur_merchant;
 }
 
 /*
@@ -303,6 +330,10 @@ int trade_ship_detect_enemies(TRADE_SHIP *trade_ship, CHUNK *trade_ship_chunk, i
                                   SHIP_COLLISION_RADIUS *T_WIDTH,
                                   cur_enemy_world_coords,
                                   SHIP_COLLISION_RADIUS *T_WIDTH)) {
+          TRADE_SHIP *ship = trade_ships + idx;
+          CHUNK *target_chunk = chunk_buffer + ship->target_chunk_index;
+          ISLAND *target_island = target_chunk->islands + ship->target_island;
+          target_island->merchant.has_trade_route = 0;
           num_trade_ships--;
           trade_ships[idx] = trade_ships[num_trade_ships];
         }

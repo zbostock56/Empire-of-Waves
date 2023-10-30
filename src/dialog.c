@@ -38,6 +38,7 @@ void init_dialog() {
   }
 
   dialog.type = INVALID_DIALOG;
+  dialog.merchant = NULL;
   dialog.ui_text_name = get_ui_component_by_ID(DIALOG_NAME);
   dialog.ui_text_relationship = get_ui_component_by_ID(DIALOG_RELATION);
   dialog.ui_text_content = get_ui_component_by_ID(DIALOG_CONTENT);
@@ -237,6 +238,8 @@ void free_dialog() {
     free(dialog.mercenary_count);
     dialog.mercenary_count = NULL;
   }
+
+  dialog.merchant = NULL;
 }
 
 /* Open Dialog UI based on dialog type */
@@ -278,6 +281,7 @@ void open_dialog() {
 
 /* Close dialog and reset schedule trade route prompt timer to 2.0 */
 void close_dialog() {
+  dialog.merchant = NULL;
   dialog.ui_text_content->enabled = 0;
   dialog.ui_text_name->enabled = 0;
   dialog.ui_text_relationship->enabled = 0;
@@ -294,13 +298,15 @@ Set global dialog, call when change dialog
 Args:
 T_DIALOG dialog type
   Decided the type of dialog when call by open_dialog()
-char *name 
+char *name
   name string of the dialog, represent the who says the content
 char *content
   content string of the dialog, do not exceed line length (20)
 */
-int set_dialog(T_DIALOG dialog_type, char *name, char *content) {
+int set_dialog(MERCHANT *merchant, T_DIALOG dialog_type, char *name,
+               char *content) {
   if (strlen(name) < MAX_NAME_STR_LENGTH && strlen(content) < MAX_CONTENT_STR_LENGTH) {
+    dialog.merchant = merchant;
     dialog.type = dialog_type;
     strncpy(dialog.name, name, MAX_NAME_STR_LENGTH);
     dialog.name[MAX_NAME_STR_LENGTH - 1] = '\0'; // Ensures null termination
@@ -312,11 +318,11 @@ int set_dialog(T_DIALOG dialog_type, char *name, char *content) {
 }
 
 void update_dialog_buffers() {
-  if (cur_merchant) {
+  if (dialog.merchant) {
     snprintf(dialog.ui_text_relationship->text, TEXT_BUFFER_LEN,
-             "Relationship: %.1f", cur_merchant->relationship);
+             "Relationship: %.1f", dialog.merchant->relationship);
     snprintf(dialog.ui_mercenary_buy->text, TEXT_BUFFER_LEN,
              "4. Purchase Mercenary (%d available)",
-             cur_merchant->num_mercenaries);
+             dialog.merchant->num_mercenaries);
   }
 }

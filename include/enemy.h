@@ -46,6 +46,7 @@ void open_node(Node *, Node *, Node **, unsigned int *, unsigned int *);
 int add_node(Node **, unsigned int *, unsigned int *, Node *);
 void delete_node(Node *, unsigned int *, unsigned int);
 void update_enemy_chunk(E_ENEMY*, CHUNK*, int);
+
 /* =================== EXTERNALLY DEFINED FUNCTIONS =================== */
 
 int double_buffer(void **, unsigned int *, unsigned int);

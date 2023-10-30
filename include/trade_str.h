@@ -16,6 +16,7 @@ typedef enum trade_type {
 } T_TRADE;
 
 typedef struct trade {
+  MERCHANT *merchant;
   T_TRADE type;
   UI_COMPONENT *ui_listing[MAX_BUY_SELL_LISTING];
   UI_COMPONENT *ui_merchant_items[MAX_ITEMS_PER_PAGE];

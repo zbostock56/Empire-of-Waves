@@ -12,6 +12,7 @@ typedef enum dialog_type {
 
 typedef struct dialog {
   T_DIALOG type;
+  MERCHANT *merchant;
   char *name;
   char *content;
   char *relationship;
