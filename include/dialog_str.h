@@ -1,3 +1,6 @@
+#ifndef __DIALOG_STR_H__
+#define __DIALOG_STR_H__
+
 /* DEFINES */
 #define MAX_NAME_STR_LENGTH (20) // DIALOG :: Max string length of name
 #define MAX_CONTENT_STR_LENGTH (64) // DIALOG :: Max string length of content
@@ -27,3 +30,4 @@ typedef struct dialog {
   UI_COMPONENT *ui_mercenary_buy;
 } DIALOG;
 
+#endif
