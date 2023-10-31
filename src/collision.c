@@ -30,11 +30,13 @@ int detect_collisions() {
     }
 
     for (int i = 0; i < num_trade_ships; i++) {
-      cur_chunk = chunk_buffer + trade_ships[i].cur_chunk_index;
-      ship_collisions(cur_chunk, trade_ships[i].chunk_coords,
-                      trade_ships[i].coords);
-      trade_ship_detect_enemies(&trade_ships[i], cur_chunk, i);
-      trade_ship_collision(trade_ships + i);
+      if (trade_ship_active(i)) {
+        cur_chunk = chunk_buffer + trade_ships[i].cur_chunk_index;
+        ship_collisions(cur_chunk, trade_ships[i].chunk_coords,
+                        trade_ships[i].coords);
+        trade_ship_detect_enemies(&trade_ships[i], cur_chunk, i);
+        trade_ship_collision(trade_ships + i);
+      }
     }
 
     // Disembark / embark contexts
@@ -331,18 +333,7 @@ int trade_ship_detect_enemies(TRADE_SHIP *trade_ship, CHUNK *trade_ship_chunk, i
                                   cur_enemy_world_coords,
                                   SHIP_COLLISION_RADIUS *T_WIDTH)) {
           TRADE_SHIP *ship = trade_ships + idx;
-          CHUNK *target_chunk = chunk_buffer + ship->target_chunk_index;
-          ISLAND *target_island = target_chunk->islands + ship->target_island;
-          target_island->merchant.has_trade_route = 0;
-          num_trade_ships--;
-          trade_ships[idx] = trade_ships[num_trade_ships];
-
-          /* Spawn prompt to show that trade ship was plundered */
-          prompt_plundered_trade_ship();
-          target_island->merchant.relationship -= 10.0;
-          if (target_island->merchant.relationship < -100.0) {
-            target_island->merchant.relationship = -100.0;
-          }
+          ship->death_animation = 1.0;
         }
         if (circle_circle_collision(world_coords,
                                     SHIP_COLLISION_RADIUS *SHIP_CHASE_RADIUS*T_WIDTH,

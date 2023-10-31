@@ -25,8 +25,6 @@
 int console_input_enabled = 0;
 int coords_enabled = 0;
 //int console_error = 0;
-extern float timers[NUM_TIMERS];
-extern int event_flags[NUM_TIMERS];
 /* Buffers */
 char console_world_coords[CONSOLE_BUFFER_MAX];
 char console_intra_chunk[CONSOLE_BUFFER_MAX];

@@ -28,6 +28,11 @@ typedef struct trade_ship {
   // when adding mercenaries to it
   char desc[MAX_TRADE_SHIP_DESC];
   float speed;
+  // Indicates the current step in the death animation of the trade ship in the
+  // case it is plundered by an enemy ship. If -1.0, the trade ship has not yet
+  // been plundered. If > 0.0, the death animation is currently active, and if
+  // 0.0, the trade_ship is ready for deletion
+  float death_animation;
 } TRADE_SHIP;
 
 #endif

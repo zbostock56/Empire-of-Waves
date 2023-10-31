@@ -451,6 +451,7 @@ void save_trade_ship(TRADE_SHIP *ship, FILE *file) {
   fwrite(&ship->num_mercenaries, sizeof(unsigned int), 1, file);
   fwrite(ship->desc, sizeof(char), MAX_TRADE_SHIP_DESC, file);
   fwrite(&ship->speed, sizeof(float), 1, file);
+  fwrite(&ship->death_animation, sizeof(float), 1, file);
 }
 
 void load_player_state(FILE *file) {
@@ -495,6 +496,7 @@ void load_trade_ship(FILE *file) {
   fread(&cur_ship->num_mercenaries, sizeof(unsigned int), 1, file);
   fread(cur_ship->desc, sizeof(char), MAX_TRADE_SHIP_DESC, file);
   fread(&cur_ship->speed, sizeof(float), 1, file);
+  fread(&cur_ship->death_animation, sizeof(float), 1, file);
 }
 
 void chunk_to_disk(char *chunk_path, CHUNK *chunk) {
@@ -813,7 +815,7 @@ int list_all_files(char *dir, char (**dest_list)[MAX_CHUNK_NAME_LEN],
 #endif
 
   // Windows directory i/o
-#ifdef _IWIN32
+#ifdef _WIN32
   char dir_path[MAX_PATH_LEN];
   // dir_path will have '\*' appended to the end of 'dir', so ensure there is
   // enough space in dir_path

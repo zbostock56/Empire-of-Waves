@@ -28,3 +28,4 @@ void clear_plundered_trade_ship_prompt();
 void update_event_timer();
 void spawn_event();
 void update_timers();
+float decrement_timer(float);

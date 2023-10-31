@@ -124,19 +124,15 @@ void update_combat_state() {
     npc_units[i].attack_active = decrement_timer(npc_units[i].attack_active);
     npc_units[i].attack_cooldown = decrement_timer(npc_units[i].
                                                    attack_cooldown);
-    if (npc_units[i].death_animation > 0.0) {
-      // Npc currently in death animation
-      npc_units[i].death_animation = decrement_timer(npc_units[i].
-                                                     death_animation);
+    if (npc_units[i].death_animation == -1.0) {
+      // NPC still alive, has not been hit
+      c_enemy_pathfind(npc_units + i, c_player.coords);
     } else if (npc_units[i].death_animation == 0.0) {
       // Death animation complete, npc should be deleted
       num_npc_units--;
       // move last unit in buffer to position of deleted unit
       npc_units[i] = npc_units[num_npc_units];
       i--;
-    } else {
-      // NPC still alive, has not been hit
-      c_enemy_pathfind(npc_units + i, c_player.coords);
     }
   }
 
@@ -147,14 +143,6 @@ void update_combat_state() {
     // Player loses
     from_combat_mode();
   }
-}
-
-float decrement_timer(float timer) {
-  timer -= delta_time;
-  if (timer < 0.0) {
-    timer = 0.0;
-  }
-  return timer;
 }
 
 void update_projectiles() {

@@ -147,7 +147,7 @@ void exploration_movement(GLFWwindow *window) {
     holding_interaction = 0;
   }
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS && !holding_esc) {
-    if (!trade.ui_listing[0]->enabled && !dialog.ui_text_name->enabled) {
+    if (!trade.ui_button_trade->enabled && !dialog.ui_text_name->enabled) {
       if (save_menu_opened()) {
         close_save_menu();
       } else {

@@ -20,8 +20,6 @@ extern DIALOG dialog;
 extern float time_schdule_trade_toute_prompt;
 float time_trade_event_prompt;
 extern char merchant_name_list[600][20];
-extern int event_flags[NUM_TIMERS];
-extern float timers[NUM_TIMERS];
 
 /* ==================== INTERNALLY DEFINED FUNCITONS ================== */
 void init_trade();

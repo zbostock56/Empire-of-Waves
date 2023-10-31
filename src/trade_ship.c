@@ -48,6 +48,7 @@ TRADE_SHIP *init_trade_ship(char *merch_name, ivec2 target_chunk,
   trade_ships[num_trade_ships].target_island = target_island;
   trade_ships[num_trade_ships].num_mercenaries = 0;
   trade_ships[num_trade_ships].speed = 10.0;
+  trade_ships[num_trade_ships].death_animation = -1.0;
   for (int i = 0; i < 20; i++) {
     trade_ships[num_trade_ships].desc[i] = merch_name[i];
   }
@@ -78,8 +79,26 @@ void delete_trade_ship(ivec2 target_chunk, unsigned int target_island) {
 }
 
 void update_trade_ships() {
+  TRADE_SHIP *cur_ship = NULL;
   for (unsigned int i = 0; i < num_trade_ships; i++) {
-    trade_ship_pathfind(trade_ships + i);
+    cur_ship = trade_ships + i;
+    if (cur_ship->death_animation == -1.0) {
+      trade_ship_pathfind(trade_ships + i);
+    } else if (cur_ship->death_animation == 0.0) {
+      CHUNK *target_chunk = chunk_buffer + cur_ship->target_chunk_index;
+      ISLAND *target_island = target_chunk->islands + cur_ship->target_island;
+      target_island->merchant.has_trade_route = 0;
+      num_trade_ships--;
+      trade_ships[i] = trade_ships[num_trade_ships];
+
+      // Spawn prompt to show that trade ship was plundered
+      prompt_plundered_trade_ship();
+      target_island->merchant.relationship -= 10.0;
+      if (target_island->merchant.relationship < -100.0) {
+        target_island->merchant.relationship = -100.0;
+      }
+      i--;
+    }
     /*
     vec2 c = GLM_VEC2_ZERO_INIT;
     chunk_to_world(trade_ships[i].chunk_coords, trade_ships[i].coords, c);
@@ -122,4 +141,8 @@ void trade_ship_pathfind(TRADE_SHIP *ship) {
                  movement);
   glm_vec2_add(movement, ship_world, ship_world);
   world_to_chunk(ship_world, ship->chunk_coords, ship->coords);
+}
+
+int trade_ship_active(unsigned int index) {
+  return trade_ships[index].death_animation == -1.0;
 }

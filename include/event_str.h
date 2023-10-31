@@ -10,3 +10,6 @@ typedef enum timer_list {
   RELATIONSHIP_TOO_LOW,
   PLUNDERED_TS,
 } TIMER_LIST;
+
+extern float timers[NUM_TIMERS];
+extern int event_flags[NUM_TIMERS];

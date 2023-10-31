@@ -321,7 +321,11 @@ void render_enemy_ship(E_ENEMY *es) {
 }
 
 void render_trade_ship(TRADE_SHIP *ts) {
-  render_e_npc(trade_ship, ts->chunk_coords, ts->coords, ts->direction, 0.50);
+  float scale = 0.5;
+  if (ts->death_animation >= 0.0) {
+    scale = scale * ts->death_animation;
+  }
+  render_e_npc(trade_ship, ts->chunk_coords, ts->coords, ts->direction, scale);
 }
 
 void render_player() {

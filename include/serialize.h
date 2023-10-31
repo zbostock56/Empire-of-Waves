@@ -12,8 +12,9 @@
 #define MAX_CHUNK_COORD (1000000)
 
 // Definition of macros and functions for directory i/o on windows
-#ifdef _IWIN32
+#ifdef _WIN32
 #include <windows.h>
+#include <direct.h>  // Include this header for _mkdir to fix error report
 #define make_dir(dir) (_mkdir(dir))
 #define PATH_SEPERATOR ('\\')
 #endif

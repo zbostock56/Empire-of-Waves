@@ -40,8 +40,6 @@ extern char cons_cmd[MAX_CMD_LEN];
 extern unsigned int cons_cmd_len;
 extern char *save_input_buffer;
 extern unsigned int save_input_len;
-extern float timers[NUM_TIMERS];
-extern int event_flags[NUM_TIMERS];
 extern int console_input_enabled;
 
 int holding_left_click = 0;

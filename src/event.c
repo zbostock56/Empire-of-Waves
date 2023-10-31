@@ -66,4 +66,31 @@ void update_timers() {
       clear_plundered_trade_ship_prompt();
     }
   }
+
+  if (mode == EXPLORATION) {
+    TRADE_SHIP *cur_ship = NULL;
+    for (int i = 0; i < num_trade_ships; i++) {
+      cur_ship = trade_ships + i;
+      if (cur_ship->death_animation > 0.0) {
+        cur_ship->death_animation = decrement_timer(cur_ship->death_animation);
+      }
+    }
+  } else if (mode == COMBAT) {
+    C_UNIT *cur_unit = NULL;
+    for (int i = 0; i < num_npc_units; i++) {
+      cur_unit = npc_units + i;
+      if (cur_unit->death_animation > 0.0) {
+        cur_unit->death_animation = decrement_timer(cur_unit->death_animation);
+      }
+    }
+  }
 }
+
+float decrement_timer(float timer) {
+  timer -= delta_time;
+  if (timer < 0.0) {
+    timer = 0.0;
+  }
+  return timer;
+}
+
