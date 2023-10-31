@@ -136,7 +136,40 @@ void update_combat_state() {
       i--;
     } else {
       // NPC still alive, has not been hit
-      c_enemy_pathfind(npc_units + i, c_player.coords);
+      
+      float min_distance = FLT_MAX;
+      int min_idx = 0;
+      float distance;
+      
+      for (int j = 0; j < num_npc_units; j++) {
+        if (npc_units[i].type == npc_units[j].type) {
+          continue;
+        }
+        distance = glm_vec2_distance(npc_units[i].coords, npc_units[j].coords);
+        if (distance < min_distance) {
+          min_distance = distance;
+          min_idx = j;
+        }
+      }
+      // if it's an enemy unit, need to also consider Player.
+      if (npc_units[i].type == ENEMY) {
+        distance = glm_vec2_distance(npc_units[i].coords, c_player.coords);
+        if (distance < min_distance) {
+          min_distance = distance;
+          min_idx = -1;
+        }
+      }
+
+      // No more ENEMY units left, we win
+      if (min_distance == FLT_MAX) {
+          from_combat_mode();
+      }
+      if (min_idx == -1) {
+        c_enemy_pathfind(npc_units + i, c_player.coords);
+      } else {
+        c_enemy_pathfind(npc_units + i, npc_units[min_idx].coords);
+      }
+      
     }
   }
 

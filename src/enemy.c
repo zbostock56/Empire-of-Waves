@@ -632,7 +632,7 @@ void update_enemy_chunk(E_ENEMY *cur_enemy, CHUNK *chunk, int i) {
 void c_enemy_pathfind(C_UNIT *enemy, vec2 target_coords) {
   float target_dist = glm_vec2_distance(target_coords, enemy->coords);
   if (enemy->weapon_type == RANGED) {
-    if (enemy->attack_cooldown == 0.0) {
+    if (target_dist >= 5.0 && enemy->attack_cooldown == 0.0) {
       npc_ranged_attack(enemy);
     }
   
@@ -645,11 +645,25 @@ void c_enemy_pathfind(C_UNIT *enemy, vec2 target_coords) {
 
   vec2 movement = GLM_VEC2_ZERO_INIT;
   int move = 0;
-  if (target_dist >= 1.5) {
-    glm_vec2_sub(target_coords, enemy->coords, enemy->direction);
-    glm_vec2_normalize(enemy->direction);
-    move = 1;
+  if (enemy->weapon_type == RANGED) {
+    if (target_dist < 5.0) {
+      // If target is too close, move away
+      glm_vec2_sub(enemy->coords, target_coords, enemy->direction);
+      glm_vec2_normalize(enemy->direction);
+      move = 1;
+    } else {
+      glm_vec2_sub(target_coords, enemy->coords, enemy->direction);
+      glm_vec2_normalize(enemy->direction);
+      move = 1;
+    }
+  } else {
+    if (target_dist >= 1.5) {
+      glm_vec2_sub(target_coords, enemy->coords, enemy->direction);
+      glm_vec2_normalize(enemy->direction);
+      move = 1;
+    }
   }
+  
 
   // Distance from enemy to its allies
   float ally_dist = 0.0;
