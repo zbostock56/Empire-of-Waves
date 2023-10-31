@@ -21,6 +21,7 @@ extern int console_enabled;
 /* ================ EXTERNALLY DEFINED FUNCTIONS ================== */
 void spawn_enemy();
 void reset_console_error();
+void reset_merc_trade_error();
 
 /* ================ INTERNALLY DEFINED FUNCTIONS ================== */
 void update_event_timer();

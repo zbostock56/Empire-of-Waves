@@ -42,12 +42,20 @@ void update_timers() {
       event_flags[CONS_CURSOR] = ENABLED;
     }
   }
-  if (timers[CONS_ERROR]) {
+  if (event_flags[CONS_ERROR]) {
     timers[CONS_ERROR] -= delta_time;
     if (timers[CONS_ERROR] <= 0.0) {
       event_flags[CONS_ERROR] = 0;
       timers[CONS_ERROR] = C_ERROR_TIME;
       reset_console_error();
+    }
+  }
+  if (event_flags[RELATIONSHIP_TOO_LOW]) {
+    timers[RELATIONSHIP_TOO_LOW] -= delta_time;
+    if (timers[RELATIONSHIP_TOO_LOW] <= 0.0) {
+      event_flags[RELATIONSHIP_TOO_LOW] = 0;
+      timers[RELATIONSHIP_TOO_LOW] = TRADE_ERROR_TIME;
+      reset_merc_trade_error();
     }
   }
 }
