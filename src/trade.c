@@ -758,24 +758,35 @@ void open_sell() {
 }
 
 /* Click lisnter of establish trade route button */
-void open_establish_trade_route(int island_index) {
+void trade_route_handler(int island_index) {
   MERCHANT *target_merch = dialog.merchant;
 
   // Check if player already have a trade route to this island
   if (target_merch->has_trade_route) {
-    dialog.ui_text_schedule_trade_route_prompt->text = "Unable to Schedule Duplicate Trade Route";
+    dialog.ui_text_schedule_trade_route_prompt->text = "Trade Route Cancelled";
     dialog.ui_text_schedule_trade_route_prompt->enabled = 1;
-    return;
+    time_schdule_trade_toute_prompt = 1.0;
+    delete_trade_ship(dialog.merchant->chunk, island_index);
+    target_merch->has_trade_route = 0;
+
+    dialog.ui_button_trade_route->text = "3. Establish trade route";
+
+    target_merch->relationship -= 10.0;
+    if (target_merch->relationship < -100.0) {
+      target_merch->relationship = -100.0;
+    }
+  } else {
+    // Establish trade route and popup the prompt shows successful
+    dialog.ui_text_schedule_trade_route_prompt->text = "Trade Route Established";
+    dialog.ui_text_schedule_trade_route_prompt->enabled = 1;
+    time_schdule_trade_toute_prompt = 1.0;
+
+    init_trade_ship(merchant_name_list[target_merch->name],
+                    dialog.merchant->chunk, island_index);
+    target_merch->has_trade_route = 1;
+
+    dialog.ui_button_trade_route->text = "3. Cancel trade route";
   }
-
-  // Establish trade route and popup the prompt shows successful
-  dialog.ui_text_schedule_trade_route_prompt->text = "Trade Route Established";
-  dialog.ui_text_schedule_trade_route_prompt->enabled = 1;
-  time_schdule_trade_toute_prompt = 2.0;
-
-  init_trade_ship(merchant_name_list[target_merch->name],
-                  dialog.merchant->chunk, island_index);
-  target_merch->has_trade_route = 1;
 }
 
 /*

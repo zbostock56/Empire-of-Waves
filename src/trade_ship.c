@@ -61,6 +61,22 @@ TRADE_SHIP *init_trade_ship(char *merch_name, ivec2 target_chunk,
   return trade_ships + num_trade_ships - 1;
 }
 
+void delete_trade_ship(ivec2 target_chunk, unsigned int target_island) {
+  TRADE_SHIP *cur_ship = NULL;
+  CHUNK *cur_chunk = NULL;
+  for (int i = 0; i < num_trade_ships; i++) {
+    cur_ship = trade_ships + i;
+    cur_chunk = chunk_buffer + cur_ship->target_chunk_index;
+    if (target_chunk[0] == cur_chunk->coords[0] &&
+        target_chunk[1] == cur_chunk->coords[1] &&
+        target_island == cur_ship->target_island) {
+      num_trade_ships--;
+      trade_ships[i] = trade_ships[num_trade_ships];
+      return;
+    }
+  }
+}
+
 void update_trade_ships() {
   for (unsigned int i = 0; i < num_trade_ships; i++) {
     trade_ship_pathfind(trade_ships + i);

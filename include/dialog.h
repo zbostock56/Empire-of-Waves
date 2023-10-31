@@ -30,5 +30,5 @@ void init_menu(vec2, void (*)(void *), void (*)(void *), void *, void *,
                PIVOT, TEXT_ANCHOR, UI_COMPONENT *);
 void open_buy();
 void open_sell();
-void open_establish_trade_route();
+void trade_route_handler();
 void purchase_mercenary_handler();

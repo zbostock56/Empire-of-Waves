@@ -211,7 +211,7 @@ void check_merchant_prompt(vec2 world_player_coords) {
         get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 1;
         cur_merchant = &cur_island->merchant;
         size_t island_index = i;
-        UI_COMPONENT *tr_btn = dialog.ui_button_establish_trade_route;
+        UI_COMPONENT *tr_btn = dialog.ui_button_trade_route;
         tr_btn->on_click_args = (void *) island_index;
       }
     }
@@ -336,6 +336,11 @@ int trade_ship_detect_enemies(TRADE_SHIP *trade_ship, CHUNK *trade_ship_chunk, i
           target_island->merchant.has_trade_route = 0;
           num_trade_ships--;
           trade_ships[idx] = trade_ships[num_trade_ships];
+
+          target_island->merchant.relationship -= 10.0;
+          if (target_island->merchant.relationship < -100.0) {
+            target_island->merchant.relationship = -100.0;
+          }
         }
         if (circle_circle_collision(world_coords,
                                     SHIP_COLLISION_RADIUS *SHIP_CHASE_RADIUS*T_WIDTH,

@@ -56,3 +56,4 @@ int resize_listings(MERCHANT *);
 void add_listing(MERCHANT *, ITEM_IDS, unsigned int);
 void clear_listing(MERCHANT *merchant, unsigned int index);
 void coalesce_currency(CONTAINER cont);
+void delete_trade_ship(ivec2, unsigned int);
