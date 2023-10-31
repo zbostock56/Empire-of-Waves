@@ -44,4 +44,8 @@ void init_menu(vec2, void (*)(void *), void (*)(void *), void *, void *,
                char *, int, int, unsigned int, float, float, float, float,
                PIVOT, TEXT_ANCHOR, UI_COMPONENT *);
 void select_listing_dispatcher();
-
+unsigned int calc_merc_price(MERCHANT *);
+unsigned int get_player_money();
+void remove_money(I_SLOT *, unsigned int);
+I_SLOT *get_player_first_empty_inventory_slot();
+void coalesce_currency(I_SLOT *, unsigned int);

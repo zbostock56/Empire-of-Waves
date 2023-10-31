@@ -97,6 +97,18 @@ I_SLOT * search_player_inventory_by_ID(ITEM_IDS item_id) {
   return NULL;
 }
 
+void remove_money(I_SLOT *items, unsigned int num_items) {
+  I_SLOT *cur_item = NULL;
+  for (int i = 0; i < num_items; i++) {
+    cur_item = items + i;
+    if (cur_item->item_id == GOLD_COIN || cur_item->item_id == SILVER_COIN ||
+        cur_item->item_id == COPPER_COIN) {
+      cur_item->item_id = EMPTY;
+      cur_item->quantity = 0;
+    }
+  }
+}
+
 /*
 Return the gold coin player owns
 */
@@ -136,6 +148,23 @@ int get_player_copper() {
   return 0;
 }
 
+unsigned int get_player_money() {
+  unsigned int money = 0;
+  for (int i = 0; i < MAX_PLAYER_INV_SIZE; i++) {
+    I_SLOT *slot = get_player_inventory_slot_by_index(i);
+    if (slot->item_id == GOLD_COIN) {
+      money += (SILVER_PER_GOLD * COPPER_PER_SILVER * slot->quantity);
+    }
+    if (slot->item_id == SILVER_COIN) {
+      money += (COPPER_PER_SILVER * slot->quantity);
+    }
+    if (slot->item_id == COPPER_COIN) {
+      money += slot->quantity;
+    }
+  }
+  return money;
+}
+
 /*
   Perform calculation to automatically coalesce coins into higher
   denomnations given there is enought of them.
@@ -162,28 +191,78 @@ void coalesce_currency(I_SLOT *items, unsigned int num_items) {
     }
   }
 
+  if (!num_copper && !num_silver && !num_gold) {
+    return;
+  }
+
   num_silver += num_copper / COPPER_PER_SILVER;
   num_copper = num_copper % COPPER_PER_SILVER;
   num_gold += num_silver / SILVER_PER_GOLD;
   num_silver = num_silver % SILVER_PER_GOLD;
 
-  for (int i = 0; i < num_items; i++) {
-    I_SLOT *slot = items + i;
-    if (slot->item_id == EMPTY && num_gold) {
-      slot->item_id = GOLD_COIN;
-      slot->quantity = num_gold;
-      num_gold = 0;
-    } else if (slot->item_id == EMPTY && num_silver) {
-      slot->item_id = SILVER_COIN;
-      slot->quantity = num_silver;
-      num_silver = 0;
-    } else if (slot->item_id == EMPTY && num_copper) {
-      slot->item_id = COPPER_COIN;
-      slot->quantity = num_copper;
-      num_copper = 0;
-      return;
-    } else if (slot->item_id == EMPTY) {
-      return;
+  unsigned int num_empty = get_num_empty_slots(items, num_items);
+  if (num_empty >= 3) {
+    for (int i = 0; i < num_items; i++) {
+      I_SLOT *slot = items + i;
+      if (slot->item_id == EMPTY && num_gold) {
+        slot->item_id = items[0].item_id;
+        slot->quantity = items[0].quantity;
+        items[0].item_id = GOLD_COIN;
+        items[0].quantity = num_gold;
+        num_gold = 0;
+      } else if (slot->item_id == EMPTY && num_silver) {
+        slot->item_id = items[1].item_id;
+        slot->quantity = items[1].quantity;
+        items[1].item_id = SILVER_COIN;
+        items[1].quantity = num_silver;
+        num_silver = 0;
+      } else if (slot->item_id == EMPTY && num_copper) {
+        slot->item_id = items[2].item_id;
+        slot->quantity = items[2].quantity;
+        items[2].item_id = COPPER_COIN;
+        items[2].quantity = num_copper;
+        num_copper = 0;
+        return;
+      } else if (slot->item_id == EMPTY) {
+        return;
+      }
+    }
+  } else if (num_empty == 2) {
+    num_silver += num_gold * SILVER_PER_GOLD;
+    num_gold = 0;
+    for (int i = 0; i < num_items; i++) {
+      I_SLOT *slot = items + i;
+      if (slot->item_id == EMPTY && num_silver) {
+        slot->item_id = items[0].item_id;
+        slot->quantity = items[0].quantity;
+        items[0].item_id = SILVER_COIN;
+        items[0].quantity = num_silver;
+        num_silver = 0;
+      } else if (slot->item_id == EMPTY && num_copper) {
+        slot->item_id = items[1].item_id;
+        slot->quantity = items[1].quantity;
+        items[1].item_id = COPPER_COIN;
+        items[1].quantity = num_copper;
+        num_copper = 0;
+        return;
+      } else if (slot->item_id == EMPTY) {
+        return;
+      }
+    }
+  } else {
+    num_copper += ((num_gold*SILVER_PER_GOLD)+num_silver)*COPPER_PER_SILVER;
+    num_gold = 0;
+    num_silver = 0;
+    for (int i = 0; i < num_items; i++) {
+      I_SLOT *slot = items + i;
+      if (slot->item_id == EMPTY && num_copper) {
+        slot->item_id = items[0].item_id;
+        slot->quantity = items[0].quantity;
+        items[0].item_id = COPPER_COIN;
+        items[0].quantity = num_copper;
+        num_copper = 0;
+        return;
+      }
     }
   }
 }

@@ -339,7 +339,8 @@ void update_dialog_buffers() {
     snprintf(dialog.ui_text_relationship->text, TEXT_BUFFER_LEN,
              " Relationship: %.1f ", dialog.merchant->relationship);
     snprintf(dialog.ui_mercenary_buy->text, TEXT_BUFFER_LEN,
-             "3. Purchase Mercenary (%d available)",
+             "3. Purchase Mercenary (%d copper) (%d available)",
+             calc_merc_price(dialog.merchant),
              dialog.merchant->num_mercenaries);
   }
 }

@@ -109,6 +109,12 @@ void close_mercenary_reassignment_menu() {
 */
 void purchase_mercenary_handler() {
   if (dialog.merchant->relationship > 40.0) {
+    unsigned int player_money = get_player_money();
+    unsigned int price = calc_merc_price(dialog.merchant);
+    if (player_money < price) {
+      printf("Not enough money\n");
+      return;
+    }
     if (dialog.merchant->num_mercenaries <= 0) {
       /* Prompt that no mercenaries are available */
       /* for purchase?                            */
@@ -117,6 +123,13 @@ void purchase_mercenary_handler() {
     }
     dialog.merchant->num_mercenaries--;
     e_player.total_mercenaries++;
+    remove_money(e_player.inventory, MAX_PLAYER_INV_SIZE);
+    if (player_money > price) {
+      I_SLOT *empty = get_player_first_empty_inventory_slot();
+      empty->item_id = COPPER_COIN;
+      empty->quantity = player_money - price;
+      coalesce_currency(e_player.inventory, MAX_PLAYER_INV_SIZE);
+    }
   } else {
     merchant_mercenary_relationship_prompt();
   }

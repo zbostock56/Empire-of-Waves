@@ -32,3 +32,4 @@ void open_buy();
 void open_sell();
 void trade_route_handler();
 void purchase_mercenary_handler();
+unsigned int calc_merc_price(MERCHANT *);

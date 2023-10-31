@@ -9,6 +9,7 @@ Describes the struct representing an NPC merchant’s state. Can be included by
 any file which needs to read/manipulate merchant state.
 */
 
+#define MERC_BASE_PRICE (1000)
 #define MAX_MERCENARIES (4)
 #define NUM_NAMES (600)
 #define NAME_SIZE (20)
