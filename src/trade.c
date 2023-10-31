@@ -1,4 +1,5 @@
 #include <trade.h>
+#include <dialog_str.h>
 
 /* Init trade menu */
 void init_trade() {
@@ -31,6 +32,8 @@ void init_trade() {
 
   trade.merchant_value = 0;
   trade.player_value = 0;
+
+  trade.barter_range = 0.1;
 
   for (int i = 0; i < MAX_MERCHANT_ITEM; i++) {
     trade.merchant_item_selected[i] = 0;
@@ -371,7 +374,7 @@ void init_trade() {
   }
   trade.ui_text_on_hover_item->text[0] = '\0'; // Ensures null termination
   strcpy(trade.ui_text_on_hover_item->text,
-         "[Name] P [Price] Q [Quantity] S [Num Select]");
+         " [Name] P [Price] Q [Quantity] S [Num Select] ");
 
   // Init merchant and player value text
   init_menu(
@@ -523,6 +526,9 @@ void open_trade() {
   trade.ui_text_player_value->enabled = is_ui_trade_with_items_enabled;
   trade.ui_button_trade->enabled = is_ui_trade_with_items_enabled;
   trade.ui_text_event_prompt->enabled = 0;
+
+  // Enable relationship bar
+  dialog.ui_text_relationship->enabled = 1;
 }
 
 /* Derender trade menu */
@@ -562,6 +568,16 @@ void close_trade() {
     trade.ui_merchant_items[i]->text = "EMPTY";
     trade.ui_player_items[i]->text = "EMPTY";
   }
+
+  // Set UI text back
+  sprintf(trade.ui_text_merchant_value->text, "MERCHANT VALUE [%d]",
+          trade.merchant_value);
+  sprintf(trade.ui_text_player_value->text, "PLAYER VALUE [%d]",
+          trade.player_value);
+  sprintf(trade.ui_text_on_hover_item->text, " [Name] P [Price] Q [Quantity] S [Num Select] ");
+
+  // Disable relationship bar
+  dialog.ui_text_relationship->enabled = 0;
 }
 
 /*
@@ -731,30 +747,30 @@ void on_click_ui_listing(void *listing_ui_index) {
 
 /*#ifndef __linux__
     printf("**** [SLOT %ld] [ITEM \"%s\"] [QUATITY %d] ****\n",
-          listing_index + 1, trade.ui_listing[listing_index]->text,
-          get_player_inventory_slot_by_index(listing_index)->quantity);
+           listing_index + 1, trade.ui_listing[listing_index]->text,
+           get_player_inventory_slot_by_index(listing_index)->quantity);
 #else
     printf("**** [SLOT %ld] [ITEM \"%s\"] [QUATITY %d] ****\n",
-          listing_index + 1, trade.ui_listing[listing_index]->text,
-          get_player_inventory_slot_by_index(listing_index)->quantity);
+           listing_index + 1, trade.ui_listing[listing_index]->text,
+           get_player_inventory_slot_by_index(listing_index)->quantity);
 #endif*/
   }
 }
 
 /* Render buy menu, called by dialog "buy" button */
 void open_buy() {
+  close_dialog();
   if (set_trade(dialog.merchant, WITH_ITEM)) {
     open_trade();
   }
-  close_dialog();
 }
 
 /* Render sell menu, called by dialog "sell" button */
 void open_sell() {
+  close_dialog();
   if (set_trade(dialog.merchant, WITH_ITEM)) {
     open_trade();
   }
-  close_dialog();
 }
 
 /* Click lisnter of establish trade route button */
@@ -785,8 +801,8 @@ unsigned int merchant_item_index
   current page merchant item index, from 0 to 7
 */
 void on_click_merchant_item(void *merchant_item_index) {
-  //printf("Merchant Item Page [%d] Index [%ld] [Click] Detected\n",
-  //       trade.merchant_page, (uintptr_t)merchant_item_index);
+  // printf("Merchant Item Page [%d] Index [%ld] [Click] Detected\n",
+  //        trade.merchant_page, (uintptr_t)merchant_item_index);
   int index = (uintptr_t)merchant_item_index + trade.merchant_page * 8;
   LISTING *listing = get_merchant_listing_item_by_index(trade.merchant, index);
   if (listing) {
@@ -819,8 +835,8 @@ unsigned int merchant_item_index
   current page merchant item index, from 0 to 7
 */
 void on_hover_merchant_item(void *merchant_item_index) {
-  //printf("Merchant Item Page [%d] Index [%ld] [Hover] Detected\n",
-  //       trade.merchant_page, (uintptr_t)merchant_item_index);
+  // printf("Merchant Item Page [%d] Index [%ld] [Hover] Detected\n",
+  //        trade.merchant_page, (uintptr_t)merchant_item_index);
   int index = (uintptr_t)merchant_item_index + trade.merchant_page * 8;
   LISTING *listing = get_merchant_listing_item_by_index(trade.merchant, index);
   if (listing) {
@@ -842,7 +858,7 @@ unsigned int player_item_index
   current page player item index, from 0 to 7
 */
 void on_click_player_item(void *player_item_index) {
-  //printf("Player Item Page [%d] Index [%ld] [Click] Detected\n",
+  // printf("Player Item Page [%d] Index [%ld] [Click] Detected\n",
   //        trade.player_page, (uintptr_t)player_item_index);
   int index = (uintptr_t)player_item_index + trade.player_page * 8;
   I_SLOT *i_slot = get_player_inventory_slot_by_index(index);
@@ -874,16 +890,20 @@ unsigned int player_item_index
   current page player item index, from 0 to 7
 */
 void on_hover_player_item(void *player_item_index) {
-  //printf("Player Item Page [%d] Index [%ld] [Hover] Detected\n",
-  //       trade.player_page, (uintptr_t)player_item_index);
+  // printf("Player Item Page [%d] Index [%ld] [Hover] Detected\n",
+  //        trade.player_page, (uintptr_t)player_item_index);
   int index = (uintptr_t)player_item_index + trade.player_page * 8;
   I_SLOT *i_slot = get_player_inventory_slot_by_index(index);
   ITEM_IDS item_id = get_player_inventory_slot_by_index(index)->item_id;
   int price = get_item_info_by_ID(item_id).value;
   int quantity = i_slot->quantity;
-  sprintf(trade.ui_text_on_hover_item->text, " [%s] P [%d] Q [%d] S [%d] ",
+  if (item_id != EMPTY) {
+    sprintf(trade.ui_text_on_hover_item->text, " [%s] P [%d] Q [%d] S [%d] ",
           get_item_name_by_ID(item_id), price, quantity,
           trade.player_item_selected[index]);
+  } else {
+    sprintf(trade.ui_text_on_hover_item->text, " [-] P [-] Q [-] S [-] ");
+  }
 }
 
 /*
@@ -902,8 +922,8 @@ void on_click_page_up(void *isMerchant) {
     } else {
       trade.merchant_page--;
     }
-    //printf("Merchant Page Down Detected | Current Page [%d]\n",
-    //       trade.merchant_page);
+    // printf("Merchant Page Down Detected | Current Page [%d]\n",
+    //        trade.merchant_page);
     for (int i = 0; i < 8; i++) {
       int index = i + trade.merchant_page * 8;
       LISTING *listing = get_merchant_listing_item_by_index(trade.merchant,
@@ -920,8 +940,8 @@ void on_click_page_up(void *isMerchant) {
     } else {
       trade.player_page = 0;
     }
-    //printf("Player Page Down Detected | Current Page [%d]\n",
-    //       trade.player_page);
+    // printf("Player Page Down Detected | Current Page [%d]\n",
+    //        trade.player_page);
     for (int i = 0; i < 8; i++) {
       int index = i + trade.player_page * 8;
       ITEM_IDS item_id = get_player_inventory_slot_by_index(index)->item_id;
@@ -976,14 +996,36 @@ Trade with both sides item selected
 TODO: DO NOT DEAL WITH LIMITED INVENTORY SPACE
 */
 void on_click_trade() {
-  //printf("Trade Button Click Detected\n");
+
+  // printf("Trade Button Click Detected\n");
   // Check player value > merchant value
   if (trade.player_value == 0) {
     // Show prompt
     sprintf(trade.ui_text_event_prompt->text, " No Items Selected ");
     trade.ui_text_event_prompt->enabled = 1;
     time_trade_event_prompt = 2.0;
-  } else if (trade.player_value >= trade.merchant_value) {
+    return;
+  } else if (trade.player_value * (1 + trade.barter_range) >= trade.merchant_value) {
+    // When player offer more value than expected, add relationship with the additional value
+    if (trade.player_value > trade.merchant_value) {
+      trade.merchant->relationship += (trade.player_value - trade.merchant_value);
+      if (trade.merchant->relationship > 100.0) trade.merchant->relationship = 100.0;
+    } else if (trade.player_value < trade.merchant_value) {
+      // When relationship less than 20, cannot bartering
+      if (trade.merchant->relationship < 20.0) {
+        trade.merchant->relationship -= (trade.merchant_value - trade.player_value);
+        if (trade.merchant->relationship < 0.0) trade.merchant->relationship = 0.0;
+        // Show prompt
+        sprintf(trade.ui_text_event_prompt->text, " Player Value Insufficient ");
+        trade.ui_text_event_prompt->enabled = 1;
+        time_trade_event_prompt = 2.0;
+        return;
+      }
+      // When relationship less than 80 larger than 20, can bartering but relationship will decrease with the additional value
+      if (trade.merchant->relationship < 80.0) {
+        trade.merchant->relationship -= (trade.merchant_value - trade.player_value);
+      }
+    }
     // Check player value > merchant value
     // Add the selected items to player inventory
     for (int i = 0; i < MAX_PLAYER_ITEM; i++) {
@@ -1037,6 +1079,7 @@ void on_click_trade() {
       }
     }
 
+    // Currency Coalesce
     CONTAINER player_inv = {
       e_player.inventory,
       MAX_PLAYER_INV_SIZE
@@ -1075,10 +1118,15 @@ void on_click_trade() {
     sprintf(trade.ui_text_event_prompt->text, " Trade Successful ");
     trade.ui_text_event_prompt->enabled = 1;
     time_trade_event_prompt = 2.0;
+    return;
   } else {
+    // When player value is lower than barter range, decrease the relationship with the value
+    trade.merchant->relationship -= (trade.merchant_value - trade.player_value);
+    if (trade.merchant->relationship < 0.0) trade.merchant->relationship = 0.0;
     // Show prompt
     sprintf(trade.ui_text_event_prompt->text, " Player Value Insufficient ");
     trade.ui_text_event_prompt->enabled = 1;
     time_trade_event_prompt = 2.0;
+    return;
   }
 }
