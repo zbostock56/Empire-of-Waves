@@ -2,7 +2,7 @@
 #include <dialog_str.h>
 
 /* Init trade menu */
-void init_trade() {
+int init_trade() {
   trade.type = INVALID_TRADE;
 
   // Init buy & sell listing UI
@@ -34,13 +34,7 @@ void init_trade() {
   trade.player_value = 0;
 
   trade.barter_range = 0.1;
-
-  for (int i = 0; i < MAX_MERCHANT_ITEM; i++) {
-    trade.merchant_item_selected[i] = 0;
-  }
-  for (int i = 0; i < MAX_PLAYER_ITEM; i++) {
-    trade.player_item_selected[i] = 0;
-  }
+  trade.merchant_item_selected = NULL;
 
   // Init listings
   vec2 listing_0_position = { -0.5, 0.5 };
@@ -370,7 +364,8 @@ void init_trade() {
   );
   trade.ui_text_on_hover_item->text = malloc(MAX_UI_TEXT_LENGTH * sizeof(char));
   if (!trade.ui_text_on_hover_item->text) {
-    return;
+    fprintf(stderr, "trade.c: Failed to allocate on-hover text buffer\n");
+    return -1;
   }
   trade.ui_text_on_hover_item->text[0] = '\0'; // Ensures null termination
   strcpy(trade.ui_text_on_hover_item->text,
@@ -397,7 +392,8 @@ void init_trade() {
   );
   trade.ui_text_merchant_value->text = malloc(MAX_UI_TEXT_LENGTH * sizeof(char));
   if (!trade.ui_text_merchant_value) {
-    return;
+    fprintf(stderr, "trade.c: Failed to allocate merchant value buffer\n");
+    return -1;
   }
   trade.ui_text_merchant_value->text[0] = '\0'; // Ensures null termination
   strcpy(trade.ui_text_merchant_value->text, "MERCHANT VALUE [0]");
@@ -422,7 +418,8 @@ void init_trade() {
   );
   trade.ui_text_player_value->text = malloc(MAX_UI_TEXT_LENGTH * sizeof(char));
   if (!trade.ui_text_player_value) {
-    return;
+    fprintf(stderr, "trade.c: Failed to allocate player value buffer\n");
+    return -1;
   }
   trade.ui_text_player_value->text[0] = '\0'; // Ensures null termination
   strcpy(trade.ui_text_player_value->text, "PLAYER VALUE [0]");
@@ -468,11 +465,13 @@ void init_trade() {
   );
   trade.ui_text_event_prompt->text = malloc(MAX_UI_TEXT_LENGTH * sizeof(char));
   if (!trade.ui_text_event_prompt) {
-    return;
+    fprintf(stderr, "trade.c: Failed to allocate event prompt buffer\n");
+    return -1;
   }
   trade.ui_text_event_prompt->text[0] = '\0'; // Ensures null termination
   strcpy(trade.ui_text_event_prompt->text, "EVENT PROMPT");
 
+  return 0;
 }
 
 void free_trade() {
@@ -557,8 +556,12 @@ void close_trade() {
   trade.merchant_value = 0;
   trade.player_value = 0;
 
-  for (int i = 0; i < MAX_MERCHANT_ITEM; i++) {
-    trade.merchant_item_selected[i] = 0;
+  if (trade.merchant_item_selected) {
+    for (int i = 0; i < trade.merchant->num_listings; i++) {
+      trade.merchant_item_selected[i] = 0;
+    }
+    free(trade.merchant_item_selected);
+    trade.merchant_item_selected = NULL;
   }
   for (int i = 0; i < MAX_PLAYER_ITEM; i++) {
     trade.player_item_selected[i] = 0;
@@ -645,16 +648,24 @@ int set_trade(MERCHANT *merchant, T_TRADE trade_type) {
 
         trade.merchant_value = 0;
         trade.player_value = 0;
-        for (int i = 0; i < MAX_MERCHANT_ITEM; i++) {
+
+        trade.merchant_item_selected = malloc(sizeof(int) *
+                                              merchant->num_listings);
+        if (trade.merchant_item_selected == NULL) {
+          fprintf(stderr, "trade.c: Unable to allocate merchant selections\n");
+          return -1;
+        }
+        for (int i = 0; i < merchant->num_listings; i++) {
           trade.merchant_item_selected[i] = 0;
         }
+
         for (int i = 0; i < MAX_PLAYER_ITEM; i++) {
           trade.player_item_selected[i] = 0;
         }
         for (int i = 0; i < 8; i++) {
           LISTING *listing = get_merchant_listing_item_by_index(trade.merchant,
                                                                 i);
-          ITEM_IDS listing_id = ENEMY;
+          ITEM_IDS listing_id = EMPTY;
           if (listing) {
             listing_id = listing->item_id;
           }
@@ -1035,6 +1046,15 @@ Trade with both sides item selected
 TODO: DO NOT DEAL WITH LIMITED INVENTORY SPACE
 */
 void on_click_trade() {
+  if (!check_fit(trade.merchant->listings, trade.merchant_item_selected,
+                 trade.merchant->num_listings, e_player.inventory,
+                 trade.player_item_selected, MAX_PLAYER_INV_SIZE)) {
+    sprintf(trade.ui_text_event_prompt->text,
+            " Not enough room in inventory ");
+    trade.ui_text_event_prompt->enabled = 1;
+    time_trade_event_prompt = 2.0;
+    return;
+  }
 
   // printf("Trade Button Click Detected\n");
   // Check player value > merchant value
@@ -1060,14 +1080,15 @@ void on_click_trade() {
         time_trade_event_prompt = 2.0;
         return;
       }
-      // When relationship less than 80 larger than 20, can bartering but relationship will decrease with the additional value
+      // When relationship less than 80 larger than 20, can bartering but
+      // relationship will decrease with the additional value
       if (trade.merchant->relationship < 80.0) {
         trade.merchant->relationship -= (trade.merchant_value - trade.player_value);
       }
     }
     // Check player value > merchant value
     // Add the selected items to player inventory
-    for (int i = 0; i < MAX_PLAYER_ITEM; i++) {
+    for (int i = 0; i < trade.merchant->num_listings; i++) {
       if (trade.merchant_item_selected[i] > 0) {
         LISTING *listing = get_merchant_listing_item_by_index(trade.merchant,
                                                               i);
@@ -1083,7 +1104,7 @@ void on_click_trade() {
       }
     }
     // Add the selected items to merchant listing
-    for (int i = 0 ; i < trade.merchant->num_listings; i++) {
+    for (int i = 0 ; i < MAX_PLAYER_ITEM; i++) {
       if (trade.player_item_selected[i] > 0) {
         ITEM_IDS item_id = get_player_inventory_slot_by_index(i)->item_id;
         add_listing(trade.merchant, item_id, trade.player_item_selected[i]);
@@ -1119,11 +1140,7 @@ void on_click_trade() {
     }
 
     // Currency Coalesce
-    CONTAINER player_inv = {
-      e_player.inventory,
-      MAX_PLAYER_INV_SIZE
-    };
-    coalesce_currency(player_inv);
+    coalesce_currency(e_player.inventory, MAX_PLAYER_INV_SIZE);
 
     // Set Values Back
     trade.player_value = 0;
@@ -1133,9 +1150,11 @@ void on_click_trade() {
     sprintf(trade.ui_text_merchant_value->text, "MERCHANT VALUE [%d]",
             trade.merchant_value);
 
-    for (int i = 0; i < MAX_MERCHANT_ITEM; i++) {
-      trade.merchant_item_selected[i] = 0;
+    for (int i = 0; i < MAX_PLAYER_ITEM; i++) {
       trade.player_item_selected[i] = 0;
+    }
+    for (int i = 0; i < trade.merchant->num_listings; i++) {
+      trade.merchant_item_selected[i] = 0;
     }
     // Refresh the UI
     for (int i = 0; i < 8; i++) {

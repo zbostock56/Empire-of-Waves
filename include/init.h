@@ -19,9 +19,9 @@ void fb_size_callback(GLFWwindow *, int, int);
 
 void init_player();
 void init_menus();
-void init_dialog();
-void init_trade();
-void init_status_bar();
+int init_dialog();
+int init_trade();
+int init_status_bar();
 void init_ui_lists();
 void init_container_ui();
 int init_save_menu();

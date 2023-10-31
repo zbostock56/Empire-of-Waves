@@ -17,7 +17,7 @@
 STATUS status;
 
 /* =================== INTERNALLY DEFINED FUNCTIONS ================ */
-void init_status_bar();
+int init_status_bar();
 void free_status();
 void update_status_bar();
 void open_status_bar();

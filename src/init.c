@@ -43,15 +43,27 @@ int init_game(char *save_name) {
 
   init_player();
   init_menus();
-  init_dialog();
-  init_trade();
-  init_status_bar();
   init_ui_lists();
   init_container_ui();
   init_timers();
-  open_status_bar();
 
   int status = 0;
+  status = init_dialog();
+  if (status) {
+    return -1;
+  }
+
+  status = init_status_bar();
+  if (status) {
+    return -1;
+  }
+  open_status_bar();
+
+  status = init_trade();
+  if (status) {
+    return -1;
+  }
+
   status = init_save_menu();
   if (status) {
     return -1;

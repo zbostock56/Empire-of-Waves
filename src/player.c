@@ -18,7 +18,7 @@ void init_player() {
   e_player.inventory[2].item_id = KNIVE;
   e_player.inventory[2].quantity = 1;
   e_player.inventory[3].item_id = GOLD_COIN;
-  e_player.inventory[3].quantity = 1;
+  e_player.inventory[3].quantity = 100;
   e_player.inventory[4].item_id = SILVER_COIN;
   e_player.inventory[4].quantity = 1;
   e_player.inventory[5].item_id = COPPER_COIN;
@@ -33,6 +33,8 @@ void init_player() {
   e_player.inventory[9].quantity = 1;
   e_player.inventory[10].item_id = PLATE_ARMOR;
   e_player.inventory[10].quantity = 1;
+  e_player.inventory[11].item_id = FIRERATE_POTION;
+  e_player.inventory[11].quantity = 1;
 }
 
 /*
@@ -139,12 +141,12 @@ int get_player_copper() {
   denomnations given there is enought of them.
   Ex: 10 copper becomes 1 silver
 */
-void coalesce_currency(CONTAINER cont) {
+void coalesce_currency(I_SLOT *items, unsigned int num_items) {
   unsigned int num_copper = 0;
   unsigned int num_silver = 0;
   unsigned int num_gold = 0;
-  for (int i = 0; i < cont.capacity; i++) {
-    I_SLOT *slot = cont.items + i;
+  for (int i = 0; i < num_items; i++) {
+    I_SLOT *slot = items + i;
     if (slot->item_id == GOLD_COIN) {
       num_gold += slot->quantity;
       slot->item_id = EMPTY;
@@ -165,8 +167,8 @@ void coalesce_currency(CONTAINER cont) {
   num_gold += num_silver / SILVER_PER_GOLD;
   num_silver = num_silver % SILVER_PER_GOLD;
 
-  for (int i = 0; i < cont.capacity; i++) {
-    I_SLOT *slot = cont.items + i;
+  for (int i = 0; i < num_items; i++) {
+    I_SLOT *slot = items + i;
     if (slot->item_id == EMPTY && num_gold) {
       slot->item_id = GOLD_COIN;
       slot->quantity = num_gold;
@@ -184,4 +186,101 @@ void coalesce_currency(CONTAINER cont) {
       return;
     }
   }
+}
+
+unsigned int get_num_empty_slots(I_SLOT *items, unsigned int num_items) {
+  unsigned int count = 0;
+  for (int i = 0; i < num_items; i++) {
+    if (items[i].item_id == EMPTY) {
+      count++;
+    }
+  }
+  return count;
+}
+
+/*
+  Returns the number of slots in a list which are currency items
+  (GOLD_COIN, SILVER_COIN, COPPER_COIN)
+*/
+unsigned int num_currency_slots(I_SLOT *items, unsigned int num_items) {
+  unsigned int count = 0;
+  for (int i = 0; i < num_items; i++) {
+    if (items[i].item_id == GOLD_COIN ||
+        items[i].item_id == SILVER_COIN ||
+        items[i].item_id == COPPER_COIN) {
+      count++;
+    }
+  }
+  return count;
+}
+
+/*
+  Returns the number of items slots the currency in an item list would take up
+  if the currency were coalesced
+  Ex:
+    "items" has 111 copper coins
+    Returns value would be 3:
+    - 1 gold coin   (100) +
+    - 1 silver coin  (10) +
+    - 1 copper coin   (1)
+*/
+unsigned int num_currency_slots_coalesced(I_SLOT *items,
+                                          unsigned int num_items) {
+  unsigned int num_copper = 0;
+  unsigned int num_silver = 0;
+  unsigned int num_gold = 0;
+  for (int i = 0; i < num_items; i++) {
+    I_SLOT *slot = items + i;
+    if (slot->item_id == GOLD_COIN) {
+      num_gold += slot->quantity;
+    } else if (slot->item_id == SILVER_COIN) {
+      num_silver += slot->quantity;
+    } else if (slot->item_id == COPPER_COIN) {
+      num_copper += slot->quantity;
+    }
+  }
+
+  num_silver += num_copper / COPPER_PER_SILVER;
+  num_copper = num_copper % COPPER_PER_SILVER;
+  num_gold += num_silver / SILVER_PER_GOLD;
+  num_silver = num_silver % SILVER_PER_GOLD;
+
+  unsigned int num_coins = 0;
+  if (num_gold) {
+    num_coins++;
+  }
+  if (num_silver) {
+    num_coins++;
+  }
+  if (num_copper) {
+    num_coins++;
+  }
+  return num_coins;
+}
+
+unsigned int check_fit(LISTING *from, int *from_selected,
+                       unsigned int from_len, I_SLOT *to, int *to_selected,
+                       unsigned int to_len) {
+  unsigned int num_new = 0;
+  LISTING *cur_listing = 0;
+  I_SLOT *cur_slot = 0;
+  for (int i = 0; i < from_len; i++) {
+    cur_listing = from + i;
+    if (from_selected[i]) {
+      num_new++;
+      for (int j = 0; j < to_len; j++) {
+        cur_slot = to + j;
+        if (cur_listing->item_id == cur_slot->item_id) {
+          num_new--;
+          break;
+        }
+      }
+    }
+  }
+
+  unsigned int num_empty = get_num_empty_slots(to, to_len);
+  if (num_new <= num_empty) {
+    return 1;
+  }
+  return 0;
 }

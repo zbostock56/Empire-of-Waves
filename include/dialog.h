@@ -17,7 +17,7 @@ DIALOG dialog;
 float time_schdule_trade_toute_prompt;
 
 /* ================= INTERNALLY DEFINED FUNCTIONS ================= */
-void init_dialog();
+int init_dialog();
 void free_dialog();
 void open_dialog();
 void close_dialog();

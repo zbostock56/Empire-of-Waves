@@ -5,36 +5,40 @@ Implements the functionality for dialog, itegrate with UI components
 */
 
 /*  Init global dialog, call by main() */
-void init_dialog() {
+int init_dialog() {
   /* Alloc size for dialog name string*/
   dialog.name = malloc(MAX_NAME_STR_LENGTH * sizeof(char));
   if (!dialog.name) {
-    return;
+    fprintf(stderr, "dialog.c: Failed to allocate name buffer\n");
+    return -1;
   }
   dialog.name[0] = '\0'; // Ensures null termination
 
   /* Alloc size for dialog relationship string*/
   dialog.relationship = malloc(TEXT_BUFFER_LEN * sizeof(char));
   if (!dialog.relationship) {
+    fprintf(stderr, "dialog.c: Failed to allocate relationship buffer\n");
     free(dialog.name);
-    return;
+    return -1;
   }
   dialog.relationship[0] = '\0';
 
   dialog.content = malloc(MAX_CONTENT_STR_LENGTH * sizeof(char));
   if (!dialog.content) {
+    fprintf(stderr, "dialog.c: Failed to allocate content buffer\n");
     free(dialog.relationship);
     free(dialog.name);
-    return;
+    return -1;
   }
   dialog.content[0] = '\0'; // Ensures null termination
 
   dialog.mercenary_count = malloc(TEXT_BUFFER_LEN);
   if (!dialog.mercenary_count) {
+    fprintf(stderr, "dialog.c: Failed to allocate merc count buffer\n");
     free(dialog.relationship);
     free(dialog.name);
     free(dialog.content);
-    return;
+    return -1;
   }
 
   dialog.type = INVALID_DIALOG;
@@ -220,6 +224,8 @@ void init_dialog() {
     T_CENTER, // text_anchor
     dialog.ui_text_schedule_trade_route_prompt // dest
   );
+
+  return 0;
 }
 
 /* Free Dialog Allocated Spaces */
