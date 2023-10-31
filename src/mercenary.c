@@ -104,14 +104,18 @@ void close_mercenary_reassignment_menu() {
 }
 
 void purchase_mercenary_handler() {
-  if (dialog.merchant->num_mercenaries <= 0) {
-    /* Prompt that no mercenaries are available */
-    /* for purchase?                            */
-    printf("No mercenaries to buy\n");
-    return;
+  if (dialog.merchant->relationship > 40.0) {
+    if (dialog.merchant->num_mercenaries <= 0) {
+      /* Prompt that no mercenaries are available */
+      /* for purchase?                            */
+      printf("No mercenaries to buy\n");
+      return;
+    }
+    dialog.merchant->num_mercenaries--;
+    e_player.total_mercenaries++;
+  } else {
+    
   }
-  dialog.merchant->num_mercenaries--;
-  e_player.total_mercenaries++;
 }
 
 /*

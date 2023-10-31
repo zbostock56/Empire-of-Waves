@@ -10,9 +10,11 @@
 #define AVAIL_MERC_BUFF_LEN (32)
 #define TOT_LISTING_NUM (17)
 #define MY_SHIP_MERC_LEN (48)
+#define MIN_MERC_THRESHOLD (30.0)
 
 extern UI_LIST list;
 extern DIALOG dialog;
+extern MERCHANT *cur_merchant;
 int reassignment_menu_open = 0;
 char avail_mercenaries[AVAIL_MERC_BUFF_LEN];
 int mercenary_listing_selected[TOT_LISTING_NUM];

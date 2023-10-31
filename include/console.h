@@ -12,6 +12,7 @@
 #include <float.h>
 #include <ui_component.h>
 #include <menu.h>
+#include <event_str.h>
 
 /* DEFINES */
 #define MAX_TOKENS (10)
@@ -20,14 +21,12 @@
 #define CONSOLE_BUFFER_MAX (100)
 
 /* ------------- GLOBALS ------------ */
-/* Timers */
-float console_cursor_interval = 0.0;
-float console_error_interval = 0.0;
 /* Event Flags */
-int console_input_enabled;
-int cursor_enabled = 0;
+int console_input_enabled = 0;
 int coords_enabled = 0;
-int console_error = 0;
+//int console_error = 0;
+extern float timers[NUM_TIMERS];
+extern int event_flags[NUM_TIMERS];
 /* Buffers */
 char console_world_coords[CONSOLE_BUFFER_MAX];
 char console_intra_chunk[CONSOLE_BUFFER_MAX];
@@ -57,6 +56,7 @@ void teleport_nearest_merchant();
 void reset_console_error();
 void set_console_error(const char *);
 void console_error_init();
+void establish_nearest_traderoute();
 
 /* ---------------- EXTERNALLY DEFINED FUNCTIONS -------------- */
 void world_to_chunk(vec2, ivec2, vec2);
@@ -68,3 +68,4 @@ void init_menu(vec2, void (*)(void *), void (*)(void *), void *, void *,
 float get_text_width(char *, int);
 float get_screen_text_scale();
 void print_parse_table();
+void open_establish_trade_route();
