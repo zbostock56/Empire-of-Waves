@@ -22,6 +22,7 @@ extern int console_enabled;
 void spawn_enemy();
 void reset_console_error();
 void reset_merc_trade_error();
+void clear_plundered_trade_ship_prompt();
 
 /* ================ INTERNALLY DEFINED FUNCTIONS ================== */
 void update_event_timer();

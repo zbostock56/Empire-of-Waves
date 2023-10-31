@@ -68,3 +68,4 @@ void close_dialog();
 void close_trade();
 void close_mercenary_reassignment_menu();
 void close_container();
+void prompt_plundered_trade_ship();

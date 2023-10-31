@@ -45,7 +45,7 @@ void update_timers() {
   if (event_flags[CONS_ERROR]) {
     timers[CONS_ERROR] -= delta_time;
     if (timers[CONS_ERROR] <= 0.0) {
-      event_flags[CONS_ERROR] = 0;
+      event_flags[CONS_ERROR] = DISABLED;
       timers[CONS_ERROR] = C_ERROR_TIME;
       reset_console_error();
     }
@@ -53,9 +53,17 @@ void update_timers() {
   if (event_flags[RELATIONSHIP_TOO_LOW]) {
     timers[RELATIONSHIP_TOO_LOW] -= delta_time;
     if (timers[RELATIONSHIP_TOO_LOW] <= 0.0) {
-      event_flags[RELATIONSHIP_TOO_LOW] = 0;
+      event_flags[RELATIONSHIP_TOO_LOW] = DISABLED;
       timers[RELATIONSHIP_TOO_LOW] = TRADE_ERROR_TIME;
       reset_merc_trade_error();
+    }
+  }
+  if (event_flags[PLUNDERED_TS]) {
+    timers[PLUNDERED_TS] -= delta_time;
+    if (timers[PLUNDERED_TS] <= 0.0) {
+      event_flags[PLUNDERED_TS] = DISABLED;
+      timers[PLUNDERED_TS] = TRADE_SHIP_PLUNDER_TIME;
+      clear_plundered_trade_ship_prompt();
     }
   }
 }

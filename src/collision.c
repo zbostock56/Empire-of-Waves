@@ -337,6 +337,8 @@ int trade_ship_detect_enemies(TRADE_SHIP *trade_ship, CHUNK *trade_ship_chunk, i
           num_trade_ships--;
           trade_ships[idx] = trade_ships[num_trade_ships];
 
+          /* Spawn prompt to show that trade ship was plundered */
+          prompt_plundered_trade_ship();
           target_island->merchant.relationship -= 10.0;
           if (target_island->merchant.relationship < -100.0) {
             target_island->merchant.relationship = -100.0;
