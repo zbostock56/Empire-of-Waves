@@ -48,6 +48,7 @@ int init_game(char *save_name) {
   init_status_bar();
   init_ui_lists();
   init_container_ui();
+  init_timers();
   open_status_bar();
 
   int status = 0;

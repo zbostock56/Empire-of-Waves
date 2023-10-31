@@ -24,23 +24,38 @@ void spawn_event() {
   }
 }
 
+void init_timers() {
+  for (int i = 0; i < NUM_TIMERS; i++) {
+    timers[i] = 0.0;
+    event_flags[i] = 0;
+  }
+}
+
 void update_timers() {
   if (console_input_enabled) {
-    console_cursor_interval -= delta_time;
-    if (console_cursor_interval <= 0.0 && cursor_enabled) {
-      console_cursor_interval = 0.25;
-      cursor_enabled = 0;
-    } else if (console_cursor_interval <= 0.0 && !cursor_enabled) {
-      console_cursor_interval = 0.25;
-      cursor_enabled = 1;
+    timers[CONS_CURSOR] -= delta_time;
+    if (timers[CONS_CURSOR] <= 0.0 && event_flags[CONS_CURSOR]) {
+      timers[CONS_CURSOR] = C_CURSOR_TIME;
+      event_flags[CONS_CURSOR] = DISABLED;
+    } else if (timers[CONS_CURSOR] <= 0.0 && !event_flags[CONS_CURSOR]) {
+      timers[CONS_CURSOR] = C_CURSOR_TIME;
+      event_flags[CONS_CURSOR] = ENABLED;
     }
   }
-  if (console_error) {
-    console_error_interval -= delta_time;
-    if (console_error_interval <= 0.0) {
-      console_error = 0;
-      console_error_interval = 1.5;
+  if (event_flags[CONS_ERROR]) {
+    timers[CONS_ERROR] -= delta_time;
+    if (timers[CONS_ERROR] <= 0.0) {
+      event_flags[CONS_ERROR] = 0;
+      timers[CONS_ERROR] = C_ERROR_TIME;
       reset_console_error();
+    }
+  }
+  if (event_flags[RELATIONSHIP_TOO_LOW]) {
+    timers[RELATIONSHIP_TOO_LOW] -= delta_time;
+    if (timers[RELATIONSHIP_TOO_LOW] <= 0.0) {
+      event_flags[RELATIONSHIP_TOO_LOW] = 0;
+      timers[RELATIONSHIP_TOO_LOW] = TRADE_ERROR_TIME;
+      reset_merc_trade_error();
     }
   }
 }

@@ -6,13 +6,16 @@
 #include <dialog_str.h>
 #include <menu.h>
 #include <globals.h>
+#include <event_str.h>
 
 #define AVAIL_MERC_BUFF_LEN (32)
 #define TOT_LISTING_NUM (17)
 #define MY_SHIP_MERC_LEN (48)
+#define MIN_MERC_THRESHOLD (30.0)
 
 extern UI_LIST list;
 extern DIALOG dialog;
+extern int event_flags[NUM_TIMERS];
 int reassignment_menu_open = 0;
 char avail_mercenaries[AVAIL_MERC_BUFF_LEN];
 int mercenary_listing_selected[TOT_LISTING_NUM];
@@ -28,6 +31,7 @@ void mercenary_reassignment_selection();
 void mercenary_reassign(void *);
 void update_mercenary_reassignment();
 void mercenary_reassign_my_ship(long);
+void merchant_mercenary_relationship_prompt();
 
 /* ================= EXTERNALLY DEFINED FUNCTIONS ============= */
 UI_COMPONENT *get_ui_component_by_ID(UI_ID ui_id);

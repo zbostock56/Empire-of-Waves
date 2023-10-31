@@ -136,6 +136,10 @@ void console_dispatcher() {
       /* BEGIN: tnm */
       teleport_nearest_merchant();
       /* END: tmn */
+    } else if (strncmp(command[0].tok, ESTABLISH_NEAREST_TRADEROUTE,
+               sizeof(ESTABLISH_NEAREST_TRADEROUTE)) == 0) {
+      //establish_nearest_traderoute();
+      return;
     } else {
       command_not_found();
     }

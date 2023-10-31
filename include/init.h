@@ -28,6 +28,7 @@ int init_save_menu();
 int init_chunks();
 int init_containers();
 int init_trade_ship_buffers();
+void init_timers();
 void open_status_bar();
 
 void free_dialog();

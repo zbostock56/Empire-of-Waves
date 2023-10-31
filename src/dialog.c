@@ -173,7 +173,7 @@ void init_dialog() {
     T_CENTER, // text_anchor
     dialog.ui_button_trade_route // dest
   );
-
+  
   // Init mercenary purchase button
   vec2 mercenary_buy_position = { 0.25, -1.0 };
   init_menu(
@@ -262,7 +262,6 @@ void open_dialog() {
       dialog.ui_button_buy->enabled = 1;
       dialog.ui_button_sell->enabled = 1;
       dialog.ui_button_trade_route->enabled = 1;
-      dialog.ui_mercenary_buy->enabled = 1;
       dialog.ui_mercenary_buy->enabled = 1;
       break;
     }
