@@ -32,6 +32,8 @@ void init_trade() {
   trade.merchant_value = 0;
   trade.player_value = 0;
 
+  trade.barter_range = 0.1;
+
   for (int i = 0; i < MAX_MERCHANT_ITEM; i++) {
     trade.merchant_item_selected[i] = 0;
   }

@@ -813,7 +813,7 @@ int list_all_files(char *dir, char (**dest_list)[MAX_CHUNK_NAME_LEN],
 #endif
 
   // Windows directory i/o
-#ifdef _IWIN32
+#ifdef _WIN32
   char dir_path[MAX_PATH_LEN];
   // dir_path will have '\*' appended to the end of 'dir', so ensure there is
   // enough space in dir_path

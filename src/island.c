@@ -53,11 +53,9 @@ int generate_island(ISLAND *island) {
         if (ids[i] == GOLD_COIN || ids[i] == SILVER_COIN || ids[i] == COPPER_COIN) {
           island->merchant.listings[i].quantity = 1000;
         }
-        island->merchant.listings[i].barter_range = 0.1;
       } else {
         island->merchant.listings[i].item_id = EMPTY;
         island->merchant.listings[i].quantity = 0;
-        island->merchant.listings[i].barter_range = 0.1;
       }
     }
     island->merchant.relationship = 0.0;
