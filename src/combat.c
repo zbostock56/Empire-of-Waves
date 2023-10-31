@@ -163,6 +163,7 @@ void update_combat_state() {
       // No more ENEMY units left, we win
       if (min_distance == FLT_MAX) {
           from_combat_mode();
+          return;
       }
       if (min_idx == -1) {
         c_enemy_pathfind(npc_units + i, c_player.coords);
