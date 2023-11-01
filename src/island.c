@@ -1,4 +1,5 @@
 #include <island.h>
+#include <trade_str.h>
 /*
                                     ISLAND.c
 Implements the functionality for procedural island generation, and random
@@ -31,29 +32,40 @@ int generate_island(ISLAND *island) {
   merchant_generate(&(island->merchant), island);
 
   if (island->has_merchant) {
-    island->merchant.listings = malloc(sizeof(LISTING) * STARTING_BUFF_SIZE);
-    island->merchant.listings_buf_size = STARTING_BUFF_SIZE;
+    island->merchant.listings = malloc(sizeof(LISTING) * MAX_MERCHANT_ITEM);
+    island->merchant.listings_buf_size = MAX_MERCHANT_ITEM;
     if (island->merchant.listings == NULL) {
       fprintf(stderr,
               "generate_island: unabled to allocate merchant listings buffer");
       return -1;
     }
 
-    island->merchant.num_listings = 9;
+    // TODO Generate random listings
+    island->merchant.num_listings = 12;
     // List of items to be populated in merchant
-    ITEM_IDS ids[9] = { CITRUS, RUM, LIFE_POTION, SPEED_POTION, BOW, CLOTH_ARMOR,
-                   CROSSBOW, LIGHT_ARMOR, PLATE_ARMOR };
-    for (int i = 0; i < 9; i++) {
-      island->merchant.listings[i].item_id = ids[i];
-      island->merchant.listings[i].quantity = 1;
-      island->merchant.listings[i].barter_range = 1;
+    ITEM_IDS ids[12] = { CITRUS, RUM, LIFE_POTION, SPEED_POTION, BOW, CLOTH_ARMOR,
+                         CROSSBOW, LIGHT_ARMOR, PLATE_ARMOR, GOLD_COIN,
+                         SILVER_COIN, COPPER_COIN };
+    for (int i = 0; i < MAX_MERCHANT_ITEM; i++) {
+      if (i < island->merchant.num_listings) {
+        island->merchant.listings[i].item_id = ids[i];
+        island->merchant.listings[i].quantity = 1;
+        if (ids[i] == GOLD_COIN || ids[i] == SILVER_COIN || ids[i] == COPPER_COIN) {
+          island->merchant.listings[i].quantity = 1000;
+        }
+      } else {
+        island->merchant.listings[i].item_id = EMPTY;
+        island->merchant.listings[i].quantity = 0;
+      }
     }
     island->merchant.relationship = 0.0;
+    island->merchant.has_trade_route = 0;
   } else {
     island->merchant.listings = NULL;
     island->merchant.num_listings = 0;
     island->merchant.listings_buf_size = 0;
     island->merchant.relationship = 0.0;
+    island->merchant.has_trade_route = 0;
   }
 
   // TODO Create island texture buffer from preloaded tile texture buffers
@@ -200,6 +212,10 @@ void populate_tile_pixel_buffer(ISLAND *island,
       tile_colors[i][2] = 255;
       */
       /* NOTE: Note rendering home debug tile */
+      tile_colors[i][0] = 4;
+      tile_colors[i][1] = 209;
+      tile_colors[i][2] = 38;
+    } else if (island->tiles[texture_index] == CHEST) {
       tile_colors[i][0] = 4;
       tile_colors[i][1] = 209;
       tile_colors[i][2] = 38;

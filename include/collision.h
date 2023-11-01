@@ -21,13 +21,15 @@
 #define SHIP_CHASE_RADIUS (20)
 
 extern float T_WIDTH;
-extern DIALOG dialog;
 extern TRADE trade;
-extern char merchant_name_list[][20];
+extern DIALOG dialog;
+MERCHANT *close_merchant = NULL;
 
 int shore_interaction_enabled = 0;
 int home_interaction_enabled = 0;
+int container_interaction_enabled = 0;
 extern int reassignment_menu_open;
+extern int container_menu_open;
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 
@@ -48,6 +50,7 @@ int aabb_collision(float *, float, float, float *, float, float);
 int circle_aabb_collision(vec2, float, vec2, float, float, vec2);
 int circle_circle_collision(vec2, float, vec2, float);
 void check_mercenary_reassignment_prompt(vec2);
+void check_chest_prompt(vec2);
 
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 
@@ -65,3 +68,6 @@ void close_dialog();
 void close_trade();
 void close_mercenary_reassignment_menu();
 void knockback(C_UNIT *);
+void close_container();
+unsigned int trade_ship_active();
+void give_player_copper(unsigned int);

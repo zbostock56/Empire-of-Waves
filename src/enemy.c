@@ -6,6 +6,24 @@ exploration mode, and helper functions for common enemy operations such as
 respawn, despawn, move, attack, and rotate.
 */
 
+/*
+  Perform enemy pathfinding and movement for all simulated enemy ships
+*/
+void update_enemy_ships() {
+  if (mode != EXPLORATION) {
+    return;
+  }
+
+  E_ENEMY *cur_enemy = NULL;
+  for (int i = 0; i < chunk_buff_len; i++) {
+    for (int j = 0; j < chunk_buffer[i].num_enemies; j++) {
+      cur_enemy = &chunk_buffer[i].enemies[j];
+      pathfind_enemy(cur_enemy, i);
+      update_enemy_chunk(cur_enemy, &chunk_buffer[i], j);
+    }
+  }
+}
+
 /* Reponsible for spawning enemy in a chunk that is not */
 /* at enemy cap nor is outside of the simulation range */
 
@@ -67,8 +85,7 @@ void spawn_enemy() {
           enemy->direction[0] = 0;
           enemy->direction[1] = 1;
           enemy->speed = 15.0;
-          //randomize (1-5)
-          enemy->crew_count = rand()%5+1;
+          enemy->crew_count = (rand() % 5) + 1;
           not_found = 0;
         }
       }
@@ -183,18 +200,20 @@ void pathfind_enemy(E_ENEMY *enemy, unsigned int enemy_chunk) {
     prioritize_player = true;
   }
   for (int i = 0; i < num_trade_ships; i++) {
-    vec2 trade_world_coords = GLM_VEC2_ZERO_INIT;
-    chunk_to_world((trade_ships+i)->chunk_coords, (trade_ships+i)->coords,
-                   trade_world_coords);
-    if (circle_circle_collision(trade_world_coords, ship_search_radius,
-                                enemy_world_coords, ship_search_radius)) {
-      /* trade ship detected by enemy */
-      enemy->on_path = true;
-      distance = glm_vec2_distance(enemy_world_coords, trade_world_coords);
-      if (distance < min_distance) {
-        min_distance = distance;
-        prioritize_player = false;
-        target_tradeship = trade_ships+i;
+    if (trade_ship_active(i)) {
+      vec2 trade_world_coords = GLM_VEC2_ZERO_INIT;
+      chunk_to_world((trade_ships+i)->chunk_coords, (trade_ships+i)->coords,
+                     trade_world_coords);
+      if (circle_circle_collision(trade_world_coords, ship_search_radius,
+                                  enemy_world_coords, ship_search_radius)) {
+        /* trade ship detected by enemy */
+        enemy->on_path = true;
+        distance = glm_vec2_distance(enemy_world_coords, trade_world_coords);
+        if (distance < min_distance) {
+          min_distance = distance;
+          prioritize_player = false;
+          target_tradeship = trade_ships+i;
+        }
       }
     }
   }
@@ -680,15 +699,17 @@ void c_enemy_pathfind(C_UNIT *enemy, vec2 target_coords) {
     }
   }
 
-  glm_vec2_lerp(enemy->direction, target_dir, delta_time, enemy->direction);
+  glm_vec2_lerp(enemy->direction, target_dir, delta_time * 5.0,
+                enemy->direction);
+  glm_vec2_normalize(enemy->direction);
 
   if (move == FORWARD) {
-    glm_vec2_scale(enemy->direction, (delta_time * enemy->speed) / T_WIDTH,
+    glm_vec2_scale(enemy->direction, (delta_time * enemy->speed),
                    movement);
     glm_vec2_add(movement, enemy->coords, enemy->coords);
   } else if (move == BACK) {
     glm_vec2_scale(enemy->direction,
-                   -1.0 * (delta_time * enemy->speed) / T_WIDTH, movement);
+                   -1.0 * (delta_time * enemy->speed), movement);
     glm_vec2_add(movement, enemy->coords, enemy->coords);
   }
 }

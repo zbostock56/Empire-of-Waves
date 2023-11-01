@@ -16,7 +16,7 @@ int to_combat_mode(unsigned int enemy_index) {
   c_player.ammo = 5;
   c_player.max_health = 100.0;
   c_player.health = 100.0;
-  c_player.speed = 1.0;
+  c_player.speed = 15.0;
   c_player.proj_speed = 5.0;
   c_player.attack_active = 0.0;
   c_player.attack_cooldown = 0.0;
@@ -54,7 +54,8 @@ int to_combat_mode(unsigned int enemy_index) {
       npc_units[i].weapon_type = RANGED;
       npc_units[i].ammo = 5;
     }
-    npc_units[i].speed = 0.5;
+    float speed_mod = 1.0 * (rand() % 5);
+    npc_units[i].speed = 10.0 + speed_mod;
     npc_units[i].death_animation = -1.0;
     npc_units[i].attack_active = 0.0;
     npc_units[i].attack_cooldown = 0.0;
@@ -80,7 +81,8 @@ int to_combat_mode(unsigned int enemy_index) {
       npc_units[i].weapon_type = RANGED;
       npc_units[i].ammo = 5;
     }
-    npc_units[i].speed = 0.5;
+    float speed_mod = 1.0 * (rand() % 5);
+    npc_units[i].speed = 10.0 + speed_mod;
     npc_units[i].death_animation = -1.0;
     npc_units[i].attack_active = 0.0;
     npc_units[i].attack_cooldown = 0.0;
@@ -130,12 +132,15 @@ void update_combat_state() {
     npc_units[i].attack_active = decrement_timer(npc_units[i].attack_active);
     npc_units[i].attack_cooldown = decrement_timer(npc_units[i].
                                                    attack_cooldown);
+    if (npc_units[i].invuln_timer > 0.0) {
+      npc_units[i].invuln_timer = decrement_timer(npc_units[i].invuln_timer);
+    }
     if (npc_units[i].knockback_counter > 0.0) {
       npc_units[i].knockback_counter = decrement_timer(npc_units[i].
                                                        knockback_counter);
       knockback(npc_units+i);
       return;
-    } 
+    }
     if (npc_units[i].death_animation > 0.0) {
       // Npc currently in death animation
       npc_units[i].death_animation = decrement_timer(npc_units[i].
@@ -148,11 +153,9 @@ void update_combat_state() {
       i--;
     } else {
       // NPC still alive, has not been hit
-      
       float min_distance = FLT_MAX;
       int min_idx = 0;
       float distance;
-      
       for (int j = 0; j < num_npc_units; j++) {
         if (npc_units[i].type == npc_units[j].type) {
           continue;
@@ -172,36 +175,34 @@ void update_combat_state() {
         }
       }
 
-      // No more ENEMY units left, we win
-      if (min_distance == FLT_MAX) {
-          from_combat_mode();
-          return;
-      }
       if (min_idx == -1) {
         c_enemy_pathfind(npc_units + i, c_player.coords);
-      } else {
+      } else if (num_npc_units) {
         c_enemy_pathfind(npc_units + i, npc_units[min_idx].coords);
       }
-      
     }
   }
 
-  if (num_npc_units == 0) {
-    // Player wins
-    // TODO: only wins when enemy units are gone. (if only left units are allies, still means we won)
-    from_combat_mode();
-  } else if (c_player.health <= 0.0) {
-    // Player loses
-    from_combat_mode();
+  unsigned int num_allies = 0;
+  unsigned int num_enemies = 0;
+  for (unsigned int i = 0; i < num_npc_units; i++) {
+    if (npc_units[i].type == ENEMY) {
+      num_enemies++;
+    } else {
+      num_allies++;
+    }
   }
-}
 
-float decrement_timer(float timer) {
-  timer -= delta_time;
-  if (timer < 0.0) {
-    timer = 0.0;
+  if (num_enemies == 0) {
+    // Player wins
+    e_player.ship_mercenaries = num_allies;
+    from_combat_mode();
   }
-  return timer;
+  if (c_player.health <= 0.0) {
+    // Player loses
+    e_player.ship_mercenaries = 0;
+    from_combat_mode();
+  }
 }
 
 void update_projectiles() {
@@ -287,14 +288,11 @@ void npc_ranged_attack(C_UNIT *unit) {
     spawn_projectile(proj_coords, proj_dir, 3.0,
                     ENEMY);
   }
-  
 }
 
 void knockback(C_UNIT *unit) {
-  
   vec2 movement = GLM_VEC2_ZERO_INIT;
-  glm_vec2_scale(unit->direction, (delta_time * unit->speed) / T_WIDTH,
-                   movement);
+  glm_vec2_scale(unit->direction, delta_time * unit->speed, movement);
   glm_vec2_sub(unit->coords, movement, unit->coords);
 }
 

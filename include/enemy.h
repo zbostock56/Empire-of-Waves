@@ -52,6 +52,7 @@ void open_node(Node *, Node *, Node **, unsigned int *, unsigned int *);
 int add_node(Node **, unsigned int *, unsigned int *, Node *);
 void delete_node(Node *, unsigned int *, unsigned int);
 void update_enemy_chunk(E_ENEMY*, CHUNK*, int);
+
 /* =================== EXTERNALLY DEFINED FUNCTIONS =================== */
 
 int double_buffer(void **, unsigned int *, unsigned int);
@@ -62,3 +63,4 @@ int get_tile(unsigned int chunk, vec2 coords);
 int spawn_projectile(vec2, vec2, float, UNIT_T);
 int npc_melee_attack(C_UNIT *);
 int npc_ranged_attack(C_UNIT *);
+int trade_ship_active(unsigned int);

@@ -36,3 +36,61 @@ GLFWwindow *init_gl() {
 
   return window;
 }
+
+int init_game(char *save_name) {
+  copy_valid_path(save_name, game_save_name, strlen(save_name));
+  game_save_name[strlen(save_name)] = '\0';
+
+  init_player();
+  init_menus();
+  init_ui_lists();
+  init_container_ui();
+  init_timers();
+
+  int status = 0;
+  status = init_dialog();
+  if (status) {
+    return -1;
+  }
+
+  status = init_status_bar();
+  if (status) {
+    return -1;
+  }
+  open_status_bar();
+
+  status = init_trade();
+  if (status) {
+    return -1;
+  }
+
+  status = init_save_menu();
+  if (status) {
+    return -1;
+  }
+
+  status = init_chunks();
+  if (status) {
+    return -1;
+  }
+
+  status = init_containers();
+  if (status) {
+    return -1;
+  }
+
+  status = init_trade_ship_buffers();
+  if (status) {
+    return -1;
+  }
+  return 0;
+}
+
+void free_game() {
+  free_dialog();
+  free_trade();
+  free_status_bar();
+  clear_chunk_buffer();
+  free_containers();
+  free_trade_ship_buffers();
+}

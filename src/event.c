@@ -24,23 +24,73 @@ void spawn_event() {
   }
 }
 
+void init_timers() {
+  for (int i = 0; i < NUM_TIMERS; i++) {
+    timers[i] = 0.0;
+    event_flags[i] = 0;
+  }
+}
+
 void update_timers() {
-  if (console_enabled) {
-    console_cursor_interval -= delta_time;
-    if (console_cursor_interval <= 0.0 && cursor_enabled) {
-      console_cursor_interval = 0.25;
-      cursor_enabled = 0;
-    } else if (console_cursor_interval <= 0.0 && !cursor_enabled) {
-      console_cursor_interval = 0.25;
-      cursor_enabled = 1;
+  if (console_input_enabled) {
+    timers[CONS_CURSOR] -= delta_time;
+    if (timers[CONS_CURSOR] <= 0.0 && event_flags[CONS_CURSOR]) {
+      timers[CONS_CURSOR] = C_CURSOR_TIME;
+      event_flags[CONS_CURSOR] = DISABLED;
+    } else if (timers[CONS_CURSOR] <= 0.0 && !event_flags[CONS_CURSOR]) {
+      timers[CONS_CURSOR] = C_CURSOR_TIME;
+      event_flags[CONS_CURSOR] = ENABLED;
     }
   }
-  if (console_error) {
-    console_error_interval -= delta_time;
-    if (console_error_interval <= 0.0) {
-      console_error = 0;
-      console_error_interval = 1.5;
+  if (event_flags[CONS_ERROR]) {
+    timers[CONS_ERROR] -= delta_time;
+    if (timers[CONS_ERROR] <= 0.0) {
+      event_flags[CONS_ERROR] = DISABLED;
+      timers[CONS_ERROR] = C_ERROR_TIME;
       reset_console_error();
     }
   }
+  if (event_flags[RELATIONSHIP_TOO_LOW]) {
+    timers[RELATIONSHIP_TOO_LOW] -= delta_time;
+    if (timers[RELATIONSHIP_TOO_LOW] <= 0.0) {
+      event_flags[RELATIONSHIP_TOO_LOW] = DISABLED;
+      timers[RELATIONSHIP_TOO_LOW] = TRADE_ERROR_TIME;
+      reset_merc_trade_error();
+    }
+  }
+  if (event_flags[PLUNDERED_TS]) {
+    timers[PLUNDERED_TS] -= delta_time;
+    if (timers[PLUNDERED_TS] <= 0.0) {
+      event_flags[PLUNDERED_TS] = DISABLED;
+      timers[PLUNDERED_TS] = TRADE_SHIP_PLUNDER_TIME;
+      clear_plundered_trade_ship_prompt();
+    }
+  }
+
+  if (mode == EXPLORATION) {
+    TRADE_SHIP *cur_ship = NULL;
+    for (int i = 0; i < num_trade_ships; i++) {
+      cur_ship = trade_ships + i;
+      if (cur_ship->death_animation > 0.0) {
+        cur_ship->death_animation = decrement_timer(cur_ship->death_animation);
+      }
+    }
+  } else if (mode == COMBAT) {
+    C_UNIT *cur_unit = NULL;
+    for (int i = 0; i < num_npc_units; i++) {
+      cur_unit = npc_units + i;
+      if (cur_unit->death_animation > 0.0) {
+        cur_unit->death_animation = decrement_timer(cur_unit->death_animation);
+      }
+    }
+  }
 }
+
+float decrement_timer(float timer) {
+  timer -= delta_time;
+  if (timer < 0.0) {
+    timer = 0.0;
+  }
+  return timer;
+}
+
