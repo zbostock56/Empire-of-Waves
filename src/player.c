@@ -148,6 +148,33 @@ int get_player_copper() {
   return 0;
 }
 
+/*
+  General function to give the player money,
+  mostly used when a trade ship finishes its route
+  to reward the player
+*/
+void give_player_copper(unsigned int amount) {
+  I_SLOT *slot;
+  /* Check if the player already has copper coins */
+  if (!get_player_copper()) {
+    /* Player has no copper, make an inventory slot */
+    /* and give the player the requested amount     */
+    slot = get_player_first_empty_inventory_slot();
+    slot->item_id = COPPER_COIN;
+    slot->quantity = amount;
+  } else {
+    /* Find the slot which corresponds to the copper */
+    /* coin and add the amount requested             */
+    slot = search_player_inventory_by_ID(COPPER_COIN);
+    if (slot) {
+      slot->quantity += amount;
+    } else {
+      fprintf(stderr, "player.c (give_player_copper): MISSING COPPER IN INVENTORY\n");
+      exit(1);
+    }
+  }
+}
+
 unsigned int get_player_money() {
   unsigned int money = 0;
   for (int i = 0; i < MAX_PLAYER_INV_SIZE; i++) {
