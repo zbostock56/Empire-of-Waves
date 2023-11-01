@@ -239,6 +239,12 @@ void render_scene(GLFWwindow *window) {
         glm_vec2_scale(npc_units[i].coords, T_WIDTH, hitbox_pos);
         hitbox_pos[1] += T_WIDTH;
         render_hitbox(hitbox_pos, 1.0);
+        vec2 health_bar_position = GLM_VEC2_ZERO_INIT;
+        glm_vec2_scale(npc_units[i].coords, T_WIDTH, health_bar_position);
+        health_bar_position[1]+= 2.7*T_WIDTH;
+        render_health_bar_filled(health_bar_position, npc_units[i].max_life, npc_units[i].life);
+        render_health_bar_background(health_bar_position);
+        
       }
     }
 
@@ -441,9 +447,64 @@ void render_c_npc(MODEL *model, vec2 coords, vec2 direction, float scale) {
   glm_vec2_scale(c_player.coords, T_WIDTH, player_coords);
   glm_vec3_negate(player_coords);
   glm_translate(view_mat, player_coords);
+  
+  
 
   render_fbo_entity(model, fbo_model_mat, model_mat, fbo_view_mat,
                     view_mat, persp_proj, ortho_proj);
+}
+
+void render_health_bar_background(vec2 position) {
+  mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+  mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+
+  vec3 health_bar_pos = { 0.0, 0.0, AVATAR_DEPTH };
+  glm_vec2_copy(position, health_bar_pos);
+  glm_translate(model_mat, health_bar_pos);
+  vec3 scale = {T_WIDTH, 0.15*T_WIDTH, 1.0};
+  glm_scale(model_mat, scale);
+
+  vec3 player_coords = GLM_VEC3_ZERO_INIT;
+  glm_vec2_scale(c_player.coords, T_WIDTH, player_coords);
+  glm_vec2_negate(player_coords);
+  glm_translate(view_mat, player_coords);
+
+  vec3 health_bar_col = { 0.13, 0.13, 0.13 };
+  glUseProgram(color_shader);
+  set_mat4("model", model_mat, color_shader);
+  set_mat4("view", view_mat, color_shader);
+  set_mat4("proj", ortho_proj, color_shader);
+  set_vec3("color", health_bar_col, color_shader);
+  draw_model(quad, color_shader);
+}
+
+void render_health_bar_filled(vec2 position, float max_life, float life) {
+  float one_scale = T_WIDTH/max_life;
+  float hp_bar_val = one_scale * life;
+  
+  mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+  mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+
+  vec3 health_bar_pos = { 0.0, 0.0, AVATAR_DEPTH };
+  glm_vec2_copy(position, health_bar_pos);
+  
+  glm_translate(model_mat, (vec3) {health_bar_pos[0]-((T_WIDTH-hp_bar_val)), health_bar_pos[1], health_bar_pos[2]});
+  vec3 scale = {hp_bar_val, 0.15*T_WIDTH, 1.0};
+  glm_scale(model_mat, scale);
+
+  vec3 player_coords = GLM_VEC3_ZERO_INIT;
+  glm_vec2_scale(c_player.coords, T_WIDTH, player_coords);
+  glm_vec2_negate(player_coords);
+  glm_translate(view_mat, player_coords);
+
+  vec3 health_bar_col = { 1.0, 0.0, 0.0 };
+  glUseProgram(color_shader);
+  set_mat4("model", model_mat, color_shader);
+  set_mat4("view", view_mat, color_shader);
+  set_mat4("proj", ortho_proj, color_shader);
+  set_vec3("color", health_bar_col, color_shader);
+  draw_model(quad, color_shader);
+
 }
 
 void render_ui(UI_COMPONENT *comp) {

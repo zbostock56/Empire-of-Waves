@@ -641,6 +641,7 @@ void c_enemy_pathfind(C_UNIT *enemy, vec2 target_coords) {
       npc_melee_attack(enemy);
     }
   }
+
   
 
   vec2 movement = GLM_VEC2_ZERO_INIT;

@@ -583,7 +583,11 @@ void attack_collision() {
       if (c_player.attack_active &&
           circle_circle_collision(unit_coords, hurt_radius, player_attack_pos,
                                   T_WIDTH)) {
-        unit->death_animation = 1.0;
+        unit->life-= 5.0;
+        if (unit->life <= 0.0) {
+          unit->death_animation = 1.0;
+        }
+        unit->knockback_counter = 0.15;
       }
     }
 
@@ -626,7 +630,11 @@ void attack_collision() {
           unit->death_animation == -1.0 &&
           circle_circle_collision(unit_coords, hurt_radius, cur_proj->pos,
                                   PROJ_RAD * T_WIDTH)) {
-        unit->death_animation = 1.0;
+        unit->life-= 5.0;
+        if (unit->life <= 0.0) {
+          unit->death_animation = 1.0;
+        }
+        unit->knockback_counter = 0.15;
         to_despawn = 1;
       }
     }

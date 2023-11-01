@@ -59,6 +59,9 @@ int to_combat_mode(unsigned int enemy_index) {
     npc_units[i].attack_active = 0.0;
     npc_units[i].attack_cooldown = 0.0;
     npc_units[i].fire_rate = 1.0;
+    npc_units[i].max_life = 20.0;
+    npc_units[i].knockback_counter = -1.0;
+    npc_units[i].life = 20.0;
     glm_vec2_zero(npc_units[i].direction);
     glm_vec2_zero(npc_units[i].coords);
     // Spawn enemies in line on right side of the arena
@@ -82,6 +85,9 @@ int to_combat_mode(unsigned int enemy_index) {
     npc_units[i].attack_active = 0.0;
     npc_units[i].attack_cooldown = 0.0;
     npc_units[i].fire_rate = 1.0;
+    npc_units[i].max_life = 20.0;
+    npc_units[i].knockback_counter = -1.0;
+    npc_units[i].life = 20.0;
     glm_vec2_zero(npc_units[i].direction);
     glm_vec2_zero(npc_units[i].coords);
     // Spawn allies in line on left side of the arena
@@ -124,6 +130,12 @@ void update_combat_state() {
     npc_units[i].attack_active = decrement_timer(npc_units[i].attack_active);
     npc_units[i].attack_cooldown = decrement_timer(npc_units[i].
                                                    attack_cooldown);
+    if (npc_units[i].knockback_counter > 0.0) {
+      npc_units[i].knockback_counter = decrement_timer(npc_units[i].
+                                                       knockback_counter);
+      knockback(npc_units+i);
+      return;
+    } 
     if (npc_units[i].death_animation > 0.0) {
       // Npc currently in death animation
       npc_units[i].death_animation = decrement_timer(npc_units[i].
@@ -276,5 +288,13 @@ void npc_ranged_attack(C_UNIT *unit) {
                     ENEMY);
   }
   
+}
+
+void knockback(C_UNIT *unit) {
+  
+  vec2 movement = GLM_VEC2_ZERO_INIT;
+  glm_vec2_scale(unit->direction, (delta_time * unit->speed) / T_WIDTH,
+                   movement);
+  glm_vec2_sub(unit->coords, movement, unit->coords);
 }
 

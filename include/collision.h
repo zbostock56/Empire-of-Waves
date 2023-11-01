@@ -64,3 +64,4 @@ void from_combat_mode();
 void close_dialog();
 void close_trade();
 void close_mercenary_reassignment_menu();
+void knockback(C_UNIT *);
