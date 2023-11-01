@@ -67,7 +67,7 @@ void from_combat_mode();
 void close_dialog();
 void close_trade();
 void close_mercenary_reassignment_menu();
+void knockback(C_UNIT *);
 void close_container();
 unsigned int trade_ship_active();
-
 void give_player_copper(unsigned int);

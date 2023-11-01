@@ -619,25 +619,38 @@ void attack_collision() {
       }
 
       // Check enemy collision with player hitbox
-      if (c_player.attack_active &&
+      if (unit->invuln_timer == 0.0 && c_player.attack_active &&
           circle_circle_collision(unit_coords, hurt_radius, player_attack_pos,
                                   T_WIDTH)) {
-        unit->death_animation = 1.0;
+        unit->life-= 5.0;
+        unit->invuln_timer = 0.5;
+        if (unit->life <= 0.0) {
+          unit->death_animation = 1.0;
+        }
+        unit->knockback_counter = 0.15;
       }
     }
 
-    // Check collision with other npcs
-    if (unit->death_animation == -1.0 && unit->attack_active) {
-      for (unsigned int j = 0; j < num_npc_units; j++) {
-        target = npc_units + j;
-        glm_vec2_scale(target->coords, T_WIDTH, target_coords);
-        target_coords[Y] += T_WIDTH;
-        if (unit->type == target->type || target->death_animation != -1.0) {
-          continue;
-        }
-        if (circle_circle_collision(target_coords, hurt_radius,
-                                    unit_attack_pos, T_WIDTH)) {
-          target->death_animation = 1.0;
+    if (unit->attack_active) {
+      // Check collision with other npcs
+      if (unit->death_animation == -1.0 && unit->attack_active) {
+        for (unsigned int j = 0; j < num_npc_units; j++) {
+          target = npc_units + j;
+          glm_vec2_scale(target->coords, T_WIDTH, target_coords);
+          target_coords[Y] += T_WIDTH;
+          if (unit->type == target->type || target->death_animation != -1.0) {
+            continue;
+          }
+          if (target->invuln_timer == 0.0 &&
+              circle_circle_collision(target_coords, hurt_radius,
+                                      unit_attack_pos, T_WIDTH)) {
+            target->life-= 5.0;
+            target->invuln_timer = 0.5;
+            if (target->life <= 0.0) {
+              target->death_animation = 1.0;
+            }
+            target->knockback_counter = 0.15;
+          }
         }
       }
     }
@@ -665,7 +678,12 @@ void attack_collision() {
           unit->death_animation == -1.0 &&
           circle_circle_collision(unit_coords, hurt_radius, cur_proj->pos,
                                   PROJ_RAD * T_WIDTH)) {
-        unit->death_animation = 1.0;
+        unit->life-= 5.0;
+        unit->invuln_timer = 0.5;
+        if (unit->life <= 0.0) {
+          unit->death_animation = 1.0;
+        }
+        unit->knockback_counter = 0.15;
         to_despawn = 1;
       }
     }

@@ -650,16 +650,31 @@ void update_enemy_chunk(E_ENEMY *cur_enemy, CHUNK *chunk, int i) {
 
 void c_enemy_pathfind(C_UNIT *enemy, vec2 target_coords) {
   float target_dist = glm_vec2_distance(target_coords, enemy->coords);
-  if (target_dist <= 1.5 && enemy->attack_cooldown == 0.0) {
-    npc_melee_attack(enemy);
+  if (enemy->weapon_type == RANGED) {
+    if (target_dist >= 5.0 && enemy->attack_cooldown == 0.0) {
+      npc_ranged_attack(enemy);
+    }
+  } else {
+    if (target_dist <= 1.5 && enemy->attack_cooldown == 0.0) {
+      npc_melee_attack(enemy);
+    }
   }
 
+  vec2 target_dir = GLM_VEC2_ZERO_INIT;
+  glm_vec2_sub(target_coords, enemy->coords, target_dir);
+  glm_vec2_normalize(target_dir);
+
   vec2 movement = GLM_VEC2_ZERO_INIT;
-  int move = 0;
-  if (target_dist >= 1.5) {
-    glm_vec2_sub(target_coords, enemy->coords, enemy->direction);
-    glm_vec2_normalize(enemy->direction);
-    move = 1;
+  MOVE_MODE move = STOP;
+  if (enemy->weapon_type == RANGED) {
+    if (target_dist < 5.0) {
+      // If target is too close, move away
+      move = BACK;
+    } else if (target_dist > 7.5) {
+      move = FORWARD;
+    }
+  } else if (target_dist >= 1.5) {
+    move = FORWARD;
   }
 
   // Distance from enemy to its allies
@@ -669,21 +684,32 @@ void c_enemy_pathfind(C_UNIT *enemy, vec2 target_coords) {
   for (unsigned int i = 0; i < num_npc_units; i++) {
     if (npc_units + i != enemy) {
       ally_dist = glm_vec2_distance(enemy->coords, npc_units[i].coords);
-      if (ally_dist <= 2.0) {
-        glm_vec2_sub(enemy->coords, npc_units[i].coords, steer_direction);
+      if (ally_dist <= 3.0) {
+        if (move == FORWARD) {
+          glm_vec2_sub(enemy->coords, npc_units[i].coords, steer_direction);
+        } else {
+          glm_vec2_sub(npc_units[i].coords, enemy->coords, steer_direction);
+          move = BACK;
+        }
         glm_vec2_normalize(steer_direction);
-        glm_vec2_scale(steer_direction, 0.5, steer_direction);
-        glm_vec2_add(steer_direction, enemy->direction, enemy->direction);
-        glm_vec2_normalize(enemy->direction);
-
-        move = 1;
+        //glm_vec2_scale(steer_direction, 0.5, steer_direction);
+        glm_vec2_add(steer_direction, target_dir, target_dir);
+        glm_vec2_normalize(target_dir);
       }
     }
   }
 
-  if (move) {
-    glm_vec2_scale(enemy->direction, delta_time * enemy->speed,
+  glm_vec2_lerp(enemy->direction, target_dir, delta_time * 5.0,
+                enemy->direction);
+  glm_vec2_normalize(enemy->direction);
+
+  if (move == FORWARD) {
+    glm_vec2_scale(enemy->direction, (delta_time * enemy->speed),
                    movement);
+    glm_vec2_add(movement, enemy->coords, enemy->coords);
+  } else if (move == BACK) {
+    glm_vec2_scale(enemy->direction,
+                   -1.0 * (delta_time * enemy->speed), movement);
     glm_vec2_add(movement, enemy->coords, enemy->coords);
   }
 }

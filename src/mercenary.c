@@ -283,7 +283,7 @@ void mercenary_reassignment_selection(int listing_selected) {
   to a trade ship or the player's ship
 */
 void mercenary_reassign(void *ch) {
-  uintptr_t change = (uintptr_t) ch;
+  size_t change = (size_t) ch;
   if ((e_player.total_mercenaries && change > 0) ||
        change < 0) {
     int is_selected = -1;

@@ -15,6 +15,12 @@
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 
+typedef enum move_mode {
+  STOP,
+  FORWARD,
+  BACK
+} MOVE_MODE;
+
 typedef struct Node {
     int parent_row;
     int parent_col;
@@ -56,4 +62,5 @@ int circle_circle_collision(vec2, float, vec2, float);
 int get_tile(unsigned int chunk, vec2 coords);
 int spawn_projectile(vec2, vec2, float, UNIT_T);
 int npc_melee_attack(C_UNIT *);
+int npc_ranged_attack(C_UNIT *);
 int trade_ship_active(unsigned int);

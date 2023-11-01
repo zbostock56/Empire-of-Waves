@@ -60,6 +60,9 @@ int to_combat_mode(unsigned int enemy_index) {
     npc_units[i].attack_active = 0.0;
     npc_units[i].attack_cooldown = 0.0;
     npc_units[i].fire_rate = 1.0;
+    npc_units[i].max_life = 20.0;
+    npc_units[i].knockback_counter = -1.0;
+    npc_units[i].life = 20.0;
     glm_vec2_zero(npc_units[i].direction);
     glm_vec2_zero(npc_units[i].coords);
     // Spawn enemies in line on right side of the arena
@@ -84,6 +87,9 @@ int to_combat_mode(unsigned int enemy_index) {
     npc_units[i].attack_active = 0.0;
     npc_units[i].attack_cooldown = 0.0;
     npc_units[i].fire_rate = 1.0;
+    npc_units[i].max_life = 20.0;
+    npc_units[i].knockback_counter = -1.0;
+    npc_units[i].life = 20.0;
     glm_vec2_zero(npc_units[i].direction);
     glm_vec2_zero(npc_units[i].coords);
     // Spawn allies in line on left side of the arena
@@ -126,15 +132,54 @@ void update_combat_state() {
     npc_units[i].attack_active = decrement_timer(npc_units[i].attack_active);
     npc_units[i].attack_cooldown = decrement_timer(npc_units[i].
                                                    attack_cooldown);
-    if (npc_units[i].death_animation == -1.0) {
-      // NPC still alive, has not been hit
-      c_enemy_pathfind(npc_units + i, c_player.coords);
+    if (npc_units[i].invuln_timer > 0.0) {
+      npc_units[i].invuln_timer = decrement_timer(npc_units[i].invuln_timer);
+    }
+    if (npc_units[i].knockback_counter > 0.0) {
+      npc_units[i].knockback_counter = decrement_timer(npc_units[i].
+                                                       knockback_counter);
+      knockback(npc_units+i);
+      return;
+    }
+    if (npc_units[i].death_animation > 0.0) {
+      // Npc currently in death animation
+      npc_units[i].death_animation = decrement_timer(npc_units[i].
+                                                     death_animation);
     } else if (npc_units[i].death_animation == 0.0) {
       // Death animation complete, npc should be deleted
       num_npc_units--;
       // move last unit in buffer to position of deleted unit
       npc_units[i] = npc_units[num_npc_units];
       i--;
+    } else {
+      // NPC still alive, has not been hit
+      float min_distance = FLT_MAX;
+      int min_idx = 0;
+      float distance;
+      for (int j = 0; j < num_npc_units; j++) {
+        if (npc_units[i].type == npc_units[j].type) {
+          continue;
+        }
+        distance = glm_vec2_distance(npc_units[i].coords, npc_units[j].coords);
+        if (distance < min_distance) {
+          min_distance = distance;
+          min_idx = j;
+        }
+      }
+      // if it's an enemy unit, need to also consider Player.
+      if (npc_units[i].type == ENEMY) {
+        distance = glm_vec2_distance(npc_units[i].coords, c_player.coords);
+        if (distance < min_distance) {
+          min_distance = distance;
+          min_idx = -1;
+        }
+      }
+
+      if (min_idx == -1) {
+        c_enemy_pathfind(npc_units + i, c_player.coords);
+      } else if (num_npc_units) {
+        c_enemy_pathfind(npc_units + i, npc_units[min_idx].coords);
+      }
     }
   }
 
@@ -225,5 +270,29 @@ void despawn_projectile(unsigned int index) {
 void npc_melee_attack(C_UNIT *unit) {
   unit->attack_cooldown = unit->fire_rate;
   unit->attack_active = 0.1;
+}
+
+void npc_ranged_attack(C_UNIT *unit) {
+  unit->attack_cooldown = unit->fire_rate;
+  unit->attack_active = 0.1;
+  vec2 proj_coords = { 0.0, 0.0 };
+  vec2 proj_dir = { 0.0, 0.0 };
+  glm_vec2_scale(unit->coords, T_WIDTH, proj_coords);
+  proj_coords[1] += T_WIDTH;
+  glm_vec2_copy(unit->direction, proj_dir);
+  proj_dir[1] -= T_WIDTH;
+  if (unit->type == ENEMY) {
+    spawn_projectile(proj_coords, proj_dir, 3.0,
+                    ALLY);
+  } else {
+    spawn_projectile(proj_coords, proj_dir, 3.0,
+                    ENEMY);
+  }
+}
+
+void knockback(C_UNIT *unit) {
+  vec2 movement = GLM_VEC2_ZERO_INIT;
+  glm_vec2_scale(unit->direction, delta_time * unit->speed, movement);
+  glm_vec2_sub(unit->coords, movement, unit->coords);
 }
 

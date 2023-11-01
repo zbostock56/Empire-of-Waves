@@ -59,7 +59,7 @@ void open_listing(UI_LIST *list) {
         listing_pos,
         (void (*)(void *)) select_listing_dispatcher,
         NULL,
-        (void *) (i),
+        (void *) ((size_t) i),
         NULL,
         list->listing_strings[i],
         1,
