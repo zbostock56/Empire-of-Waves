@@ -821,6 +821,7 @@ void trade_route_handler(int island_index) {
     dialog.ui_text_schedule_trade_route_prompt->text = "Trade Route Cancelled";
     dialog.ui_text_schedule_trade_route_prompt->enabled = 1;
     time_schdule_trade_toute_prompt = 1.0;
+    restore_trade_ship_mercs(dialog.merchant->chunk, island_index);
     delete_trade_ship(dialog.merchant->chunk, island_index);
     target_merch->has_trade_route = 0;
 

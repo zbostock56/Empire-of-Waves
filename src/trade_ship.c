@@ -78,6 +78,22 @@ void delete_trade_ship(ivec2 target_chunk, unsigned int target_island) {
   }
 }
 
+void restore_trade_ship_mercs(ivec2 target_chunk, unsigned int target_island) {
+  TRADE_SHIP *cur_ship = NULL;
+  CHUNK *cur_chunk = NULL;
+  for (int i = 0; i < num_trade_ships; i++) {
+    cur_ship = trade_ships + i;
+    cur_chunk = chunk_buffer + cur_ship->target_chunk_index;
+    if (target_chunk[0] == cur_chunk->coords[0] &&
+        target_chunk[1] == cur_chunk->coords[1] &&
+        target_island == cur_ship->target_island) {
+      e_player.total_mercenaries += cur_ship->num_mercenaries;
+      cur_ship->num_mercenaries = 0;
+      return;
+    }
+  }
+}
+
 void update_trade_ships() {
   if (mode != EXPLORATION) {
     return;
