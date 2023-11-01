@@ -6,6 +6,7 @@
 #include <trade_str.h>
 #include <chunk_str.h>
 #include <menu.h>
+#include <event_str.h>
 
 /*
                                    TRADING
@@ -21,7 +22,7 @@ float time_trade_event_prompt;
 extern char merchant_name_list[600][20];
 
 /* ==================== INTERNALLY DEFINED FUNCITONS ================== */
-void init_trade();
+int init_trade();
 void open_trade();
 void close_trade();
 int set_trade(MERCHANT *, T_TRADE);
@@ -55,4 +56,7 @@ TRADE_SHIP *init_trade_ship(char *, ivec2, unsigned int);
 int resize_listings(MERCHANT *);
 void add_listing(MERCHANT *, ITEM_IDS, unsigned int);
 void clear_listing(MERCHANT *merchant, unsigned int index);
-void coalesce_currency(CONTAINER cont);
+void coalesce_currency(I_SLOT *, unsigned int);
+void delete_trade_ship(ivec2, unsigned int);
+unsigned int check_fit(LISTING *, int *, unsigned int, I_SLOT *, int *,
+                       unsigned int);

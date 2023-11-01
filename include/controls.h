@@ -10,6 +10,7 @@
 #include <dialog_str.h>
 #include <trade_str.h>
 #include <menu.h>
+#include <event_str.h>
 
 #define INPUT_BUFFER_SIZE (16)
 #define MAX_CMD_LEN (100)
@@ -28,8 +29,6 @@ extern int shore_interaction_enabled;
 extern int home_interaction_enabled;
 extern int container_interaction_enabled;
 extern int reassignment_menu_open;
-extern float console_cursor_interval;
-extern int cursor_enabled;
 extern UI_ID open_prompt;
 extern MERCHANT *close_merchant;
 extern TRADE trade;
@@ -41,6 +40,7 @@ extern char cons_cmd[MAX_CMD_LEN];
 extern unsigned int cons_cmd_len;
 extern char *save_input_buffer;
 extern unsigned int save_input_len;
+extern int console_input_enabled;
 
 int holding_left_click = 0;
 int holding_equals = 0;

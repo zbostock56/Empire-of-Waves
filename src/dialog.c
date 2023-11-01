@@ -5,36 +5,40 @@ Implements the functionality for dialog, itegrate with UI components
 */
 
 /*  Init global dialog, call by main() */
-void init_dialog() {
+int init_dialog() {
   /* Alloc size for dialog name string*/
   dialog.name = malloc(MAX_NAME_STR_LENGTH * sizeof(char));
   if (!dialog.name) {
-    return;
+    fprintf(stderr, "dialog.c: Failed to allocate name buffer\n");
+    return -1;
   }
   dialog.name[0] = '\0'; // Ensures null termination
 
   /* Alloc size for dialog relationship string*/
   dialog.relationship = malloc(TEXT_BUFFER_LEN * sizeof(char));
   if (!dialog.relationship) {
+    fprintf(stderr, "dialog.c: Failed to allocate relationship buffer\n");
     free(dialog.name);
-    return;
+    return -1;
   }
   dialog.relationship[0] = '\0';
 
   dialog.content = malloc(MAX_CONTENT_STR_LENGTH * sizeof(char));
   if (!dialog.content) {
+    fprintf(stderr, "dialog.c: Failed to allocate content buffer\n");
     free(dialog.relationship);
     free(dialog.name);
-    return;
+    return -1;
   }
   dialog.content[0] = '\0'; // Ensures null termination
 
   dialog.mercenary_count = malloc(TEXT_BUFFER_LEN);
   if (!dialog.mercenary_count) {
+    fprintf(stderr, "dialog.c: Failed to allocate merc count buffer\n");
     free(dialog.relationship);
     free(dialog.name);
     free(dialog.content);
-    return;
+    return -1;
   }
 
   dialog.type = INVALID_DIALOG;
@@ -44,7 +48,7 @@ void init_dialog() {
   dialog.ui_text_content = get_ui_component_by_ID(DIALOG_CONTENT);
   dialog.ui_button_buy = get_ui_component_by_ID(DIALOG_BUTTON_BUY);
   dialog.ui_button_sell = get_ui_component_by_ID(DIALOG_BUTTON_SELL);
-  dialog.ui_button_establish_trade_route = get_ui_component_by_ID(DIALOG_BUTTON_ESTABLISH_TRADE_ROUTE);
+  dialog.ui_button_trade_route = get_ui_component_by_ID(DIALOG_BUTTON_ESTABLISH_TRADE_ROUTE);
   dialog.ui_text_schedule_trade_route_prompt = get_ui_component_by_ID(SCHEDULED_TRADE_ROUTE_PROMPT);
   dialog.ui_mercenary_buy = get_ui_component_by_ID(MERCENARY_BUY_PROMPT);
 
@@ -157,10 +161,10 @@ void init_dialog() {
   );
 
   // Init dialog button establish trade route
-  vec2 establish_trade_route_position = { -0.75, -1.0 };
+  vec2 trade_route_button_position = { -0.75, -1.0 };
   init_menu(
-    establish_trade_route_position, // position
-    open_establish_trade_route, // on_click
+    trade_route_button_position, // position
+    trade_route_handler, // on_click
     NULL,
     (void *) 0xBAADF00D, // on_click_args
     (void *) 0xBAADF00D, // on_hover_args
@@ -176,7 +180,7 @@ void init_dialog() {
     0.2, // heights
     PIVOT_BOTTOM_LEFT, // pivot
     T_CENTER, // text_anchor
-    dialog.ui_button_establish_trade_route // dest
+    dialog.ui_button_trade_route // dest
   );
 
   // Init mercenary purchase button
@@ -220,6 +224,8 @@ void init_dialog() {
     T_CENTER, // text_anchor
     dialog.ui_text_schedule_trade_route_prompt // dest
   );
+
+  return 0;
 }
 
 /* Free Dialog Allocated Spaces */
@@ -256,7 +262,7 @@ void open_dialog() {
       dialog.ui_text_relationship->enabled = 1;
       dialog.ui_button_buy->enabled = 0;
       dialog.ui_button_sell->enabled = 0;
-      dialog.ui_button_establish_trade_route->enabled = 0;
+      dialog.ui_button_trade_route->enabled = 0;
       dialog.ui_mercenary_buy->enabled = 0;
       break;
     }
@@ -267,8 +273,7 @@ void open_dialog() {
       // Trade with item update: Only use buy button as trade button
       dialog.ui_button_buy->enabled = 1;
       dialog.ui_button_sell->enabled = 0;
-      dialog.ui_button_establish_trade_route->enabled = 1;
-      dialog.ui_mercenary_buy->enabled = 1;
+      dialog.ui_button_trade_route->enabled = 1;
       dialog.ui_mercenary_buy->enabled = 1;
       break;
     }
@@ -279,7 +284,7 @@ void open_dialog() {
       // Trade with item update: Only use buy button as trade button
       dialog.ui_button_buy->enabled = 1;
       dialog.ui_button_sell->enabled = 0;
-      dialog.ui_button_establish_trade_route->enabled = 1;
+      dialog.ui_button_trade_route->enabled = 1;
       dialog.ui_mercenary_buy->enabled = 1;
       break;
     }
@@ -294,7 +299,7 @@ void close_dialog() {
   dialog.ui_text_relationship->enabled = 0;
   dialog.ui_button_buy->enabled = 0;
   dialog.ui_button_sell->enabled = 0;
-  dialog.ui_button_establish_trade_route->enabled = 0;
+  dialog.ui_button_trade_route->enabled = 0;
   dialog.ui_text_schedule_trade_route_prompt->enabled = 0;
   dialog.ui_mercenary_buy->enabled = 0;
   time_schdule_trade_toute_prompt = 2.0;
@@ -319,6 +324,11 @@ int set_dialog(MERCHANT *merchant, T_DIALOG dialog_type, char *name,
     dialog.name[MAX_NAME_STR_LENGTH - 1] = '\0'; // Ensures null termination
     strncpy(dialog.content, content, MAX_CONTENT_STR_LENGTH);
     dialog.content[MAX_CONTENT_STR_LENGTH - 1] = '\0'; // Ensures null termination
+    if (merchant->has_trade_route) {
+      dialog.ui_button_trade_route->text = "3. Cancel trade route";
+    } else {
+      dialog.ui_button_trade_route->text = "3. Establish trade route";
+    }
     return 1;
   }
   return 0;
@@ -329,7 +339,8 @@ void update_dialog_buffers() {
     snprintf(dialog.ui_text_relationship->text, TEXT_BUFFER_LEN,
              " Relationship: %.1f ", dialog.merchant->relationship);
     snprintf(dialog.ui_mercenary_buy->text, TEXT_BUFFER_LEN,
-             "3. Purchase Mercenary (%d available)",
+             "3. Purchase Mercenary (%d copper) (%d available)",
+             calc_merc_price(dialog.merchant),
              dialog.merchant->num_mercenaries);
   }
 }

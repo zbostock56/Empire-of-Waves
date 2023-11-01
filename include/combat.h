@@ -16,6 +16,7 @@
 float decrement_timer(float);
 void update_projectiles();
 int spawn_projectile(vec2, vec2, float, UNIT_T);
+void knockback(C_UNIT *);
 
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 

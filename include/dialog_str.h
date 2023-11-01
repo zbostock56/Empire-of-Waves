@@ -5,7 +5,7 @@
 #define MAX_NAME_STR_LENGTH (20) // DIALOG :: Max string length of name
 #define MAX_CONTENT_STR_LENGTH (64) // DIALOG :: Max string length of content
 #define MAX_DIALOGS (16) // DIALOG :: Max number of dialogs
-#define TEXT_BUFFER_LEN (50)
+#define TEXT_BUFFER_LEN (64)
 
 typedef enum dialog_type {
   INVALID_DIALOG = 0,
@@ -25,7 +25,7 @@ typedef struct dialog {
   UI_COMPONENT *ui_text_content;
   UI_COMPONENT *ui_button_buy;
   UI_COMPONENT *ui_button_sell;
-  UI_COMPONENT *ui_button_establish_trade_route;
+  UI_COMPONENT *ui_button_trade_route;
   UI_COMPONENT *ui_text_schedule_trade_route_prompt;
   UI_COMPONENT *ui_mercenary_buy;
 } DIALOG;

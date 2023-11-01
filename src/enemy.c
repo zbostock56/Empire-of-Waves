@@ -10,6 +10,10 @@ respawn, despawn, move, attack, and rotate.
   Perform enemy pathfinding and movement for all simulated enemy ships
 */
 void update_enemy_ships() {
+  if (mode != EXPLORATION) {
+    return;
+  }
+
   E_ENEMY *cur_enemy = NULL;
   for (int i = 0; i < chunk_buff_len; i++) {
     for (int j = 0; j < chunk_buffer[i].num_enemies; j++) {
@@ -81,7 +85,7 @@ void spawn_enemy() {
           enemy->direction[0] = 0;
           enemy->direction[1] = 1;
           enemy->speed = 15.0;
-          enemy->crew_count = 3;
+          enemy->crew_count = (rand() % 5) + 1;
           not_found = 0;
         }
       }
@@ -196,18 +200,20 @@ void pathfind_enemy(E_ENEMY *enemy, unsigned int enemy_chunk) {
     prioritize_player = true;
   }
   for (int i = 0; i < num_trade_ships; i++) {
-    vec2 trade_world_coords = GLM_VEC2_ZERO_INIT;
-    chunk_to_world((trade_ships+i)->chunk_coords, (trade_ships+i)->coords,
-                   trade_world_coords);
-    if (circle_circle_collision(trade_world_coords, ship_search_radius,
-                                enemy_world_coords, ship_search_radius)) {
-      /* trade ship detected by enemy */
-      enemy->on_path = true;
-      distance = glm_vec2_distance(enemy_world_coords, trade_world_coords);
-      if (distance < min_distance) {
-        min_distance = distance;
-        prioritize_player = false;
-        target_tradeship = trade_ships+i;
+    if (trade_ship_active(i)) {
+      vec2 trade_world_coords = GLM_VEC2_ZERO_INIT;
+      chunk_to_world((trade_ships+i)->chunk_coords, (trade_ships+i)->coords,
+                     trade_world_coords);
+      if (circle_circle_collision(trade_world_coords, ship_search_radius,
+                                  enemy_world_coords, ship_search_radius)) {
+        /* trade ship detected by enemy */
+        enemy->on_path = true;
+        distance = glm_vec2_distance(enemy_world_coords, trade_world_coords);
+        if (distance < min_distance) {
+          min_distance = distance;
+          prioritize_player = false;
+          target_tradeship = trade_ships+i;
+        }
       }
     }
   }
@@ -644,16 +650,31 @@ void update_enemy_chunk(E_ENEMY *cur_enemy, CHUNK *chunk, int i) {
 
 void c_enemy_pathfind(C_UNIT *enemy, vec2 target_coords) {
   float target_dist = glm_vec2_distance(target_coords, enemy->coords);
-  if (target_dist <= 1.5 && enemy->attack_cooldown == 0.0) {
-    npc_melee_attack(enemy);
+  if (enemy->weapon_type == RANGED) {
+    if (target_dist >= 5.0 && enemy->attack_cooldown == 0.0) {
+      npc_ranged_attack(enemy);
+    }
+  } else {
+    if (target_dist <= 1.5 && enemy->attack_cooldown == 0.0) {
+      npc_melee_attack(enemy);
+    }
   }
 
+  vec2 target_dir = GLM_VEC2_ZERO_INIT;
+  glm_vec2_sub(target_coords, enemy->coords, target_dir);
+  glm_vec2_normalize(target_dir);
+
   vec2 movement = GLM_VEC2_ZERO_INIT;
-  int move = 0;
-  if (target_dist >= 1.5) {
-    glm_vec2_sub(target_coords, enemy->coords, enemy->direction);
-    glm_vec2_normalize(enemy->direction);
-    move = 1;
+  MOVE_MODE move = STOP;
+  if (enemy->weapon_type == RANGED) {
+    if (target_dist < 5.0) {
+      // If target is too close, move away
+      move = BACK;
+    } else if (target_dist > 7.5) {
+      move = FORWARD;
+    }
+  } else if (target_dist >= 1.5) {
+    move = FORWARD;
   }
 
   // Distance from enemy to its allies
@@ -663,21 +684,32 @@ void c_enemy_pathfind(C_UNIT *enemy, vec2 target_coords) {
   for (unsigned int i = 0; i < num_npc_units; i++) {
     if (npc_units + i != enemy) {
       ally_dist = glm_vec2_distance(enemy->coords, npc_units[i].coords);
-      if (ally_dist <= 2.0) {
-        glm_vec2_sub(enemy->coords, npc_units[i].coords, steer_direction);
+      if (ally_dist <= 3.0) {
+        if (move == FORWARD) {
+          glm_vec2_sub(enemy->coords, npc_units[i].coords, steer_direction);
+        } else {
+          glm_vec2_sub(npc_units[i].coords, enemy->coords, steer_direction);
+          move = BACK;
+        }
         glm_vec2_normalize(steer_direction);
-        glm_vec2_scale(steer_direction, 0.5, steer_direction);
-        glm_vec2_add(steer_direction, enemy->direction, enemy->direction);
-        glm_vec2_normalize(enemy->direction);
-
-        move = 1;
+        //glm_vec2_scale(steer_direction, 0.5, steer_direction);
+        glm_vec2_add(steer_direction, target_dir, target_dir);
+        glm_vec2_normalize(target_dir);
       }
     }
   }
 
-  if (move) {
-    glm_vec2_scale(enemy->direction, (delta_time * enemy->speed) / T_WIDTH,
+  glm_vec2_lerp(enemy->direction, target_dir, delta_time * 5.0,
+                enemy->direction);
+  glm_vec2_normalize(enemy->direction);
+
+  if (move == FORWARD) {
+    glm_vec2_scale(enemy->direction, (delta_time * enemy->speed),
                    movement);
+    glm_vec2_add(movement, enemy->coords, enemy->coords);
+  } else if (move == BACK) {
+    glm_vec2_scale(enemy->direction,
+                   -1.0 * (delta_time * enemy->speed), movement);
     glm_vec2_add(movement, enemy->coords, enemy->coords);
   }
 }

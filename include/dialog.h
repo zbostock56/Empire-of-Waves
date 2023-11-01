@@ -17,7 +17,7 @@ DIALOG dialog;
 float time_schdule_trade_toute_prompt;
 
 /* ================= INTERNALLY DEFINED FUNCTIONS ================= */
-void init_dialog();
+int init_dialog();
 void free_dialog();
 void open_dialog();
 void close_dialog();
@@ -30,5 +30,6 @@ void init_menu(vec2, void (*)(void *), void (*)(void *), void *, void *,
                PIVOT, TEXT_ANCHOR, UI_COMPONENT *);
 void open_buy();
 void open_sell();
-void open_establish_trade_route();
+void trade_route_handler();
 void purchase_mercenary_handler();
+unsigned int calc_merc_price(MERCHANT *);

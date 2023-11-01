@@ -163,7 +163,7 @@ void exploration_movement(GLFWwindow *window) {
 
 void combat_movement(GLFWwindow *window) {
   vec2 movement = GLM_VEC2_ZERO_INIT;
-  glm_vec2_scale(c_player.direction, (delta_time * c_player.speed) / T_WIDTH,
+  glm_vec2_scale(c_player.direction, delta_time * c_player.speed,
                  movement);
   // Movement
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
@@ -297,8 +297,8 @@ void input_keys(GLFWwindow *window) {
       holding_alpha[i - GLFW_KEY_A] = 1;
       if (console_input_enabled && cons_cmd_len < MAX_CMD_LEN - 1) {
         cons_cmd[cons_cmd_len++] = i + 32;
-        cursor_enabled = 1;
-        console_cursor_interval = 0.25;
+        event_flags[CONS_CURSOR] = 1;
+        timers[CONS_CURSOR] = 0.25;
       }
 
       if (save_input_enabled && save_input_len < INPUT_BUFFER_SIZE - 1) {
@@ -316,8 +316,8 @@ void input_keys(GLFWwindow *window) {
       holding_num[i - GLFW_KEY_0] = 1;
       if (console_input_enabled && cons_cmd_len < MAX_CMD_LEN - 1) {
         cons_cmd[cons_cmd_len++] = i;
-        cursor_enabled = 1;
-        console_cursor_interval = 0.25;
+        event_flags[CONS_CURSOR] = 1;
+        timers[CONS_CURSOR] = 0.25;
       }
 
       if (save_input_enabled && save_input_len < INPUT_BUFFER_SIZE - 1) {
@@ -335,8 +335,8 @@ void input_keys(GLFWwindow *window) {
     holding_minus = 1;
     if (console_input_enabled && cons_cmd_len < MAX_CMD_LEN - 1) {
       cons_cmd[cons_cmd_len++] = '-';
-      cursor_enabled = 1;
-      console_cursor_interval = 0.25;
+      event_flags[CONS_CURSOR] = 1;
+      timers[CONS_CURSOR] = 0.25;
     }
 
     if (save_input_enabled && save_input_len < INPUT_BUFFER_SIZE - 1) {
@@ -355,8 +355,8 @@ void input_keys(GLFWwindow *window) {
     holding_space = 1;
     if (console_input_enabled && cons_cmd_len < MAX_CMD_LEN - 1) {
       cons_cmd[cons_cmd_len++] = ' ';
-      cursor_enabled = 1;
-      console_cursor_interval = 0.25;
+      event_flags[CONS_CURSOR] = 1;
+      timers[CONS_CURSOR] = 0.25;
     }
 
     if (save_input_enabled && save_input_len < INPUT_BUFFER_SIZE - 1) {
@@ -373,8 +373,8 @@ void input_keys(GLFWwindow *window) {
     holding_underscore = 1;
     if (console_input_enabled && cons_cmd_len < MAX_CMD_LEN - 1) {
       cons_cmd[cons_cmd_len++] = '_';
-      cursor_enabled = 1;
-      console_cursor_interval = 0.25;
+      event_flags[CONS_CURSOR] = 1;
+      timers[CONS_CURSOR] = 0.25;
     }
 
     if (save_input_enabled && save_input_len < INPUT_BUFFER_SIZE - 1) {
@@ -429,8 +429,8 @@ void input_keys(GLFWwindow *window) {
     holding_dot = 1;
     if (console_input_enabled && cons_cmd_len < MAX_CMD_LEN - 1) {
       cons_cmd[cons_cmd_len++] = '.';
-      cursor_enabled = 1;
-      console_cursor_interval = 0.25;
+      event_flags[CONS_CURSOR] = 1;
+      timers[CONS_CURSOR] = 0.25;
     }
   } else if (glfwGetKey(window, GLFW_KEY_PERIOD) != GLFW_PRESS) {
     holding_dot = 0;
@@ -441,8 +441,8 @@ void input_keys(GLFWwindow *window) {
     holding_backspace = 1;
     if (console_input_enabled && cons_cmd_len > 0) {
       cons_cmd[--cons_cmd_len] = '\0';
-      cursor_enabled = 1;
-      console_cursor_interval = 0.25;
+      event_flags[CONS_CURSOR] = 1;
+      timers[CONS_CURSOR] = 0.25;
     }
 
     if (save_input_enabled && save_input_len) {

@@ -35,10 +35,10 @@ typedef struct trade {
   int merchant_value;
   int player_value;
   float barter_range;
-  /* merchant item index at [i] is selected or not, 0 = unselected and 1 = selected */
-  int merchant_item_selected[MAX_MERCHANT_ITEM];
   /* player item index at [i] is selected or not, 0 = unselected and 1 = selected */
-  int player_item_selected[MAX_MERCHANT_ITEM];
+  int player_item_selected[MAX_PLAYER_ITEM];
+  /* merchant item index at [i] is selected or not, 0 = unselected and 1 = selected */
+  int *merchant_item_selected;
 } TRADE;
 
 #endif

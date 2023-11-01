@@ -105,3 +105,8 @@ void clear_listing(MERCHANT *merchant, unsigned int index) {
   merchant->listings[merchant->num_listings].item_id = EMPTY;
   merchant->listings[merchant->num_listings].quantity = 0;
 }
+
+unsigned int calc_merc_price(MERCHANT *merchant) {
+  return ((MAX_MERCENARIES - merchant->num_mercenaries) * 0.25 *
+           MERC_BASE_PRICE) + MERC_BASE_PRICE;
+}

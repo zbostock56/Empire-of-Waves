@@ -9,7 +9,7 @@ Implements the functionality for shows player status.
 Init status bar
 Call by main()
 */
-void init_status_bar() {
+int init_status_bar() {
   status.ui_health_status = get_ui_component_by_ID(STATUS_HEALTH);
   status.ui_money_status = get_ui_component_by_ID(STATUS_MONEY);
 
@@ -35,7 +35,8 @@ void init_status_bar() {
 
   status.ui_health_status->text = malloc(MAX_STATUS_STR_LENGTH * sizeof(char));
   if (!status.ui_health_status->text) {
-    return;
+    fprintf(stderr, "status.c: Failed to allocate health status buffer\n");
+    return -1;
   }
   status.ui_health_status->text[0] = '\0';
 
@@ -60,9 +61,11 @@ void init_status_bar() {
 
   status.ui_money_status->text = malloc(MAX_STATUS_STR_LENGTH * sizeof(char));
   if (!status.ui_money_status->text) {
-    return;
+    fprintf(stderr, "status.c: Failed to allocate money status buffer\n");
+    return -1;
   }
   status.ui_money_status->text[0] = '\0'; // Ensures null termination
+  return 0;
 }
 
 /* Function used for free status bar whe needed */

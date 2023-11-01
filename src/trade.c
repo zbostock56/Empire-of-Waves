@@ -2,7 +2,7 @@
 #include <dialog_str.h>
 
 /* Init trade menu */
-void init_trade() {
+int init_trade() {
   trade.type = INVALID_TRADE;
 
   // Init buy & sell listing UI
@@ -34,13 +34,7 @@ void init_trade() {
   trade.player_value = 0;
 
   trade.barter_range = 0.1;
-
-  for (int i = 0; i < MAX_MERCHANT_ITEM; i++) {
-    trade.merchant_item_selected[i] = 0;
-  }
-  for (int i = 0; i < MAX_PLAYER_ITEM; i++) {
-    trade.player_item_selected[i] = 0;
-  }
+  trade.merchant_item_selected = NULL;
 
   // Init listings
   vec2 listing_0_position = { -0.5, 0.5 };
@@ -370,7 +364,8 @@ void init_trade() {
   );
   trade.ui_text_on_hover_item->text = malloc(MAX_UI_TEXT_LENGTH * sizeof(char));
   if (!trade.ui_text_on_hover_item->text) {
-    return;
+    fprintf(stderr, "trade.c: Failed to allocate on-hover text buffer\n");
+    return -1;
   }
   trade.ui_text_on_hover_item->text[0] = '\0'; // Ensures null termination
   strcpy(trade.ui_text_on_hover_item->text,
@@ -397,7 +392,8 @@ void init_trade() {
   );
   trade.ui_text_merchant_value->text = malloc(MAX_UI_TEXT_LENGTH * sizeof(char));
   if (!trade.ui_text_merchant_value) {
-    return;
+    fprintf(stderr, "trade.c: Failed to allocate merchant value buffer\n");
+    return -1;
   }
   trade.ui_text_merchant_value->text[0] = '\0'; // Ensures null termination
   strcpy(trade.ui_text_merchant_value->text, "MERCHANT VALUE [0]");
@@ -422,7 +418,8 @@ void init_trade() {
   );
   trade.ui_text_player_value->text = malloc(MAX_UI_TEXT_LENGTH * sizeof(char));
   if (!trade.ui_text_player_value) {
-    return;
+    fprintf(stderr, "trade.c: Failed to allocate player value buffer\n");
+    return -1;
   }
   trade.ui_text_player_value->text[0] = '\0'; // Ensures null termination
   strcpy(trade.ui_text_player_value->text, "PLAYER VALUE [0]");
@@ -468,11 +465,13 @@ void init_trade() {
   );
   trade.ui_text_event_prompt->text = malloc(MAX_UI_TEXT_LENGTH * sizeof(char));
   if (!trade.ui_text_event_prompt) {
-    return;
+    fprintf(stderr, "trade.c: Failed to allocate event prompt buffer\n");
+    return -1;
   }
   trade.ui_text_event_prompt->text[0] = '\0'; // Ensures null termination
   strcpy(trade.ui_text_event_prompt->text, "EVENT PROMPT");
 
+  return 0;
 }
 
 void free_trade() {
@@ -557,8 +556,12 @@ void close_trade() {
   trade.merchant_value = 0;
   trade.player_value = 0;
 
-  for (int i = 0; i < MAX_MERCHANT_ITEM; i++) {
-    trade.merchant_item_selected[i] = 0;
+  if (trade.merchant_item_selected) {
+    for (int i = 0; i < trade.merchant->num_listings; i++) {
+      trade.merchant_item_selected[i] = 0;
+    }
+    free(trade.merchant_item_selected);
+    trade.merchant_item_selected = NULL;
   }
   for (int i = 0; i < MAX_PLAYER_ITEM; i++) {
     trade.player_item_selected[i] = 0;
@@ -578,6 +581,34 @@ void close_trade() {
 
   // Disable relationship bar
   dialog.ui_text_relationship->enabled = 0;
+}
+
+void prompt_plundered_trade_ship() {
+  vec2 relationship_error_pos = { 0.0, 0.75 };
+  init_menu(
+      relationship_error_pos, // position
+      NULL, // on_click
+      NULL, // on_hover
+      NULL, // on_click_args
+      NULL, // on_hover_args
+      "A trade ship was plundered!", // text
+      1, // enabled
+      1, // textured
+      0, // texture
+      0.05, // text_padding
+      1.0, // text_scale
+      0.0, // width
+      0.0, // height
+      PIVOT_TOP, // pivot
+      T_CENTER, // text_anchor
+      get_ui_component_by_ID(PLUNDERED_TRADE_SHIP) // dest
+  );
+  timers[PLUNDERED_TS] = 1.5;
+  event_flags[PLUNDERED_TS] = 1;
+}
+
+void clear_plundered_trade_ship_prompt() {
+  get_ui_component_by_ID(PLUNDERED_TRADE_SHIP)->enabled = 0;
 }
 
 /*
@@ -617,16 +648,24 @@ int set_trade(MERCHANT *merchant, T_TRADE trade_type) {
 
         trade.merchant_value = 0;
         trade.player_value = 0;
-        for (int i = 0; i < MAX_MERCHANT_ITEM; i++) {
+
+        trade.merchant_item_selected = malloc(sizeof(int) *
+                                              merchant->num_listings);
+        if (trade.merchant_item_selected == NULL) {
+          fprintf(stderr, "trade.c: Unable to allocate merchant selections\n");
+          return -1;
+        }
+        for (int i = 0; i < merchant->num_listings; i++) {
           trade.merchant_item_selected[i] = 0;
         }
+
         for (int i = 0; i < MAX_PLAYER_ITEM; i++) {
           trade.player_item_selected[i] = 0;
         }
         for (int i = 0; i < 8; i++) {
           LISTING *listing = get_merchant_listing_item_by_index(trade.merchant,
                                                                 i);
-          ITEM_IDS listing_id = ENEMY;
+          ITEM_IDS listing_id = EMPTY;
           if (listing) {
             listing_id = listing->item_id;
           }
@@ -774,24 +813,35 @@ void open_sell() {
 }
 
 /* Click lisnter of establish trade route button */
-void open_establish_trade_route(int island_index) {
+void trade_route_handler(int island_index) {
   MERCHANT *target_merch = dialog.merchant;
 
   // Check if player already have a trade route to this island
   if (target_merch->has_trade_route) {
-    dialog.ui_text_schedule_trade_route_prompt->text = "Unable to Schedule Duplicate Trade Route";
+    dialog.ui_text_schedule_trade_route_prompt->text = "Trade Route Cancelled";
     dialog.ui_text_schedule_trade_route_prompt->enabled = 1;
-    return;
+    time_schdule_trade_toute_prompt = 1.0;
+    delete_trade_ship(dialog.merchant->chunk, island_index);
+    target_merch->has_trade_route = 0;
+
+    dialog.ui_button_trade_route->text = "3. Establish trade route";
+
+    target_merch->relationship -= 10.0;
+    if (target_merch->relationship < -100.0) {
+      target_merch->relationship = -100.0;
+    }
+  } else {
+    // Establish trade route and popup the prompt shows successful
+    dialog.ui_text_schedule_trade_route_prompt->text = "Trade Route Established";
+    dialog.ui_text_schedule_trade_route_prompt->enabled = 1;
+    time_schdule_trade_toute_prompt = 1.0;
+
+    init_trade_ship(merchant_name_list[target_merch->name],
+                    dialog.merchant->chunk, island_index);
+    target_merch->has_trade_route = 1;
+
+    dialog.ui_button_trade_route->text = "3. Cancel trade route";
   }
-
-  // Establish trade route and popup the prompt shows successful
-  dialog.ui_text_schedule_trade_route_prompt->text = "Trade Route Established";
-  dialog.ui_text_schedule_trade_route_prompt->enabled = 1;
-  time_schdule_trade_toute_prompt = 2.0;
-
-  init_trade_ship(merchant_name_list[target_merch->name],
-                  dialog.merchant->chunk, island_index);
-  target_merch->has_trade_route = 1;
 }
 
 /*
@@ -996,6 +1046,15 @@ Trade with both sides item selected
 TODO: DO NOT DEAL WITH LIMITED INVENTORY SPACE
 */
 void on_click_trade() {
+  if (!check_fit(trade.merchant->listings, trade.merchant_item_selected,
+                 trade.merchant->num_listings, e_player.inventory,
+                 trade.player_item_selected, MAX_PLAYER_INV_SIZE)) {
+    sprintf(trade.ui_text_event_prompt->text,
+            " Not enough room in inventory ");
+    trade.ui_text_event_prompt->enabled = 1;
+    time_trade_event_prompt = 2.0;
+    return;
+  }
 
   // printf("Trade Button Click Detected\n");
   // Check player value > merchant value
@@ -1021,14 +1080,15 @@ void on_click_trade() {
         time_trade_event_prompt = 2.0;
         return;
       }
-      // When relationship less than 80 larger than 20, can bartering but relationship will decrease with the additional value
+      // When relationship less than 80 larger than 20, can bartering but
+      // relationship will decrease with the additional value
       if (trade.merchant->relationship < 80.0) {
         trade.merchant->relationship -= (trade.merchant_value - trade.player_value);
       }
     }
     // Check player value > merchant value
     // Add the selected items to player inventory
-    for (int i = 0; i < MAX_PLAYER_ITEM; i++) {
+    for (int i = 0; i < trade.merchant->num_listings; i++) {
       if (trade.merchant_item_selected[i] > 0) {
         LISTING *listing = get_merchant_listing_item_by_index(trade.merchant,
                                                               i);
@@ -1044,7 +1104,7 @@ void on_click_trade() {
       }
     }
     // Add the selected items to merchant listing
-    for (int i = 0 ; i < trade.merchant->num_listings; i++) {
+    for (int i = 0 ; i < MAX_PLAYER_ITEM; i++) {
       if (trade.player_item_selected[i] > 0) {
         ITEM_IDS item_id = get_player_inventory_slot_by_index(i)->item_id;
         add_listing(trade.merchant, item_id, trade.player_item_selected[i]);
@@ -1080,11 +1140,7 @@ void on_click_trade() {
     }
 
     // Currency Coalesce
-    CONTAINER player_inv = {
-      e_player.inventory,
-      MAX_PLAYER_INV_SIZE
-    };
-    coalesce_currency(player_inv);
+    coalesce_currency(e_player.inventory, MAX_PLAYER_INV_SIZE);
 
     // Set Values Back
     trade.player_value = 0;
@@ -1094,9 +1150,11 @@ void on_click_trade() {
     sprintf(trade.ui_text_merchant_value->text, "MERCHANT VALUE [%d]",
             trade.merchant_value);
 
-    for (int i = 0; i < MAX_MERCHANT_ITEM; i++) {
-      trade.merchant_item_selected[i] = 0;
+    for (int i = 0; i < MAX_PLAYER_ITEM; i++) {
       trade.player_item_selected[i] = 0;
+    }
+    for (int i = 0; i < trade.merchant->num_listings; i++) {
+      trade.merchant_item_selected[i] = 0;
     }
     // Refresh the UI
     for (int i = 0; i < 8; i++) {

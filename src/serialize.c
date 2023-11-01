@@ -451,6 +451,7 @@ void save_trade_ship(TRADE_SHIP *ship, FILE *file) {
   fwrite(&ship->num_mercenaries, sizeof(unsigned int), 1, file);
   fwrite(ship->desc, sizeof(char), MAX_TRADE_SHIP_DESC, file);
   fwrite(&ship->speed, sizeof(float), 1, file);
+  fwrite(&ship->death_animation, sizeof(float), 1, file);
 }
 
 void load_player_state(FILE *file) {
@@ -495,6 +496,7 @@ void load_trade_ship(FILE *file) {
   fread(&cur_ship->num_mercenaries, sizeof(unsigned int), 1, file);
   fread(cur_ship->desc, sizeof(char), MAX_TRADE_SHIP_DESC, file);
   fread(&cur_ship->speed, sizeof(float), 1, file);
+  fread(&cur_ship->death_animation, sizeof(float), 1, file);
 }
 
 void chunk_to_disk(char *chunk_path, CHUNK *chunk) {
