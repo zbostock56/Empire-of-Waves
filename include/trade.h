@@ -54,7 +54,7 @@ LISTING * get_merchant_first_empty_listing();
 MERCHANT *get_closest_merchant(E_PLAYER e_player);
 TRADE_SHIP *init_trade_ship(char *, ivec2, unsigned int);
 int resize_listings(MERCHANT *);
-void add_listing(MERCHANT *, ITEM_IDS, unsigned int);
+void add_listing(MERCHANT *, int **, ITEM_IDS, unsigned int);
 void clear_listing(MERCHANT *merchant, unsigned int index);
 void coalesce_currency(I_SLOT *, unsigned int);
 void delete_trade_ship(ivec2, unsigned int);

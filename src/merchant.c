@@ -83,7 +83,8 @@ int resize_listings(MERCHANT *merchant) {
   return 0;
 }
 
-void add_listing(MERCHANT *merchant, ITEM_IDS item, unsigned int quantity) {
+void add_listing(MERCHANT *merchant, int **selected_buffer, ITEM_IDS item,
+                 unsigned int quantity) {
   LISTING *exists = search_merchant_listing_by_ID(merchant, item);
   if (exists) {
     exists->quantity += quantity;
@@ -92,6 +93,23 @@ void add_listing(MERCHANT *merchant, ITEM_IDS item, unsigned int quantity) {
     merchant->listings[merchant->num_listings].item_id = item;
     merchant->listings[merchant->num_listings].quantity = quantity;
     merchant->num_listings++;
+
+    if (merchant->num_listings == merchant->listings_buf_size) {
+      unsigned int selected_buf_size = merchant->listings_buf_size;
+      int status = double_buffer((void **) merchant->listings,
+                                 &merchant->listings_buf_size,
+                                 sizeof(LISTING));
+      if (status) {
+        fprintf(stderr, "merchant.c: Unable to resize listings buffer\n");
+        exit(1);
+      }
+      status = double_buffer((void **) selected_buffer, &selected_buf_size,
+                             sizeof(int));
+      if (status) {
+        fprintf(stderr, "merchant.c: Unable to resize selected buffer\n");
+        exit(1);
+      }
+    }
   }
 }
 

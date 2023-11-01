@@ -650,7 +650,7 @@ int set_trade(MERCHANT *merchant, T_TRADE trade_type) {
         trade.player_value = 0;
 
         trade.merchant_item_selected = malloc(sizeof(int) *
-                                              merchant->num_listings);
+                                              merchant->listings_buf_size);
         if (trade.merchant_item_selected == NULL) {
           fprintf(stderr, "trade.c: Unable to allocate merchant selections\n");
           return -1;
@@ -1107,7 +1107,8 @@ void on_click_trade() {
     for (int i = 0 ; i < MAX_PLAYER_ITEM; i++) {
       if (trade.player_item_selected[i] > 0) {
         ITEM_IDS item_id = get_player_inventory_slot_by_index(i)->item_id;
-        add_listing(trade.merchant, item_id, trade.player_item_selected[i]);
+        add_listing(trade.merchant, &trade.merchant_item_selected, item_id,
+                    trade.player_item_selected[i]);
       }
     }
     // Remove the selected items from player inventory
