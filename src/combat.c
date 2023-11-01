@@ -136,11 +136,24 @@ void update_combat_state() {
     }
   }
 
-  if (num_npc_units == 0) {
+  unsigned int num_allies = 0;
+  unsigned int num_enemies = 0;
+  for (unsigned int i = 0; i < num_npc_units; i++) {
+    if (npc_units[i].type == ENEMY) {
+      num_enemies++;
+    } else {
+      num_allies++;
+    }
+  }
+
+  if (num_enemies == 0) {
     // Player wins
+    e_player.ship_mercenaries = num_allies;
     from_combat_mode();
-  } else if (c_player.health <= 0.0) {
+  }
+  if (c_player.health <= 0.0) {
     // Player loses
+    e_player.ship_mercenaries = 0;
     from_combat_mode();
   }
 }

@@ -163,7 +163,7 @@ void check_mercenary_reassignment_prompt(vec2 coords) {
     // prompt to reassign mercenaries
     interaction_prompt->enabled = 1;
     home_interaction_enabled = 1;
-  } else if (dist > 3.0) {
+  } else if (dist > 3.0 * T_WIDTH) {
     close_mercenary_reassignment_menu();
   }
 }
@@ -188,7 +188,7 @@ void check_chest_prompt(vec2 coords) {
     // prompt to reassign mercenaries
     interaction_prompt->enabled = 1;
     container_interaction_enabled = 1;
-  } else if (dist > 3.0) {
+  } else if (dist > 3.0 * T_WIDTH) {
     close_container();
   }
 
@@ -333,7 +333,16 @@ int trade_ship_detect_enemies(TRADE_SHIP *trade_ship, CHUNK *trade_ship_chunk, i
                                   cur_enemy_world_coords,
                                   SHIP_COLLISION_RADIUS *T_WIDTH)) {
           TRADE_SHIP *ship = trade_ships + idx;
-          ship->death_animation = 1.0;
+          int roll = rand() % 100;
+          int upper_bound = 5 * ship->num_mercenaries;
+          if (roll > upper_bound) {
+            ship->death_animation = 1.0;
+          } else {
+            unsigned int last_index = --chunk_buffer[i].num_enemies;
+            chunk_buffer[i].enemies[j] = chunk_buffer[i].enemies[last_index];
+            j--;
+            continue;
+          }
         }
         if (circle_circle_collision(world_coords,
                                     SHIP_COLLISION_RADIUS *SHIP_CHASE_RADIUS*T_WIDTH,

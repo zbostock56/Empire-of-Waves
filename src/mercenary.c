@@ -39,8 +39,8 @@ void open_mercenary_reassignment_menu() {
 
   /* Below will be called in main to make sure the text */
   /* is updated while menu is open */
+  init_ui_list(&list, 1, 4, num_trade_ships, NULL);
   update_mercenary_reassignment();
-  init_ui_list(&list, 1, 4, num_trade_ships, mercenary_reassign_listings);
   open_listing(&list);
 }
 
@@ -86,6 +86,7 @@ void update_mercenary_reassignment() {
       }
     }
     list.listing_strings = mercenary_reassign_listings;
+    list.num_components = num_trade_ships;
     open_listing(&list);
   }
 }
