@@ -197,6 +197,8 @@ void debug_keys(GLFWwindow *window) {
       // Make a dummy enemy ship to fight
       unsigned int new_enemy_index = cur_chunk->num_enemies;
       cur_chunk->enemies[new_enemy_index].crew_count = 3;
+      cur_chunk->enemies[new_enemy_index].chunk[0] = e_player.chunk[0];
+      cur_chunk->enemies[new_enemy_index].chunk[1] = e_player.chunk[1];
       cur_chunk->num_enemies++;
       to_combat_mode(new_enemy_index);
     } else {
