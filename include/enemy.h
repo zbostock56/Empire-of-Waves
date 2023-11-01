@@ -15,6 +15,12 @@
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 
+typedef enum move_mode {
+  STOP,
+  FORWARD,
+  BACK
+} MOVE_MODE;
+
 typedef struct Node {
     int parent_row;
     int parent_col;
