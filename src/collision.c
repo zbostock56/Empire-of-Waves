@@ -496,7 +496,8 @@ void trade_ship_collision(TRADE_SHIP *trade_ship) {
         if (target_island->merchant.relationship > 100.0) {
           target_island->merchant.relationship = 100.0;
         }
-        e_player.money += 10;
+        /* Give player copper reward */
+        give_player_copper(10);
 
         glm_ivec2_zero(trade_ship->chunk_coords);
         glm_vec2_copy(home_island_coords, trade_ship->coords);
