@@ -79,6 +79,10 @@ void delete_trade_ship(ivec2 target_chunk, unsigned int target_island) {
 }
 
 void update_trade_ships() {
+  if (mode != EXPLORATION) {
+    return;
+  }
+
   TRADE_SHIP *cur_ship = NULL;
   for (unsigned int i = 0; i < num_trade_ships; i++) {
     cur_ship = trade_ships + i;
@@ -86,7 +90,8 @@ void update_trade_ships() {
       trade_ship_pathfind(trade_ships + i);
     } else if (cur_ship->death_animation == 0.0) {
       CHUNK *target_chunk = chunk_buffer + cur_ship->target_chunk_index;
-      ISLAND *target_island = target_chunk->islands + cur_ship->target_island;
+      ISLAND *target_island = target_chunk->islands +
+                              cur_ship->target_island;
       target_island->merchant.has_trade_route = 0;
       num_trade_ships--;
       trade_ships[i] = trade_ships[num_trade_ships];

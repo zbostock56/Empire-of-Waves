@@ -163,7 +163,7 @@ void exploration_movement(GLFWwindow *window) {
 
 void combat_movement(GLFWwindow *window) {
   vec2 movement = GLM_VEC2_ZERO_INIT;
-  glm_vec2_scale(c_player.direction, (delta_time * c_player.speed) / T_WIDTH,
+  glm_vec2_scale(c_player.direction, delta_time * c_player.speed,
                  movement);
   // Movement
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {

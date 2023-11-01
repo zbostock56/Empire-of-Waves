@@ -16,7 +16,7 @@ int to_combat_mode(unsigned int enemy_index) {
   c_player.ammo = 5;
   c_player.max_health = 100.0;
   c_player.health = 100.0;
-  c_player.speed = 1.0;
+  c_player.speed = 15.0;
   c_player.proj_speed = 5.0;
   c_player.attack_active = 0.0;
   c_player.attack_cooldown = 0.0;
@@ -54,7 +54,8 @@ int to_combat_mode(unsigned int enemy_index) {
       npc_units[i].weapon_type = RANGED;
       npc_units[i].ammo = 5;
     }
-    npc_units[i].speed = 0.5;
+    float speed_mod = 1.0 * (rand() % 5);
+    npc_units[i].speed = 10.0 + speed_mod;
     npc_units[i].death_animation = -1.0;
     npc_units[i].attack_active = 0.0;
     npc_units[i].attack_cooldown = 0.0;
@@ -77,7 +78,8 @@ int to_combat_mode(unsigned int enemy_index) {
       npc_units[i].weapon_type = RANGED;
       npc_units[i].ammo = 5;
     }
-    npc_units[i].speed = 0.5;
+    float speed_mod = 1.0 * (rand() % 5);
+    npc_units[i].speed = 10.0 + speed_mod;
     npc_units[i].death_animation = -1.0;
     npc_units[i].attack_active = 0.0;
     npc_units[i].attack_cooldown = 0.0;

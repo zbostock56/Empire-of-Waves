@@ -10,6 +10,10 @@ respawn, despawn, move, attack, and rotate.
   Perform enemy pathfinding and movement for all simulated enemy ships
 */
 void update_enemy_ships() {
+  if (mode != EXPLORATION) {
+    return;
+  }
+
   E_ENEMY *cur_enemy = NULL;
   for (int i = 0; i < chunk_buff_len; i++) {
     for (int j = 0; j < chunk_buffer[i].num_enemies; j++) {
@@ -81,7 +85,7 @@ void spawn_enemy() {
           enemy->direction[0] = 0;
           enemy->direction[1] = 1;
           enemy->speed = 15.0;
-          enemy->crew_count = 3;
+          enemy->crew_count = (rand() % 5) + 1;
           not_found = 0;
         }
       }
@@ -678,7 +682,7 @@ void c_enemy_pathfind(C_UNIT *enemy, vec2 target_coords) {
   }
 
   if (move) {
-    glm_vec2_scale(enemy->direction, (delta_time * enemy->speed) / T_WIDTH,
+    glm_vec2_scale(enemy->direction, delta_time * enemy->speed,
                    movement);
     glm_vec2_add(movement, enemy->coords, enemy->coords);
   }
