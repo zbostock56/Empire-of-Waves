@@ -109,6 +109,11 @@ void detect_context_interaction() {
         get_ui_component_by_ID(EMBARK_PROMPT)->enabled = 0;
       }
     }
+    if (trade.ui_button_trade->enabled || dialog.ui_text_name->enabled ||
+        container_menu_open || reassignment_menu_open || save_menu_open()) {
+      shore_interaction_enabled = 0;
+      get_ui_component_by_ID(EMBARK_PROMPT)->enabled = 0;
+    }
   } else {
     chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
                    world_coords_ship);
@@ -120,10 +125,15 @@ void detect_context_interaction() {
                                 CHARACTER_COLLISION_RADIUS * T_WIDTH)) {
       // Enable embark prompt
       shore_interaction_enabled = 1;
-      get_ui_component_by_ID(EMBARK_PROMPT)->text = "Press 'e' to disembark";
+      get_ui_component_by_ID(EMBARK_PROMPT)->text = "Press 'e' to embark";
       get_ui_component_by_ID(EMBARK_PROMPT)->enabled = 1;
     } else {
       // Disabled embarked prompt
+      shore_interaction_enabled = 0;
+      get_ui_component_by_ID(EMBARK_PROMPT)->enabled = 0;
+    }
+    if (trade.ui_button_trade->enabled || dialog.ui_text_name->enabled ||
+        container_menu_open || reassignment_menu_open || save_menu_open()) {
       shore_interaction_enabled = 0;
       get_ui_component_by_ID(EMBARK_PROMPT)->enabled = 0;
     }
@@ -166,6 +176,12 @@ void check_mercenary_reassignment_prompt(vec2 coords) {
   } else if (dist > 3.0 * T_WIDTH) {
     close_mercenary_reassignment_menu();
   }
+
+  if (trade.ui_button_trade->enabled || dialog.ui_text_name->enabled ||
+      container_menu_open || reassignment_menu_open || save_menu_open()) {
+    interaction_prompt->enabled = 0;
+    home_interaction_enabled = 0;
+  }
 }
 
 void check_chest_prompt(vec2 coords) {
@@ -191,7 +207,11 @@ void check_chest_prompt(vec2 coords) {
   } else if (dist > 3.0 * T_WIDTH) {
     close_container();
   }
-
+  if (trade.ui_button_trade->enabled || dialog.ui_text_name->enabled ||
+      container_menu_open || reassignment_menu_open || save_menu_open()) {
+    interaction_prompt->enabled = 0;
+    container_interaction_enabled = 0;
+  }
 }
 
 // Exploration mode collision:
@@ -218,7 +238,8 @@ void check_merchant_prompt(vec2 world_player_coords) {
       }
     }
   }
-  if (dialog.ui_text_name->enabled || trade.ui_listing[0]->enabled) {
+  if (trade.ui_button_trade->enabled || dialog.ui_text_name->enabled ||
+      container_menu_open || reassignment_menu_open || save_menu_open()) {
     get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
   }
   if (!cur_merchant) {

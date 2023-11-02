@@ -41,6 +41,7 @@ extern unsigned int cons_cmd_len;
 extern char *save_input_buffer;
 extern unsigned int save_input_len;
 extern int console_input_enabled;
+extern int container_menu_open;
 
 int holding_left_click = 0;
 int holding_equals = 0;
