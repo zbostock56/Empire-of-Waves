@@ -37,6 +37,7 @@ void on_hover_player_item(void *player_item_index);
 void on_click_page_up(void *isMerchant);
 void on_click_page_down(void *isMerchant);
 void on_click_trade();
+void prompt_plundered_trade_ship();
 
 /* ==================== EXTERNALLY DEFINED FUNCTIONS ================== */
 int add_chunk(ivec2);
@@ -61,3 +62,4 @@ void delete_trade_ship(ivec2, unsigned int);
 unsigned int check_fit(LISTING *, int *, unsigned int, I_SLOT *, int *,
                        unsigned int);
 void restore_trade_ship_mercs(ivec2, unsigned int);
+void set_prompt(const char *);

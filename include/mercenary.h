@@ -49,3 +49,4 @@ unsigned int get_player_money();
 void remove_money(I_SLOT *, unsigned int);
 I_SLOT *get_player_first_empty_inventory_slot();
 void coalesce_currency(I_SLOT *, unsigned int);
+void set_prompt(const char *);
