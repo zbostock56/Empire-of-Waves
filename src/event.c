@@ -50,23 +50,14 @@ void update_timers() {
       reset_console_error();
     }
   }
-  if (event_flags[RELATIONSHIP_TOO_LOW]) {
-    timers[RELATIONSHIP_TOO_LOW] -= delta_time;
-    if (timers[RELATIONSHIP_TOO_LOW] <= 0.0) {
-      event_flags[RELATIONSHIP_TOO_LOW] = DISABLED;
-      timers[RELATIONSHIP_TOO_LOW] = TRADE_ERROR_TIME;
-      reset_merc_trade_error();
+  if (event_flags[GENERAL_PROMPT]) {
+    timers[GENERAL_PROMPT] -= delta_time;
+    if (timers[GENERAL_PROMPT] <= 0.0) {
+      event_flags[GENERAL_PROMPT] = DISABLED;
+      timers[GENERAL_PROMPT] = GENERAL_PROMPT_TIME;
+      close_prompt();
     }
   }
-  if (event_flags[PLUNDERED_TS]) {
-    timers[PLUNDERED_TS] -= delta_time;
-    if (timers[PLUNDERED_TS] <= 0.0) {
-      event_flags[PLUNDERED_TS] = DISABLED;
-      timers[PLUNDERED_TS] = TRADE_SHIP_PLUNDER_TIME;
-      clear_plundered_trade_ship_prompt();
-    }
-  }
-
   if (mode == EXPLORATION) {
     TRADE_SHIP *cur_ship = NULL;
     for (int i = 0; i < num_trade_ships; i++) {
@@ -94,3 +85,30 @@ float decrement_timer(float timer) {
   return timer;
 }
 
+void set_prompt(const char *buffer) {
+  timers[GENERAL_PROMPT] = 1.5;
+  event_flags[GENERAL_PROMPT] = 1;
+  vec2 prompt_pos = { 0.0, 0.0 };
+  init_menu(
+      prompt_pos, // position
+      NULL, // on_click
+      NULL, // on_hover
+      NULL, // on_click_args
+      NULL, // on_hover_args
+      (char *) buffer, // text
+      1, // enabled
+      1, // textured
+      0, // texture
+      0.05, // text_padding
+      1.0, // text_scale
+      0.0, // width
+      0.0, // height
+      PIVOT_TOP, // pivot
+      T_CENTER, // text_anchor
+      get_ui_component_by_ID(GENERAL_PROMPT_ON_SCREEN) // dest
+  );
+}
+
+void close_prompt() {
+  get_ui_component_by_ID(GENERAL_PROMPT_ON_SCREEN)->enabled = 0;
+}

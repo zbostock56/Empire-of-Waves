@@ -584,31 +584,7 @@ void close_trade() {
 }
 
 void prompt_plundered_trade_ship() {
-  vec2 relationship_error_pos = { 0.0, 0.75 };
-  init_menu(
-      relationship_error_pos, // position
-      NULL, // on_click
-      NULL, // on_hover
-      NULL, // on_click_args
-      NULL, // on_hover_args
-      "A trade ship was plundered!", // text
-      1, // enabled
-      1, // textured
-      0, // texture
-      0.05, // text_padding
-      1.0, // text_scale
-      0.0, // width
-      0.0, // height
-      PIVOT_TOP, // pivot
-      T_CENTER, // text_anchor
-      get_ui_component_by_ID(PLUNDERED_TRADE_SHIP) // dest
-  );
-  timers[PLUNDERED_TS] = 1.5;
-  event_flags[PLUNDERED_TS] = 1;
-}
-
-void clear_plundered_trade_ship_prompt() {
-  get_ui_component_by_ID(PLUNDERED_TRADE_SHIP)->enabled = 0;
+  set_prompt("A trade ship has been plundered!");
 }
 
 /*
@@ -825,7 +801,7 @@ void trade_route_handler(int island_index) {
     delete_trade_ship(dialog.merchant->chunk, island_index);
     target_merch->has_trade_route = 0;
 
-    dialog.ui_button_trade_route->text = "3. Establish trade route";
+    dialog.ui_button_trade_route->text = "2. Establish trade route";
 
     target_merch->relationship -= 10.0;
     if (target_merch->relationship < -100.0) {

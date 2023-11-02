@@ -141,30 +141,7 @@ void purchase_mercenary_handler() {
   value is not high enough to purchase a mercenary
 */
 void merchant_mercenary_relationship_prompt() {
-  vec2 relationship_error_pos = { 0.0, 0.0 };
-  init_menu(
-      relationship_error_pos, // position
-      NULL, // on_click
-      NULL, // on_hover
-      NULL, // on_click_args
-      NULL, // on_hover_args
-      "Relationship too low to purchase mercenary", // text
-      1,
-      1, // textured
-      0, // texture
-      0.05, // text_padding
-      1.0, // text_scale
-      0.0, // width
-      0.0, // height
-      PIVOT_TOP, // pivot
-      T_CENTER, // text_anchor
-      get_ui_component_by_ID(RELATION_TOO_LOW_MERC_PURCHASE) // dest
-  );
-  event_flags[RELATIONSHIP_TOO_LOW] = 1;
-}
-
-void reset_merc_trade_error() {
-  get_ui_component_by_ID(RELATION_TOO_LOW_MERC_PURCHASE)->enabled = 0;
+  set_prompt("Relationship too low to purchase mercenary");
 }
 
 /*
