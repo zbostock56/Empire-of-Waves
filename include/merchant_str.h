@@ -9,6 +9,7 @@ Describes the struct representing an NPC merchant’s state. Can be included by
 any file which needs to read/manipulate merchant state.
 */
 
+#define MERC_BASE_PRICE (1000)
 #define MAX_MERCENARIES (4)
 #define NUM_NAMES (600)
 #define NAME_SIZE (20)
@@ -16,7 +17,6 @@ any file which needs to read/manipulate merchant state.
 typedef struct listing {
   int item_id;
   unsigned int quantity;
-  int barter_range;
 } LISTING;
 
 /*
@@ -27,6 +27,7 @@ typedef struct merchant {
   vec2 coords;
   LISTING *listings;
   unsigned int listings_buf_size;
+  unsigned int has_trade_route;
   unsigned int num_mercenaries;
   unsigned int num_listings;
   float relationship;

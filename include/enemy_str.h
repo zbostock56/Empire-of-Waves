@@ -3,6 +3,7 @@
 
 #include <cglm/vec2.h>
 #include <cglm/ivec2.h>
+#include <combat_str.h>
 /*
                                    ENEMY_STR.h
 Describes the struct representing an enemy ship in exploration mode and the
@@ -17,23 +18,6 @@ which reads/manipulates enemy state.
 #define STEER_SPEED (3.0)
 
 /*
-  Enum describing weapon types
-  Also defined in player_str.h
-*/
-#ifndef WT
-#define WT
-typedef enum weapon_t {
-  MELEE,
-  RANGED
-} WEAPON_T;
-#endif
-
-typedef enum unit_type {
-  ENEMY,
-  ALLY
-} UNIT_T;
-
-/*
   State of enemy ship in exploration mode
 */
 typedef struct exploration_enemy {
@@ -43,6 +27,7 @@ typedef struct exploration_enemy {
   unsigned int crew_count;
   float speed;
   bool on_path;
+  int moving;
 } E_ENEMY;
 
 /*
@@ -69,6 +54,10 @@ typedef struct combat_unit {
   float attack_cooldown;
   // Value that attack_timer is set to once an attack is fired off
   float fire_rate;
+  float invuln_timer;
+  float knockback_counter;
+  float max_life;
+  float life;
 } C_UNIT;
 
 #endif

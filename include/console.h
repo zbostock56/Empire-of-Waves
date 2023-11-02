@@ -12,6 +12,7 @@
 #include <float.h>
 #include <ui_component.h>
 #include <menu.h>
+#include <event_str.h>
 
 /* DEFINES */
 #define MAX_TOKENS (10)
@@ -20,21 +21,19 @@
 #define CONSOLE_BUFFER_MAX (100)
 
 /* ------------- GLOBALS ------------ */
-/* Timers */
-float console_cursor_interval = 0.0;
-float console_error_interval = 0.0;
 /* Event Flags */
-extern int console_enabled;
-int cursor_enabled = 0;
+int console_input_enabled = 0;
 int coords_enabled = 0;
-int console_error = 0;
+//int console_error = 0;
 /* Buffers */
 char console_world_coords[CONSOLE_BUFFER_MAX];
 char console_intra_chunk[CONSOLE_BUFFER_MAX];
 char console_chunk_coords[CONSOLE_BUFFER_MAX];
 char console_error_buffer[CONSOLE_BUFFER_MAX];
 extern vec2 screen_scale;
-extern char cons_cmd[CONSOLE_BUFFER_MAX];
+char cons_cmd[CONSOLE_BUFFER_MAX];
+unsigned int cons_cmd_len = 0;
+
 /* ---------------------------------  */
 
 /* STRUCTS */
@@ -55,6 +54,7 @@ void teleport_nearest_merchant();
 void reset_console_error();
 void set_console_error(const char *);
 void console_error_init();
+void establish_nearest_traderoute();
 
 /* ---------------- EXTERNALLY DEFINED FUNCTIONS -------------- */
 void world_to_chunk(vec2, ivec2, vec2);
@@ -66,3 +66,4 @@ void init_menu(vec2, void (*)(void *), void (*)(void *), void *, void *,
 float get_text_width(char *, int);
 float get_screen_text_scale();
 void print_parse_table();
+void open_establish_trade_route();

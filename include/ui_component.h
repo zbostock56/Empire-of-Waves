@@ -1,3 +1,6 @@
+#ifndef __UI_COMPONENT_H__
+#define __UI_COMPONENT_H__
+
 #include <cglm/vec2.h>
 #include <string.h>
 /*
@@ -6,7 +9,7 @@ Describes the struct representing a UI component. Can be included in any
 file which enables/disabled menus, prompts, and/or buttons.
 */
 
-#define MAX_UI_TEXT_LENGTH (32) // UI COMPONENT:: Max text length
+#define MAX_UI_TEXT_LENGTH (64) // UI COMPONENT:: Max text length
 
 typedef enum pivot {
   PIVOT_CENTER = 0,
@@ -52,3 +55,5 @@ typedef struct ui_component {
   PIVOT pivot; // Specifies "pivot" point of ui component
   TEXT_ANCHOR text_anchor; // Specifies text alignment inside ui component
 } UI_COMPONENT;
+
+#endif

@@ -48,7 +48,7 @@ void open_listing(UI_LIST *list) {
     comp_bound = list->num_components;
   }
   UI_COMPONENT *cur_comp = NULL;
-  for (int i = 0; i < list->num_components; i++) {
+  for (uintptr_t i = 0; i < list->num_components; i++) {
     cur_comp = get_ui_component_by_ID(LIST_ITEM) + i;
     vec2 listing_pos = {
       0.0,
@@ -59,7 +59,7 @@ void open_listing(UI_LIST *list) {
         listing_pos,
         (void (*)(void *)) select_listing_dispatcher,
         NULL,
-        (void *) ((long) i),
+        (void *) ((size_t) i),
         NULL,
         list->listing_strings[i],
         1,

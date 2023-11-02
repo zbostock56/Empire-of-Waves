@@ -24,23 +24,91 @@ void spawn_event() {
   }
 }
 
+void init_timers() {
+  for (int i = 0; i < NUM_TIMERS; i++) {
+    timers[i] = 0.0;
+    event_flags[i] = 0;
+  }
+}
+
 void update_timers() {
-  if (console_enabled) {
-    console_cursor_interval -= delta_time;
-    if (console_cursor_interval <= 0.0 && cursor_enabled) {
-      console_cursor_interval = 0.25;
-      cursor_enabled = 0;
-    } else if (console_cursor_interval <= 0.0 && !cursor_enabled) {
-      console_cursor_interval = 0.25;
-      cursor_enabled = 1;
+  if (console_input_enabled) {
+    timers[CONS_CURSOR] -= delta_time;
+    if (timers[CONS_CURSOR] <= 0.0 && event_flags[CONS_CURSOR]) {
+      timers[CONS_CURSOR] = C_CURSOR_TIME;
+      event_flags[CONS_CURSOR] = DISABLED;
+    } else if (timers[CONS_CURSOR] <= 0.0 && !event_flags[CONS_CURSOR]) {
+      timers[CONS_CURSOR] = C_CURSOR_TIME;
+      event_flags[CONS_CURSOR] = ENABLED;
     }
   }
-  if (console_error) {
-    console_error_interval -= delta_time;
-    if (console_error_interval <= 0.0) {
-      console_error = 0;
-      console_error_interval = 1.5;
+  if (event_flags[CONS_ERROR]) {
+    timers[CONS_ERROR] -= delta_time;
+    if (timers[CONS_ERROR] <= 0.0) {
+      event_flags[CONS_ERROR] = DISABLED;
+      timers[CONS_ERROR] = C_ERROR_TIME;
       reset_console_error();
     }
   }
+  if (event_flags[GENERAL_PROMPT]) {
+    timers[GENERAL_PROMPT] -= delta_time;
+    if (timers[GENERAL_PROMPT] <= 0.0) {
+      event_flags[GENERAL_PROMPT] = DISABLED;
+      timers[GENERAL_PROMPT] = GENERAL_PROMPT_TIME;
+      close_prompt();
+    }
+  }
+  if (mode == EXPLORATION) {
+    TRADE_SHIP *cur_ship = NULL;
+    for (int i = 0; i < num_trade_ships; i++) {
+      cur_ship = trade_ships + i;
+      if (cur_ship->death_animation > 0.0) {
+        cur_ship->death_animation = decrement_timer(cur_ship->death_animation);
+      }
+    }
+  } else if (mode == COMBAT) {
+    C_UNIT *cur_unit = NULL;
+    for (int i = 0; i < num_npc_units; i++) {
+      cur_unit = npc_units + i;
+      if (cur_unit->death_animation > 0.0) {
+        cur_unit->death_animation = decrement_timer(cur_unit->death_animation);
+      }
+    }
+  }
+}
+
+float decrement_timer(float timer) {
+  timer -= delta_time;
+  if (timer < 0.0) {
+    timer = 0.0;
+  }
+  return timer;
+}
+
+void set_prompt(const char *buffer) {
+  timers[GENERAL_PROMPT] = 1.5;
+  event_flags[GENERAL_PROMPT] = 1;
+  vec2 prompt_pos = { 0.0, 0.0 };
+  init_menu(
+      prompt_pos, // position
+      NULL, // on_click
+      NULL, // on_hover
+      NULL, // on_click_args
+      NULL, // on_hover_args
+      (char *) buffer, // text
+      1, // enabled
+      1, // textured
+      0, // texture
+      0.05, // text_padding
+      1.0, // text_scale
+      0.0, // width
+      0.0, // height
+      PIVOT_TOP, // pivot
+      T_CENTER, // text_anchor
+      get_ui_component_by_ID(GENERAL_PROMPT_ON_SCREEN) // dest
+  );
+}
+
+void close_prompt() {
+  get_ui_component_by_ID(GENERAL_PROMPT_ON_SCREEN)->enabled = 0;
 }

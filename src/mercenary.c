@@ -39,8 +39,8 @@ void open_mercenary_reassignment_menu() {
 
   /* Below will be called in main to make sure the text */
   /* is updated while menu is open */
+  init_ui_list(&list, 1, 4, num_trade_ships, NULL);
   update_mercenary_reassignment();
-  init_ui_list(&list, 1, 4, num_trade_ships, mercenary_reassign_listings);
   open_listing(&list);
 }
 
@@ -86,6 +86,7 @@ void update_mercenary_reassignment() {
       }
     }
     list.listing_strings = mercenary_reassign_listings;
+    list.num_components = num_trade_ships;
     open_listing(&list);
   }
 }
@@ -103,15 +104,44 @@ void close_mercenary_reassignment_menu() {
   close_listings(&list);
 }
 
+/*
+  Carries out the purchasing of once mercenary, if
+  the relationship value is high enough
+*/
 void purchase_mercenary_handler() {
-  if (cur_merchant->num_mercenaries <= 0) {
-    /* Prompt that no mercenaries are available */
-    /* for purchase?                            */
-    printf("No mercenaries to buy\n");
-    return;
+  if (dialog.merchant->relationship > 40.0) {
+    unsigned int player_money = get_player_money();
+    unsigned int price = calc_merc_price(dialog.merchant);
+    if (player_money < price) {
+      printf("Not enough money\n");
+      return;
+    }
+    if (dialog.merchant->num_mercenaries <= 0) {
+      /* Prompt that no mercenaries are available */
+      /* for purchase?                            */
+      printf("No mercenaries to buy\n");
+      return;
+    }
+    dialog.merchant->num_mercenaries--;
+    e_player.total_mercenaries++;
+    remove_money(e_player.inventory, MAX_PLAYER_INV_SIZE);
+    if (player_money > price) {
+      I_SLOT *empty = get_player_first_empty_inventory_slot();
+      empty->item_id = COPPER_COIN;
+      empty->quantity = player_money - price;
+      coalesce_currency(e_player.inventory, MAX_PLAYER_INV_SIZE);
+    }
+  } else {
+    merchant_mercenary_relationship_prompt();
   }
-  cur_merchant->num_mercenaries--;
-  e_player.total_mercenaries++;
+}
+
+/*
+  Informs the player that their relationship
+  value is not high enough to purchase a mercenary
+*/
+void merchant_mercenary_relationship_prompt() {
+  set_prompt("Relationship too low to purchase mercenary");
 }
 
 /*
@@ -230,7 +260,7 @@ void mercenary_reassignment_selection(int listing_selected) {
   to a trade ship or the player's ship
 */
 void mercenary_reassign(void *ch) {
-  long change = (long) ch;
+  size_t change = (size_t) ch;
   if ((e_player.total_mercenaries && change > 0) ||
        change < 0) {
     int is_selected = -1;

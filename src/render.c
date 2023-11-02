@@ -1,27 +1,12 @@
-  #include <render.h>
+#include <render.h>
 
 // TODO Error checking for shader, model, texture, font, etc.. importing
 // - Program will crash if assets do not exist
 
 void init_scene() {
-  glm_vec2_zero(e_player.coords);
-  glm_ivec2_zero(e_player.chunk);
-  glm_vec2_zero(e_player.direction);
-  glm_vec2_zero(e_player.ship_direction);
-  e_player.speed = 1.0;
-  e_player.direction[1] = 1.0;
-  e_player.ship_direction[1] = 1.0;
-  e_player.embarked = 1;
-  e_player.inventory[0].item_id = RUM;
-  e_player.inventory[0].quantity = 1;
-  e_player.inventory[1].item_id = CITRUS;
-  e_player.inventory[1].quantity = 1;
-  e_player.inventory[2].item_id = KNIVE;
-  e_player.inventory[2].quantity = 1;
-
-    // TEST MODELS
-    unsigned char ocean_buffer[3] = { 3, 157, 252 };
-    ocean_texture = texture_from_buffer(ocean_buffer, 1, 1, GL_RGB);
+  // TEST MODELS
+  //  unsigned char ocean_buffer[3] = { 3, 157, 252 };
+  //  ocean_texture = texture_from_buffer(ocean_buffer, 1, 1, GL_RGB);
   // END TEST
 
   // Initialize offscreen framebuffer
@@ -32,6 +17,7 @@ void init_scene() {
   color_shader = shader_init(vertex_shader, fragment_shader_color);
   pixel_shader = shader_init(vertex_shader, fragment_shader_pixelated);
   text_shader = shader_init(vertex_shader, fragment_shader_text);
+  ripple_shader = shader_init(vertex_shader, fragment_shader_ripple);
   chunk_shader = shader_init(vertex_shader, fragment_shader_chunk);
   island_shader = shader_init(vertex_shader, fragment_shader_island);
 
@@ -44,7 +30,9 @@ void init_scene() {
   enemy_ship = load_model("assets/enemy_ship.bin", "assets/1B.png");
   trade_ship = load_model("assets/trade_ship.bin", "assets/2A.png");
   house = load_model("assets/quad.bin", "assets/House.png");
+  chest = load_model("assets/chest.bin", "assets/1A.png");
   quad = load_model("assets/quad.bin", NULL);
+  circle = load_model("assets/circle.bin", NULL);
   char default_path[50] = "assets/Dinklebitmap/x.bin";
   char lowercase_path[50] = "assets/Dinklebitmap/x_lower.bin";
   for (char cur = ' '; cur <= '~'; cur++) {
@@ -175,7 +163,6 @@ void cleanup_scene() {
   free_model(enemy_ship);
   free_model(trade_ship);
   free_model(quad);
-  free(trade_ships);
   for (int i = 0; i < FONT_LEN; i++) {
     free_model(font[i].model);
   }
@@ -206,19 +193,19 @@ void render_scene(GLFWwindow *window) {
     render_player_ship();
 
     for (unsigned int i = 0; i < num_trade_ships; i++) {
-      render_trade_ship(trade_ships + i);
+      render_trade_ship(trade_ships + i, trade_ships[i].cur_chunk_index);
     }
 
     for (int i = 0; i < 9; i++) {
       CHUNK *cur_chunk = chunk_buffer + player_chunks[i];
       for (int j = 0; j < cur_chunk->num_enemies; j++) {
-        render_enemy_ship(cur_chunk->enemies + j);
+        render_enemy_ship(cur_chunk->enemies + j, player_chunks[i]);
       }
       for (int j = 0; j < cur_chunk->num_islands; j++) {
         if (cur_chunk->islands[j].has_merchant) {
           render_merchant(&cur_chunk->islands[j].merchant);
         }
-//        render_island(cur_chunk->islands + j);
+        render_island(cur_chunk->islands + j);
       }
     }
   } else {
@@ -227,12 +214,23 @@ void render_scene(GLFWwindow *window) {
         render_unit(npc_units + i);
         if (npc_units[i].attack_active) {
           vec2 hitbox_pos = GLM_VEC2_ZERO_INIT;
-          glm_vec2_scale(npc_units[i].coords, T_WIDTH, hitbox_pos);
           vec2 hitbox_offset = GLM_VEC2_ZERO_INIT;
+          glm_vec2_scale(npc_units[i].coords, T_WIDTH, hitbox_pos);
           glm_vec2_scale_as(npc_units[i].direction, T_WIDTH, hitbox_offset);
+          hitbox_offset[1] += T_WIDTH;
           glm_vec2_add(hitbox_pos, hitbox_offset, hitbox_pos);
-          render_hitbox(hitbox_pos);
+          render_hitbox(hitbox_pos, 1.0);
         }
+
+        vec2 hitbox_pos = GLM_VEC2_ZERO_INIT;
+        glm_vec2_scale(npc_units[i].coords, T_WIDTH, hitbox_pos);
+        hitbox_pos[1] += T_WIDTH;
+        render_hitbox(hitbox_pos, 1.0);
+        vec2 health_bar_position = GLM_VEC2_ZERO_INIT;
+        glm_vec2_scale(npc_units[i].coords, T_WIDTH, health_bar_position);
+        health_bar_position[1]+= 2.7*T_WIDTH;
+        render_health_bar_filled(health_bar_position, npc_units[i].max_life, npc_units[i].life);
+        render_health_bar_background(health_bar_position);
       }
     }
 
@@ -240,11 +238,18 @@ void render_scene(GLFWwindow *window) {
 
     if (c_player.attack_active) {
       vec2 hitbox_pos = GLM_VEC2_ZERO_INIT;
-      glm_vec2_scale(c_player.coords, T_WIDTH, hitbox_pos);
       vec2 hitbox_offset = GLM_VEC2_ZERO_INIT;
+      glm_vec2_scale(c_player.coords, T_WIDTH, hitbox_pos);
       glm_vec2_scale_as(c_player.direction, T_WIDTH, hitbox_offset);
+      hitbox_offset[1] += T_WIDTH;
       glm_vec2_add(hitbox_pos, hitbox_offset, hitbox_pos);
-      render_hitbox(hitbox_pos);
+      render_hitbox(hitbox_pos, 1.0);
+    }
+
+    PROJ *cur_proj = NULL;
+    for (unsigned int i = 0; i < num_projectiles; i++) {
+      cur_proj = projectiles + i;
+      render_hitbox(cur_proj->pos, PROJ_RAD);
     }
   }
 
@@ -260,6 +265,13 @@ void render_scene(GLFWwindow *window) {
     time_schdule_trade_toute_prompt = 2.0;
   } else {
     time_schdule_trade_toute_prompt -= delta_time;
+  }
+  // Trade prompt delay
+  if (time_trade_event_prompt < 0) {
+    trade.ui_text_event_prompt->enabled = 0;
+    time_trade_event_prompt = 2.0;
+  } else {
+    time_trade_event_prompt -= delta_time;
   }
 
   /*
@@ -309,14 +321,22 @@ void render_player_ship() {
 
   render_fbo_entity(player_ship, fbo_model_mat, model_mat, fbo_view_mat,
                     view_mat, persp_proj, ortho_proj);
+  render_ripple(player_chunks[PLAYER_CHUNK], e_player.ship_coords,
+                e_player.ship_direction, e_player.moving);
 }
 
-void render_enemy_ship(E_ENEMY *es) {
+void render_enemy_ship(E_ENEMY *es, unsigned int chunk) {
   render_e_npc(enemy_ship, es->chunk, es->coords, es->direction, 0.70);
+  render_ripple(chunk, es->coords, es->direction, es->moving);
 }
 
-void render_trade_ship(TRADE_SHIP *ts) {
-  render_e_npc(trade_ship, ts->chunk_coords, ts->coords, ts->direction, 0.50);
+void render_trade_ship(TRADE_SHIP *ts, unsigned int chunk) {
+  float scale = 0.5;
+  if (ts->death_animation >= 0.0) {
+    scale = scale * ts->death_animation;
+  }
+  render_e_npc(trade_ship, ts->chunk_coords, ts->coords, ts->direction, scale);
+  render_ripple(chunk, ts->coords, ts->direction, ts->moving);
 }
 
 void render_player() {
@@ -387,7 +407,7 @@ void render_e_npc(MODEL *model, ivec2 chunk, vec2 coords, vec2 direction,
   chunk_to_world(chunk, coords, world_coords);
   glm_translate(model_mat, world_coords);
   glm_scale_uni(model_mat, FBO_QUAD_WIDTH * T_WIDTH / 2.0);
-  glm_translate_y(model_mat, 0.1);
+  //glm_translate_y(model_mat, 0.1);
 
   mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
   vec3 player_world_coords = GLM_VEC2_ZERO_INIT;
@@ -428,6 +448,92 @@ void render_c_npc(MODEL *model, vec2 coords, vec2 direction, float scale) {
   glm_vec2_scale(c_player.coords, T_WIDTH, player_coords);
   glm_vec3_negate(player_coords);
   glm_translate(view_mat, player_coords);
+
+  render_fbo_entity(model, fbo_model_mat, model_mat, fbo_view_mat,
+                    view_mat, persp_proj, ortho_proj);
+}
+
+void render_health_bar_background(vec2 position) {
+  mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+  mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+
+  vec3 health_bar_pos = { 0.0, 0.0, AVATAR_DEPTH };
+  glm_vec2_copy(position, health_bar_pos);
+  glm_translate(model_mat, health_bar_pos);
+  vec3 scale = {T_WIDTH, 0.15*T_WIDTH, 1.0};
+  glm_scale(model_mat, scale);
+
+  vec3 player_coords = GLM_VEC3_ZERO_INIT;
+  glm_vec2_scale(c_player.coords, T_WIDTH, player_coords);
+  glm_vec2_negate(player_coords);
+  glm_translate(view_mat, player_coords);
+
+  vec3 health_bar_col = { 0.13, 0.13, 0.13 };
+  glUseProgram(color_shader);
+  set_mat4("model", model_mat, color_shader);
+  set_mat4("view", view_mat, color_shader);
+  set_mat4("proj", ortho_proj, color_shader);
+  set_vec3("color", health_bar_col, color_shader);
+  draw_model(quad, color_shader);
+}
+
+void render_health_bar_filled(vec2 position, float max_life, float life) {
+  float one_scale = T_WIDTH/max_life;
+  float hp_bar_val = one_scale * life;
+  mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+  mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+
+  vec3 health_bar_pos = { 0.0, 0.0, AVATAR_DEPTH };
+  glm_vec2_copy(position, health_bar_pos);
+  glm_translate(model_mat, (vec3) {
+                  health_bar_pos[0]-((T_WIDTH-hp_bar_val)),
+                  health_bar_pos[1],
+                  health_bar_pos[2]
+                });
+  vec3 scale = {hp_bar_val, 0.15*T_WIDTH, 1.0};
+  glm_scale(model_mat, scale);
+
+  vec3 player_coords = GLM_VEC3_ZERO_INIT;
+  glm_vec2_scale(c_player.coords, T_WIDTH, player_coords);
+  glm_vec2_negate(player_coords);
+  glm_translate(view_mat, player_coords);
+
+  vec3 health_bar_col = { 1.0, 0.0, 0.0 };
+  glUseProgram(color_shader);
+  set_mat4("model", model_mat, color_shader);
+  set_mat4("view", view_mat, color_shader);
+  set_mat4("proj", ortho_proj, color_shader);
+  set_vec3("color", health_bar_col, color_shader);
+  draw_model(quad, color_shader);
+}
+
+void render_obstacle(MODEL *model, ivec2 chunk, vec2 coords, float scale) {
+  mat4 fbo_model_mat = GLM_MAT4_IDENTITY_INIT;
+  glm_scale_uni(fbo_model_mat, scale);
+  glm_rotate_x(fbo_model_mat, glm_rad(-50.0), fbo_model_mat);
+  //glm_rotate_z(fbo_model_mat, glm_rad(180.0), fbo_model_mat);
+
+  mat4 fbo_view_mat = GLM_MAT4_IDENTITY_INIT;
+  glm_translate_z(fbo_view_mat, -3.0);
+
+  mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+  vec3 world_coords = { 0.0, 0.0, OBSTACLE_DEPTH };
+  chunk_to_world(chunk, coords, world_coords);
+  world_coords[0] += 0.5 * T_WIDTH;
+  world_coords[1] -= 0.5 * T_WIDTH;
+  glm_translate(model_mat, world_coords);
+  glm_scale_uni(model_mat, FBO_QUAD_WIDTH * T_WIDTH / 2.0);
+
+  mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+  vec3 player_world_coords = GLM_VEC2_ZERO_INIT;
+  if (e_player.embarked) {
+    chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
+                   player_world_coords);
+  } else {
+    chunk_to_world(e_player.chunk, e_player.coords, player_world_coords);
+  }
+  glm_vec3_negate(player_world_coords);
+  glm_translate(view_mat, player_world_coords);
 
   render_fbo_entity(model, fbo_model_mat, model_mat, fbo_view_mat,
                     view_mat, persp_proj, ortho_proj);
@@ -569,6 +675,88 @@ void render_fbo_entity(
   draw_model(quad, pixel_shader);
 }
 
+void render_ripple(unsigned int chunk_index, vec2 chunk_coords, vec2 direction,
+                   int moving) {
+  unsigned int num_tiles = RIPPLE_WIDTH * RIPPLE_WIDTH;
+  int tiles[num_tiles];
+  ivec2 top_left = {
+    chunk_coords[0] - (RIPPLE_WIDTH / 2),
+    chunk_coords[1] - (RIPPLE_WIDTH / 2)
+  };
+  vec2 cur_tile = GLM_VEC2_ZERO_INIT;
+  for (int i = 0; i < num_tiles; i++) {
+    cur_tile[0] = top_left[0] + (i % RIPPLE_WIDTH);
+    cur_tile[1] = top_left[1] + (i / RIPPLE_WIDTH);
+    tiles[i] = get_tile(chunk_index, cur_tile);
+  }
+
+  vec3 world_coords = {
+    top_left[0] + (RIPPLE_WIDTH / 2),
+    top_left[1] + (RIPPLE_WIDTH / 2),
+    EFFECT_DEPTH
+  };
+  chunk_to_world(chunk_buffer[chunk_index].coords, world_coords, world_coords);
+  mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+  glm_translate(model_mat, world_coords);
+  glm_scale_uni(model_mat, 0.5 * T_WIDTH * RIPPLE_WIDTH);
+
+  mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+  vec3 player_world_coords = GLM_VEC2_ZERO_INIT;
+  if (e_player.embarked) {
+    chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
+                   player_world_coords);
+  } else {
+    chunk_to_world(e_player.chunk, e_player.coords, player_world_coords);
+  }
+  glm_vec3_negate(player_world_coords);
+  glm_translate(view_mat, player_world_coords);
+
+  vec2 ship_pos = {
+    (chunk_coords[0] - top_left[0]) / RIPPLE_WIDTH,
+    (chunk_coords[1] - top_left[1]) / RIPPLE_WIDTH
+  };
+
+  // Calculate matrix to rotate vectors to coordinate space where the ship's
+  // direction is the y vector
+  vec3 ship_z = { 0.0, 0.0, 1.0 };
+  vec3 ship_y = GLM_VEC3_ZERO_INIT;
+  vec3 ship_x = GLM_VEC3_ZERO_INIT;
+  glm_vec2_normalize_to(direction, ship_y);
+  // In tile chunk coordinates, the y direction is downward, so we must negate
+  // the ship direction in the y
+  ship_y[1] *= -1.0;
+  glm_vec3_cross(ship_y, ship_z, ship_x);
+  mat4 ship_rot = GLM_MAT4_IDENTITY_INIT;
+  glm_vec3_copy(ship_x, ship_rot[0]);
+  glm_vec3_copy(ship_y, ship_rot[1]);
+  glm_vec3_copy(ship_z, ship_rot[2]);
+
+  /*
+  printf("dir: (%.2f, %.2f)\n", e_player.ship_direction[0],
+         e_player.ship_direction[1]);
+  for (int i = 0; i < 4; i++) {
+    printf("|%.1f, %.1f, %.1f, %.1f|\n",
+           ship_rot[i][0],
+           ship_rot[i][1],
+           ship_rot[i][2],
+           ship_rot[i][3]);
+  }
+  printf("\n");
+  fflush(stdout);
+  */
+
+  glUseProgram(ripple_shader);
+  set_mat4("model", model_mat, ripple_shader);
+  set_mat4("view", view_mat, ripple_shader);
+  set_mat4("proj", ortho_proj, ripple_shader);
+  set_mat4("ship_rot", ship_rot, ripple_shader);
+  set_vec2("ship_pos", ship_pos, ripple_shader);
+  set_iarr("tiles", tiles, num_tiles, ripple_shader);
+  set_float("time", glfwGetTime(), ripple_shader);
+  set_int("moving", moving, ripple_shader);
+  draw_model(quad, ripple_shader);
+}
+
 void render_chunk(ivec2 chunk) {
   vec3 world_coords = { 0.0, 0.0, WORLD_DEPTH};
   vec2 tile_coords = GLM_VEC2_ZERO_INIT;
@@ -576,6 +764,7 @@ void render_chunk(ivec2 chunk) {
   world_coords[0] = world_coords[0] + (T_WIDTH * C_WIDTH * 0.5);
   world_coords[1] = world_coords[1] - (T_WIDTH * C_WIDTH * 0.5);
 
+  /*
   float c_val = 0.0f;
   if (chunk[0] % 2 == 0) {
     if (chunk[1] % 2 == 0) {
@@ -590,6 +779,7 @@ void render_chunk(ivec2 chunk) {
       c_val = 1.0;
     }
   }
+  */
 
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   glm_translate(model_mat, world_coords);
@@ -623,15 +813,38 @@ void render_chunk(ivec2 chunk) {
   quad->texture = ocean_texture;
   draw_model(quad, std_shader);
   */
+  float threshold = (H*sin((2*PI/WAVE_PERIOD) * glfwGetTime()))+K;
+  if (((threshold >= K+H && threshold <= K+H+0.0001) ||
+      (threshold <= K+H && threshold >= K+H-0.0001)) && !incremented_1) {
+    incremented_1 = 1;
+    wave_offset_1 += C;
+    if (wave_offset_1 >= 20.0) {
+      wave_offset_1 = 0.0;
+    }
+  } else if (!(threshold >= K+H && threshold <= K+H+0.0001) &&
+             !(threshold <= K+H && threshold >= K+H-0.0001)) {
+    incremented_1 = 0;
+  }
+  if (((threshold >= K-H && threshold <= K-H+0.0001) ||
+      (threshold <= K-H && threshold >= K-H-0.0001)) && !incremented_2) {
+    incremented_2 = 1;
+    wave_offset_2 += C;
+    if (wave_offset_1 >= 20.0) {
+      wave_offset_1 = 0.0;
+    }
+  } else if (!(threshold >= K-H && threshold <= K-H+0.0001) &&
+             !(threshold <= K-H && threshold >= K-H-0.0001)) {
+    incremented_2 = 0;
+  }
 
-  float threshold = ((H/2.0)*sin(glfwGetTime()))+(C/2.0);
   glUseProgram(chunk_shader);
   set_mat4("model", model_mat, chunk_shader);
   set_mat4("view", view_mat, chunk_shader);
   set_mat4("proj", ortho_proj, chunk_shader);
   set_float("threshold", threshold, chunk_shader);
-  set_float("chunk", c_val, chunk_shader);
-  quad->texture = ocean_texture;
+  set_float("offset_1", wave_offset_1, chunk_shader);
+  set_float("offset_2", wave_offset_2, chunk_shader);
+  //set_float("chunk", c_val, chunk_shader);
   draw_model(quad, chunk_shader);
 }
 
@@ -661,28 +874,25 @@ void render_island(ISLAND *island) {
   set_mat4("model", model_mat, island_shader);
   set_mat4("view", view_mat, island_shader);
   set_mat4("proj", ortho_proj, island_shader);
-  // set_texture("ocean", ocean_tex, island_shader, 1);
-  // set_texture("shore", shore_tex, island_shader, 2);
-  // set_texture("sand", sand_tex, island_shader, 3);
-  // set_texture("grass", grass_tex, island_shader, 4);
-  // set_texture("stone", stone_tex, island_shader, 5);
   set_iarr("tiles", (int *) island->tiles, I_WIDTH * I_WIDTH, island_shader);
   draw_model(quad, island_shader);
 
-  glm_mat4_identity(model_mat);
-  vec3 house_coords = { 0.0, 0.0, OBSTACLE_DEPTH };
-  chunk_to_world(island->chunk, house_tile, house_coords);
-  glm_translate(model_mat, house_coords);
-  glm_translate_x(model_mat, 2.0 * T_WIDTH);
-  glm_translate_y(model_mat, 4.0 * T_WIDTH);
-  glm_scale_uni(model_mat, T_WIDTH * 5.0);
-
   if (island->chunk[0] == 0 && island->chunk[1] == 0) {
+    glm_mat4_identity(model_mat);
+    vec3 house_coords = { 0.0, 0.0, OBSTACLE_DEPTH };
+    chunk_to_world(island->chunk, house_tile, house_coords);
+    glm_translate(model_mat, house_coords);
+    glm_translate_x(model_mat, 2.0 * T_WIDTH);
+    glm_translate_y(model_mat, 4.0 * T_WIDTH);
+    glm_scale_uni(model_mat, T_WIDTH * 5.0);
+
     glUseProgram(pixel_shader);
     set_mat4("model", model_mat, pixel_shader);
     set_mat4("view", view_mat, pixel_shader);
     set_mat4("proj", ortho_proj, pixel_shader);
     draw_model(house, pixel_shader);
+
+    render_obstacle(chest, island->chunk, home_box_tile, 0.25);
   }
 }
 
@@ -744,14 +954,14 @@ void render_arena() {
   draw_model(quad, color_shader);
 }
 
-void render_hitbox(vec2 world_coords) {
+void render_hitbox(vec2 world_coords, float radius) {
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
 
   vec3 hitbox_pos = { 0.0, 0.0, AVATAR_DEPTH };
   glm_vec2_copy(world_coords, hitbox_pos);
   glm_translate(model_mat, hitbox_pos);
-  glm_scale_uni(model_mat, T_WIDTH);
+  glm_scale_uni(model_mat, T_WIDTH * radius);
 
   vec3 player_coords = GLM_VEC3_ZERO_INIT;
   glm_vec2_scale(c_player.coords, T_WIDTH, player_coords);
@@ -764,7 +974,7 @@ void render_hitbox(vec2 world_coords) {
   set_mat4("view", view_mat, color_shader);
   set_mat4("proj", ortho_proj, color_shader);
   set_vec3("color", hit_box_col, color_shader);
-  draw_model(quad, color_shader);
+  draw_model(circle, color_shader);
 }
 
 /*
@@ -948,8 +1158,12 @@ void set_vec4(char *name, vec4 matrix, unsigned int shader) {
   glUniform4fv(glGetUniformLocation(shader, name), 1, (float *) matrix);
 }
 
-void set_vec3(char *name, vec3 matrix, unsigned int shader) {
-  glUniform3fv(glGetUniformLocation(shader, name), 1, (float *) matrix);
+void set_vec3(char *name, vec3 v, unsigned int shader) {
+  glUniform3fv(glGetUniformLocation(shader, name), 1, (float *) v);
+}
+
+void set_vec2(char *name, vec2 v, unsigned int shader) {
+  glUniform2fv(glGetUniformLocation(shader, name), 1, (float *) v);
 }
 
 void set_float(char *name, float val, unsigned int shader) {
@@ -958,6 +1172,10 @@ void set_float(char *name, float val, unsigned int shader) {
 
 void set_int(char *name, int val, unsigned int shader) {
   glUniform1i(glGetUniformLocation(shader, name), val);
+}
+
+void set_uint(char *name, unsigned int val, unsigned int shader) {
+  glUniform1ui(glGetUniformLocation(shader, name), val);
 }
 
 void set_iarr(char *name, int *arr, unsigned int count, unsigned int shader) {

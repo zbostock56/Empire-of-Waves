@@ -1,5 +1,3 @@
-
-
 #include <merchant.h>
 
 /*
@@ -25,4 +23,108 @@ LISTING *get_merchant_listing_item_by_index(MERCHANT * merchant, unsigned int li
     }
   }
   return NULL;
+}
+
+/*
+Find first listing that is item_id of the merchant's listing
+Return NULL when not find
+Args:
+MERCHANT * merchant
+  pointer to the merchant
+ITEM_IDS item_id
+  the item that you want to search
+*/
+LISTING * search_merchant_listing_by_ID(MERCHANT * merchant, ITEM_IDS item_id) {
+  for (int i = 0; i < merchant->num_listings; i++) {
+    if (merchant->listings[i].item_id == item_id) {
+      return &merchant->listings[i];
+    }
+  }
+  return NULL;
+}
+
+/*
+Get merchant's first empty listing and return a LISTING pointer
+Return NULL if not found such empty listing
+Args:
+MERCHANT * merchant
+  pointer to the merchant
+*/
+LISTING * get_merchant_first_empty_listing(MERCHANT * merchant) {
+  for (int i = 0; i < merchant->listings_buf_size; i++) {
+    if (merchant->listings[i].item_id == EMPTY) {
+      return &merchant->listings[i];
+    }
+  }
+  return NULL;
+}
+
+char *get_merchant_name(short index) {
+  return merchant_name_list[index];
+}
+
+/*
+  Helper function for resizing merchant listings
+*/
+int resize_listings(MERCHANT *merchant) {
+  unsigned int old_size = merchant->listings_buf_size;
+  int status = double_buffer((void **) &merchant->listings,
+                             &merchant->listings_buf_size,
+                             sizeof(LISTING));
+  if (status) {
+    return -1;
+  }
+
+  for (int i = old_size; i < merchant->listings_buf_size; i++) {
+    merchant->listings[i].item_id = EMPTY;
+    merchant->listings[i].quantity = 0;
+  }
+
+  return 0;
+}
+
+void add_listing(MERCHANT *merchant, int **selected_buffer, ITEM_IDS item,
+                 unsigned int quantity) {
+  LISTING *exists = search_merchant_listing_by_ID(merchant, item);
+  if (exists) {
+    exists->quantity += quantity;
+    return;
+  } else {
+    merchant->listings[merchant->num_listings].item_id = item;
+    merchant->listings[merchant->num_listings].quantity = quantity;
+    merchant->num_listings++;
+
+    if (merchant->num_listings == merchant->listings_buf_size) {
+      unsigned int selected_buf_size = merchant->listings_buf_size;
+      int status = double_buffer((void **) merchant->listings,
+                                 &merchant->listings_buf_size,
+                                 sizeof(LISTING));
+      if (status) {
+        fprintf(stderr, "merchant.c: Unable to resize listings buffer\n");
+        exit(1);
+      }
+      status = double_buffer((void **) selected_buffer, &selected_buf_size,
+                             sizeof(int));
+      if (status) {
+        fprintf(stderr, "merchant.c: Unable to resize selected buffer\n");
+        exit(1);
+      }
+    }
+  }
+}
+
+/*
+  Clears a given listing index to EMPTY and replaces it with the last item
+  in the listing buffer
+*/
+void clear_listing(MERCHANT *merchant, unsigned int index) {
+  merchant->num_listings--;
+  merchant->listings[index] = merchant->listings[merchant->num_listings];
+  merchant->listings[merchant->num_listings].item_id = EMPTY;
+  merchant->listings[merchant->num_listings].quantity = 0;
+}
+
+unsigned int calc_merc_price(MERCHANT *merchant) {
+  return ((MAX_MERCENARIES - merchant->num_mercenaries) * 0.25 *
+           MERC_BASE_PRICE) + MERC_BASE_PRICE;
 }
