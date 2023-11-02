@@ -30,7 +30,11 @@ const char *fragment_shader_texture = " \
   in vec2 tex_coords;\n \
   uniform sampler2D tex;\n \
   void main() {\n \
-    FragColor = texture(tex, tex_coords);\n \
+    vec4 tex_col = texture(tex, tex_coords);\n \
+    if (tex_col.a < 0.1) {\n \
+      discard;\n \
+    }\n \
+    FragColor = tex_col;\n \
   }\n \
 ";
 

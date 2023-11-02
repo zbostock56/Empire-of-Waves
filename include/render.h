@@ -91,6 +91,8 @@ unsigned int menu_shader;
 unsigned int chunk_shader;
 unsigned int island_shader;
 
+unsigned int item_textures[NUM_ITEMS];
+
 FRAMEBUFFER entity_framebuffer;
 
 MODEL *player;

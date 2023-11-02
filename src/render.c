@@ -4,11 +4,6 @@
 // - Program will crash if assets do not exist
 
 void init_scene() {
-  // TEST MODELS
-  //  unsigned char ocean_buffer[3] = { 3, 157, 252 };
-  //  ocean_texture = texture_from_buffer(ocean_buffer, 1, 1, GL_RGB);
-  // END TEST
-
   // Initialize offscreen framebuffer
   entity_framebuffer = framebuffer_init();
 
@@ -144,6 +139,19 @@ void init_scene() {
       default_path[20] = cur;
       load_character(default_path, "assets/Dinklebitmap/font.png",
                      font + index);
+    }
+  }
+
+  for (int i = 0; i < NUM_ITEMS; i++) {
+    ITEM_IDS id = EMPTY + i;
+    if (id == COPPER_COIN) {
+      item_textures[i] = gen_texture("assets/icons/copper_coin.png");
+    } else if (id == SILVER_COIN) {
+      item_textures[i] = gen_texture("assets/icons/silver_coin.png");
+    } else if (id == GOLD_COIN) {
+      item_textures[i] = gen_texture("assets/icons/gold_coin.png");
+    } else {
+      item_textures[i] = INVALID_TEXTURE;
     }
   }
 
