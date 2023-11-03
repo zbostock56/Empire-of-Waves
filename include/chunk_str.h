@@ -53,7 +53,6 @@ typedef struct island {
   TILE tiles[I_WIDTH * I_WIDTH];
   MERCHANT merchant;
   int has_merchant;
-  unsigned int texture;
 } ISLAND;
 
 typedef struct chunk {

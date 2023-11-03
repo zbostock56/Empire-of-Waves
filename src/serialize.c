@@ -580,7 +580,6 @@ int chunk_from_disk(char *chunk_path, CHUNK *dest) {
         if (dest->islands[j].has_merchant) {
           free(dest->islands[j].merchant.listings);
         }
-        glDeleteTextures(1, &dest->islands[j].texture);
       }
       fclose(file);
       return -1;
