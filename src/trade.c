@@ -1050,7 +1050,7 @@ void on_click_trade() {
       // When relationship less than 20, cannot bartering
       if (trade.merchant->relationship < 20.0) {
         trade.merchant->relationship -= (trade.merchant_value - trade.player_value);
-        if (trade.merchant->relationship < 0.0) trade.merchant->relationship = 0.0;
+        if (trade.merchant->relationship < -100.0) trade.merchant->relationship = -100.0;
         // Show prompt
         sprintf(trade.ui_text_event_prompt->text, " Player Value Insufficient ");
         trade.ui_text_event_prompt->enabled = 1;
@@ -1158,7 +1158,7 @@ void on_click_trade() {
   } else {
     // When player value is lower than barter range, decrease the relationship with the value
     trade.merchant->relationship -= (trade.merchant_value - trade.player_value);
-    if (trade.merchant->relationship < 0.0) trade.merchant->relationship = 0.0;
+    if (trade.merchant->relationship < -100.0) trade.merchant->relationship = -100.0;
     // Show prompt
     sprintf(trade.ui_text_event_prompt->text, " Player Value Insufficient ");
     trade.ui_text_event_prompt->enabled = 1;
