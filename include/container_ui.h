@@ -28,3 +28,4 @@ void init_menu(vec2, void (*)(void *), void (*)(void *), void *, void *,
                char *, int, int, unsigned int, float, float, float, float,
                PIVOT, TEXT_ANCHOR, UI_COMPONENT *);
 int move_item(I_SLOT *, I_SLOT *);
+int move_all_item(I_SLOT *, I_SLOT *);
