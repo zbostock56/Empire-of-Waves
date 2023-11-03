@@ -29,6 +29,7 @@ void copy_state(STATE *);
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 
 GLFWwindow *init_gl();
+void init_game(char *);
 void init_chunks();
 void manage_chunks();
 

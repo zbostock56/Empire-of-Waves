@@ -19,9 +19,10 @@ void generate_chunk_tileset(TILE chunk_tiles[C_WIDTH][C_WIDTH], CHUNK *chunk) {
 }
 
 int main() {
-  init_gl();
+//  init_gl();
   srand(glfwGetTime());
-  new_game(game_save_name);
+//  new_game(game_save_name);
+  init_game("test");
 
   CHUNK before;
   CHUNK after;
@@ -62,7 +63,7 @@ void randomize_player() {
   randomize_vec2(e_player.ship_coords, C_WIDTH);
   randomize_vec2(e_player.direction, 100);
   e_player.embarked = rand();
-  for (int i = 0; i < INV_SIZE; i++) {
+  for (int i = 0; i < MAX_PLAYER_INV_SIZE; i++) {
     e_player.inventory[i].item_id = rand();
     e_player.inventory[i].quantity = rand();
   }
