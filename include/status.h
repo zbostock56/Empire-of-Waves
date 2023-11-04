@@ -15,6 +15,7 @@
 
 /* GLOABALS */
 STATUS status;
+extern unsigned int item_textures[NUM_ITEMS];
 
 /* =================== INTERNALLY DEFINED FUNCTIONS ================ */
 int init_status_bar();
