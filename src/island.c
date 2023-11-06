@@ -67,9 +67,20 @@ int generate_island(ISLAND *island) {
     island->merchant.relationship = 0.0;
     island->merchant.has_trade_route = 0;
   }
-
+  island->num_items = 0;
+  init_resource_buffer(island);
   spawn_items(island);
   return 0;
+}
+
+void init_resource_buffer(ISLAND *island) {
+  for (int i = 0; i < ITEM_BUFFER_SIZE; i++) {
+     island->item_tiles[i].type = OCEAN;
+     island->item_tiles[i].resource = -1;
+     island->item_tiles[i].quantity = 0;
+     island->item_tiles[i].position[0] = 0.0f;
+     island->item_tiles[i].position[1] = 0.0f;
+  }
 }
 
 /*
@@ -172,11 +183,11 @@ void spawn_items(ISLAND *island) {
   int rand_tile;
   int retry = 0;
   for (int i = 0; i < num_potential_items; i++) {
-    rand_tile = rand() % I_WIDTH;
+    rand_tile = rand() % (I_WIDTH * I_WIDTH);
     if ((island->tiles[rand_tile] == SAND ||
         island->tiles[rand_tile] == GRASS ||
         island->tiles[rand_tile] == ROCK) &&
-        retry < 3 &&
+        retry < RETRIES &&
         island->item_tiles[island->num_items].quantity == 0) {
       /* Found open land tile */
       island->item_tiles[island->num_items].position[0] = (float) (rand_tile % I_WIDTH);
@@ -185,22 +196,24 @@ void spawn_items(ISLAND *island) {
       island->item_tiles[island->num_items].quantity++;
       item_rng(island->item_tiles + island->num_items);
       island->num_items++;
+      retry = 0;
     } else if ((island->tiles[rand_tile] == SAND ||
-        island->tiles[rand_tile] == GRASS ||
-        island->tiles[rand_tile] == ROCK) &&
-        retry < 3 &&
-        island->item_tiles[island->num_items].quantity > 0) {
+                island->tiles[rand_tile] == GRASS ||
+                island->tiles[rand_tile] == ROCK) &&
+                retry < RETRIES &&
+                island->item_tiles[island->num_items].quantity > 0) {
       /* Tile already has something there */
       /* Increment the item that is stored there */
       /* to indicate that another item has spawned there */
       island->item_tiles[island->num_items].quantity++;
-    } else if (retry >= 3) {
+      retry = 0;
+    } else if (retry >= RETRIES) {
       /* Retries exhausted */
       retry = 0;
     } else {
       /* Retry item placement if did not find land tile */
       retry++;
-      i--;
+      --i;
     }
   }
 }
@@ -242,7 +255,7 @@ void item_rng(ITEM_TILES *tile) {
   int rand_number = rand() % 1000;
   int category = 0;
   for (int i = 0; i < 12; i++) {
-    if (rand_number < spawn_chances[i]) {
+    if (rand_number > spawn_chances[i]) {
       rand_number -= spawn_chances[i];
     } else {
       category = i;
@@ -261,10 +274,12 @@ void item_rng(ITEM_TILES *tile) {
     break;
     /* Wine, Copper Ore, Spice */
     case 2:
+    /* Add offset to account for REC_IDS not starting at 0 */
     tile->resource = (rand() % 3) + 8;
     break;
     /* Herb, Tea */
     case 3:
+    /* Add offset to account for REC_IDS not starting at 0 */
     tile->resource = (rand() % 2) + 11;
     break;
     /* Silver Ore  */

@@ -25,6 +25,7 @@ so that the graphics side can render the islands in the viewport.
 #define MAX_INT_FLOAT (2147483647.0)
 #define TRUE          (1)
 #define FALSE         (0)
+#define RETRIES       (3)
 
 /* PROTOTYPES */
 /* perlin.h */
@@ -40,6 +41,7 @@ void merchant_generate(MERCHANT *, ISLAND *);
 unsigned int texture_from_buffer(unsigned char *, int, int, int);
 void spawn_items(ISLAND *);
 void item_rng(ITEM_TILES *);
+void init_resource_buffer(ISLAND *);
 
 /* MACROS */
 /* Safe-guard for the chances if tile_location is */
