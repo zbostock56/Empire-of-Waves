@@ -4,6 +4,8 @@
 #include <cglm/ivec2.h>
 #include <merchant_str.h>
 #include <enemy_str.h>
+#include <items.h>
+
 /*
                                 CHUNK_STR.h
 Describes the struct representing an exploration mode chunk, and the struct
@@ -18,6 +20,8 @@ reads/manipulates chunks and/or islands.
 #define MAX_ISLANDS (2) // Max islands per chunk
 #define CHUNKS_SIMULATED (9)
 #define STARTING_BUFF_SIZE (32)
+#define ITEM_SPAWN_CHANCE (0.001)
+#define ITEM_BUFFER_SIZE (262)
 
 // Macros specifying index names for player_chunks
 #define CHUNK_UPPER_LEFT (0)
@@ -47,10 +51,22 @@ typedef enum tile {
   CHEST = 7,
 } TILE;
 
+typedef struct item_tiles {
+  TILE type;
+  REC_IDS resource;
+  unsigned int quantity;
+  vec2 position;
+} ITEM_TILES;
+
 typedef struct island {
   ivec2 chunk;
   ivec2 coords;
   TILE tiles[I_WIDTH * I_WIDTH];
+  ITEM_TILES item_tiles[ITEM_BUFFER_SIZE];
+  /* Quantifies the max number of items that an */
+  /* island has based on its size (can be less  */
+  /* than the size of the item buffer) */
+  unsigned int num_items;
   MERCHANT merchant;
   int has_merchant;
 } ISLAND;

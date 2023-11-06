@@ -16,7 +16,7 @@ void init_player() {
   e_player.inventory[0].quantity = 2;
   e_player.inventory[1].item_id = CITRUS;
   e_player.inventory[1].quantity = 1;
-  e_player.inventory[2].item_id = KNIVE;
+  e_player.inventory[2].item_id = KNIFE;
   e_player.inventory[2].quantity = 1;
   e_player.inventory[3].item_id = GOLD_COIN;
   e_player.inventory[3].quantity = 100;
@@ -28,7 +28,7 @@ void init_player() {
   e_player.inventory[6].quantity = 1;
   e_player.inventory[7].item_id = FLINTLOCK;
   e_player.inventory[7].quantity = 1;
-  e_player.inventory[8].item_id = MIDIUM_ARMOR;
+  e_player.inventory[8].item_id = MEDIUM_ARMOR;
   e_player.inventory[8].quantity = 1;
   e_player.inventory[9].item_id = HEAVY_ARMOR;
   e_player.inventory[9].quantity = 1;

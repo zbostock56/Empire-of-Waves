@@ -78,25 +78,25 @@ ITEM item_tab[NUM_ITEMS] = {
 unsigned int resource_tab[NUM_RESOURCES] = {
   0,  // INVALID_REC
   5,  // GRAIN
-  10, // SUGAR
-  20, // WINE
-  15, // CHEESE
-  25, // SPICE
-  30, // TEA
-  8,  // WOOL
-  12, // LEATHER
   6,  // COTTON
-  40, // SILK
+  8,  // WOOL
   8,  // DYES
-  50, // GOLD_ORE
-  30, // SILVER_ORE
-  20, // COPPER_ORE
+  10, // SUGAR
+  12, // LEATHER
+  15, // CHEESE
   18, // IRON_ORE
-  45, // PEAL
-  35, // PORCELAIN
-  60, // AMBERGRIS
+  20, // WINE
+  20, // COPPER_ORE
+  25, // SPICE
   28, // HERB
-  55  // SAFFRON
+  30, // TEA
+  30, // SILVER_ORE
+  35, // PORCELAIN
+  40, // SILK
+  45, // PEARL
+  50, // GOLD_ORE
+  55,  // SAFFRON
+  60 // AMBERGRIS
 };
 
 /*
@@ -144,8 +144,8 @@ char * get_item_name_by_ID(int item_id) {
     case 3: return "LIFE_POTION";
     case 4: return "FIRERATE_POTION";
     case 5: return "SPEED_POTION";
-    case 6: return "KNIVE";
-    case 7: return "SWROD";
+    case 6: return "KNIFE";
+    case 7: return "SWORD";
     case 8: return "AXE";
     case 9: return "BOW";
     case 10: return "CROSSBOW";
@@ -153,7 +153,7 @@ char * get_item_name_by_ID(int item_id) {
     case 12: return "CLOTH_ARMOR";
     case 13: return "LEATHER_ARMOR";
     case 14: return "LIGHT_ARMOR";
-    case 15: return "MIDIUM_ARMOR";
+    case 15: return "MEDIUM_ARMOR";
     case 16: return "HEAVY_ARMOR";
     case 17: return "PLATE_ARMOR";
     case 18: return "GOLD_COIN";
@@ -177,8 +177,8 @@ ITEM get_item_info_by_name(char * item_name) {
     else if (strcmp(item_name, "LIFE_POTION") == 0) return get_item_info_by_ID(LIFE_POTION);
     else if (strcmp(item_name, "FIRERATE_POTION") == 0) return get_item_info_by_ID(FIRERATE_POTION);
     else if (strcmp(item_name, "SPEED_POTION") == 0) return get_item_info_by_ID(SPEED_POTION);
-    else if (strcmp(item_name, "KNIVE") == 0) return get_item_info_by_ID(KNIVE);
-    else if (strcmp(item_name, "SWROD") == 0) return get_item_info_by_ID(SWROD);
+    else if (strcmp(item_name, "KNIFE") == 0) return get_item_info_by_ID(KNIFE);
+    else if (strcmp(item_name, "SWORD") == 0) return get_item_info_by_ID(SWORD);
     else if (strcmp(item_name, "AXE") == 0) return get_item_info_by_ID(AXE);
     else if (strcmp(item_name, "BOW") == 0) return get_item_info_by_ID(BOW);
     else if (strcmp(item_name, "CROSSBOW") == 0) return get_item_info_by_ID(CROSSBOW);
@@ -186,7 +186,7 @@ ITEM get_item_info_by_name(char * item_name) {
     else if (strcmp(item_name, "CLOTH_ARMOR") == 0) return get_item_info_by_ID(CLOTH_ARMOR);
     else if (strcmp(item_name, "LEATHER_ARMOR") == 0) return get_item_info_by_ID(LEATHER_ARMOR);
     else if (strcmp(item_name, "LIGHT_ARMOR") == 0) return get_item_info_by_ID(LIGHT_ARMOR);
-    else if (strcmp(item_name, "MIDIUM_ARMOR") == 0) return get_item_info_by_ID(MIDIUM_ARMOR);
+    else if (strcmp(item_name, "MEDIUM_ARMOR") == 0) return get_item_info_by_ID(MEDIUM_ARMOR);
     else if (strcmp(item_name, "HEAVY_ARMOR") == 0) return get_item_info_by_ID(HEAVY_ARMOR);
     else if (strcmp(item_name, "PLATE_ARMOR") == 0) return get_item_info_by_ID(PLATE_ARMOR);
     else if (strcmp(item_name, "GOLD_COIN") == 0) return get_item_info_by_ID(GOLD_COIN);

@@ -67,6 +67,8 @@ int generate_island(ISLAND *island) {
     island->merchant.relationship = 0.0;
     island->merchant.has_trade_route = 0;
   }
+
+  spawn_items(island);
   return 0;
 }
 
@@ -157,6 +159,142 @@ void populate_tiles(ISLAND *island, float (*pnoise)[I_WIDTH]) {
         island->tiles[location] = OCEAN;
       }
     }
+  }
+}
+
+/*
+  Items have a 0.1% chance on spawning on each tile, given
+  that the tile is a land tile
+*/
+void spawn_items(ISLAND *island) {
+  int num_potential_items = (int) ((float) I_WIDTH * (float) I_WIDTH * ITEM_SPAWN_CHANCE);
+  /* Choose random tiles for the number of potential items that can spawn */
+  int rand_tile;
+  int retry = 0;
+  for (int i = 0; i < num_potential_items; i++) {
+    rand_tile = rand() % I_WIDTH;
+    if ((island->tiles[rand_tile] == SAND ||
+        island->tiles[rand_tile] == GRASS ||
+        island->tiles[rand_tile] == ROCK) &&
+        retry < 3 &&
+        island->item_tiles[island->num_items].quantity == 0) {
+      /* Found open land tile */
+      island->item_tiles[island->num_items].position[0] = (float) (rand_tile % I_WIDTH);
+      island->item_tiles[island->num_items].position[1] = (float) (rand_tile / I_WIDTH);
+      island->item_tiles[island->num_items].type = island->tiles[rand_tile];
+      island->item_tiles[island->num_items].quantity++;
+      item_rng(island->item_tiles + island->num_items);
+      island->num_items++;
+    } else if ((island->tiles[rand_tile] == SAND ||
+        island->tiles[rand_tile] == GRASS ||
+        island->tiles[rand_tile] == ROCK) &&
+        retry < 3 &&
+        island->item_tiles[island->num_items].quantity > 0) {
+      /* Tile already has something there */
+      /* Increment the item that is stored there */
+      /* to indicate that another item has spawned there */
+      island->item_tiles[island->num_items].quantity++;
+    } else if (retry >= 3) {
+      /* Retries exhausted */
+      retry = 0;
+    } else {
+      /* Retry item placement if did not find land tile */
+      retry++;
+      i--;
+    }
+  }
+}
+
+/*
+  Determines which item should be placed on the tile
+
+  RESOURCE RNG TABLE:
+
+  Name       | Value  |  Spawn Chance
+  -----------|--------|----------------
+  Grain      |   5    |      30%
+  Cotton     |   6    |       ^
+  Wool       |   8    |       ^
+  Dyes       |   8    |       ^
+  Sugar      |   10   |       ^
+  Leather    |   12   |      25%
+  Cheese     |   15   |       ^
+  Iron Ore   |   18   |       ^
+  Wine       |   20   |      15%
+  Copper Ore |   20   |       ^
+  Spice      |   25   |       ^
+  Herb       |   28   |      10%
+  Tea        |   30   |       ^
+  Silver Ore |   30   |      7%
+  Porcelain  |   35   |      5%
+  Silk       |   40   |      3%
+  Pearl      |   45   |      2%
+  Gold Ore   |   50   |      1.5%
+  Saffron    |   55   |      1%
+  Ambergris  |   60   |      0.5%
+*/
+void item_rng(ITEM_TILES *tile) {
+  int spawn_chances[12] = {
+    300, 250, 150, 100,
+    70, 50, 30, 20, 10,
+    15, 10, 5
+  };
+  int rand_number = rand() % 1000;
+  int category = 0;
+  for (int i = 0; i < 12; i++) {
+    if (rand_number < spawn_chances[i]) {
+      rand_number -= spawn_chances[i];
+    } else {
+      category = i;
+      break;
+    }
+  }
+  switch (category) {
+    /* Grain, Cotton, Wool, Dyes, Sugar */
+    case 0:
+    tile->resource = (rand() % 5);
+    break;
+    /* Leather, Cheese, Iron Ore */
+    case 1:
+    /* Add offset to account for REC_IDS not starting at 0 */
+    tile->resource = (rand() % 3) + 5;
+    break;
+    /* Wine, Copper Ore, Spice */
+    case 2:
+    tile->resource = (rand() % 3) + 8;
+    break;
+    /* Herb, Tea */
+    case 3:
+    tile->resource = (rand() % 2) + 11;
+    break;
+    /* Silver Ore  */
+    case 4:
+    tile->resource = 13;
+    break;
+    /* Porcelain */
+    case 5:
+    tile->resource = 14;
+    break;
+    /* Silk */
+    case 6:
+    tile->resource = 15;
+    break;
+    /* Pearl */
+    case 7:
+    tile->resource = 16;
+    break;
+    /* Gold Ore */
+    case 8:
+    tile->resource = 17;
+    break;
+    /* Saffron */
+    case 9:
+    tile->resource = 18;
+    break;
+    /* Ambergris */
+    case 10:
+    tile->resource = 19;
+    break;
   }
 }
 

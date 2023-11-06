@@ -12,26 +12,26 @@
 */
 typedef enum resource_ids {
   INVALID_REC = -1,
-  GRAIN = 0,
-  SUGAR = 1,
-  WINE = 2,
-  CHEESE = 3,
-  SPICE = 4,
-  TEA = 5,
-  WOOL = 6,
-  LEATHER = 7,
-  COTTON = 8,
-  SILK = 9,
-  DYES = 10,
-  GOLD_ORE = 11,
-  SILVER_ORE = 12,
-  COPPER_ORE = 13,
-  IRON_ORE = 14,
-  PEAL = 15,
-  PORCELAIN = 16,
-  AMBERGRIS = 17,
-  HERB = 18,
-  SAFFRON = 19
+  GRAIN =        0,
+  COTTON =       1,
+  WOOL =         2,
+  DYES =         3,
+  SUGAR =        4,
+  LEATHER =      5,
+  CHEESE =       6,
+  IRON_ORE =     7,
+  WINE =         8,
+  COPPER_ORE =   9,
+  SPICE =        10,
+  HERB =         11,
+  TEA =          12,
+  SILVER_ORE =   13,
+  PORCELAIN =    14,
+  SILK =         15,
+  PEARL =        16,
+  GOLD_ORE =     17,
+  SAFFRON =      18,
+  AMBERGRIS =    19
 } REC_IDS;
 
 /*
@@ -49,8 +49,8 @@ typedef enum item_ids {
   FIRERATE_POTION = 4,
   SPEED_POTION = 5,
   // Melee Weapons
-  KNIVE = 6,
-  SWROD = 7,
+  KNIFE = 6,
+  SWORD = 7,
   AXE = 8,
   // Ranged Weapons
   BOW = 9,
@@ -60,7 +60,7 @@ typedef enum item_ids {
   CLOTH_ARMOR = 12,
   LEATHER_ARMOR = 13,
   LIGHT_ARMOR = 14,
-  MIDIUM_ARMOR = 15,
+  MEDIUM_ARMOR = 15,
   HEAVY_ARMOR = 16,
   PLATE_ARMOR = 17,
   // Currency 1 GOLD = 10 SILVER = 100 COPPER

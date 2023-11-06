@@ -38,6 +38,8 @@ void generate_mask(float (*mask)[I_WIDTH]);
 void populate_tiles(ISLAND *, float (*)[I_WIDTH]);
 void merchant_generate(MERCHANT *, ISLAND *);
 unsigned int texture_from_buffer(unsigned char *, int, int, int);
+void spawn_items(ISLAND *);
+void item_rng(ITEM_TILES *);
 
 /* MACROS */
 /* Safe-guard for the chances if tile_location is */
