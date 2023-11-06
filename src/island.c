@@ -102,7 +102,7 @@ double nano_time() {
 void generate_mask(float (*mask)[I_WIDTH]) {
   int cur_pos = 0;
   float cur_mult = 0.0;
-  for (int i = 0; i < 64; i++) {
+  for (int i = 0; i < I_WIDTH; i++) {
     for (int k = 0; k < I_WIDTH - (2 * cur_pos); k++) {
       mask[cur_pos][k + cur_pos] = cur_mult;
     }
