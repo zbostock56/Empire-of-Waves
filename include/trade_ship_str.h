@@ -24,6 +24,7 @@ typedef struct trade_ship {
   unsigned int target_island;
   // Number of mercenaries assigned to the trade ship
   unsigned int num_mercenaries;
+  int moving;
   // Used to describe the name of the trade ship
   // when adding mercenaries to it
   char desc[MAX_TRADE_SHIP_DESC];

@@ -11,6 +11,7 @@ void init_player() {
   e_player.direction[1] = 1.0;
   e_player.ship_direction[1] = 1.0;
   e_player.embarked = 1;
+  e_player.moving = 0;
   e_player.inventory[0].item_id = RUM;
   e_player.inventory[0].quantity = 2;
   e_player.inventory[1].item_id = CITRUS;

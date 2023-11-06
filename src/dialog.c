@@ -293,7 +293,7 @@ void open_dialog() {
 
 /* Close dialog and reset schedule trade route prompt timer to 2.0 */
 void close_dialog() {
-  // dialog.merchant = NULL;
+  dialog.merchant = NULL;
   dialog.ui_text_content->enabled = 0;
   dialog.ui_text_name->enabled = 0;
   dialog.ui_text_relationship->enabled = 0;

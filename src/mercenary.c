@@ -283,7 +283,7 @@ void mercenary_reassign(void *ch) {
     }
     /* Calculate what listing this equates to in the trade */
     /* ship array */
-    int actual_item = ((list.page - 1) * list.comp_per_page) + is_selected;
+    int actual_item = is_selected;
 
     /* Add or subtract the mercenary from the player's */
     /* total allotment of mercenaries available */

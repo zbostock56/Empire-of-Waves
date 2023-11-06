@@ -239,3 +239,12 @@ void update_save_interval() {
     }
   }
 }
+
+int save_menu_open() {
+  return get_ui_component_by_ID(NEW_GAME)->enabled ||
+         get_ui_component_by_ID(SAVE)->enabled ||
+         get_ui_component_by_ID(LOAD)->enabled ||
+         get_ui_component_by_ID(SAVE_CLOSE)->enabled ||
+         get_ui_component_by_ID(SAVE_PROMPT)->enabled ||
+         get_ui_component_by_ID(SAVE_INPUT)->enabled;
+}

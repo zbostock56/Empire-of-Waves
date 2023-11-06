@@ -70,8 +70,6 @@ int list_all_files(char *, char (**)[MAX_CHUNK_NAME_LEN], unsigned int *);
 void init_chunks();
 void clear_chunk_buffer();
 int out_of_bounds(ivec2, int, int);
-void populate_tile_pixel_buffer(ISLAND *, unsigned char (*)[3]);
-unsigned int texture_from_buffer(unsigned char *, int, int, int);
 TRADE_SHIP *init_trade_ship(char *, ivec2, unsigned int);
 int double_buffer(void **, unsigned int *, unsigned int);
 void free_chunk(CHUNK *);

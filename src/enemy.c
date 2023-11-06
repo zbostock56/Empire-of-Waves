@@ -85,6 +85,7 @@ void spawn_enemy() {
           enemy->direction[0] = 0;
           enemy->direction[1] = 1;
           enemy->speed = 15.0;
+          enemy->moving = 0;
           enemy->crew_count = (rand() % 5) + 1;
           not_found = 0;
         }
@@ -221,6 +222,7 @@ void pathfind_enemy(E_ENEMY *enemy, unsigned int enemy_chunk) {
   /* Return if there was no target found */
   if (min_distance == FLT_MAX) {
     enemy->on_path = false;
+    enemy->moving = 0;
     return;
   }
 
@@ -229,6 +231,7 @@ void pathfind_enemy(E_ENEMY *enemy, unsigned int enemy_chunk) {
      /* if player is not on board, don't chase */
     if (!e_player.embarked) {
       enemy->on_path = false;
+      enemy->moving = 0;
       return;
     }
 
@@ -268,6 +271,7 @@ void pathfind_enemy(E_ENEMY *enemy, unsigned int enemy_chunk) {
       glm_vec2_copy(smoothed_direction, enemy->direction);
 
       update_enemy_position(enemy);
+      enemy->moving = 1;
       enemy->on_path = false;
       return;
     } else {
@@ -312,6 +316,7 @@ void pathfind_enemy(E_ENEMY *enemy, unsigned int enemy_chunk) {
       glm_vec2_copy(smoothed_direction, enemy->direction);
 
       update_enemy_position(enemy);
+      enemy->moving = 1;
       enemy->on_path = false;
       return;
     }
@@ -374,6 +379,7 @@ void pathfind_enemy(E_ENEMY *enemy, unsigned int enemy_chunk) {
                      movement);
       glm_vec2_add(movement, enemy_world_coords, enemy_world_coords);
       world_to_chunk(enemy_world_coords, enemy->chunk, enemy->coords);
+      enemy->moving = 1;
     }
     free(path_list);
   }

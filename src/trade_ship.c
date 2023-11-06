@@ -49,6 +49,7 @@ TRADE_SHIP *init_trade_ship(char *merch_name, ivec2 target_chunk,
   trade_ships[num_trade_ships].num_mercenaries = 0;
   trade_ships[num_trade_ships].speed = 10.0;
   trade_ships[num_trade_ships].death_animation = -1.0;
+  trade_ships[num_trade_ships].moving = 0;
   for (int i = 0; i < 20; i++) {
     trade_ships[num_trade_ships].desc[i] = merch_name[i];
   }
@@ -162,6 +163,7 @@ void trade_ship_pathfind(TRADE_SHIP *ship) {
                  movement);
   glm_vec2_add(movement, ship_world, ship_world);
   world_to_chunk(ship_world, ship->chunk_coords, ship->coords);
+  ship->moving = 1;
 }
 
 int trade_ship_active(unsigned int index) {

@@ -85,6 +85,7 @@ void exploration_movement(GLFWwindow *window) {
                   world_coords);
   }
 
+  e_player.moving = 0;
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
     vec2 movement = GLM_VEC2_ZERO_INIT;
     if (e_player.embarked) {
@@ -92,6 +93,7 @@ void exploration_movement(GLFWwindow *window) {
       glm_vec2_add(movement, world_coords, world_coords);
       world_to_chunk(world_coords, e_player.ship_chunk,
                      e_player.ship_coords);
+      e_player.moving = 1;
     } else {
         glm_vec2_scale(e_player.direction, delta_time * e_player.speed, movement);
         glm_vec2_add(movement, world_coords, world_coords);
@@ -106,6 +108,7 @@ void exploration_movement(GLFWwindow *window) {
       glm_vec2_sub(world_coords, movement, world_coords);
       world_to_chunk(world_coords, e_player.ship_chunk,
                      e_player.ship_coords);
+      e_player.moving = 1;
     } else {
       glm_vec2_scale(e_player.direction, delta_time, movement);
       glm_vec2_sub(world_coords, movement, world_coords);
@@ -147,7 +150,8 @@ void exploration_movement(GLFWwindow *window) {
     holding_interaction = 0;
   }
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS && !holding_esc) {
-    if (!trade.ui_button_trade->enabled && !dialog.ui_text_name->enabled) {
+    if (!trade.ui_button_trade->enabled && !dialog.ui_text_name->enabled &&
+        !container_menu_open && !reassignment_menu_open) {
       if (save_menu_opened()) {
         close_save_menu();
       } else {

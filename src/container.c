@@ -51,3 +51,20 @@ int move_item(I_SLOT *to, I_SLOT *from) {
   }
   return 0;
 }
+
+int move_all_item(I_SLOT *to, I_SLOT *from) {
+  if ((from->item_id == EMPTY || from->quantity == 0) ||
+      (to->item_id != from->item_id && to->item_id != EMPTY)) {
+    return -1;
+  }
+
+  if (to->item_id == EMPTY) {
+    to->quantity = 0;
+  }
+  to->item_id = from->item_id;
+  to->quantity += from->quantity;
+
+  from->item_id = EMPTY;
+  from->quantity = 0;;
+  return 0;
+}

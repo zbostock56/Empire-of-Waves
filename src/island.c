@@ -67,12 +67,6 @@ int generate_island(ISLAND *island) {
     island->merchant.relationship = 0.0;
     island->merchant.has_trade_route = 0;
   }
-
-  // TODO Create island texture buffer from preloaded tile texture buffers
-  unsigned char tile_colors[I_WIDTH * I_WIDTH][3];
-  populate_tile_pixel_buffer(island, tile_colors);
-  island->texture = texture_from_buffer((unsigned char *) tile_colors,
-                                        I_WIDTH, I_WIDTH, GL_RGB);
   return 0;
 }
 
@@ -166,63 +160,6 @@ void populate_tiles(ISLAND *island, float (*pnoise)[I_WIDTH]) {
   }
 }
 
-void populate_tile_pixel_buffer(ISLAND *island,
-                                unsigned char (*tile_colors)[3]) {
-  int texel_y = 0;
-  int texture_index = 0;
-  for (int i = 0; i < I_WIDTH * I_WIDTH; i++) {
-    texel_y = (I_WIDTH - 1) - (i / I_WIDTH);
-    texture_index = (I_WIDTH * texel_y) + (i % I_WIDTH);
-    if (island->tiles[texture_index] == MERCH) {
-      #if 1
-      tile_colors[i][0] = 255;
-      tile_colors[i][1] = 0;
-      tile_colors[i][2] = 0;
-      #endif
-      /* NOTE: Not rendering merchant debug tile */
-      #if 0
-      tile_colors[i][0] = 4;
-      tile_colors[i][1] = 209;
-      tile_colors[i][2] = 38;
-      #endif
-    } else if (island->tiles[texture_index] == ROCK) {
-      tile_colors[i][0] = 99;
-      tile_colors[i][1] = 87;
-      tile_colors[i][2] = 67;
-    } else if (island->tiles[texture_index] == GRASS) {
-      tile_colors[i][0] = 4;
-      tile_colors[i][1] = 209;
-      tile_colors[i][2] = 38;
-    } else if (island->tiles[texture_index] == SAND) {
-      tile_colors[i][0] = 252;
-      tile_colors[i][1] = 243;
-      tile_colors[i][2] = 162;
-    } else if (island->tiles[texture_index] == SHORE) {
-      tile_colors[i][0] = 3;
-      tile_colors[i][1] = 235;
-      tile_colors[i][2] = 252;
-    } else if (island->tiles[texture_index] == OCEAN) {
-      tile_colors[i][0] = 3;
-      tile_colors[i][1] = 157;
-      tile_colors[i][2] = 252;
-    } else if (island->tiles[texture_index] == HOME) {
-      /*
-      tile_colors[i][0] = 255;
-      tile_colors[i][1] = 0;
-      tile_colors[i][2] = 255;
-      */
-      /* NOTE: Note rendering home debug tile */
-      tile_colors[i][0] = 4;
-      tile_colors[i][1] = 209;
-      tile_colors[i][2] = 38;
-    } else if (island->tiles[texture_index] == CHEST) {
-      tile_colors[i][0] = 4;
-      tile_colors[i][1] = 209;
-      tile_colors[i][2] = 38;
-    }
-  }
-}
-
 /*
   Reponsible for determining if a merchant will spawn, then
   putting it in its respective location if one will be spawning.
@@ -277,3 +214,4 @@ void merchant_generate(MERCHANT *merchant, ISLAND *island) {
   }
   return;
 }
+

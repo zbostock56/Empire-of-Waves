@@ -774,18 +774,18 @@ void on_click_ui_listing(void *listing_ui_index) {
 
 /* Render buy menu, called by dialog "buy" button */
 void open_buy() {
-  close_dialog();
   if (set_trade(dialog.merchant, WITH_ITEM)) {
     open_trade();
   }
+  close_dialog();
 }
 
 /* Render sell menu, called by dialog "sell" button */
 void open_sell() {
-  close_dialog();
   if (set_trade(dialog.merchant, WITH_ITEM)) {
     open_trade();
   }
+  close_dialog();
 }
 
 /* Click lisnter of establish trade route button */

@@ -27,6 +27,7 @@ typedef struct exploration_enemy {
   unsigned int crew_count;
   float speed;
   bool on_path;
+  int moving;
 } E_ENEMY;
 
 /*

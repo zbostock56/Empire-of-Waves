@@ -1,9 +1,12 @@
 #include <render.h>
 
+// TODO Error checking for shader, model, texture, font, etc.. importing
+// - Program will crash if assets do not exist
+
 void init_scene() {
   // TEST MODELS
-    unsigned char ocean_buffer[3] = { 3, 157, 252 };
-    ocean_texture = texture_from_buffer(ocean_buffer, 1, 1, GL_RGB);
+  //  unsigned char ocean_buffer[3] = { 3, 157, 252 };
+  //  ocean_texture = texture_from_buffer(ocean_buffer, 1, 1, GL_RGB);
   // END TEST
 
   // Initialize offscreen framebuffer
@@ -14,7 +17,9 @@ void init_scene() {
   color_shader = shader_init(vertex_shader, fragment_shader_color);
   pixel_shader = shader_init(vertex_shader, fragment_shader_pixelated);
   text_shader = shader_init(vertex_shader, fragment_shader_text);
+  ripple_shader = shader_init(vertex_shader, fragment_shader_ripple);
   chunk_shader = shader_init(vertex_shader, fragment_shader_chunk);
+  island_shader = shader_init(vertex_shader, fragment_shader_island);
 
   // Initialize models
   player = load_model("assets/player.bin", "assets/3A.png");
@@ -142,10 +147,7 @@ void init_scene() {
     }
   }
 
-  // TODO: Initiallize tile texture buffers
-
   // Setup perspective matrices
-  //float aspect_ratio = ((float) RES_X) / ((float) RES_Y);
   glm_ortho(-1.0, 1.0, -1.0, 1.0, 0.0, 100.0, ortho_proj);
   glm_perspective(glm_rad(45.0f), ((float) RES_X) / ((float) RES_Y), 0.1,
                   100.0, persp_proj);
@@ -191,13 +193,13 @@ void render_scene(GLFWwindow *window) {
     render_player_ship();
 
     for (unsigned int i = 0; i < num_trade_ships; i++) {
-      render_trade_ship(trade_ships + i);
+      render_trade_ship(trade_ships + i, trade_ships[i].cur_chunk_index);
     }
 
     for (int i = 0; i < 9; i++) {
       CHUNK *cur_chunk = chunk_buffer + player_chunks[i];
       for (int j = 0; j < cur_chunk->num_enemies; j++) {
-        render_enemy_ship(cur_chunk->enemies + j);
+        render_enemy_ship(cur_chunk->enemies + j, player_chunks[i]);
       }
       for (int j = 0; j < cur_chunk->num_islands; j++) {
         if (cur_chunk->islands[j].has_merchant) {
@@ -229,7 +231,6 @@ void render_scene(GLFWwindow *window) {
         health_bar_position[1]+= 2.7*T_WIDTH;
         render_health_bar_filled(health_bar_position, npc_units[i].max_life, npc_units[i].life);
         render_health_bar_background(health_bar_position);
-        
       }
     }
 
@@ -320,18 +321,22 @@ void render_player_ship() {
 
   render_fbo_entity(player_ship, fbo_model_mat, model_mat, fbo_view_mat,
                     view_mat, persp_proj, ortho_proj);
+  render_ripple(player_chunks[PLAYER_CHUNK], e_player.ship_coords,
+                e_player.ship_direction, e_player.moving);
 }
 
-void render_enemy_ship(E_ENEMY *es) {
+void render_enemy_ship(E_ENEMY *es, unsigned int chunk) {
   render_e_npc(enemy_ship, es->chunk, es->coords, es->direction, 0.70);
+  render_ripple(chunk, es->coords, es->direction, es->moving);
 }
 
-void render_trade_ship(TRADE_SHIP *ts) {
+void render_trade_ship(TRADE_SHIP *ts, unsigned int chunk) {
   float scale = 0.5;
   if (ts->death_animation >= 0.0) {
     scale = scale * ts->death_animation;
   }
   render_e_npc(trade_ship, ts->chunk_coords, ts->coords, ts->direction, scale);
+  render_ripple(chunk, ts->coords, ts->direction, ts->moving);
 }
 
 void render_player() {
@@ -402,7 +407,7 @@ void render_e_npc(MODEL *model, ivec2 chunk, vec2 coords, vec2 direction,
   chunk_to_world(chunk, coords, world_coords);
   glm_translate(model_mat, world_coords);
   glm_scale_uni(model_mat, FBO_QUAD_WIDTH * T_WIDTH / 2.0);
-  glm_translate_y(model_mat, 0.1);
+  //glm_translate_y(model_mat, 0.1);
 
   mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
   vec3 player_world_coords = GLM_VEC2_ZERO_INIT;
@@ -621,7 +626,7 @@ void render_text(char *text, int text_len, mat4 text_model) {
   // Render each character of the text
   for (unsigned int i = 0; i < text_len; i++) {
     int char_index = text[i] - ' ';
-    if (text[i] < ' ') {
+    if (text[i] < ' ' || char_index >= FONT_LEN) {
       char_index = ' ';
     }
 
@@ -668,6 +673,88 @@ void render_fbo_entity(
   set_mat4("proj", proj, pixel_shader);
   quad->texture = entity_framebuffer.color_texture;
   draw_model(quad, pixel_shader);
+}
+
+void render_ripple(unsigned int chunk_index, vec2 chunk_coords, vec2 direction,
+                   int moving) {
+  unsigned int num_tiles = RIPPLE_WIDTH * RIPPLE_WIDTH;
+  int tiles[num_tiles];
+  ivec2 top_left = {
+    chunk_coords[0] - (RIPPLE_WIDTH / 2),
+    chunk_coords[1] - (RIPPLE_WIDTH / 2)
+  };
+  vec2 cur_tile = GLM_VEC2_ZERO_INIT;
+  for (int i = 0; i < num_tiles; i++) {
+    cur_tile[0] = top_left[0] + (i % RIPPLE_WIDTH);
+    cur_tile[1] = top_left[1] + (i / RIPPLE_WIDTH);
+    tiles[i] = get_tile(chunk_index, cur_tile);
+  }
+
+  vec3 world_coords = {
+    top_left[0] + (RIPPLE_WIDTH / 2),
+    top_left[1] + (RIPPLE_WIDTH / 2),
+    EFFECT_DEPTH
+  };
+  chunk_to_world(chunk_buffer[chunk_index].coords, world_coords, world_coords);
+  mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+  glm_translate(model_mat, world_coords);
+  glm_scale_uni(model_mat, 0.5 * T_WIDTH * RIPPLE_WIDTH);
+
+  mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+  vec3 player_world_coords = GLM_VEC2_ZERO_INIT;
+  if (e_player.embarked) {
+    chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
+                   player_world_coords);
+  } else {
+    chunk_to_world(e_player.chunk, e_player.coords, player_world_coords);
+  }
+  glm_vec3_negate(player_world_coords);
+  glm_translate(view_mat, player_world_coords);
+
+  vec2 ship_pos = {
+    (chunk_coords[0] - top_left[0]) / RIPPLE_WIDTH,
+    (chunk_coords[1] - top_left[1]) / RIPPLE_WIDTH
+  };
+
+  // Calculate matrix to rotate vectors to coordinate space where the ship's
+  // direction is the y vector
+  vec3 ship_z = { 0.0, 0.0, 1.0 };
+  vec3 ship_y = GLM_VEC3_ZERO_INIT;
+  vec3 ship_x = GLM_VEC3_ZERO_INIT;
+  glm_vec2_normalize_to(direction, ship_y);
+  // In tile chunk coordinates, the y direction is downward, so we must negate
+  // the ship direction in the y
+  ship_y[1] *= -1.0;
+  glm_vec3_cross(ship_y, ship_z, ship_x);
+  mat4 ship_rot = GLM_MAT4_IDENTITY_INIT;
+  glm_vec3_copy(ship_x, ship_rot[0]);
+  glm_vec3_copy(ship_y, ship_rot[1]);
+  glm_vec3_copy(ship_z, ship_rot[2]);
+
+  /*
+  printf("dir: (%.2f, %.2f)\n", e_player.ship_direction[0],
+         e_player.ship_direction[1]);
+  for (int i = 0; i < 4; i++) {
+    printf("|%.1f, %.1f, %.1f, %.1f|\n",
+           ship_rot[i][0],
+           ship_rot[i][1],
+           ship_rot[i][2],
+           ship_rot[i][3]);
+  }
+  printf("\n");
+  fflush(stdout);
+  */
+
+  glUseProgram(ripple_shader);
+  set_mat4("model", model_mat, ripple_shader);
+  set_mat4("view", view_mat, ripple_shader);
+  set_mat4("proj", ortho_proj, ripple_shader);
+  set_mat4("ship_rot", ship_rot, ripple_shader);
+  set_vec2("ship_pos", ship_pos, ripple_shader);
+  set_iarr("tiles", tiles, num_tiles, ripple_shader);
+  set_float("time", glfwGetTime(), ripple_shader);
+  set_int("moving", moving, ripple_shader);
+  draw_model(quad, ripple_shader);
 }
 
 void render_chunk(ivec2 chunk) {
@@ -718,21 +805,47 @@ void render_chunk(ivec2 chunk) {
   set_mat4("proj", ortho_proj, color_shader);
   draw_model(quad, color_shader);
   */
+  /*
   glUseProgram(std_shader);
   set_mat4("model", model_mat, std_shader);
   set_mat4("view", view_mat, std_shader);
   set_mat4("proj", ortho_proj, std_shader);
-  /*
+  quad->texture = ocean_texture;
+  draw_model(quad, std_shader);
+  */
+  float threshold = (H*sin((2*PI/WAVE_PERIOD) * glfwGetTime()))+K;
+  if (((threshold >= K+H && threshold <= K+H+0.0001) ||
+      (threshold <= K+H && threshold >= K+H-0.0001)) && !incremented_1) {
+    incremented_1 = 1;
+    wave_offset_1 += C;
+    if (wave_offset_1 >= 20.0) {
+      wave_offset_1 = 0.0;
+    }
+  } else if (!(threshold >= K+H && threshold <= K+H+0.0001) &&
+             !(threshold <= K+H && threshold >= K+H-0.0001)) {
+    incremented_1 = 0;
+  }
+  if (((threshold >= K-H && threshold <= K-H+0.0001) ||
+      (threshold <= K-H && threshold >= K-H-0.0001)) && !incremented_2) {
+    incremented_2 = 1;
+    wave_offset_2 += C;
+    if (wave_offset_1 >= 20.0) {
+      wave_offset_1 = 0.0;
+    }
+  } else if (!(threshold >= K-H && threshold <= K-H+0.0001) &&
+             !(threshold <= K-H && threshold >= K-H-0.0001)) {
+    incremented_2 = 0;
+  }
+
   glUseProgram(chunk_shader);
   set_mat4("model", model_mat, chunk_shader);
   set_mat4("view", view_mat, chunk_shader);
   set_mat4("proj", ortho_proj, chunk_shader);
-  glUniform1f(glGetUniformLocation(chunk_shader, "chunk"), c_val);
-  quad->texture = ocean_texture;
+  set_float("threshold", threshold, chunk_shader);
+  set_float("offset_1", wave_offset_1, chunk_shader);
+  set_float("offset_2", wave_offset_2, chunk_shader);
+  //set_float("chunk", c_val, chunk_shader);
   draw_model(quad, chunk_shader);
-  */
-  quad->texture = ocean_texture;
-  draw_model(quad, std_shader);
 }
 
 void render_island(ISLAND *island) {
@@ -757,12 +870,12 @@ void render_island(ISLAND *island) {
   glm_vec3_negate(player_world_coords);
   glm_translate(view_mat, player_world_coords);
 
-  glUseProgram(std_shader);
-  set_mat4("model", model_mat, std_shader);
-  set_mat4("view", view_mat, std_shader);
-  set_mat4("proj", ortho_proj, std_shader);
-  quad->texture = island->texture;
-  draw_model(quad, std_shader);
+  glUseProgram(island_shader);
+  set_mat4("model", model_mat, island_shader);
+  set_mat4("view", view_mat, island_shader);
+  set_mat4("proj", ortho_proj, island_shader);
+  set_iarr("tiles", (int *) island->tiles, I_WIDTH * I_WIDTH, island_shader);
+  draw_model(quad, island_shader);
 
   if (island->chunk[0] == 0 && island->chunk[1] == 0) {
     glm_mat4_identity(model_mat);
@@ -1045,10 +1158,33 @@ void set_vec4(char *name, vec4 matrix, unsigned int shader) {
   glUniform4fv(glGetUniformLocation(shader, name), 1, (float *) matrix);
 }
 
-void set_vec3(char *name, vec3 matrix, unsigned int shader) {
-  glUniform3fv(glGetUniformLocation(shader, name), 1, (float *) matrix);
+void set_vec3(char *name, vec3 v, unsigned int shader) {
+  glUniform3fv(glGetUniformLocation(shader, name), 1, (float *) v);
+}
+
+void set_vec2(char *name, vec2 v, unsigned int shader) {
+  glUniform2fv(glGetUniformLocation(shader, name), 1, (float *) v);
 }
 
 void set_float(char *name, float val, unsigned int shader) {
   glUniform1f(glGetUniformLocation(shader, name), val);
+}
+
+void set_int(char *name, int val, unsigned int shader) {
+  glUniform1i(glGetUniformLocation(shader, name), val);
+}
+
+void set_uint(char *name, unsigned int val, unsigned int shader) {
+  glUniform1ui(glGetUniformLocation(shader, name), val);
+}
+
+void set_iarr(char *name, int *arr, unsigned int count, unsigned int shader) {
+  glUniform1iv(glGetUniformLocation(shader, name), count, arr);
+}
+
+void set_texture(char *name, unsigned int tex, unsigned int shader, int unit) {
+  glUseProgram(shader);
+  glActiveTexture(GL_TEXTURE0 + unit);
+  glBindTexture(GL_TEXTURE_2D, tex);
+  glUniform1i(glGetUniformLocation(shader, name), unit);
 }

@@ -580,7 +580,6 @@ int chunk_from_disk(char *chunk_path, CHUNK *dest) {
         if (dest->islands[j].has_merchant) {
           free(dest->islands[j].merchant.listings);
         }
-        glDeleteTextures(1, &dest->islands[j].texture);
       }
       fclose(file);
       return -1;
@@ -603,12 +602,6 @@ int load_island(FILE *file, ISLAND *dest) {
       return -1;
     }
   }
-
-  // TODO Create island texture buffer from preloaded tile texture buffers
-  unsigned char tile_colors[I_WIDTH * I_WIDTH][3];
-  populate_tile_pixel_buffer(dest, tile_colors);
-  dest->texture = texture_from_buffer((unsigned char *) tile_colors, I_WIDTH,
-                                      I_WIDTH, GL_RGB);
 
   return 0;
 }

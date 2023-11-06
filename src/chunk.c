@@ -123,7 +123,6 @@ void free_chunk(CHUNK *chunk) {
     if (chunk->islands[i].has_merchant) {
       free(chunk->islands[i].merchant.listings);
     }
-    glDeleteTextures(1, &chunk->islands[i].texture);
   }
   free(chunk->enemies);
   chunk->coords[0] = 0xBAADF00D;
@@ -292,7 +291,6 @@ int generate_chunk(CHUNK *chunk) {
         if (chunk->islands[j].has_merchant) {
           free(chunk->islands[j].merchant.listings);
         }
-        glDeleteTextures(1, &chunk->islands[j].texture);
       }
       free(chunk->enemies);
       return -1;
@@ -468,10 +466,6 @@ void place_home(ISLAND *island, CHUNK *home_chunk) {
       }
     }
   }
-  unsigned char tile_colors[I_WIDTH * I_WIDTH][3];
-  populate_tile_pixel_buffer(&home_chunk->islands[0], tile_colors);
-  home_chunk->islands[0].texture = texture_from_buffer((unsigned char *) tile_colors,
-                                                      I_WIDTH, I_WIDTH, GL_RGB);
   island->has_merchant = 0;
 }
 

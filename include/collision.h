@@ -71,3 +71,4 @@ void knockback(C_UNIT *);
 void close_container();
 unsigned int trade_ship_active();
 void give_player_copper(unsigned int);
+int save_menu_open();
