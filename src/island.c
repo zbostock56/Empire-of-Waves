@@ -174,47 +174,126 @@ void populate_tiles(ISLAND *island, float (*pnoise)[I_WIDTH]) {
 }
 
 /*
+  Spawns a new item for every island that
+  is currently being simulated. If an island
+  already has its item_tile's buffer full,
+  an item is replaced out of the buffer randomly
+*/
+void spawn_new_items() {
+  CHUNK *chunk;
+  ISLAND *island;
+  for (int i = 0; i < CHUNKS_SIMULATED; i++) {
+    chunk = chunk_buffer + player_chunks[i];
+    for (int j = 0; j < chunk->num_islands; j++) {
+      island = chunk->islands + j;
+      for (int k = 0; k < island->num_items; k++) {
+        /* If item has an item_tile that is not populated */
+        /* then populate it. Otherwise, discard item_tile */
+        /* randomly and replace with new resource         */
+        if (island->item_tiles[k].quantity == 0) {
+          int *tile_info = find_rand_tile(island, RETRIES_NEW_ITEM);
+          if (tile_info[0] == 0) {
+            /* Not duplicate location */
+            island->item_tiles[k].position[0] = (float) tile_info[1];
+            island->item_tiles[k].position[1] = (float) tile_info[2];
+            island->item_tiles[k].quantity = 1;
+            item_rng(island->item_tiles + k);
+          } else if (tile_info[0] == 1) {
+            /* Duplicate location */
+            island->item_tiles[tile_info[3]].quantity++;
+          }
+          free(tile_info);
+          break;
+        } else if (k == island->num_items - 1) {
+          /* Unable to find open item_tile */
+          int replacement = rand() % island->num_items;
+          ITEM_TILES *tile = island->item_tiles + replacement;
+          if (tile->quantity < 1) {
+            fprintf(stderr, "Island.c: Item respawning found item tile without existing item\n");
+            exit(1);
+          }
+          tile->quantity = 1;
+          item_rng(tile);
+          break;
+        }
+      }
+    }
+  }
+}
+
+/*
+  Helper routine to find an open tile, figure out
+  if it has duplicates with other tiles, and
+  return the location of the tile to modify
+  and if it is a duplicate
+
+  Return buffer structure:
+  [0]: Duplicate (0 == FALSE, 1 == TRUE)
+  [1]: X location of tile
+  [2]: Y location of tile
+  [3]: item_tile number
+*/
+int *find_rand_tile(ISLAND *island, int bound) {
+  /* Freed in respective other helper functions  */
+  int *info = (int *) malloc(sizeof(int) * 4);
+  int rand_tile;
+  /* Set defaults of return */
+  info[0] = -1;
+  info[1] = -1;
+  info[2] = -1;
+  info[3] = -1;
+  for (int i = 0; i < bound; i++) {
+    rand_tile = rand() % (I_WIDTH * I_WIDTH);
+    if (island->tiles[rand_tile] == SAND ||
+        island->tiles[rand_tile] == GRASS ||
+        island->tiles[rand_tile] == ROCK) {
+      float xloc = (float) (rand_tile % I_WIDTH);
+      float yloc = (float) (rand_tile / I_WIDTH);
+      int j = 0;
+      while (j < island->num_items) {
+        if (island->item_tiles[j].position[0] == xloc &&
+            island->item_tiles[j].position[1] == yloc) {
+          /* Found position is duplicate */
+          info[0] = 1;
+          info[3] = j;
+          return info;
+        }
+        j++;
+      }
+      /* Not a duplicate location */
+      info[0] = 0;
+      info[1] = (int) xloc;
+      info[2] = (int) yloc;
+      return info;
+    }
+  }
+  return info;
+}
+
+/*
   Items have a 0.1% chance on spawning on each tile, given
   that the tile is a land tile
 */
 void spawn_items(ISLAND *island) {
   int num_potential_items = (int) ((float) I_WIDTH * (float) I_WIDTH * ITEM_SPAWN_CHANCE);
   /* Choose random tiles for the number of potential items that can spawn */
-  int rand_tile;
-  int retry = 0;
   for (int i = 0; i < num_potential_items; i++) {
-    rand_tile = rand() % (I_WIDTH * I_WIDTH);
-    if ((island->tiles[rand_tile] == SAND ||
-        island->tiles[rand_tile] == GRASS ||
-        island->tiles[rand_tile] == ROCK) &&
-        retry < RETRIES &&
-        island->item_tiles[island->num_items].quantity == 0) {
-      /* Found open land tile */
-      island->item_tiles[island->num_items].position[0] = (float) (rand_tile % I_WIDTH);
-      island->item_tiles[island->num_items].position[1] = (float) (rand_tile / I_WIDTH);
-      island->item_tiles[island->num_items].type = island->tiles[rand_tile];
-      island->item_tiles[island->num_items].quantity++;
+    int *tile_info = find_rand_tile(island, RETRIES);
+    if (tile_info[0] == 0) {
+      /* Not duplicate location */
+      island->item_tiles[island->num_items].position[0] = (float) tile_info[1];
+      island->item_tiles[island->num_items].position[1] = (float) tile_info[2];
+      island->item_tiles[island->num_items].quantity = 1;
       item_rng(island->item_tiles + island->num_items);
       island->num_items++;
-      retry = 0;
-    } else if ((island->tiles[rand_tile] == SAND ||
-                island->tiles[rand_tile] == GRASS ||
-                island->tiles[rand_tile] == ROCK) &&
-                retry < RETRIES &&
-                island->item_tiles[island->num_items].quantity > 0) {
-      /* Tile already has something there */
-      /* Increment the item that is stored there */
-      /* to indicate that another item has spawned there */
-      island->item_tiles[island->num_items].quantity++;
-      retry = 0;
-    } else if (retry >= RETRIES) {
-      /* Retries exhausted */
-      retry = 0;
-    } else {
-      /* Retry item placement if did not find land tile */
-      retry++;
-      --i;
+    } else if (tile_info[0] == 1) {
+      /* Duplicate location */
+      island->item_tiles[tile_info[3]].quantity++;
     }
+    free(tile_info);
+  }
+  if (island->num_items < num_potential_items) {
+      island->num_items = num_potential_items;
   }
 }
 
@@ -361,7 +440,7 @@ void merchant_generate(MERCHANT *merchant, ISLAND *island) {
       island->tiles[tile_location] = MERCH;
       merchant->num_mercenaries = ((unsigned int) rand()) % MAX_MERCENARIES;
       /* Index of the global names array defined in merchant.h */
-      merchant->name = ((unsigned int) generate_rand()) % NUM_NAMES;
+      merchant->name = ((unsigned int) rand()) % NUM_NAMES;
       found_location = 1;
     }
   }

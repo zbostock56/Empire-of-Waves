@@ -15,17 +15,19 @@ so that the graphics side can render the islands in the viewport.
 #include <glad/glad.h>
 #include <chunk_str.h>
 #include <items.h>
+#include <globals.h>
 
 /* DEFINES */
-#define FREQ          (0.05)
-#define DEPTH         (3)
-#define X             (0)
-#define Y             (1)
-#define MAX_INT       (2147483647)
-#define MAX_INT_FLOAT (2147483647.0)
-#define TRUE          (1)
-#define FALSE         (0)
-#define RETRIES       (3)
+#define FREQ             (0.05)
+#define DEPTH            (3)
+#define X                (0)
+#define Y                (1)
+#define MAX_INT          (2147483647)
+#define MAX_INT_FLOAT    (2147483647.0)
+#define TRUE             (1)
+#define FALSE            (0)
+#define RETRIES          (3)
+#define RETRIES_NEW_ITEM (10)
 
 /* PROTOTYPES */
 /* perlin.h */
@@ -42,6 +44,8 @@ unsigned int texture_from_buffer(unsigned char *, int, int, int);
 void spawn_items(ISLAND *);
 void item_rng(ITEM_TILES *);
 void init_resource_buffer(ISLAND *);
+void spawn_new_items();
+int *find_rand_tile(ISLAND *, int);
 
 /* MACROS */
 /* Safe-guard for the chances if tile_location is */

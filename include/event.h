@@ -26,9 +26,11 @@ void close_prompt();
 void init_menu(vec2, void (*)(void *), void (*)(void *), void *, void *,
                char *, int, int, unsigned int, float, float, float, float,
                PIVOT, TEXT_ANCHOR, UI_COMPONENT *);
+void spawn_new_items();
 
 /* ================ INTERNALLY DEFINED FUNCTIONS ================== */
 void update_event_timer();
 void spawn_event();
 void update_timers();
 float decrement_timer(float);
+void item_respawn_event();
