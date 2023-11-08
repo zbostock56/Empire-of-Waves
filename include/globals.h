@@ -22,6 +22,9 @@ extern CHUNK *chunk_buffer;
 extern unsigned int chunk_buff_size;
 extern unsigned int chunk_buff_len;
 
+// Index to chunk in chunk_buffer which represents the persistant home chunk
+extern unsigned int home_chunk;
+
 extern E_PLAYER e_player;
 // Indexs to chunks in chunk_buffer which represent the chunks loaded by the
 // player
