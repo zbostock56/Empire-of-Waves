@@ -115,10 +115,7 @@ void update_trade_ships() {
 
       // Spawn prompt to show that trade ship was plundered
       prompt_plundered_trade_ship();
-      target_island->merchant.relationship -= 10.0;
-      if (target_island->merchant.relationship < -100.0) {
-        target_island->merchant.relationship = -100.0;
-      }
+      update_relationship(&target_island->merchant, -10.0);
       i--;
     }
     /*

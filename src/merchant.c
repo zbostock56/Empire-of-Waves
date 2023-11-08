@@ -128,3 +128,21 @@ unsigned int calc_merc_price(MERCHANT *merchant) {
   return ((MAX_MERCENARIES - merchant->num_mercenaries) * 0.25 *
            MERC_BASE_PRICE) + MERC_BASE_PRICE;
 }
+
+void update_relationship(MERCHANT *merchant, float delta) {
+  merchant->relationship += delta;
+  if (merchant->relationship > REL_MAX) {
+    merchant->relationship = REL_MAX;
+  }
+  if (merchant->relationship < REL_MIN) {
+    merchant->relationship = REL_MIN;
+  }
+
+  e_player.reputation += delta;
+  if (e_player.reputation > REP_MAX) {
+    e_player.reputation = REP_MAX;
+  }
+  if (e_player.reputation < REP_MIN) {
+    e_player.reputation = REP_MIN;
+  }
+}
