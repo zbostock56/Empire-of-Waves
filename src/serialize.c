@@ -524,6 +524,7 @@ void save_island(FILE *file, ISLAND *island) {
   fwrite(island->chunk, sizeof(int), 2, file);
   fwrite(island->coords, sizeof(int), 2, file);
   fwrite(island->tiles, sizeof(TILE), I_WIDTH * I_WIDTH, file);
+  fwrite(island->item_tiles, sizeof(ITEM_TILES), 262, file);
   fwrite(&island->has_merchant, sizeof(int), 1, file);
   if (island->has_merchant) {
     save_merchant(file, &island->merchant);
@@ -594,6 +595,7 @@ int load_island(FILE *file, ISLAND *dest) {
   fread(dest->chunk, sizeof(int), 2, file);
   fread(dest->coords, sizeof(int), 2, file);
   fread(dest->tiles, sizeof(TILE), I_WIDTH * I_WIDTH, file);
+  fread(dest->item_tiles, sizeof(ITEM_TILES), 262, file);
   fread(&dest->has_merchant, sizeof(int), 1, file);
   int status  = 0;
   if (dest->has_merchant) {
