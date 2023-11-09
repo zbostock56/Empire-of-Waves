@@ -603,6 +603,11 @@ int load_island(FILE *file, ISLAND *dest) {
     }
   }
 
+  status = gen_island_texture(dest);
+  if (status) {
+    return -1;
+  }
+
   return 0;
 }
 

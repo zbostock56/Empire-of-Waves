@@ -18,6 +18,7 @@ reads/manipulates chunks and/or islands.
 #define MAX_ISLANDS (2) // Max islands per chunk
 #define CHUNKS_SIMULATED (9)
 #define STARTING_BUFF_SIZE (32)
+#define NUM_TILE_CHANNELS (4)
 
 // Macros specifying index names for player_chunks
 #define CHUNK_UPPER_LEFT (0)
@@ -53,6 +54,7 @@ typedef struct island {
   TILE tiles[I_WIDTH * I_WIDTH];
   MERCHANT merchant;
   int has_merchant;
+  unsigned int texture;
 } ISLAND;
 
 typedef struct chunk {
