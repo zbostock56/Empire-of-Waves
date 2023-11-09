@@ -12,6 +12,52 @@ void init_scene() {
   // Initialize offscreen framebuffer
   entity_framebuffer = framebuffer_init();
 
+  // Create Resource Textures
+  resource_textures[get_resource_value_by_ID(INVALID_REC)] = 
+     gen_texture("assets/resources/invalid.png");
+  resource_textures[get_resource_value_by_ID(GRAIN)] = 
+     gen_texture("assets/resources/grain.png");
+  resource_textures[get_resource_value_by_ID(COTTON)] = 
+     gen_texture("assets/resources/cotton.png");
+  resource_textures[get_resource_value_by_ID(WOOL)] = 
+     gen_texture("assets/resources/wool.png");
+  resource_textures[get_resource_value_by_ID(DYES)] = 
+     gen_texture("assets/resources/dyes.png");
+  resource_textures[get_resource_value_by_ID(SUGAR)] = 
+     gen_texture("assets/resources/sugar.png");
+  resource_textures[get_resource_value_by_ID(LEATHER)] = 
+     gen_texture("assets/resources/leather.png");
+  resource_textures[get_resource_value_by_ID(CHEESE)] = 
+     gen_texture("assets/resources/cheese.png");
+  resource_textures[get_resource_value_by_ID(IRON_ORE)] = 
+     gen_texture("assets/resources/iron_ore.png");
+  resource_textures[get_resource_value_by_ID(WINE)] = 
+     gen_texture("assets/resources/wine.png");
+  resource_textures[get_resource_value_by_ID(COPPER_ORE)] = 
+     gen_texture("assets/resources/copper_ore.png");
+  resource_textures[get_resource_value_by_ID(SPICE)] = 
+     gen_texture("assets/resources/spice.png");
+  resource_textures[get_resource_value_by_ID(HERB)] = 
+     gen_texture("assets/resources/herb.png");
+  resource_textures[get_resource_value_by_ID(TEA)] = 
+     gen_texture("assets/resources/tea.png");
+  resource_textures[get_resource_value_by_ID(SILVER_ORE)] = 
+     gen_texture("assets/resources/silver_ore.png");
+  resource_textures[get_resource_value_by_ID(PORCELAIN)] = 
+     gen_texture("assets/resources/porcelain.png");
+  resource_textures[get_resource_value_by_ID(SILK)] = 
+     gen_texture("assets/resources/silk.png");
+  resource_textures[get_resource_value_by_ID(PEARL)] = 
+     gen_texture("assets/resources/pearl.png");
+  resource_textures[get_resource_value_by_ID(GOLD_ORE)] = 
+     gen_texture("assets/resources/gold_ore.png");
+  resource_textures[get_resource_value_by_ID(SAFFRON)] = 
+     gen_texture("assets/resources/saffron.png");
+  resource_textures[get_resource_value_by_ID(AMBERGRIS)] = 
+     gen_texture("assets/resources/ambergris.png");
+
+
+
   // Initialize shaders
   std_shader = shader_init(vertex_shader, fragment_shader_texture);
   color_shader = shader_init(vertex_shader, fragment_shader_color);
@@ -206,6 +252,14 @@ void render_scene(GLFWwindow *window) {
           render_merchant(&cur_chunk->islands[j].merchant);
         }
         render_island(cur_chunk->islands + j);
+        ISLAND *cur_island = cur_chunk->islands + j;
+        for (int k = 0; k < cur_island->num_items; k++) {
+          if (cur_island->item_tiles[k].resource != INVALID_REC) {
+            render_resource(cur_island->item_tiles[k].position,
+                            cur_island,
+                            cur_island->item_tiles[k].resource);
+          }
+        }
       }
     }
   } else {
@@ -453,6 +507,41 @@ void render_c_npc(MODEL *model, vec2 coords, vec2 direction, float scale) {
                     view_mat, persp_proj, ortho_proj);
 }
 
+void render_resource(vec2 position, ISLAND *island, REC_IDS r_type) {
+  mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+  mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+  vec3 world_coords = {0.0, 0.0, OBSTACLE_DEPTH };
+  vec2 island_tile = { 
+    island->coords[0] + position[0], 
+    island->coords[1] + position[1]
+  };
+  chunk_to_world(island->chunk, island_tile, world_coords);
+  world_coords[0] = world_coords[0] + (0.5 * 2 * T_WIDTH);
+  world_coords[1] = world_coords[1] - (0.5 * 2 * T_WIDTH);
+
+  glm_translate(model_mat, world_coords);
+  glm_scale_uni(model_mat, 0.5 * 2 * T_WIDTH);
+
+  vec3 player_world_coords = GLM_VEC2_ZERO_INIT;
+  if (e_player.embarked) {
+    chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
+                   player_world_coords);
+  } else {
+    chunk_to_world(e_player.chunk, e_player.coords, player_world_coords);
+  }
+  glm_vec3_negate(player_world_coords);
+  glm_translate(view_mat, player_world_coords);
+
+  quad->texture = resource_textures[get_resource_value_by_ID(r_type)]; 
+
+  glUseProgram(pixel_shader);
+  set_float("num_pixels", 256.0, pixel_shader);
+  set_mat4("model", model_mat, pixel_shader);
+  set_mat4("view", view_mat, pixel_shader);
+  set_mat4("proj", ortho_proj, pixel_shader);
+  draw_model(quad, pixel_shader);
+}
+
 void render_health_bar_background(vec2 position) {
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
@@ -668,6 +757,7 @@ void render_fbo_entity(
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   glUseProgram(pixel_shader);
+  set_float("num_pixels", 1024.0, pixel_shader);
   set_mat4("model", model, pixel_shader);
   set_mat4("view", view, pixel_shader);
   set_mat4("proj", proj, pixel_shader);

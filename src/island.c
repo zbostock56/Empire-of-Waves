@@ -76,10 +76,10 @@ int generate_island(ISLAND *island) {
 void init_resource_buffer(ISLAND *island) {
   for (int i = 0; i < ITEM_BUFFER_SIZE; i++) {
      island->item_tiles[i].type = OCEAN;
-     island->item_tiles[i].resource = -1;
+     island->item_tiles[i].resource = INVALID_REC;
      island->item_tiles[i].quantity = 0;
-     island->item_tiles[i].position[0] = 0.0f;
-     island->item_tiles[i].position[1] = 0.0f;
+     island->item_tiles[i].position[0] = -1.0f;
+     island->item_tiles[i].position[1] = -1.0f;
   }
 }
 
@@ -178,6 +178,12 @@ void populate_tiles(ISLAND *island, float (*pnoise)[I_WIDTH]) {
   is currently being simulated. If an island
   already has its item_tile's buffer full,
   an item is replaced out of the buffer randomly
+
+  tile_info structure:
+  [0]: Duplicate (0 == FALSE, 1 == TRUE)
+  [1]: X location of tile
+  [2]: Y location of tile
+  [3]: item_tile number
 */
 void spawn_new_items() {
   CHUNK *chunk;
@@ -198,6 +204,9 @@ void spawn_new_items() {
             island->item_tiles[k].position[1] = (float) tile_info[2];
             island->item_tiles[k].quantity = 1;
             item_rng(island->item_tiles + k);
+            if (island->item_tiles[k].resource == INVALID_REC) {
+              fprintf(stderr, "island.c: new item respawn found to be invalid resource\n");
+            }
           } else if (tile_info[0] == 1) {
             /* Duplicate location */
             island->item_tiles[tile_info[3]].quantity++;
@@ -209,11 +218,15 @@ void spawn_new_items() {
           int replacement = rand() % island->num_items;
           ITEM_TILES *tile = island->item_tiles + replacement;
           if (tile->quantity < 1) {
-            fprintf(stderr, "Island.c: Item respawning found item tile without existing item\n");
+            fprintf(stderr, "island.c: Item respawning found item tile without existing item\n");
             exit(1);
           }
           tile->quantity = 1;
           item_rng(tile);
+          if (tile->resource == INVALID_REC) {
+            fprintf(stderr, "island.c: item replacement found to be invalid resource\n");
+            exit(1);
+          }
           break;
         }
       }
@@ -273,6 +286,12 @@ int *find_rand_tile(ISLAND *island, int bound) {
 /*
   Items have a 0.1% chance on spawning on each tile, given
   that the tile is a land tile
+
+  tile_info structure:
+  [0]: Duplicate (0 == FALSE, 1 == TRUE)
+  [1]: X location of tile
+  [2]: Y location of tile
+  [3]: item_tile number
 */
 void spawn_items(ISLAND *island) {
   int num_potential_items = (int) ((float) I_WIDTH * (float) I_WIDTH * ITEM_SPAWN_CHANCE);
@@ -285,6 +304,9 @@ void spawn_items(ISLAND *island) {
       island->item_tiles[island->num_items].position[1] = (float) tile_info[2];
       island->item_tiles[island->num_items].quantity = 1;
       item_rng(island->item_tiles + island->num_items);
+      if (island->item_tiles[island->num_items].resource == INVALID_REC) {
+        fprintf(stderr, "island.c: initial item spawned found to be invalid resource\n");
+      }
       island->num_items++;
     } else if (tile_info[0] == 1) {
       /* Duplicate location */
@@ -361,33 +383,11 @@ void item_rng(ITEM_TILES *tile) {
     /* Add offset to account for REC_IDS not starting at 0 */
     tile->resource = (rand() % 2) + 11;
     break;
-    /* Silver Ore  */
-    case 4:
-    tile->resource = 13;
-    break;
-    /* Porcelain */
-    case 5:
-    tile->resource = 14;
-    break;
-    /* Silk */
-    case 6:
-    tile->resource = 15;
-    break;
-    /* Pearl */
-    case 7:
-    tile->resource = 16;
-    break;
-    /* Gold Ore */
-    case 8:
-    tile->resource = 17;
-    break;
-    /* Saffron */
-    case 9:
-    tile->resource = 18;
-    break;
-    /* Ambergris */
-    case 10:
-    tile->resource = 19;
+    /* Silver Ore, Porcelain, Silk, Pearl */
+    /* Gold Ore, Saffron, Amergris */
+    case 4: case 5: case 6: case 7:
+    case 8: case 9: case 10:
+    tile->resource = category + 9;
     break;
   }
 }
