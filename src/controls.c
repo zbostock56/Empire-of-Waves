@@ -14,6 +14,7 @@ void keyboard_input(GLFWwindow *window) {
   } else if (mode == COMBAT && !console_input_enabled) {
     combat_movement(window);
   }
+  open_stats(window);
   modifier_keys(window);
   debug_keys(window);
   if (console_input_enabled || save_input_enabled) {
@@ -293,6 +294,19 @@ void close_merchant_menu(GLFWwindow *window) {
     close_trade();
     close_mercenary_reassignment_menu();
     close_container();
+  }
+}
+
+void open_stats(GLFWwindow *window) {
+  if (!console_input_enabled && glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS && !holding_alpha[GLFW_KEY_C - GLFW_KEY_A]) {
+    holding_alpha[GLFW_KEY_C - GLFW_KEY_A] = 1;
+    if (status_menu_open) {
+      close_status_menu();
+    } else {
+      open_status_menu();
+    }
+  } else if (!console_input_enabled && glfwGetKey(window, GLFW_KEY_C) != GLFW_PRESS) {
+    holding_alpha[GLFW_KEY_C - GLFW_KEY_A] = 0;
   }
 }
 

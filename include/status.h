@@ -15,13 +15,19 @@
 
 /* GLOABALS */
 STATUS status;
-
+STATUS_MENU status_menu;
+int status_menu_open = 0;
 /* =================== INTERNALLY DEFINED FUNCTIONS ================ */
 int init_status_bar();
 void free_status();
 void update_status_bar();
 void open_status_bar();
 void close_status_bar();
+int init_status_menu();
+void free_status_menu();
+void update_status_menu();
+void open_status_menu();
+void close_status_menu();
 
 /* =================== EXTERNALLY DEFINED FUNCTIONS =============== */
 void init_menu(vec2, void (*)(void *), void (*)(void *), void *, void *,
