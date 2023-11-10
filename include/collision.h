@@ -44,7 +44,6 @@ void check_merchant_prompt(vec2);
 int detect_enemy_ships();
 void trade_ship_collision(TRADE_SHIP *);
 void attack_collision();
-int trade_ship_detect_enemies(TRADE_SHIP *, CHUNK*, int);
 
 int aabb_collision(float *, float, float, float *, float, float);
 int circle_aabb_collision(vec2, float, vec2, float, float, vec2);
@@ -72,3 +71,4 @@ void close_container();
 unsigned int trade_ship_active();
 void give_player_copper(unsigned int);
 int save_menu_open();
+void update_relationship(MERCHANT *, float);

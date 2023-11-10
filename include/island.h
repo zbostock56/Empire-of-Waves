@@ -48,3 +48,10 @@ unsigned int texture_from_buffer(unsigned char *, int, int, int);
     tile = generate_rand() % (island_width * island_width) - 1; \
   }                                                             \
 }
+
+// ======================= INTERNALLY DEFINED FUNCTIONS ======================
+
+// ======================= EXTERNALLY DEFINED FUNCTIONS ======================
+
+void chunk_to_world(ivec2, vec2, vec2);
+void world_to_chunk(vec2, ivec2, vec2);

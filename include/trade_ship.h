@@ -17,9 +17,10 @@ int chunk_from_coords(ivec2, CHUNK *);
 void chunk_to_world(ivec2, vec2, vec2);
 void world_to_chunk(vec2, ivec2, vec2);
 
-void trade_ship_steering(TRADE_SHIP *, vec2);
+void ship_steering(ivec2, vec2, vec2, CHUNK *, CHUNK *, unsigned int);
 void prompt_plundered_trade_ship();
 void update_relationship(MERCHANT *, float);
+void trade_ship_detect_enemies(TRADE_SHIP *, vec2, CHUNK*);
 
 int add_chunk(ivec2);
 int double_buffer(void **, unsigned int *, unsigned int);

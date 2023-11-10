@@ -52,6 +52,8 @@ void open_node(Node *, Node *, Node **, unsigned int *, unsigned int *);
 int add_node(Node **, unsigned int *, unsigned int *, Node *);
 void delete_node(Node *, unsigned int *, unsigned int);
 void update_enemy_chunk(E_ENEMY*, CHUNK*, int);
+void pathfind_to_chunk(E_ENEMY *, ivec2);
+void pathfind_to_shore(E_ENEMY *, CHUNK *, CHUNK *, unsigned int);
 
 /* =================== EXTERNALLY DEFINED FUNCTIONS =================== */
 
@@ -59,8 +61,11 @@ int double_buffer(void **, unsigned int *, unsigned int);
 void chunk_to_world(ivec2, vec2, vec2);
 void world_to_chunk(vec2, ivec2, vec2);
 int circle_circle_collision(vec2, float, vec2, float);
+int circle_aabb_collision(vec2, float, vec2, float, float, vec2);
 int get_tile(unsigned int chunk, vec2 coords);
 int spawn_projectile(vec2, vec2, float, UNIT_T);
 int npc_melee_attack(C_UNIT *);
 int npc_ranged_attack(C_UNIT *);
 int trade_ship_active(unsigned int);
+float dist_to_island(ivec2, vec2, ISLAND *);
+void ship_steering(ivec2, vec2, vec2, CHUNK *, CHUNK *, unsigned int);

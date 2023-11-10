@@ -169,8 +169,8 @@ void update_enemy_position(E_ENEMY *enemy) {
 }
 
 /*
-  Searches the given enemy's boundary and selects the target, pathfind towards it.
-  Currently, I will make enemy ships to halt to follow the trade ship if it's in a diff chunk
+  Searches the given enemy's boundary and selects the target, pathfind towards
+  it.
 */
 void pathfind_enemy(E_ENEMY *enemy, unsigned int enemy_chunk) {
   vec2 player_ship_world_coords = GLM_VEC2_ZERO_INIT;
@@ -181,6 +181,7 @@ void pathfind_enemy(E_ENEMY *enemy, unsigned int enemy_chunk) {
   float min_distance = FLT_MAX;
   float distance = 0.0;
   bool prioritize_player = false;
+  bool prioritize_invasion = false;
   TRADE_SHIP *target_tradeship = NULL;
   int goal_col;
   int goal_row;
@@ -199,6 +200,8 @@ void pathfind_enemy(E_ENEMY *enemy, unsigned int enemy_chunk) {
     min_distance = glm_vec2_distance(player_ship_world_coords,
                                      enemy_world_coords);
     prioritize_player = true;
+    prioritize_invasion = false;
+    target_tradeship = NULL;
   }
   for (int i = 0; i < num_trade_ships; i++) {
     if (trade_ship_active(i)) {
@@ -213,9 +216,31 @@ void pathfind_enemy(E_ENEMY *enemy, unsigned int enemy_chunk) {
         if (distance < min_distance) {
           min_distance = distance;
           prioritize_player = false;
+          prioritize_invasion = false;
           target_tradeship = trade_ships+i;
         }
       }
+    }
+  }
+
+  // Check if enemy ship should pathfind toward the home island for invasion
+  vec2 correction = GLM_VEC2_ZERO_INIT;
+  ISLAND *home_island = chunk_buffer[home_chunk].islands + HOME_ISLAND_INDEX;
+  vec2 home_island_world = GLM_VEC2_ZERO_INIT;
+  vec2 home_island_coords = {
+    home_island->coords[0], home_island->coords[1]
+  };
+  chunk_to_world(home_island->chunk, home_island_coords, home_island_world);
+  if (!prioritize_player && !target_tradeship &&
+      circle_aabb_collision(enemy_world_coords, ship_search_radius,
+                            home_island_world, I_WIDTH * T_WIDTH,
+                            I_WIDTH * T_WIDTH, correction)) {
+    distance = dist_to_island(enemy->chunk, enemy->coords, home_island);
+    if (distance < min_distance) {
+      min_distance = distance;
+      prioritize_player = false;
+      prioritize_invasion = true;
+      target_tradeship = NULL;
     }
   }
 
@@ -239,90 +264,32 @@ void pathfind_enemy(E_ENEMY *enemy, unsigned int enemy_chunk) {
        chunk instead of targetng */
     if (e_player.ship_chunk[0] != enemy->chunk[0] ||
         e_player.ship_chunk[1] != enemy->chunk[1]) {
-      vec2 target_dir = GLM_VEC2_ZERO_INIT;
-      if (enemy->chunk[0] == e_player.ship_chunk[0] - 1 &&
-          enemy->chunk[1] == e_player.ship_chunk[1]) {
-        /* If the enemy is in the left chunk of the player. */
-        target_dir[0] = 1.0;
-      } else if (enemy->chunk[0] == e_player.ship_chunk[0] &&
-                 enemy->chunk[1] == e_player.ship_chunk[1] + 1) {
-        /* If the enemy is in the upper chunk of the player*/
-        target_dir[1] = -1.0;
-      } else if (enemy->chunk[0] == e_player.ship_chunk[0] + 1 &&
-                 enemy->chunk[1] == e_player.ship_chunk[1]) {
-        target_dir[0] = -1.0;
-      } else if (enemy->chunk[0] == e_player.ship_chunk[0] &&
-                 enemy->chunk[1] == e_player.ship_chunk[1] - 1) {
-        target_dir[1] = 1.0;
-      } else {
-        /*If the enemy on diagonal. Currently doesn't manually move it*/
-      }
-
-      vec2 smoothed_direction = GLM_VEC2_ZERO_INIT;
-      glm_vec2_lerp(enemy->direction, target_dir, lerp_factor,
-                    smoothed_direction);
-      if (smoothed_direction[0] == 0) {
-        smoothed_direction[0] = 0.05;
-      }
-      if (smoothed_direction[1] == 0) {
-        smoothed_direction[1] = 0.05;
-      }
-      glm_vec2_normalize(smoothed_direction);
-      glm_vec2_copy(smoothed_direction, enemy->direction);
-
-      update_enemy_position(enemy);
-      enemy->moving = 1;
-      enemy->on_path = false;
-      return;
+      pathfind_to_chunk(enemy, e_player.ship_chunk);
     } else {
       goal_col = (int)(e_player.ship_coords[0]);
       goal_row = (int)(e_player.ship_coords[1]);
     }
-  } else {
+  } else if (target_tradeship) {
     /* If target is a trade_ship. */
     /* If Enemy ship is not in tradeship's current chunk, manually move it to
        its chunk instead of targetng */
     if (target_tradeship->chunk_coords[0] != enemy->chunk[0] ||
         target_tradeship->chunk_coords[1] != enemy->chunk[1]) {
-      vec2 target_dir = GLM_VEC2_ZERO_INIT;
-      /* If the enemy is in the left chunk of the player. */
-      if (enemy->chunk[0] == target_tradeship->chunk_coords[0] - 1 &&
-          enemy->chunk[1] == target_tradeship->chunk_coords[1]) {
-        target_dir[0] = 1.0;
-      } else if (enemy->chunk[0] == target_tradeship->chunk_coords[0] &&
-                 enemy->chunk[1] == target_tradeship->chunk_coords[1] + 1) {
-        /* If the enemy is in the upper chunk of the player*/
-        target_dir[1] = -1.0;
-      } else if (enemy->chunk[0] == target_tradeship->chunk_coords[0] + 1 &&
-                 enemy->chunk[1] == target_tradeship->chunk_coords[1]) {
-        target_dir[0] = -1.0;
-      } else if (enemy->chunk[0] == target_tradeship->chunk_coords[0] &&
-                 enemy->chunk[1] == target_tradeship->chunk_coords[1] - 1) {
-        target_dir[1] = 1.0;
-      } else {
-        /*If the enemy on diagonal. Currently doesn't manually move it*/
-      }
-
-      vec2 smoothed_direction = GLM_VEC2_ZERO_INIT;
-      glm_vec2_lerp(enemy->direction, target_dir, lerp_factor,
-                    smoothed_direction);
-      if (smoothed_direction[0] == 0) {
-        smoothed_direction[0] = 0.05;
-      }
-      if (smoothed_direction[1] == 0) {
-        smoothed_direction[1] = 0.05;
-      }
-      glm_vec2_normalize(smoothed_direction);
-      glm_vec2_copy(smoothed_direction, enemy->direction);
-
-      update_enemy_position(enemy);
-      enemy->moving = 1;
-      enemy->on_path = false;
-      return;
-    }
-    else {
+      pathfind_to_chunk(enemy, target_tradeship->chunk_coords);
+    } else {
       goal_col = (int)(target_tradeship->coords[0]);
       goal_row = (int)(target_tradeship->coords[1]);
+    }
+  } else if (prioritize_invasion) {
+    // Prioritize invasion
+    CHUNK *cur_chunk = chunk_buffer + enemy_chunk;
+    CHUNK *target_chunk = chunk_buffer + home_chunk;
+    if (cur_chunk == target_chunk &&
+        get_tile(enemy_chunk, enemy->coords) == SHORE) {
+      enemy->moving = 0;
+      enemy->on_path = false;
+    } else {
+      pathfind_to_shore(enemy, cur_chunk, target_chunk, HOME_ISLAND_INDEX);
     }
   }
 
@@ -554,6 +521,76 @@ int search(
   return goal_reached;
 }
 
+// ============================= COMBAT MODE =================================
+
+void c_enemy_pathfind(C_UNIT *enemy, vec2 target_coords) {
+  float target_dist = glm_vec2_distance(target_coords, enemy->coords);
+  if (enemy->weapon_type == RANGED) {
+    if (target_dist >= 5.0 && enemy->attack_cooldown == 0.0) {
+      npc_ranged_attack(enemy);
+    }
+  } else {
+    if (target_dist <= 1.5 && enemy->attack_cooldown == 0.0) {
+      npc_melee_attack(enemy);
+    }
+  }
+
+  vec2 target_dir = GLM_VEC2_ZERO_INIT;
+  glm_vec2_sub(target_coords, enemy->coords, target_dir);
+  glm_vec2_normalize(target_dir);
+
+  vec2 movement = GLM_VEC2_ZERO_INIT;
+  MOVE_MODE move = STOP;
+  if (enemy->weapon_type == RANGED) {
+    if (target_dist < 5.0) {
+      // If target is too close, move away
+      move = BACK;
+    } else if (target_dist > 7.5) {
+      move = FORWARD;
+    }
+  } else if (target_dist >= 1.5) {
+    move = FORWARD;
+  }
+
+  // Distance from enemy to its allies
+  float ally_dist = 0.0;
+  vec2 steer_direction = GLM_VEC2_ZERO_INIT;
+  // Move enemy away from allies so they don't cluster together
+  for (unsigned int i = 0; i < num_npc_units; i++) {
+    if (npc_units + i != enemy) {
+      ally_dist = glm_vec2_distance(enemy->coords, npc_units[i].coords);
+      if (ally_dist <= 3.0) {
+        if (move == FORWARD) {
+          glm_vec2_sub(enemy->coords, npc_units[i].coords, steer_direction);
+        } else {
+          glm_vec2_sub(npc_units[i].coords, enemy->coords, steer_direction);
+          move = BACK;
+        }
+        glm_vec2_normalize(steer_direction);
+        //glm_vec2_scale(steer_direction, 0.5, steer_direction);
+        glm_vec2_add(steer_direction, target_dir, target_dir);
+        glm_vec2_normalize(target_dir);
+      }
+    }
+  }
+
+  glm_vec2_lerp(enemy->direction, target_dir, delta_time * 5.0,
+                enemy->direction);
+  glm_vec2_normalize(enemy->direction);
+
+  if (move == FORWARD) {
+    glm_vec2_scale(enemy->direction, (delta_time * enemy->speed),
+                   movement);
+    glm_vec2_add(movement, enemy->coords, enemy->coords);
+  } else if (move == BACK) {
+    glm_vec2_scale(enemy->direction,
+                   -1.0 * (delta_time * enemy->speed), movement);
+    glm_vec2_add(movement, enemy->coords, enemy->coords);
+  }
+}
+
+// =============================== HELPERS ==================================
+
 /*
     function for tracking the best path we got from A * search alg. by
     backtracking
@@ -652,70 +689,78 @@ void update_enemy_chunk(E_ENEMY *cur_enemy, CHUNK *chunk, int i) {
   }
 }
 
-// ============================= COMBAT MODE =================================
-
-void c_enemy_pathfind(C_UNIT *enemy, vec2 target_coords) {
-  float target_dist = glm_vec2_distance(target_coords, enemy->coords);
-  if (enemy->weapon_type == RANGED) {
-    if (target_dist >= 5.0 && enemy->attack_cooldown == 0.0) {
-      npc_ranged_attack(enemy);
-    }
+/* If Enemy ship is not in target's current chunk, manually move it to target's
+   chunk instead of targetng */
+void pathfind_to_chunk(E_ENEMY *enemy, ivec2 target_chunk) {
+  vec2 target_dir = GLM_VEC2_ZERO_INIT;
+  if (enemy->chunk[0] == target_chunk[0] - 1 &&
+      enemy->chunk[1] == target_chunk[1]) {
+    /* If the enemy is in the left chunk of the player. */
+    target_dir[0] = 1.0;
+  } else if (enemy->chunk[0] == target_chunk[0] &&
+             enemy->chunk[1] == target_chunk[1] + 1) {
+    /* If the enemy is in the upper chunk of the player*/
+    target_dir[1] = -1.0;
+  } else if (enemy->chunk[0] == target_chunk[0] + 1 &&
+             enemy->chunk[1] == target_chunk[1]) {
+    target_dir[0] = -1.0;
+  } else if (enemy->chunk[0] == target_chunk[0] &&
+             enemy->chunk[1] == target_chunk[1] - 1) {
+    target_dir[1] = 1.0;
   } else {
-    if (target_dist <= 1.5 && enemy->attack_cooldown == 0.0) {
-      npc_melee_attack(enemy);
-    }
+    /*If the enemy on diagonal. Currently doesn't manually move it*/
   }
+
+  vec2 smoothed_direction = GLM_VEC2_ZERO_INIT;
+  glm_vec2_lerp(enemy->direction, target_dir, 0.1, smoothed_direction);
+  if (smoothed_direction[0] == 0) {
+    smoothed_direction[0] = 0.05;
+  }
+  if (smoothed_direction[1] == 0) {
+    smoothed_direction[1] = 0.05;
+  }
+  glm_vec2_normalize(smoothed_direction);
+  glm_vec2_copy(smoothed_direction, enemy->direction);
+
+  update_enemy_position(enemy);
+  enemy->moving = 1;
+  enemy->on_path = false;
+}
+
+// Direct an enemy ship toward shore tiles of a given island
+void pathfind_to_shore(E_ENEMY *enemy, CHUNK *cur_chunk, CHUNK *target_chunk,
+                       unsigned int target_island_idx) {
+  ISLAND *target_island = target_chunk->islands + target_island_idx;
+  vec2 enemy_world_coords = GLM_VEC2_ZERO_INIT;
+  chunk_to_world(cur_chunk->coords, enemy->coords, enemy_world_coords);
+  vec2 to_island = {
+    target_island->coords[0] + (0.5 * I_WIDTH),
+    target_island->coords[1] + (0.5 * I_WIDTH)
+  };
+  chunk_to_world(target_chunk->coords, to_island, to_island);
+  glm_vec2_sub(to_island, enemy_world_coords, to_island);
+  glm_vec2_normalize(to_island);
+
+  vec2 to_shore = GLM_VEC2_ZERO_INIT;
+  ship_steering(enemy->chunk, enemy->coords, to_shore, cur_chunk,
+                target_chunk, target_island_idx);
 
   vec2 target_dir = GLM_VEC2_ZERO_INIT;
-  glm_vec2_sub(target_coords, enemy->coords, target_dir);
+  glm_vec2_add(to_island, to_shore, target_dir);
   glm_vec2_normalize(target_dir);
 
-  vec2 movement = GLM_VEC2_ZERO_INIT;
-  MOVE_MODE move = STOP;
-  if (enemy->weapon_type == RANGED) {
-    if (target_dist < 5.0) {
-      // If target is too close, move away
-      move = BACK;
-    } else if (target_dist > 7.5) {
-      move = FORWARD;
-    }
-  } else if (target_dist >= 1.5) {
-    move = FORWARD;
+  vec2 smoothed_direction = GLM_VEC2_ZERO_INIT;
+  glm_vec2_lerp(enemy->direction, target_dir, 0.1, smoothed_direction);
+  if (smoothed_direction[0] == 0) {
+    smoothed_direction[0] = 0.05;
   }
-
-  // Distance from enemy to its allies
-  float ally_dist = 0.0;
-  vec2 steer_direction = GLM_VEC2_ZERO_INIT;
-  // Move enemy away from allies so they don't cluster together
-  for (unsigned int i = 0; i < num_npc_units; i++) {
-    if (npc_units + i != enemy) {
-      ally_dist = glm_vec2_distance(enemy->coords, npc_units[i].coords);
-      if (ally_dist <= 3.0) {
-        if (move == FORWARD) {
-          glm_vec2_sub(enemy->coords, npc_units[i].coords, steer_direction);
-        } else {
-          glm_vec2_sub(npc_units[i].coords, enemy->coords, steer_direction);
-          move = BACK;
-        }
-        glm_vec2_normalize(steer_direction);
-        //glm_vec2_scale(steer_direction, 0.5, steer_direction);
-        glm_vec2_add(steer_direction, target_dir, target_dir);
-        glm_vec2_normalize(target_dir);
-      }
-    }
+  if (smoothed_direction[1] == 0) {
+    smoothed_direction[1] = 0.05;
   }
+  glm_vec2_normalize(smoothed_direction);
+  glm_vec2_copy(smoothed_direction, enemy->direction);
 
-  glm_vec2_lerp(enemy->direction, target_dir, delta_time * 5.0,
-                enemy->direction);
-  glm_vec2_normalize(enemy->direction);
-
-  if (move == FORWARD) {
-    glm_vec2_scale(enemy->direction, (delta_time * enemy->speed),
-                   movement);
-    glm_vec2_add(movement, enemy->coords, enemy->coords);
-  } else if (move == BACK) {
-    glm_vec2_scale(enemy->direction,
-                   -1.0 * (delta_time * enemy->speed), movement);
-    glm_vec2_add(movement, enemy->coords, enemy->coords);
-  }
+  update_enemy_position(enemy);
+  enemy->moving = 1;
+  enemy->on_path = false;
 }
