@@ -36,6 +36,7 @@ int generate_rand();
 double nano_time();
 void generate_mask(float (*mask)[I_WIDTH]);
 void populate_tiles(ISLAND *, float (*)[I_WIDTH]);
+int gen_island_texture(ISLAND *);
 void merchant_generate(MERCHANT *, ISLAND *);
 unsigned int texture_from_buffer(unsigned char *, int, int, int);
 
