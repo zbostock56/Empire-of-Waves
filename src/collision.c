@@ -491,23 +491,27 @@ void trade_ship_collision(TRADE_SHIP *trade_ship) {
 }
 
 void detect_island_invasion() {
-  CHUNK *home_chunk = chunk_buffer + home_chunk;
+  CHUNK *home_chunk = chunk_buffer + home_chunk_index;
   ISLAND *home_island = home_chunk->islands + HOME_ISLAND_INDEX;
+  vec2 island_coords = { home_island->coords[X],
+                         home_island->coords[Y] };
+  vec2 island_coords_world = GLM_VEC2_ZERO_INIT;
+  chunk_to_world(home_chunk->coords, island_coords, island_coords_world);
 
+  unsigned int num_invading = 0;
   for (unsigned int i = 0; i < home_chunk->num_enemies; i++) {
-    /*
-    vec2 island_coords = { chunk->islands[i].coords[X],
-                           chunk->islands[i].coords[Y] };
-    vec2 island_coords_world = GLM_VEC2_ZERO_INIT;
-    chunk_to_world(chunk->coords, island_coords, island_coords_world);
-    if (world_coords[0] <= island_coords_world[0] + (I_WIDTH * T_WIDTH) &&
-        world_coords[0] >= island_coords_world[0] &&
-        world_coords[1] <= island_coords_world[1] &&
-        world_coords[1] >= island_coords_world[1] - (I_WIDTH * T_WIDTH)) {
-      return chunk->islands + i;
+    E_ENEMY *cur_enemy = home_chunk->enemies + i;
+    vec2 world_coords = GLM_VEC2_ZERO_INIT;
+    chunk_to_world(home_chunk->coords, cur_enemy->coords, world_coords);
+    if (world_coords[X] <= island_coords_world[X] + (I_WIDTH * T_WIDTH) &&
+        world_coords[X] >= island_coords_world[X] &&
+        world_coords[Y] <= island_coords_world[Y] &&
+        world_coords[Y] >= island_coords_world[Y] - (I_WIDTH * T_WIDTH)) {
+      num_invading++;
     }
-    */
   }
+
+  update_invading_enemies(num_invading);
 }
 
 // ======================== COMBAT MODE COLLISIONS ===========================

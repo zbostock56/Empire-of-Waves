@@ -25,7 +25,7 @@ int init_chunks() {
   if (status == -1) {
     return -1;
   }
-  home_chunk = status;
+  home_chunk_index = status;
 
   for (int i = CHUNK_UPPER_LEFT; i <= CHUNK_LOWER_RIGHT; i++) {
     glm_ivec2_add(player_chunk, CHUNK_OFFSETS[i], chunk_coords);
@@ -445,8 +445,8 @@ void update_chunk_refs(unsigned int old, unsigned int new) {
     }
   }
 
-  if (home_chunk == old) {
-    home_chunk = new;
+  if (home_chunk_index == old) {
+    home_chunk_index = new;
   }
 }
 

@@ -146,3 +146,50 @@ void update_relationship(MERCHANT *merchant, float delta) {
     e_player.reputation = REP_MIN;
   }
 }
+
+// Spawn 3 enemy ships around the player's home island
+int invade_home_island() {
+  if (e_player.reputation > INVASION_REP) {
+    return 0;
+  }
+
+  CHUNK *home_chunk = chunk_buffer + home_chunk_index;
+  ISLAND *home_island = home_chunk->islands + HOME_ISLAND_INDEX;
+
+  vec2 spawn_tile = GLM_VEC2_ZERO_INIT;
+  unsigned int island_side = 0;
+  unsigned int side_tile = 0;
+  for (int i = 0; i < 3; i++) {
+    // Determine which side of the island the enemy will spawn on
+    island_side = rand() % 4;
+    // Determine which tile on the selected island side the enemy will spawn on
+    side_tile = rand() % I_WIDTH;
+    spawn_tile[0] = home_island->coords[0];
+    spawn_tile[1] = home_island->coords[1];
+
+    if (island_side == TOP) {
+      spawn_tile[0] += side_tile;
+    } else if (island_side == BOTTOM) {
+      spawn_tile[0] += side_tile;
+      spawn_tile[1] += I_WIDTH - 1;
+    } else if (island_side == LEFT) {
+      spawn_tile[1] += side_tile;
+    } else {
+      spawn_tile[0] += I_WIDTH - 1;
+      spawn_tile[1] += side_tile;
+    }
+
+    init_enemy(home_chunk->enemies + home_chunk->num_enemies,
+               home_chunk->coords, spawn_tile);
+    home_chunk->num_enemies++;
+    if (home_chunk->num_enemies == home_chunk->enemy_buf_size) {
+      int status = double_buffer((void **) &home_chunk->enemies,
+                                 &home_chunk->enemy_buf_size, sizeof(E_ENEMY));
+      if (status) {
+        fprintf(stderr, "merchant.c: Failed to reallocate enemy buffer\n");
+        return -1;
+      }
+    }
+  }
+  return 0;
+}

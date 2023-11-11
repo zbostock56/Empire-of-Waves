@@ -78,20 +78,22 @@ void spawn_enemy() {
 
         if (status == 0) {
           E_ENEMY *enemy = &chunk->enemies[insert_index];
-          enemy->chunk[0] = chosen_chunk[0];
-          enemy->chunk[1] = chosen_chunk[1];
-          enemy->coords[0] = posx;
-          enemy->coords[1] = posy;
-          enemy->direction[0] = 0;
-          enemy->direction[1] = 1;
-          enemy->speed = 15.0;
-          enemy->moving = 0;
-          enemy->crew_count = (rand() % 5) + 1;
+          init_enemy(enemy, chosen_chunk, (vec2) { posx, posy });
           not_found = 0;
         }
       }
     }
   }
+}
+
+void init_enemy(E_ENEMY *enemy, ivec2 chunk, vec2 coords) {
+  glm_ivec2_copy(chunk, enemy->chunk);
+  glm_vec2_copy(coords, enemy->coords);
+  enemy->direction[0] = 0;
+  enemy->direction[1] = 1;
+  enemy->speed = 15.0;
+  enemy->moving = 0;
+  enemy->crew_count = (rand() % 5) + 1;
 }
 
 /* Generates a 2D Array of the tiles in the passed chunk that are  */
@@ -225,7 +227,8 @@ void pathfind_enemy(E_ENEMY *enemy, unsigned int enemy_chunk) {
 
   // Check if enemy ship should pathfind toward the home island for invasion
   vec2 correction = GLM_VEC2_ZERO_INIT;
-  ISLAND *home_island = chunk_buffer[home_chunk].islands + HOME_ISLAND_INDEX;
+  ISLAND *home_island = chunk_buffer[home_chunk_index].islands +
+                        HOME_ISLAND_INDEX;
   vec2 home_island_world = GLM_VEC2_ZERO_INIT;
   vec2 home_island_coords = {
     home_island->coords[0], home_island->coords[1]
@@ -283,7 +286,7 @@ void pathfind_enemy(E_ENEMY *enemy, unsigned int enemy_chunk) {
   } else if (prioritize_invasion) {
     // Prioritize invasion
     CHUNK *cur_chunk = chunk_buffer + enemy_chunk;
-    CHUNK *target_chunk = chunk_buffer + home_chunk;
+    CHUNK *target_chunk = chunk_buffer + home_chunk_index;
     if (cur_chunk == target_chunk &&
         get_tile(enemy_chunk, enemy->coords) == SHORE) {
       enemy->moving = 0;
@@ -763,4 +766,43 @@ void pathfind_to_shore(E_ENEMY *enemy, CHUNK *cur_chunk, CHUNK *target_chunk,
   update_enemy_position(enemy);
   enemy->moving = 1;
   enemy->on_path = false;
+}
+
+// Update the number of enemies currently invading the home island
+void update_invading_enemies(unsigned int count) {
+  num_invading_enemies = count;
+  if (!num_invading_enemies && event_flags[STEALING_TIMER]) {
+    event_flags[STEALING_TIMER] = 0;
+    close_invasion_bar();
+  } else if (num_invading_enemies && !event_flags[STEALING_TIMER]) {
+    timers[STEALING_TIMER] = calc_stealing_interval();
+    event_flags[STEALING_TIMER] = 1;
+    open_invasion_bar();
+  }
+}
+
+// Calculate the timer tracking how often items are stolen during an invasion
+float calc_stealing_interval() {
+  if (!num_invading_enemies) {
+    return BASE_STEALING_TIMER;
+  }
+
+  float interval = BASE_STEALING_TIMER - (num_invading_enemies - 1);
+  if (interval < MIN_STEALING_TIMER) {
+    interval = MIN_STEALING_TIMER;
+  }
+  return interval;
+}
+
+// Given a container, will randomly steal a single item
+void steal_item(CONTAINER *cont) {
+  unsigned int item_index = get_random_item(cont);
+  if (cont->items[item_index].item_id == EMPTY) {
+    return;
+  }
+
+  if ((--cont->items[item_index].quantity) == 0) {
+    cont->items[item_index].item_id = EMPTY;
+  }
+  refresh_containers();
 }

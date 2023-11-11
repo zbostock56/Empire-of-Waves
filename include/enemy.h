@@ -3,9 +3,12 @@
 #include <player_str.h>
 #include <chunk_str.h>
 #include <trade_ship_str.h>
+#include <event_str.h>
 #include <globals.h>
 
 /* DEFINES */
+#define BASE_STEALING_TIMER (10.0)
+#define MIN_STEALING_TIMER (1.0)
 #define NODE_BUF_START_LEN (4)
 #define CURRENT_CHUNK (4)
 #define SHIP_COLLISION_RADIUS (1.0)
@@ -34,6 +37,8 @@ typedef struct Node {
     float h_cost;
 } Node;
 
+static unsigned int num_invading_enemies = 0;
+
 /* =================== INTERNALLY DEFINED FUNCTIONS =================== */
 void spawn_enemy();
 int find_avail_chunks();
@@ -54,6 +59,8 @@ void delete_node(Node *, unsigned int *, unsigned int);
 void update_enemy_chunk(E_ENEMY*, CHUNK*, int);
 void pathfind_to_chunk(E_ENEMY *, ivec2);
 void pathfind_to_shore(E_ENEMY *, CHUNK *, CHUNK *, unsigned int);
+float calc_stealing_interval();
+void init_enemy(E_ENEMY *, ivec2, vec2);
 
 /* =================== EXTERNALLY DEFINED FUNCTIONS =================== */
 
@@ -69,3 +76,7 @@ int npc_ranged_attack(C_UNIT *);
 int trade_ship_active(unsigned int);
 float dist_to_island(ivec2, vec2, ISLAND *);
 void ship_steering(ivec2, vec2, vec2, CHUNK *, CHUNK *, unsigned int);
+void open_invasion_bar();
+void close_invasion_bar();
+unsigned int get_random_item(CONTAINER *);
+void refresh_containers();
