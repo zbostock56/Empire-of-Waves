@@ -30,7 +30,7 @@ int init_containers();
 int init_trade_ship_buffers();
 void init_timers();
 void open_status_bar();
-void init_invasion_bar();
+void init_invasion_ui();
 
 void free_dialog();
 void free_trade();

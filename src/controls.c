@@ -139,6 +139,7 @@ void exploration_movement(GLFWwindow *window) {
     } else if (!e_player.embarked && home_interaction_enabled) {
       /* Mercenary Reassignment list open */
       open_mercenary_reassignment_menu();
+      open_ransom_menu();
       get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
     } else if (!e_player.embarked && container_interaction_enabled) {
       CONTAINER player_inv = { e_player.inventory, MAX_PLAYER_INV_SIZE };
@@ -292,6 +293,7 @@ void close_merchant_menu(GLFWwindow *window) {
     close_dialog();
     close_trade();
     close_mercenary_reassignment_menu();
+    close_ransom_menu();
     close_container();
   }
 }

@@ -773,12 +773,13 @@ void update_invading_enemies(unsigned int count) {
   num_invading_enemies = count;
   if (!num_invading_enemies && event_flags[STEALING_TIMER]) {
     event_flags[STEALING_TIMER] = 0;
-    close_invasion_bar();
   } else if (num_invading_enemies && !event_flags[STEALING_TIMER]) {
     timers[STEALING_TIMER] = calc_stealing_interval();
     event_flags[STEALING_TIMER] = 1;
-    open_invasion_bar();
+    set_prompt("Your island is being invaded!");
   }
+
+  refresh_ransom_menu();
 }
 
 // Calculate the timer tracking how often items are stolen during an invasion
@@ -792,6 +793,16 @@ float calc_stealing_interval() {
     interval = MIN_STEALING_TIMER;
   }
   return interval;
+}
+
+// Calculate the price to despawn all enemy npcs around the player's island
+float calc_ransom_price() {
+  float ransom_price = num_invading_enemies * RANSOM_UNIT;
+  if (ransom_price > RANSOM_MAX) {
+    return RANSOM_MAX;
+  }
+
+  return ransom_price;
 }
 
 // Given a container, will randomly steal a single item

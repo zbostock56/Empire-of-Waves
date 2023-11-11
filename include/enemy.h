@@ -13,6 +13,8 @@
 #define CURRENT_CHUNK (4)
 #define SHIP_COLLISION_RADIUS (1.0)
 #define SHIP_CHASE_RADIUS (20)
+#define RANSOM_UNIT (50.0)
+#define RANSOM_MAX (5000.0)
 #define X (0)
 #define Y (1)
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
@@ -76,7 +78,7 @@ int npc_ranged_attack(C_UNIT *);
 int trade_ship_active(unsigned int);
 float dist_to_island(ivec2, vec2, ISLAND *);
 void ship_steering(ivec2, vec2, vec2, CHUNK *, CHUNK *, unsigned int);
-void open_invasion_bar();
-void close_invasion_bar();
 unsigned int get_random_item(CONTAINER *);
 void refresh_containers();
+void set_prompt(const char *);
+void refresh_ransom_menu();

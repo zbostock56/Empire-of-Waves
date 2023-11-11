@@ -73,4 +73,5 @@ unsigned int trade_ship_active();
 void give_player_copper(unsigned int);
 int save_menu_open();
 void update_relationship(MERCHANT *, float);
+void close_ransom_menu();
 void update_invading_enemies(unsigned int);

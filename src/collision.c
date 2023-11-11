@@ -178,6 +178,7 @@ void check_mercenary_reassignment_prompt(vec2 coords) {
     home_interaction_enabled = 1;
   } else if (dist > 3.0 * T_WIDTH) {
     close_mercenary_reassignment_menu();
+    close_ransom_menu();
   }
 
   if (trade.ui_button_trade->enabled || dialog.ui_text_name->enabled ||

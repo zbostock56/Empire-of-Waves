@@ -108,3 +108,5 @@ char *get_merchant_name(short);
 void open_mercenary_reassignment_menu();
 void close_mercenary_reassignment_menu();
 void close_console_prompt();
+void open_ransom_menu();
+void close_ransom_menu();
