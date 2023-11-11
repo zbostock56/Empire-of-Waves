@@ -11,6 +11,7 @@ void keyboard_input(GLFWwindow *window) {
     // Exploration mode keyboard handlers here
     exploration_movement(window);
     close_merchant_menu(window);
+    inventory_open_listner(window);
   } else if (mode == COMBAT && !console_input_enabled) {
     combat_movement(window);
   }
@@ -258,6 +259,19 @@ void modifier_keys(GLFWwindow *window) {
              glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) != GLFW_PRESS &&
              holding_ctrl) {
     holding_ctrl = 0;
+  }
+}
+
+void inventory_open_listner(GLFWwindow *window) {
+  if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS && !holding_i) {
+    if (get_ui_component_by_ID(INVENTORY_BUTTON_PLAYER_ITEM_0)->enabled) {
+      close_inventory_ui();
+    } else {
+      open_inventory_ui();
+    }
+    holding_i = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_I) != GLFW_PRESS) {
+    holding_i = 0;
   }
 }
 
