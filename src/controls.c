@@ -155,6 +155,7 @@ void exploration_movement(GLFWwindow *window) {
         !container_menu_open && !reassignment_menu_open) {
       if (save_menu_opened()) {
         close_save_menu();
+        close_status_menu();
       } else {
         open_save_menu();
         close_save_status();

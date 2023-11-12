@@ -82,7 +82,7 @@ int init_status_menu() {
     1, // textured
     0, // texture
     0.05, // text_padding
-    0.75, // text_scale
+    1.0, // text_scale
     0, // width
     0, // height
     PIVOT_CENTER, // pivot
@@ -98,7 +98,7 @@ int init_status_menu() {
 
   status_menu.ui_menu_health = get_ui_component_by_ID(STATUS_MENU_HEALTH);
   // Initialize health stat
-  vec2 health_position = { 0, 0.2 }; // Example position (adjust as needed)
+  vec2 health_position = { 0, 0.3 }; // Example position (adjust as needed)
   init_menu(
     health_position, // position
     NULL, // on_click
@@ -126,7 +126,7 @@ int init_status_menu() {
 
   // Initialize money stat
   status_menu.ui_menu_money = get_ui_component_by_ID(STATUS_MENU_MONEY);
-  vec2 money_position = { 0, 0.1 }; // Example position (adjust as needed)
+  vec2 money_position = { 0, 0.2 }; // Example position (adjust as needed)
   init_menu(
     money_position, // position
     NULL, // on_click
@@ -154,7 +154,7 @@ int init_status_menu() {
 
   // Initialize attack stat
   status_menu.ui_menu_attack = get_ui_component_by_ID(STATUS_MENU_ATTACK);
-  vec2 attack_position = { 0, 0.0 };
+  vec2 attack_position = { 0, 0.1 };
   init_menu(
     attack_position, // position
     NULL, // on_click
@@ -182,7 +182,7 @@ int init_status_menu() {
 
   // Initialize defense stat
   status_menu.ui_menu_defense = get_ui_component_by_ID(STATUS_MENU_DEFENSE);
-  vec2 defense_position = { 0, -0.1 };
+  vec2 defense_position = { 0, 0.0 };
   init_menu(
     defense_position, // position
     NULL, // on_click
@@ -210,7 +210,7 @@ int init_status_menu() {
 
   // Initialize fire rate stat
   status_menu.ui_menu_fire = get_ui_component_by_ID(STATUS_MENU_FIRE);
-  vec2 fire_position = { 0, -0.2 };
+  vec2 fire_position = { 0, -0.1 };
   init_menu(
     fire_position, // position
     NULL, // on_click
@@ -238,7 +238,7 @@ int init_status_menu() {
 
   // Initialize speed stat
   status_menu.ui_menu_speed = get_ui_component_by_ID(STATUS_MENU_SPEED);
-  vec2 speed_position = { 0, -0.3 }; 
+  vec2 speed_position = { 0, -0.2 }; 
   init_menu(
     speed_position, // position
     NULL, // on_click
@@ -342,6 +342,13 @@ void open_status_menu() {
   status_menu.ui_menu_fire->enabled = 1;
   status_menu.ui_menu_speed->enabled = 1;
   status_menu_open = 1;
+  get_ui_component_by_ID(NEW_GAME)->enabled = 0;
+  get_ui_component_by_ID(SAVE)->enabled = 0;
+  get_ui_component_by_ID(LOAD)->enabled = 0;
+  get_ui_component_by_ID(SAVE_CLOSE)->enabled = 1;
+  get_ui_component_by_ID(SAVE_PROMPT)->enabled = 0;
+  get_ui_component_by_ID(SAVE_INPUT)->enabled = 0;
+  get_ui_component_by_ID(STAT)->enabled = 0;
 }
 
 void close_status_menu() {
