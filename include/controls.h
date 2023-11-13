@@ -28,6 +28,7 @@ extern int console_input_enabled;
 extern int shore_interaction_enabled;
 extern int home_interaction_enabled;
 extern int container_interaction_enabled;
+extern int item_interaction_enabled;
 extern int reassignment_menu_open;
 extern UI_ID open_prompt;
 extern MERCHANT *close_merchant;

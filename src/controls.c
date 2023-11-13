@@ -144,6 +144,8 @@ void exploration_movement(GLFWwindow *window) {
       CONTAINER player_inv = { e_player.inventory, MAX_PLAYER_INV_SIZE };
       open_container(home_box, player_inv);
       get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
+    } else if (!e_player.embarked && item_interaction_enabled) {
+      get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 1;
     }
     holding_interaction = 1;
   } else if (glfwGetKey(window, GLFW_KEY_E) != GLFW_PRESS) {
