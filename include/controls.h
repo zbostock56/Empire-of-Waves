@@ -64,7 +64,7 @@ int holding_attack = 0;
 int holding_save = 0;
 int holding_load = 0;
 int holding_esc = 0;
-int holding_enter;
+int holding_i = 0;
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 
@@ -109,3 +109,7 @@ char *get_merchant_name(short);
 void open_mercenary_reassignment_menu();
 void close_mercenary_reassignment_menu();
 void close_console_prompt();
+
+void inventory_open_listner();
+void open_inventory_ui();
+void close_inventory_ui();

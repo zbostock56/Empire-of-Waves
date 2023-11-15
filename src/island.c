@@ -29,6 +29,10 @@ int generate_island(ISLAND *island) {
     }
   }
   populate_tiles(island, pnoise);
+  int status = gen_island_texture(island);
+  if (status) {
+    return -1;
+  }
   merchant_generate(&(island->merchant), island);
 
   if (island->has_merchant) {
@@ -145,32 +149,81 @@ void populate_tiles(ISLAND *island, float (*pnoise)[I_WIDTH]) {
       if (pixel < 75 / 255.0) {
           pixel = 0.0;
       }
-      int location = i * I_WIDTH + j;
+      unsigned int tile_location = i * I_WIDTH + j;
+
       if (pixel > 0.7 && pixel <= 1.0) {
         // ROCK
-        island->tiles[location] = ROCK;
+        island->tiles[tile_location] = ROCK;
       }
       #if 0
       else if (pixel > 0.65 && pixel <= 0.7) {
         // HIGHLAND GRASS (IN THE FUTURE)
-        island->tiles[location] = GRASS;
+        island->tiles[tile_location] = GRASS;
       }
       #endif
       else if (pixel > 0.425 && pixel <= 0.7) {
         // LOWLAND GRASS (IN THE FUTURE)
-        island->tiles[location] = GRASS;
+        island->tiles[tile_location] = GRASS;
       } else if (pixel > 0.35 && pixel <= 0.425) {
         // SAND
-        island->tiles[location] = SAND;
+        island->tiles[tile_location] = SAND;
       } else if (pixel > 0.0 && pixel <= 0.35) {
         // SHORE (LANDABLE)
-        island->tiles[location] = SHORE;
+        island->tiles[tile_location] = SHORE;
       } else {
         // WATER
-        island->tiles[location] = OCEAN;
+        island->tiles[tile_location] = OCEAN;
       }
     }
   }
+}
+
+int gen_island_texture(ISLAND *island) {
+  unsigned char *texture_buffer = malloc(NUM_TILE_CHANNELS * sizeof(char) *
+                                         I_WIDTH * I_WIDTH);
+  if (texture_buffer == NULL) {
+    fprintf(stderr, "Unable to allocate island texture buffer\n");
+    return -1;
+  }
+
+  for (int i = 0; i < I_WIDTH; i++) {
+    for (int j = 0; j < I_WIDTH; j++) {
+      unsigned int tile_location = i * I_WIDTH + j;
+      unsigned int tex_location = (((I_WIDTH - 1 - i) * I_WIDTH) + j) *
+                                  NUM_TILE_CHANNELS;
+      if (island->tiles[tile_location] == ROCK) {
+        texture_buffer[tex_location] = 99;
+        texture_buffer[tex_location + 1] = 87;
+        texture_buffer[tex_location + 2] = 67;
+        texture_buffer[tex_location + 3] = 255;
+      } else if (island->tiles[tile_location] == GRASS) {
+        texture_buffer[tex_location] = 4;
+        texture_buffer[tex_location + 1] = 209;
+        texture_buffer[tex_location + 2] = 38;
+        texture_buffer[tex_location + 3] = 255;
+      } else if (island->tiles[tile_location] == SAND) {
+        texture_buffer[tex_location] = 252;
+        texture_buffer[tex_location + 1] = 243;
+        texture_buffer[tex_location + 2] = 162;
+        texture_buffer[tex_location + 3] = 255;
+      } else if (island->tiles[tile_location] == SHORE) {
+        texture_buffer[tex_location] = 3;
+        texture_buffer[tex_location + 1] = 234;
+        texture_buffer[tex_location + 2] = 252;
+        texture_buffer[tex_location + 3] = 255;
+      } else {
+        texture_buffer[tex_location] = 0;
+        texture_buffer[tex_location + 1] = 0;
+        texture_buffer[tex_location + 2] = 0;
+        texture_buffer[tex_location + 3] = 0;
+      }
+    }
+  }
+
+  island->texture = texture_from_buffer(texture_buffer, I_WIDTH, I_WIDTH,
+                                        GL_RGBA);
+  free(texture_buffer);
+  return 0;
 }
 
 /*

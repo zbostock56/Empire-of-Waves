@@ -123,6 +123,7 @@ void free_chunk(CHUNK *chunk) {
     if (chunk->islands[i].has_merchant) {
       free(chunk->islands[i].merchant.listings);
     }
+    glDeleteTextures(1, &chunk->islands[i].texture);
   }
   free(chunk->enemies);
   chunk->coords[0] = 0xBAADF00D;

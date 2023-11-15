@@ -22,6 +22,7 @@ reads/manipulates chunks and/or islands.
 #define STARTING_BUFF_SIZE (32)
 #define ITEM_SPAWN_CHANCE (0.001)
 #define ITEM_BUFFER_SIZE (262)
+#define NUM_TILE_CHANNELS (4)
 
 // Macros specifying index names for player_chunks
 #define CHUNK_UPPER_LEFT (0)
@@ -69,6 +70,7 @@ typedef struct island {
   unsigned int num_items;
   MERCHANT merchant;
   int has_merchant;
+  unsigned int texture;
 } ISLAND;
 
 typedef struct chunk {

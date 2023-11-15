@@ -199,6 +199,8 @@ void init_scene() {
                   100.0, persp_proj);
 
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void cleanup_scene() {
@@ -960,12 +962,12 @@ void render_island(ISLAND *island) {
   glm_vec3_negate(player_world_coords);
   glm_translate(view_mat, player_world_coords);
 
-  glUseProgram(island_shader);
-  set_mat4("model", model_mat, island_shader);
-  set_mat4("view", view_mat, island_shader);
-  set_mat4("proj", ortho_proj, island_shader);
-  set_iarr("tiles", (int *) island->tiles, I_WIDTH * I_WIDTH, island_shader);
-  draw_model(quad, island_shader);
+  glUseProgram(std_shader);
+  set_mat4("model", model_mat, std_shader);
+  set_mat4("view", view_mat, std_shader);
+  set_mat4("proj", ortho_proj, std_shader);
+  quad->texture = island->texture;
+  draw_model(quad, std_shader);
 
   if (island->chunk[0] == 0 && island->chunk[1] == 0) {
     glm_mat4_identity(model_mat);

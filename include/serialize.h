@@ -75,3 +75,4 @@ int double_buffer(void **, unsigned int *, unsigned int);
 void free_chunk(CHUNK *);
 void init_game(char *);
 void free_game();
+int gen_island_texture(ISLAND *);
