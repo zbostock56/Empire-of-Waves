@@ -12,6 +12,7 @@
 #include <items.h>
 #include <trade_ship_str.h>
 #include <globals.h>
+#include <inventory_str.h>
 
 #define PI (3.14159265)
 #define WAVE_PERIOD (4.0)
@@ -68,6 +69,8 @@ extern DIALOG dialog;
 extern float time_schdule_trade_toute_prompt;
 extern TRADE trade;
 extern float time_trade_event_prompt;
+extern INVENTORY inventory;
+extern float time_inventory_event_prompt;
 
 // Insert declarations of global render elemements:
 // - models
