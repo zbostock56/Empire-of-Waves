@@ -83,6 +83,12 @@ int init_game(char *save_name) {
   if (status) {
     return -1;
   }
+
+  status = init_inventory_ui();
+  if (status) {
+    return -1;
+  }
+
   return 0;
 }
 
@@ -93,4 +99,5 @@ void free_game() {
   clear_chunk_buffer();
   free_containers();
   free_trade_ship_buffers();
+  free_inventory_ui();
 }
