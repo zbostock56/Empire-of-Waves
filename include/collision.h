@@ -46,13 +46,13 @@ void check_merchant_prompt(vec2);
 int detect_enemy_ships();
 void trade_ship_collision(TRADE_SHIP *);
 void attack_collision();
-int trade_ship_detect_enemies(TRADE_SHIP *, CHUNK*, int);
 
 int aabb_collision(float *, float, float, float *, float, float);
 int circle_aabb_collision(vec2, float, vec2, float, float, vec2);
 int circle_circle_collision(vec2, float, vec2, float);
 void check_mercenary_reassignment_prompt(vec2);
 void check_chest_prompt(vec2);
+void detect_island_invasion();
 void detect_combat_lootables();
 void check_item_pickup_prompt(vec2);
 
@@ -76,3 +76,6 @@ void close_container();
 unsigned int trade_ship_active();
 void give_player_copper(unsigned int);
 int save_menu_open();
+void update_relationship(MERCHANT *, float);
+void close_ransom_menu();
+void update_invading_enemies(unsigned int);

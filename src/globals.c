@@ -21,6 +21,8 @@ CHUNK *chunk_buffer = NULL;
 unsigned int chunk_buff_size = 0;
 unsigned int chunk_buff_len = 0;
 
+unsigned int home_chunk_index = 0;
+
 E_PLAYER e_player;
 unsigned int player_chunks[9];
 unsigned int updated_chunks[9];

@@ -14,6 +14,8 @@ which reads/manipulates player state.
 */
 
 #define MAX_PLAYER_INV_SIZE (16)
+#define REP_MIN (-100000.0)
+#define REP_MAX (100.0)
 
 /*
   Player state in exploration mode
@@ -37,6 +39,9 @@ typedef struct exploration_player {
   float max_health;
   float health;
   float speed;
+  // Number representing reputation of player amongst merchants. If negative,
+  // there is a possibility for the player islant to be invaded
+  float reputation;
 } E_PLAYER;
 
 /*

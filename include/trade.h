@@ -63,3 +63,4 @@ unsigned int check_fit(LISTING *, int *, unsigned int, I_SLOT *, int *,
                        unsigned int);
 void restore_trade_ship_mercs(ivec2, unsigned int);
 void set_prompt(const char *);
+void update_relationship(MERCHANT *, float);

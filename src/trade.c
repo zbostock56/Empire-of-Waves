@@ -704,10 +704,7 @@ void on_click_ui_listing(void *listing_ui_index) {
       }
 
       // Increase the merchant relationship, maximum 100.0
-      trade.merchant->relationship += 10.0;
-      if (trade.merchant->relationship > 100.0) {
-        trade.merchant->relationship = 100.0;
-      }
+      update_relationship(trade.merchant, 10.0);
     }
   } else if (trade.type == SELL &&
              get_player_inventory_slot_by_index(listing_index)->quantity > 0) {
@@ -743,10 +740,7 @@ void on_click_ui_listing(void *listing_ui_index) {
     }
 
     // Increase the merchant relationship, maximum 100.0
-    trade.merchant->relationship += 10.0;
-    if (trade.merchant->relationship > 100.0) {
-      trade.merchant->relationship = 100.0;
-    }
+    update_relationship(trade.merchant, 10.0);
   }
 }
 
@@ -781,10 +775,7 @@ void trade_route_handler(int island_index) {
 
     dialog.ui_button_trade_route->text = "2. Establish trade route";
 
-    target_merch->relationship -= 10.0;
-    if (target_merch->relationship < -100.0) {
-      target_merch->relationship = -100.0;
-    }
+    update_relationship(target_merch, -10.0);
   } else {
     // Establish trade route and popup the prompt shows successful
     dialog.ui_text_schedule_trade_route_prompt->text = "Trade Route Established";
@@ -1022,13 +1013,11 @@ void on_click_trade() {
   } else if (trade.player_value * (1 + trade.barter_range) >= trade.merchant_value) {
     // When player offer more value than expected, add relationship with the additional value
     if (trade.player_value > trade.merchant_value) {
-      trade.merchant->relationship += (trade.player_value - trade.merchant_value);
-      if (trade.merchant->relationship > 100.0) trade.merchant->relationship = 100.0;
+      update_relationship(trade.merchant, trade.player_value - trade.merchant_value);
     } else if (trade.player_value < trade.merchant_value) {
       // When relationship less than 20, cannot bartering
       if (trade.merchant->relationship < 20.0) {
-        trade.merchant->relationship -= (trade.merchant_value - trade.player_value);
-        if (trade.merchant->relationship < -100.0) trade.merchant->relationship = -100.0;
+        update_relationship(trade.merchant, trade.player_value - trade.merchant_value);
         // Show prompt
         sprintf(trade.ui_text_event_prompt->text, " Player Value Insufficient ");
         trade.ui_text_event_prompt->enabled = 1;
@@ -1038,7 +1027,7 @@ void on_click_trade() {
       // When relationship less than 80 larger than 20, can bartering but
       // relationship will decrease with the additional value
       if (trade.merchant->relationship < 80.0) {
-        trade.merchant->relationship -= (trade.merchant_value - trade.player_value);
+        update_relationship(trade.merchant, trade.player_value - trade.merchant_value);
       }
     }
     // Check player value > merchant value
@@ -1135,8 +1124,7 @@ void on_click_trade() {
     return;
   } else {
     // When player value is lower than barter range, decrease the relationship with the value
-    trade.merchant->relationship -= (trade.merchant_value - trade.player_value);
-    if (trade.merchant->relationship < -100.0) trade.merchant->relationship = -100.0;
+    update_relationship(trade.merchant, trade.player_value - trade.merchant_value);
     // Show prompt
     sprintf(trade.ui_text_event_prompt->text, " Player Value Insufficient ");
     trade.ui_text_event_prompt->enabled = 1;

@@ -20,6 +20,7 @@ reads/manipulates chunks and/or islands.
 #define MAX_ISLANDS (2) // Max islands per chunk
 #define CHUNKS_SIMULATED (9)
 #define STARTING_BUFF_SIZE (32)
+#define HOME_ISLAND_INDEX (0)
 #define ITEM_SPAWN_CHANCE (0.001)
 #define ITEM_BUFFER_SIZE (262)
 #define NUM_TILE_CHANNELS (4)
