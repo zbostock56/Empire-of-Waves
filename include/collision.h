@@ -28,6 +28,7 @@ MERCHANT *close_merchant = NULL;
 int shore_interaction_enabled = 0;
 int home_interaction_enabled = 0;
 int container_interaction_enabled = 0;
+int item_interaction_enabled = 0;
 extern int reassignment_menu_open;
 extern int container_menu_open;
 
@@ -51,6 +52,7 @@ int circle_aabb_collision(vec2, float, vec2, float, float, vec2);
 int circle_circle_collision(vec2, float, vec2, float);
 void check_mercenary_reassignment_prompt(vec2);
 void check_chest_prompt(vec2);
+void check_item_pickup_prompt(vec2);
 
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 

@@ -111,7 +111,7 @@ float decrement_timer(float timer) {
 void set_prompt(const char *buffer) {
   timers[GENERAL_PROMPT] = 1.5;
   event_flags[GENERAL_PROMPT] = 1;
-  vec2 prompt_pos = { 0.0, 0.0 };
+  vec2 prompt_pos = { 0.0, 0.25 };
   init_menu(
       prompt_pos, // position
       NULL, // on_click

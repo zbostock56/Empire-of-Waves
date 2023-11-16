@@ -28,6 +28,7 @@ extern int console_input_enabled;
 extern int shore_interaction_enabled;
 extern int home_interaction_enabled;
 extern int container_interaction_enabled;
+extern int item_interaction_enabled;
 extern int reassignment_menu_open;
 extern UI_ID open_prompt;
 extern MERCHANT *close_merchant;
@@ -63,7 +64,7 @@ int holding_attack = 0;
 int holding_save = 0;
 int holding_load = 0;
 int holding_esc = 0;
-int holding_enter;
+int holding_i = 0;
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 
@@ -104,7 +105,14 @@ int spawn_projectile(vec2, vec2, float, UNIT_T);
 void open_container(CONTAINER, CONTAINER);
 void close_container();
 char *get_merchant_name(short);
+void set_prompt(const char *);
 
 void open_mercenary_reassignment_menu();
 void close_mercenary_reassignment_menu();
 void close_console_prompt();
+
+void inventory_open_listner();
+void open_inventory_ui();
+void close_inventory_ui();
+
+int pickup_resource();
