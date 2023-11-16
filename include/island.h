@@ -28,12 +28,10 @@ so that the graphics side can render the islands in the viewport.
 #define FALSE            (0)
 #define RETRIES          (3)
 #define RETRIES_NEW_ITEM (10)
+#define INVENTORY_FULL   (-1)
+#define FATAL_ERROR      (-2)
 
-/* PROTOTYPES */
-/* perlin.h */
-float perlin(float, float, float, int, int);
-
-/* Native functions */
+/* ======================= INTERNALLY DEFINED FUNCTIONS ===================== */
 int generate_island(ISLAND *);
 int generate_rand();
 double nano_time();
@@ -47,6 +45,18 @@ void item_rng(ITEM_TILES *);
 void init_resource_buffer(ISLAND *);
 void spawn_new_items();
 int *find_rand_tile(ISLAND *, int);
+void find_closest_resource(ISLAND *, vec2);
+ITEM_IDS translate_resource_to_item(REC_IDS);
+int pickup_resource();
+
+/* ======================= EXTERNALLY DEFINED FUNCTIONS ===================== */
+ISLAND *cur_island(CHUNK *, vec2);
+float perlin(float, float, float, int, int);
+I_SLOT *get_requested_inventory_slot_type(ITEM_IDS);
+I_SLOT *get_player_first_empty_inventory_slot();
+int are_inventory_slots_open();
+void chunk_to_world(ivec2, vec2, vec2);
+void update_inventory_ui();
 
 /* MACROS */
 /* Safe-guard for the chances if tile_location is */

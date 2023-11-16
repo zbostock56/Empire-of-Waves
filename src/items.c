@@ -72,6 +72,46 @@ ITEM item_tab[NUM_ITEMS] = {
 
   // COPPER_COIN
   {1, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  /* GRAIN */
+  {5, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  /* COTTON */
+  {6, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  /* WOOL */
+  {8, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  /* DYES */
+  {8, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  /* SUGAR */
+  {10, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  /* LEATHER */
+  {15, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  /* CHEESE */
+  {15, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  /* IRON_ORE */
+  {18, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  /* WINE */
+  {20, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  /* COPPER_ORE */
+  {20, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  /* SPICE */  
+  {25, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  /* HERB */
+  {28, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  /* TEA */
+  {30, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  /* SILVER_ORE */
+  {30, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  /* PORCELAIN */
+  {35, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  /* SILK */
+  {40, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  /* PEARL */
+  {45, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  /* GOLD_ORE */
+  {50, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  /* SAFFRON */
+  {55, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  /* AMBERGRIS */
+  {60, 0, 0, 0.0, 0.0, 0.0, 0.0}
 };
 
 // Resource table definition
@@ -95,8 +135,8 @@ unsigned int resource_tab[NUM_RESOURCES] = {
   40, // SILK
   45, // PEARL
   50, // GOLD_ORE
-  55,  // SAFFRON
-  60 // AMBERGRIS
+  55, // SAFFRON
+  60  // AMBERGRIS
 };
 
 /*
@@ -121,7 +161,7 @@ ITEM_IDS item_id
 */
 ITEM get_item_info_by_ID(ITEM_IDS item_id) {
   // Check for invalid resource_id
-  if (item_id < 0 || item_id >= NUM_RESOURCES) {
+  if (item_id < 0 || item_id >= NUM_ITEMS) {
     return item_tab[0];
   }
   return item_tab[item_id + 1]; // +1 to account for INVALID_ITEM being -1
@@ -134,7 +174,7 @@ ITEM_IDS item_id
   the item ID of the item info needs to from listing::item_id
 */
 char * get_item_name_by_ID(int item_id) {
-  if (item_id < 0 || item_id >= NUM_RESOURCES) {
+  if (item_id < 0 || item_id >= NUM_ITEMS) {
     return "INVALID_ITEM";
   }
   switch (item_id) {
@@ -159,6 +199,26 @@ char * get_item_name_by_ID(int item_id) {
     case 18: return "GOLD_COIN";
     case 19: return "SILVER_COIN";
     case 20: return "COPPER_COIN";
+    case 21: return "GRAIN";
+    case 22: return "COTTON";
+    case 23: return "WOOL";
+    case 24: return "DYES";
+    case 25: return "SUGAR";
+    case 26: return "LEATHER";
+    case 27: return "CHEESE";
+    case 28: return "IRON_ORE";
+    case 29: return "WINE";
+    case 30: return "COPPER_ORE";
+    case 31: return "SPICE";
+    case 32: return "HERB";
+    case 33: return "TEA";
+    case 34: return "SILVER_ORE";
+    case 35: return "PORCELAIN";
+    case 36: return "SILK";
+    case 37: return "PEARL";
+    case 38: return "GOLD_ORE";
+    case 39: return "SAFFRON";
+    case 40: return "AMBERGRIS";
     default: return "INVALID_ITEM";
   }
 }
@@ -192,6 +252,27 @@ ITEM get_item_info_by_name(char * item_name) {
     else if (strcmp(item_name, "GOLD_COIN") == 0) return get_item_info_by_ID(GOLD_COIN);
     else if (strcmp(item_name, "SILVER_COIN") == 0) return get_item_info_by_ID(SILVER_COIN);
     else if (strcmp(item_name, "COPPER_COIN") == 0) return get_item_info_by_ID(COPPER_COIN);
+    /* Begin resources converted to items  */
+    else if (strcmp(item_name, "GRAIN") == 0) return get_item_info_by_ID(ITEM_GRAIN);
+    else if (strcmp(item_name, "COTTON") == 0) return get_item_info_by_ID(ITEM_COTTON);
+    else if (strcmp(item_name, "WOOL") == 0) return get_item_info_by_ID(ITEM_WOOL);
+    else if (strcmp(item_name, "DYES") == 0) return get_item_info_by_ID(ITEM_DYES);
+    else if (strcmp(item_name, "SUGAR") == 0) return get_item_info_by_ID(ITEM_SUGAR);
+    else if (strcmp(item_name, "LEATHER") == 0) return get_item_info_by_ID(ITEM_LEATHER);
+    else if (strcmp(item_name, "CHEESE") == 0) return get_item_info_by_ID(ITEM_CHEESE);
+    else if (strcmp(item_name, "IRON_ORE") == 0) return get_item_info_by_ID(ITEM_IRON_ORE);
+    else if (strcmp(item_name, "WINE") == 0) return get_item_info_by_ID(ITEM_WINE);
+    else if (strcmp(item_name, "COPPER_ORE") == 0) return get_item_info_by_ID(ITEM_COPPER_ORE);
+    else if (strcmp(item_name, "SPICE") == 0) return get_item_info_by_ID(ITEM_SPICE);
+    else if (strcmp(item_name, "HERB") == 0) return get_item_info_by_ID(ITEM_HERB);
+    else if (strcmp(item_name, "TEA") == 0) return get_item_info_by_ID(ITEM_TEA);
+    else if (strcmp(item_name, "SILVER_ORE") == 0) return get_item_info_by_ID(ITEM_SILVER_ORE);
+    else if (strcmp(item_name, "PORCELAIN") == 0) return get_item_info_by_ID(ITEM_PORCELAIN);
+    else if (strcmp(item_name, "SILK") == 0) return get_item_info_by_ID(ITEM_SILK);
+    else if (strcmp(item_name, "PEARL") == 0) return get_item_info_by_ID(ITEM_PEARL);
+    else if (strcmp(item_name, "GOLD_ORE") == 0) return get_item_info_by_ID(ITEM_GOLD_ORE);
+    else if (strcmp(item_name, "SAFFRON") == 0) return get_item_info_by_ID(ITEM_SAFFRON);
+    else if (strcmp(item_name, "AMBERGRIS") == 0) return get_item_info_by_ID(ITEM_AMBERGRIS);
   }
   return get_item_info_by_ID(INVALID_ITEM);
 }

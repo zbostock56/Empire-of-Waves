@@ -42,6 +42,7 @@ extern float T_WIDTH;
 extern ivec2 CHUNK_OFFSETS[CHUNKS_SIMULATED];
 
 typedef enum tile {
+  INVALID = -1,
   OCEAN = 0,
   SHORE = 1,
   SAND = 2,

@@ -1,7 +1,7 @@
 #ifndef __ITEMS_H__
 #define __ITEMS_H__
 
-#define NUM_ITEMS (22)
+#define NUM_ITEMS (42)
 #define NUM_RESOURCES (21)
 #define COPPER_PER_SILVER (10)
 #define SILVER_PER_GOLD (10)
@@ -66,7 +66,27 @@ typedef enum item_ids {
   // Currency 1 GOLD = 10 SILVER = 100 COPPER
   GOLD_COIN = 18,
   SILVER_COIN = 19,
-  COPPER_COIN = 20
+  COPPER_COIN = 20,
+  ITEM_GRAIN =       21,
+  ITEM_COTTON =      22,
+  ITEM_WOOL =        23,
+  ITEM_DYES =        24,
+  ITEM_SUGAR =       25,
+  ITEM_LEATHER =     26,
+  ITEM_CHEESE =      27,
+  ITEM_IRON_ORE =    28,
+  ITEM_WINE =        29,
+  ITEM_COPPER_ORE =  30,
+  ITEM_SPICE =       31,
+  ITEM_HERB =        32,
+  ITEM_TEA =         33,
+  ITEM_SILVER_ORE =  34,
+  ITEM_PORCELAIN =   35,
+  ITEM_SILK =        36,
+  ITEM_PEARL =       37,
+  ITEM_GOLD_ORE =    38,
+  ITEM_SAFFRON =     39,
+  ITEM_AMBERGRIS =   40
 } ITEM_IDS;
 
 /*

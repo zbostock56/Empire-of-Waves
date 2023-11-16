@@ -145,7 +145,7 @@ void detect_context_interaction() {
     check_mercenary_reassignment_prompt(world_coords_char);
     // Check chest interaction prompt
     check_chest_prompt(world_coords_char);
-    /* Check iterm interaciton */
+    /* Check item interaciton */
     check_item_pickup_prompt(world_coords_char);
   }
 }
@@ -157,12 +157,21 @@ void detect_context_interaction() {
   opening the prompt to pick up an item
 */
 void check_item_pickup_prompt(vec2 coords) {
+  UI_COMPONENT *item_interaction_prompt = get_ui_component_by_ID(INTERACT_PROMPT);
   /* No prompts will appear while using ship */
   if (e_player.embarked) {
+    item_interaction_enabled = 0;
     return;
   }
 
-  UI_COMPONENT *item_interaction_prompt = get_ui_component_by_ID(INTERACT_PROMPT);
+  /* Other menus are open, do not prompt */
+  if (trade.ui_button_trade->enabled || dialog.ui_text_name->enabled ||
+      container_menu_open || reassignment_menu_open || save_menu_open()) {
+    item_interaction_enabled = 0;
+    item_interaction_prompt->enabled = 0;
+    return;
+  }
+
   CHUNK *chunk = chunk_buffer + player_chunks[PLAYER_CHUNK];
   ISLAND *island = cur_island(chunk, coords);
   /* Find the world coords of all items and */
@@ -181,18 +190,13 @@ void check_item_pickup_prompt(vec2 coords) {
       if (dist <= 3.0 * T_WIDTH) {
         item_interaction_enabled = 1;
         item_interaction_prompt->enabled = 1;
-        break;
+        return;
       }
     }
   }
   /* An item has not been found to be */
   /* within the range of the player   */
-  /* Do not open prompt               */
-  if (trade.ui_button_trade->enabled || dialog.ui_text_name->enabled ||
-      container_menu_open || reassignment_menu_open || save_menu_open()) {
-    item_interaction_enabled = 0;
-    item_interaction_prompt->enabled = 0;
-  }
+  item_interaction_enabled = 0;
 }
 
 /*

@@ -13,50 +13,48 @@ void init_scene() {
   entity_framebuffer = framebuffer_init();
 
   // Create Resource Textures
-  resource_textures[get_resource_value_by_ID(INVALID_REC)] = 
+  resource_textures[resource_to_buffer(INVALID_REC)] = 
      gen_texture("assets/resources/invalid.png");
-  resource_textures[get_resource_value_by_ID(GRAIN)] = 
+  resource_textures[resource_to_buffer(GRAIN)] = 
      gen_texture("assets/resources/grain.png");
-  resource_textures[get_resource_value_by_ID(COTTON)] = 
+  resource_textures[resource_to_buffer(COTTON)] = 
      gen_texture("assets/resources/cotton.png");
-  resource_textures[get_resource_value_by_ID(WOOL)] = 
+  resource_textures[resource_to_buffer(WOOL)] = 
      gen_texture("assets/resources/wool.png");
-  resource_textures[get_resource_value_by_ID(DYES)] = 
+  resource_textures[resource_to_buffer(DYES)] = 
      gen_texture("assets/resources/dyes.png");
-  resource_textures[get_resource_value_by_ID(SUGAR)] = 
+  resource_textures[resource_to_buffer(SUGAR)] = 
      gen_texture("assets/resources/sugar.png");
-  resource_textures[get_resource_value_by_ID(LEATHER)] = 
+  resource_textures[resource_to_buffer(LEATHER)] = 
      gen_texture("assets/resources/leather.png");
-  resource_textures[get_resource_value_by_ID(CHEESE)] = 
+  resource_textures[resource_to_buffer(CHEESE)] = 
      gen_texture("assets/resources/cheese.png");
-  resource_textures[get_resource_value_by_ID(IRON_ORE)] = 
+  resource_textures[resource_to_buffer(IRON_ORE)] = 
      gen_texture("assets/resources/iron_ore.png");
-  resource_textures[get_resource_value_by_ID(WINE)] = 
+  resource_textures[resource_to_buffer(WINE)] = 
      gen_texture("assets/resources/wine.png");
-  resource_textures[get_resource_value_by_ID(COPPER_ORE)] = 
+  resource_textures[resource_to_buffer(COPPER_ORE)] = 
      gen_texture("assets/resources/copper_ore.png");
-  resource_textures[get_resource_value_by_ID(SPICE)] = 
+  resource_textures[resource_to_buffer(SPICE)] = 
      gen_texture("assets/resources/spice.png");
-  resource_textures[get_resource_value_by_ID(HERB)] = 
+  resource_textures[resource_to_buffer(HERB)] = 
      gen_texture("assets/resources/herb.png");
-  resource_textures[get_resource_value_by_ID(TEA)] = 
+  resource_textures[resource_to_buffer(TEA)] = 
      gen_texture("assets/resources/tea.png");
-  resource_textures[get_resource_value_by_ID(SILVER_ORE)] = 
+  resource_textures[resource_to_buffer(SILVER_ORE)] = 
      gen_texture("assets/resources/silver_ore.png");
-  resource_textures[get_resource_value_by_ID(PORCELAIN)] = 
+  resource_textures[resource_to_buffer(PORCELAIN)] = 
      gen_texture("assets/resources/porcelain.png");
-  resource_textures[get_resource_value_by_ID(SILK)] = 
+  resource_textures[resource_to_buffer(SILK)] = 
      gen_texture("assets/resources/silk.png");
-  resource_textures[get_resource_value_by_ID(PEARL)] = 
+  resource_textures[resource_to_buffer(PEARL)] = 
      gen_texture("assets/resources/pearl.png");
-  resource_textures[get_resource_value_by_ID(GOLD_ORE)] = 
+  resource_textures[resource_to_buffer(GOLD_ORE)] = 
      gen_texture("assets/resources/gold_ore.png");
-  resource_textures[get_resource_value_by_ID(SAFFRON)] = 
+  resource_textures[resource_to_buffer(SAFFRON)] = 
      gen_texture("assets/resources/saffron.png");
-  resource_textures[get_resource_value_by_ID(AMBERGRIS)] = 
+  resource_textures[resource_to_buffer(AMBERGRIS)] = 
      gen_texture("assets/resources/ambergris.png");
-
-
 
   // Initialize shaders
   std_shader = shader_init(vertex_shader, fragment_shader_texture);
@@ -255,6 +253,7 @@ void render_scene(GLFWwindow *window) {
         }
         render_island(cur_chunk->islands + j);
         ISLAND *cur_island = cur_chunk->islands + j;
+        /* Render the resource icons onto the islands */
         for (int k = 0; k < cur_island->num_items; k++) {
           if (cur_island->item_tiles[k].resource != INVALID_REC) {
             render_resource(cur_island->item_tiles[k].position,
@@ -534,7 +533,7 @@ void render_resource(vec2 position, ISLAND *island, REC_IDS r_type) {
   glm_vec3_negate(player_world_coords);
   glm_translate(view_mat, player_world_coords);
 
-  quad->texture = resource_textures[get_resource_value_by_ID(r_type)]; 
+  quad->texture = resource_textures[resource_to_buffer(r_type)]; 
 
   glUseProgram(pixel_shader);
   set_float("num_pixels", 256.0, pixel_shader);

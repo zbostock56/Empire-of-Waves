@@ -105,6 +105,7 @@ int spawn_projectile(vec2, vec2, float, UNIT_T);
 void open_container(CONTAINER, CONTAINER);
 void close_container();
 char *get_merchant_name(short);
+void set_prompt(const char *);
 
 void open_mercenary_reassignment_menu();
 void close_mercenary_reassignment_menu();
@@ -113,3 +114,5 @@ void close_console_prompt();
 void inventory_open_listner();
 void open_inventory_ui();
 void close_inventory_ui();
+
+int pickup_resource();

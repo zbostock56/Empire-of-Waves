@@ -87,6 +87,7 @@ void exploration_movement(GLFWwindow *window) {
   }
 
   e_player.moving = 0;
+  /*  W KEY CONTROLS  */
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
     vec2 movement = GLM_VEC2_ZERO_INIT;
     if (e_player.embarked) {
@@ -102,6 +103,7 @@ void exploration_movement(GLFWwindow *window) {
                       e_player.coords);
     }
   }
+  /*  S KEY CONTROLS  */
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
     vec2 movement = GLM_VEC2_ZERO_INIT;
     if (e_player.embarked) {
@@ -117,6 +119,7 @@ void exploration_movement(GLFWwindow *window) {
                      e_player.coords);
     }
   }
+  /*  E KEY CONTROLS  */
   if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && !holding_interaction) {
     if (shore_interaction_enabled) {
       if (e_player.embarked) {
@@ -146,7 +149,13 @@ void exploration_movement(GLFWwindow *window) {
       open_container(home_box, player_inv);
       get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
     } else if (!e_player.embarked && item_interaction_enabled) {
-      get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 1;
+      /* Picking up item */
+      get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
+      item_interaction_enabled = 0;
+      /* -1 returned means inventory is full */
+      if (pickup_resource() == -1) {
+        set_prompt("Inventory Full!");
+      }
     }
     holding_interaction = 1;
   } else if (glfwGetKey(window, GLFW_KEY_E) != GLFW_PRESS) {

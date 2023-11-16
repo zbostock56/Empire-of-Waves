@@ -79,7 +79,7 @@ int generate_island(ISLAND *island) {
 
 void init_resource_buffer(ISLAND *island) {
   for (int i = 0; i < ITEM_BUFFER_SIZE; i++) {
-     island->item_tiles[i].type = OCEAN;
+     island->item_tiles[i].type = INVALID;
      island->item_tiles[i].resource = INVALID_REC;
      island->item_tiles[i].quantity = 0;
      island->item_tiles[i].position[0] = -1.0f;
@@ -256,6 +256,8 @@ void spawn_new_items() {
             island->item_tiles[k].position[0] = (float) tile_info[1];
             island->item_tiles[k].position[1] = (float) tile_info[2];
             island->item_tiles[k].quantity = 1;
+            int tile_location = tile_info[1] + (tile_info[2] * I_WIDTH);
+            island->item_tiles[island->num_items].type = island->tiles[tile_location];
             item_rng(island->item_tiles + k);
             if (island->item_tiles[k].resource == INVALID_REC) {
               fprintf(stderr, "island.c: new item respawn found to be invalid resource\n");
@@ -356,6 +358,8 @@ void spawn_items(ISLAND *island) {
       island->item_tiles[island->num_items].position[0] = (float) tile_info[1];
       island->item_tiles[island->num_items].position[1] = (float) tile_info[2];
       island->item_tiles[island->num_items].quantity = 1;
+      int tile_location = tile_info[1] + (tile_info[2] * I_WIDTH);
+      island->item_tiles[island->num_items].type = island->tiles[tile_location];
       item_rng(island->item_tiles + island->num_items);
       if (island->item_tiles[island->num_items].resource == INVALID_REC) {
         fprintf(stderr, "island.c: initial item spawned found to be invalid resource\n");
@@ -443,6 +447,114 @@ void item_rng(ITEM_TILES *tile) {
     tile->resource = category + 9;
     break;
   }
+}
+
+/*
+  Translates the position of the resource in the
+  resource table into the location of the item
+  table
+*/
+ITEM_IDS translate_resource_to_item(REC_IDS resource) {
+  if (resource == INVALID_REC) {
+    return ((ITEM_IDS) -1);
+  }
+  return (ITEM_IDS) ((int) resource + 21);
+}
+
+/*
+  Translates the position of the resource in the 
+  item table into the location resource in the
+  resource table
+  NOTE: To get back INVALID_REC, input INVALID_ITEM
+*/
+REC_IDS translate_item_to_resource(ITEM_IDS item) {
+  if (INVALID_ITEM) {
+    return INVALID_REC;
+  }
+  return (REC_IDS) (((int) item) - 21);
+}
+
+/*
+  Helper function for pickup_resource() to find
+  which item on the island is closest
+*/
+int find_closet_resource(ISLAND *island, vec2 avatar_coords) {
+  float dist = FLT_MAX;
+  float temp = FLT_MAX;
+  int lowest = -1;
+  vec2 item_world_coords = GLM_VEC2_ZERO_INIT;
+  vec2 item_chunk_coords = GLM_VEC2_ZERO_INIT;
+  for (int i = 0; i < island->num_items; i++) {
+    if (island->item_tiles[i].resource != INVALID_REC) {
+      /* Get position of item in world coords */
+      item_chunk_coords[0] = island->coords[0] + island->item_tiles[i].position[0];
+      item_chunk_coords[1] = island->coords[1] + island->item_tiles[i].position[1];
+      chunk_to_world(e_player.chunk, item_chunk_coords, item_world_coords); 
+      if ((temp = glm_vec2_distance(avatar_coords, item_world_coords)) < dist) {
+        dist = temp;
+        lowest = i;
+      }
+    } 
+  }
+  return lowest;
+}
+
+/*
+  Helper function used in controls.c to pickup resource
+  off the ground and remove from ITEM_TILES and place it
+  into the player's inventory, assuming that it isn't full.
+  
+  This is the point where a resource converts into an item
+  when it transitions into the player's inventory
+*/
+int pickup_resource() {
+
+  /* Find the current island that the player is on */
+  vec2 coords = GLM_VEC2_ZERO_INIT;
+  chunk_to_world(e_player.chunk, e_player.coords, coords);
+  CHUNK *chunk = chunk_buffer + player_chunks[PLAYER_CHUNK];
+  ISLAND *island = cur_island(chunk, coords);
+  
+  /* Search for the closest resource to the player */
+  int closest = find_closet_resource(island, coords);
+  if (closest == -1) {
+    fprintf(stderr, "island.c: unabled to find closest resource\n");
+    return FATAL_ERROR;
+  }
+  ITEM_TILES *rec = island->item_tiles + closest;
+  /* Convert the resource into an item, then search */
+  /* player's inventory to check if there exists    */
+  /* the same item already. If not, look for first  */
+  /* open inventory slot.                           */
+  ITEM_IDS converted_item_type = translate_resource_to_item(rec->resource);
+  I_SLOT *inventory_slot = get_requested_inventory_slot_type(converted_item_type);
+  int inv_slot_open = are_inventory_slots_open();
+  if (!inventory_slot && !inv_slot_open) {
+    /* Can't find requested item type, nor any      */
+    /* inventory slots open                         */
+    return INVENTORY_FULL;
+  } else if (!inventory_slot && inv_slot_open) {
+    /* Can't find requested item type, but there are */
+    /* slots that are available                      */
+    inventory_slot = get_player_first_empty_inventory_slot();
+  }
+  /* Update the player's inventory slot with picked */
+  /* up item                                        */
+  inventory_slot->item_id = converted_item_type;
+  inventory_slot->quantity++;
+  if (rec->quantity > 1) {
+    /* Resource location on island has more than  */
+    /* one resource at that location              */
+    rec->quantity--;
+  } else {
+    /* Only one resource at this location         */
+    rec->quantity = 0;
+    rec->resource = INVALID_REC;
+    glm_vec2_copy((vec2) {-1.0, -1.0}, rec->position);
+  }
+  /* Update the text buffers of the inventory */
+  update_inventory_ui();
+  return 0;
 }
 
 /*
