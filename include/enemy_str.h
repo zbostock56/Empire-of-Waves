@@ -4,6 +4,7 @@
 #include <cglm/vec2.h>
 #include <cglm/ivec2.h>
 #include <combat_str.h>
+#include <container_str.h>
 /*
                                    ENEMY_STR.h
 Describes the struct representing an enemy ship in exploration mode and the
@@ -14,6 +15,7 @@ which reads/manipulates enemy state.
 /* DEFINES */
 /* Specifies the max number of enemies per chunk */
 #define MAX_ENEMIES (3)
+#define ENEMY_INV_SIZE (3)
 #define CHUNKS_SIMULATED (9)
 #define STEER_SPEED (3.0)
 
@@ -59,5 +61,10 @@ typedef struct combat_unit {
   float max_life;
   float life;
 } C_UNIT;
+
+typedef struct lootable_unit {
+  CONTAINER inv;
+  vec2 coords;
+} L_UNIT;
 
 #endif

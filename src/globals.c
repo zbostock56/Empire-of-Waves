@@ -36,6 +36,9 @@ MERCHANT *cur_merchant = NULL;
 
 // ========================== COMBAT MODE STATE ==============================
 C_PLAYER c_player;
+L_UNIT *loot;
+unsigned int num_loot = 0;
+unsigned int loot_buf_len = 0;
 C_UNIT *npc_units = NULL;
 unsigned int num_npc_units = 0;
 PROJ *projectiles = NULL;

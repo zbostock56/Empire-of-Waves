@@ -38,8 +38,6 @@ int detect_collisions() {
         trade_ship_collision(trade_ships + i);
       }
     }
-
-    // Disembark / embark contexts
     detect_context_interaction();
   } else {
     unit_collision(c_player.coords);
@@ -47,6 +45,7 @@ int detect_collisions() {
       unit_collision(npc_units[i].coords);
     }
     attack_collision();
+    detect_combat_lootables();
   }
 
   return 0;
@@ -722,6 +721,34 @@ void attack_collision() {
       despawn_projectile(i);
       i--;
     }
+  }
+}
+
+void detect_combat_lootables() {
+  UI_COMPONENT *interaction_prompt = get_ui_component_by_ID(INTERACT_PROMPT);
+  unsigned int in_range = 0;
+  unsigned int new_lootable = 0;
+  for (unsigned int i = 0; i < num_loot; i++) {
+    float dist = glm_vec2_distance(c_player.coords, loot[i].coords);
+    if (dist <= 3.0) {
+      in_range = 1;
+      new_lootable = i;
+    }
+  }
+
+  if (in_range && !container_menu_open) {
+    container_interaction_enabled = 1;
+    interaction_prompt->enabled = 1;
+    cur_lootable = new_lootable;
+  } else if (in_range && new_lootable != cur_lootable){
+    close_container();
+    container_interaction_enabled = 1;
+    interaction_prompt->enabled = 1;
+    cur_lootable = new_lootable;
+  } else if (!in_range) {
+    container_interaction_enabled = 0;
+    interaction_prompt->enabled = 0;
+    close_container();
   }
 }
 

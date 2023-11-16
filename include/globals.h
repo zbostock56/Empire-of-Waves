@@ -40,6 +40,9 @@ extern float global_time;
 
 // ========================= COMBAT MODE STATE ===============================
 extern C_PLAYER c_player;
+extern L_UNIT *loot;
+extern unsigned int num_loot;
+extern unsigned int loot_buf_len;
 extern C_UNIT *npc_units;
 extern unsigned int num_npc_units;
 extern PROJ *projectiles;

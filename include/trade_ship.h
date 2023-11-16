@@ -9,6 +9,7 @@
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 
 void trade_ship_pathfind(TRADE_SHIP *);
+void delete_trade_ship(unsigned int);
 
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 
@@ -21,4 +22,5 @@ void trade_ship_steering(TRADE_SHIP *, vec2);
 void prompt_plundered_trade_ship();
 
 int add_chunk(ivec2);
+void remove_chunk(unsigned int);
 int double_buffer(void **, unsigned int *, unsigned int);

@@ -11,3 +11,7 @@ int get_player_silver();
 int get_player_copper();
 unsigned int get_num_empty_slots(I_SLOT *, unsigned int);
 void give_player_copper(unsigned int);
+int add_chunk(ivec2);
+int remove_chunk(unsigned int);
+void find_shore_tile(ISLAND *, vec2);
+void delete_trade_ship(unsigned int);

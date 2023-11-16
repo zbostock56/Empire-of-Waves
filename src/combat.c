@@ -7,6 +7,10 @@
 */
 
 int to_combat_mode(unsigned int enemy_index) {
+  if (mode == COMBAT) {
+    return 0;
+  }
+
   mode = COMBAT;
   CHUNK *cur_chunk = chunk_buffer + player_chunks[PLAYER_CHUNK];
   E_ENEMY *enemy_ship = cur_chunk->enemies + enemy_index;
@@ -36,6 +40,20 @@ int to_combat_mode(unsigned int enemy_index) {
     fprintf(stderr, "combat.c: unable to allocate npc_units buffer\n");
     return -1;
   }
+
+  loot = malloc(sizeof(L_UNIT) * enemy_ship->crew_count);
+  if (loot == NULL) {
+    fprintf(stderr, "combat.c: unable to allocate loot buffer\n");
+    return -1;
+  }
+  loot_buf_len = enemy_ship->crew_count;
+  for (int i = 0; i < loot_buf_len; i++) {
+    init_container(&loot[i].inv, ENEMY_INV_SIZE);
+    loot[i].inv.items[0].item_id = COPPER_COIN;
+    loot[i].inv.items[0].quantity = (rand() % 10) + 1;
+  }
+  num_loot = 0;
+
   projectiles = malloc(sizeof(PROJ) * PROJ_BUF_START_LEN);
   if (projectiles == NULL) {
     fprintf(stderr, "combat.c: unable to allocate projectiles buffer\n");
@@ -60,6 +78,7 @@ int to_combat_mode(unsigned int enemy_index) {
     npc_units[i].attack_active = 0.0;
     npc_units[i].attack_cooldown = 0.0;
     npc_units[i].fire_rate = 1.0;
+    npc_units[i].invuln_timer = 0.0;
     npc_units[i].max_life = 20.0;
     npc_units[i].knockback_counter = -1.0;
     npc_units[i].life = 20.0;
@@ -103,11 +122,21 @@ int to_combat_mode(unsigned int enemy_index) {
 }
 
 void from_combat_mode() {
+  if (mode != COMBAT) {
+    return;
+  }
+
   mode = EXPLORATION;
+  for (unsigned int i = 0; i < loot_buf_len; i++) {
+    free_container(&loot[i].inv);
+  }
+  free(loot);
   free(npc_units);
   free(projectiles);
   projectiles = NULL;
   npc_units = NULL;
+  loot_buf_len = 0;
+  num_loot = 0;
   num_npc_units = 0;
   num_projectiles = 0;
   proj_buf_size = 0;
@@ -117,6 +146,8 @@ void from_combat_mode() {
   unsigned int last_enemy_index = cur_chunk->num_enemies;
   // Swap last enemy ship with deleted enemy ship
   cur_chunk->enemies[e_enemy_index] = cur_chunk->enemies[last_enemy_index];
+  get_ui_component_by_ID(COMBAT_INFO_BAR)->enabled = 0;
+  close_container();
 }
 
 void update_combat_state() {
@@ -146,6 +177,11 @@ void update_combat_state() {
       npc_units[i].death_animation = decrement_timer(npc_units[i].
                                                      death_animation);
     } else if (npc_units[i].death_animation == 0.0) {
+      if (npc_units[i].type == ENEMY) {
+        glm_vec2_copy(npc_units[i].coords, loot[num_loot].coords);
+        num_loot++;
+      }
+
       // Death animation complete, npc should be deleted
       num_npc_units--;
       // move last unit in buffer to position of deleted unit
@@ -183,25 +219,47 @@ void update_combat_state() {
     }
   }
 
-  unsigned int num_allies = 0;
-  unsigned int num_enemies = 0;
-  for (unsigned int i = 0; i < num_npc_units; i++) {
-    if (npc_units[i].type == ENEMY) {
-      num_enemies++;
-    } else {
-      num_allies++;
+  // Remove all empty loot boxes
+  if (!container_menu_open) {
+    for (int i = 0; i < num_loot; i++) {
+      int empty = 1;
+      for (int j = 0; j < loot[i].inv.capacity; j++) {
+        if (loot[i].inv.items[j].item_id != EMPTY) {
+          empty = 0;
+          break;
+        }
+      }
+
+      if (empty) {
+        L_UNIT temp = loot[i];
+        num_loot--;
+        loot[i] = loot[num_loot];
+        loot[num_loot] = temp;
+        i--;
+      }
     }
   }
 
-  if (num_enemies == 0) {
-    // Player wins
-    e_player.ship_mercenaries = num_allies;
-    from_combat_mode();
+  unsigned int num_allies = 0;
+  unsigned int num_enemies = 0;
+  for (unsigned int i = 0; i < num_npc_units; i++) {
+    if (npc_units[i].type == ALLY) {
+      num_allies++;
+    } else {
+      num_enemies++;
+    }
   }
+
+  if (!num_enemies) {
+    get_ui_component_by_ID(COMBAT_INFO_BAR)->enabled = 1;
+  }
+
+  e_player.ship_mercenaries = num_allies;
   if (c_player.health <= 0.0) {
     // Player loses
     e_player.ship_mercenaries = 0;
     from_combat_mode();
+    respawn_player();
   }
 }
 
@@ -296,3 +354,17 @@ void knockback(C_UNIT *unit) {
   glm_vec2_sub(unit->coords, movement, unit->coords);
 }
 
+void leave_combat() {
+  unsigned int num_enemies = 0;
+  for (unsigned int i = 0; i < num_npc_units; i++) {
+    if (npc_units[i].type == ENEMY) {
+      num_enemies++;
+    }
+  }
+
+  if (num_enemies) {
+    return;
+  }
+
+  from_combat_mode();
+}

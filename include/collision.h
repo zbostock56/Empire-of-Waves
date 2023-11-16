@@ -24,6 +24,7 @@ extern float T_WIDTH;
 extern TRADE trade;
 extern DIALOG dialog;
 MERCHANT *close_merchant = NULL;
+unsigned int cur_lootable = 0;
 
 int shore_interaction_enabled = 0;
 int home_interaction_enabled = 0;
@@ -51,6 +52,7 @@ int circle_aabb_collision(vec2, float, vec2, float, float, vec2);
 int circle_circle_collision(vec2, float, vec2, float);
 void check_mercenary_reassignment_prompt(vec2);
 void check_chest_prompt(vec2);
+void detect_combat_lootables();
 
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 

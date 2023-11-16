@@ -215,3 +215,14 @@ void merchant_generate(MERCHANT *merchant, ISLAND *island) {
   return;
 }
 
+void find_shore_tile(ISLAND *island, vec2 dest) {
+  for (unsigned int i = 0; i < I_WIDTH * I_WIDTH; i++) {
+    if (island->tiles[i] == SHORE) {
+      vec2 coords = {
+        i % I_WIDTH,
+        i / I_WIDTH
+      };
+      glm_vec2_copy(coords, dest);
+    }
+  }
+}

@@ -31,6 +31,7 @@ int init_container(CONTAINER *cont, unsigned int capacity) {
 
 void free_container(CONTAINER *cont) {
   free(cont->items);
+  cont->items = NULL;
 }
 
 int move_item(I_SLOT *to, I_SLOT *from) {
