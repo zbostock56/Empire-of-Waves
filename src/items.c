@@ -281,7 +281,7 @@ Return 1 if it is
 Return 0 it it is not
 */
 int item_isWeapon(ITEM_IDS item_id) {
-  if (item_id == KNIVE || item_id == SWORD || item_id == AXE || item_id == BOW || item_id == CROSSBOW || item_id == FLINTLOCK) {
+  if (item_id == KNIFE || item_id == SWORD || item_id == AXE || item_id == BOW || item_id == CROSSBOW || item_id == FLINTLOCK) {
     return 1;
   } else {
     return 0;
@@ -294,7 +294,7 @@ Return 1 if it is
 Return 0 it it is not
 */
 int item_isMeleeWeapon(ITEM_IDS item_id) {
-  if (item_id == KNIVE || item_id == SWORD || item_id == AXE) {
+  if (item_id == KNIFE || item_id == SWORD || item_id == AXE) {
     return 1;
   } else {
     return 0;
@@ -321,7 +321,7 @@ Return 1 if it is
 Return 0 it it is not
 */
 int item_isArmor(ITEM_IDS item_id) {
-  if (item_id == CLOTH_ARMOR || item_id == LIGHT_ARMOR || item_id == MIDIUM_ARMOR || item_id == HEAVY_ARMOR || item_id == LEATHER_ARMOR || item_id == PLATE_ARMOR) {
+  if (item_id == CLOTH_ARMOR || item_id == LIGHT_ARMOR || item_id == MEDIUM_ARMOR || item_id == HEAVY_ARMOR || item_id == LEATHER_ARMOR || item_id == PLATE_ARMOR) {
     return 1;
   } else {
     return 0;

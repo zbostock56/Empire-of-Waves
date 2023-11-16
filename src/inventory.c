@@ -387,7 +387,7 @@ void on_hover_inventory_item(void *inventory_item_index) {
     }
     else if (item.equippable) {
       switch (item_id) {
-        case KNIVE:
+        case KNIFE:
         case SWORD:
         case AXE: {
           sprintf(inventory.ui_text_on_hover_item->text, " [%s] P [%d] Q [%d] [MELEE] [FR %+.1f] [SPD %+.1f] ", get_item_name_by_ID(item_id), price, quantity, firerate_mod, speed_mod);
@@ -402,7 +402,7 @@ void on_hover_inventory_item(void *inventory_item_index) {
         case CLOTH_ARMOR:
         case LEATHER_ARMOR:
         case LIGHT_ARMOR:
-        case MIDIUM_ARMOR:
+        case MEDIUM_ARMOR:
         case HEAVY_ARMOR:
         case PLATE_ARMOR: {
           sprintf(inventory.ui_text_on_hover_item->text, " [%s] P [%d] Q [%d] [FR %+.1f] [SPD %+.1f] [MAX HP %+.1f]", get_item_name_by_ID(item_id), price, quantity, firerate_mod, speed_mod, max_health_mod);
@@ -436,7 +436,7 @@ void on_hover_weapon() {
   // float max_health_mod = item.max_heath_mod;
   if (item_id != EMPTY) {
     switch (item_id) {
-      case KNIVE:
+      case KNIFE:
       case SWORD:
       case AXE: {
         sprintf(inventory.ui_text_on_hover_item->text, " [%s] P [%d] [MELEE] [FR %+.1f] [SPD %+.1f] ", get_item_name_by_ID(item_id), price, firerate_mod, speed_mod);
@@ -475,7 +475,7 @@ void on_hover_armor() {
       case CLOTH_ARMOR:
       case LEATHER_ARMOR:
       case LIGHT_ARMOR:
-      case MIDIUM_ARMOR:
+      case MEDIUM_ARMOR:
       case HEAVY_ARMOR:
       case PLATE_ARMOR: {
         sprintf(inventory.ui_text_on_hover_item->text, " [%s] P [%d] [FR %+.1f] [SPD %+.1f] [MAX HP %+.1f]", get_item_name_by_ID(item_id), price, firerate_mod, speed_mod, max_health_mod);
