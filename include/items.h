@@ -95,9 +95,9 @@ typedef enum item_ids {
 typedef struct item {
   int value; // Sell/buy price
   int edible; // Can be eat
+  int equippable; // Can be equipped by player
   float health_mod; // When eat, how it modifies player health:
                     // heath = current_health + health_mod
-  int equippable; // Can be equipped by player
   float firerate_mod; // When equipped, how it modifies the player firerate:
                       // firerate = base_firerate + firerate_mod
   float speed_mod; // When equipped, how it modifies player speed:
@@ -115,5 +115,10 @@ unsigned int get_resource_value_by_ID(REC_IDS resource_id);
 ITEM get_item_info_by_ID(ITEM_IDS item_id);
 char * get_item_name_by_ID(int item_id);
 ITEM get_item_info_by_name(char *item_name);
+
+int item_isWeapon(ITEM_IDS item_id);
+int item_isMeleeWeapon(ITEM_IDS item_id);
+int item_isRangedWeapon(ITEM_IDS item_id);
+int item_isArmor(ITEM_IDS item_id);
 
 #endif

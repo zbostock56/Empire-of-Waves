@@ -66,10 +66,8 @@ ITEM item_tab[NUM_ITEMS] = {
 
   // GOLD_COIN
   {100, 0, 0, 0.0, 0.0, 0.0, 0.0},
-
   // SILVER_COIN
   {10, 0, 0, 0.0, 0.0, 0.0, 0.0},
-
   // COPPER_COIN
   {1, 0, 0, 0.0, 0.0, 0.0, 0.0},
   /* GRAIN */
@@ -277,3 +275,55 @@ ITEM get_item_info_by_name(char * item_name) {
   return get_item_info_by_ID(INVALID_ITEM);
 }
 
+/*
+Helper function
+Return 1 if it is
+Return 0 it it is not
+*/
+int item_isWeapon(ITEM_IDS item_id) {
+  if (item_id == KNIVE || item_id == SWORD || item_id == AXE || item_id == BOW || item_id == CROSSBOW || item_id == FLINTLOCK) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+/*
+Helper function
+Return 1 if it is
+Return 0 it it is not
+*/
+int item_isMeleeWeapon(ITEM_IDS item_id) {
+  if (item_id == KNIVE || item_id == SWORD || item_id == AXE) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+
+/*
+Helper function
+Return 1 if it is
+Return 0 it it is not
+*/
+int item_isRangedWeapon(ITEM_IDS item_id) {
+  if (item_id == BOW || item_id == CROSSBOW || item_id == FLINTLOCK) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+/*
+Helper function
+Return 1 if it is
+Return 0 it it is not
+*/
+int item_isArmor(ITEM_IDS item_id) {
+  if (item_id == CLOTH_ARMOR || item_id == LIGHT_ARMOR || item_id == MIDIUM_ARMOR || item_id == HEAVY_ARMOR || item_id == LEATHER_ARMOR || item_id == PLATE_ARMOR) {
+    return 1;
+  } else {
+    return 0;
+  }
+}

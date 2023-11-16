@@ -328,6 +328,13 @@ void render_scene(GLFWwindow *window) {
   } else {
     time_trade_event_prompt -= delta_time;
   }
+  // Inventory prompt delay
+  if (time_inventory_event_prompt < 0) {
+    inventory.ui_text_event_prompt->enabled = 0;
+    time_inventory_event_prompt = 2.0;
+  } else {
+    time_inventory_event_prompt -= delta_time;
+  }
 
   /*
   vec2 world_coords = GLM_VEC2_ZERO_INIT;
