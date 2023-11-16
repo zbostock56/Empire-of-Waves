@@ -1,6 +1,6 @@
 
 /* DEFINES  */
-#define NUM_COMPONENTS (165) // UI COMPONENT:: Max number of UI component
+#define NUM_COMPONENTS (186) // UI COMPONENT:: Max number of UI component
 
 /*
   Enum mapping human-readable component names to the index of the ui component
@@ -98,8 +98,31 @@ typedef enum component_ids {
 
   GENERAL_PROMPT_ON_SCREEN = 162,
 
-  RANSOM_MSG_POS = 163,
-  RANSOM_BUTTON_POS = 164,
+  INVENTORY_BUTTON_PLAYER_ITEM_0 = 163,
+  INVENTORY_BUTTON_PLAYER_ITEM_1 = 164,
+  INVENTORY_BUTTON_PLAYER_ITEM_2 = 165,
+  INVENTORY_BUTTON_PLAYER_ITEM_3 = 166,
+  INVENTORY_BUTTON_PLAYER_ITEM_4 = 167,
+  INVENTORY_BUTTON_PLAYER_ITEM_5 = 168,
+  INVENTORY_BUTTON_PLAYER_ITEM_6 = 169,
+  INVENTORY_BUTTON_PLAYER_ITEM_7 = 170,
+  INVENTORY_BUTTON_PLAYER_ITEM_8 = 171,
+  INVENTORY_BUTTON_PLAYER_ITEM_9 = 172,
+  INVENTORY_BUTTON_PLAYER_ITEM_10 = 173,
+  INVENTORY_BUTTON_PLAYER_ITEM_11 = 174,
+  INVENTORY_BUTTON_PLAYER_ITEM_12 = 175,
+  INVENTORY_BUTTON_PLAYER_ITEM_13 = 176,
+  INVENTORY_BUTTON_PLAYER_ITEM_14 = 177,
+  INVENTORY_BUTTON_PLAYER_ITEM_15 = 178,
+  INVENTORY_BUTTON_WEAPON = 179,
+  INVENTORY_BUTTON_ARMOR = 180,
+  INVENTORY_TEXT_HOVER_ITEM = 181,
+  INVENTORY_TEXT_EVENT_PROMPT = 182,
+
+  COMBAT_INFO_BAR = 183,
+
+  RANSOM_MSG_POS = 184,
+  RANSOM_BUTTON_POS = 185,
   // Populate as more components are added
 } UI_ID;
 
@@ -110,3 +133,9 @@ extern UI_COMPONENT ui_tab[NUM_COMPONENTS];
 
 /* UTILITIES  */
 UI_COMPONENT *get_ui_component_by_ID(UI_ID ui_id);
+void init_menu(vec2 position, void (*on_click)(void *),
+               void (*on_hover)(void *), void *on_click_args,
+               void *on_hover_args, char *text, int enabled, int textured,
+               unsigned int texture, float text_padding, float text_scale,
+               float width, float height, PIVOT pivot, TEXT_ANCHOR text_anchor,
+               UI_COMPONENT *dest);

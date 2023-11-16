@@ -195,7 +195,8 @@ void pathfind_enemy(E_ENEMY *enemy, unsigned int enemy_chunk) {
   */
   float ship_search_radius = SHIP_COLLISION_RADIUS * SHIP_CHASE_RADIUS *
                              T_WIDTH;
-  if (circle_circle_collision(player_ship_world_coords, ship_search_radius,
+  if (e_player.embarked &&
+      circle_circle_collision(player_ship_world_coords, ship_search_radius,
                               enemy_world_coords, ship_search_radius)) {
     /* player ship Detected by enemy */
     enemy->on_path = true;
@@ -256,13 +257,6 @@ void pathfind_enemy(E_ENEMY *enemy, unsigned int enemy_chunk) {
 
   /* if target is player_ship */
   if (prioritize_player) {
-     /* if player is not on board, don't chase */
-    if (!e_player.embarked) {
-      enemy->on_path = false;
-      enemy->moving = 0;
-      return;
-    }
-
     /* If Enemy ship is not in player's current chunk, manually move it to our
        chunk instead of targetng */
     if (e_player.ship_chunk[0] != enemy->chunk[0] ||

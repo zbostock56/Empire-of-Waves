@@ -13,6 +13,20 @@ void update_event_timer() {
     if (mode == EXPLORATION && e_player.embarked == 1) {
       spawn_event();
     }
+    if (mode == EXPLORATION) {
+      item_respawn_event();
+    }
+  }
+}
+
+/*
+  Helper routine to spawn items
+  on islands which have already had
+  items spawned on them
+*/
+void item_respawn_event() {
+  if (rand() % 5 == 0) {
+    spawn_new_items();
   }
 }
 
@@ -41,6 +55,10 @@ void init_timers() {
   }
 }
 
+/*
+  Helper routine to decrement time from active timers
+  and activate their respective events if they go off
+*/
 void update_timers() {
   if (console_input_enabled) {
     timers[CONS_CURSOR] -= delta_time;
@@ -103,10 +121,15 @@ float decrement_timer(float timer) {
   return timer;
 }
 
+/*
+  Generalized function to set a simple
+  prompt to the screen that disappears
+  in 1.5 seconds
+*/
 void set_prompt(const char *buffer) {
   timers[GENERAL_PROMPT] = 1.5;
   event_flags[GENERAL_PROMPT] = 1;
-  vec2 prompt_pos = { 0.0, 0.0 };
+  vec2 prompt_pos = { 0.0, 0.25 };
   init_menu(
       prompt_pos, // position
       NULL, // on_click

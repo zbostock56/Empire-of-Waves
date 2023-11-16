@@ -17,7 +17,7 @@ void init_player() {
   e_player.inventory[0].quantity = 2;
   e_player.inventory[1].item_id = CITRUS;
   e_player.inventory[1].quantity = 1;
-  e_player.inventory[2].item_id = KNIVE;
+  e_player.inventory[2].item_id = KNIFE;
   e_player.inventory[2].quantity = 1;
   e_player.inventory[3].item_id = GOLD_COIN;
   e_player.inventory[3].quantity = 100;
@@ -29,7 +29,7 @@ void init_player() {
   e_player.inventory[6].quantity = 1;
   e_player.inventory[7].item_id = FLINTLOCK;
   e_player.inventory[7].quantity = 1;
-  e_player.inventory[8].item_id = MIDIUM_ARMOR;
+  e_player.inventory[8].item_id = MEDIUM_ARMOR;
   e_player.inventory[8].quantity = 1;
   e_player.inventory[9].item_id = HEAVY_ARMOR;
   e_player.inventory[9].quantity = 1;
@@ -37,6 +37,29 @@ void init_player() {
   e_player.inventory[10].quantity = 1;
   e_player.inventory[11].item_id = FIRERATE_POTION;
   e_player.inventory[11].quantity = 1;
+}
+
+// Reset player inventory, ship merchants, and position back to the home island
+void respawn_player() {
+  glm_ivec2_zero(e_player.chunk);
+  glm_ivec2_zero(e_player.ship_chunk);
+
+  int home_chunk = add_chunk((ivec2) {0, 0});
+  find_shore_tile(chunk_buffer[home_chunk].islands, e_player.ship_coords);
+  glm_vec2_copy(e_player.ship_coords, e_player.coords);
+  remove_chunk(home_chunk);
+
+  unsigned int num_ts = num_trade_ships;
+  for (unsigned int i = 0; i < num_ts; i++) {
+    delete_trade_ship(0);
+  }
+
+  e_player.embarked = 1;
+  e_player.ship_mercenaries = 0;
+  for (unsigned int i = 0; i < MAX_PLAYER_INV_SIZE; i++) {
+    e_player.inventory[i].item_id = EMPTY;
+    e_player.inventory[i].quantity = 0;
+  }
 }
 
 /*
@@ -59,11 +82,35 @@ Return NULL if not found such empty slot
 */
 I_SLOT * get_player_first_empty_inventory_slot() {
   for (int i = 0; i < MAX_PLAYER_INV_SIZE; i++) {
-    if (e_player.inventory[i].item_id == 0 || e_player.inventory[i].quantity == 0) {
+    if ((e_player.inventory[i].item_id == 0) ||
+         e_player.inventory[i].quantity == 0) {
       return &e_player.inventory[i];
     }
   }
   return NULL;
+}
+
+/*
+  Gets player's first inventory slot that matches with the requested
+  item type that already has items in the slot
+*/
+I_SLOT *get_requested_inventory_slot_type(ITEM_IDS item) {
+  for (int i = 0; i < MAX_PLAYER_INV_SIZE; i++) {
+    if (e_player.inventory[i].item_id == item &&
+        e_player.inventory[i].quantity > 0) {
+      return e_player.inventory + i;
+    }
+  }
+  return NULL;
+}
+
+int are_inventory_slots_open() {
+  for (int i = 0; i < MAX_PLAYER_INV_SIZE; i++) {
+    if (e_player.inventory[i].item_id == EMPTY) {
+      return 1;
+    }
+  }
+  return 0;
 }
 
 /*
@@ -75,7 +122,10 @@ I_SLOT * slot_b
 */
 void swap_inventory_slot(I_SLOT * slot_a, I_SLOT * slot_b) {
   if (slot_a && slot_b) {
-    I_SLOT temp = {slot_a->item_id, slot_a->quantity};
+    I_SLOT temp = {
+      slot_a->item_id,
+      slot_a->quantity
+    };
     slot_a->item_id = slot_b->item_id;
     slot_a->quantity = slot_b->quantity;
     slot_b->item_id = temp.item_id;

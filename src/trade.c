@@ -693,7 +693,7 @@ void on_click_ui_listing(void *listing_ui_index) {
       } else {
         listing_slot->quantity += 1;
         e_player.money += item.value;
-        // TODO: popup when player's inventory is full already
+        set_prompt("Inventory Full!");
         return;
       }
 
@@ -705,18 +705,6 @@ void on_click_ui_listing(void *listing_ui_index) {
 
       // Increase the merchant relationship, maximum 100.0
       update_relationship(trade.merchant, 10.0);
-
-/*#ifndef __linux__
-      printf("**** [SLOT %ld] [ITEM \"%s\"] [QUATITY %d] ****\n",
-             listing_index + 1, trade.ui_listing[listing_index]->text,
-             get_merchant_listing_item_by_index(trade.merchant,
-                                                listing_index)->quantity);
-#else
-      printf("**** [SLOT %ld] [ITEM \"%s\"] [QUATITY %d] ****\n",
-             listing_index + 1, trade.ui_listing[listing_index]->text,
-             get_merchant_listing_item_by_index(trade.merchant,
-                                                listing_index)->quantity);
-#endif*/
     }
   } else if (trade.type == SELL &&
              get_player_inventory_slot_by_index(listing_index)->quantity > 0) {
@@ -753,16 +741,6 @@ void on_click_ui_listing(void *listing_ui_index) {
 
     // Increase the merchant relationship, maximum 100.0
     update_relationship(trade.merchant, 10.0);
-
-/*#ifndef __linux__
-    printf("**** [SLOT %ld] [ITEM \"%s\"] [QUATITY %d] ****\n",
-           listing_index + 1, trade.ui_listing[listing_index]->text,
-           get_player_inventory_slot_by_index(listing_index)->quantity);
-#else
-    printf("**** [SLOT %ld] [ITEM \"%s\"] [QUATITY %d] ****\n",
-           listing_index + 1, trade.ui_listing[listing_index]->text,
-           get_player_inventory_slot_by_index(listing_index)->quantity);
-#endif*/
   }
 }
 
@@ -792,7 +770,7 @@ void trade_route_handler(int island_index) {
     dialog.ui_text_schedule_trade_route_prompt->enabled = 1;
     time_schdule_trade_toute_prompt = 1.0;
     restore_trade_ship_mercs(dialog.merchant->chunk, island_index);
-    delete_trade_ship(dialog.merchant->chunk, island_index);
+    delete_trade_ship_by_target(dialog.merchant->chunk, island_index);
     target_merch->has_trade_route = 0;
 
     dialog.ui_button_trade_route->text = "2. Establish trade route";

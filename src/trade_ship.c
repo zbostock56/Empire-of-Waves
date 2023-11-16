@@ -63,7 +63,8 @@ TRADE_SHIP *init_trade_ship(char *merch_name, ivec2 target_chunk,
   return trade_ships + num_trade_ships - 1;
 }
 
-void delete_trade_ship(ivec2 target_chunk, unsigned int target_island) {
+void delete_trade_ship_by_target(ivec2 target_chunk,
+                                 unsigned int target_island) {
   TRADE_SHIP *cur_ship = NULL;
   CHUNK *cur_chunk = NULL;
   for (int i = 0; i < num_trade_ships; i++) {
@@ -72,11 +73,17 @@ void delete_trade_ship(ivec2 target_chunk, unsigned int target_island) {
     if (target_chunk[0] == cur_chunk->coords[0] &&
         target_chunk[1] == cur_chunk->coords[1] &&
         target_island == cur_ship->target_island) {
-      num_trade_ships--;
-      trade_ships[i] = trade_ships[num_trade_ships];
+      delete_trade_ship(i);
       return;
     }
   }
+}
+
+void delete_trade_ship(unsigned int index) {
+  remove_chunk(trade_ships[index].cur_chunk_index);
+  remove_chunk(trade_ships[index].target_chunk_index);
+  num_trade_ships--;
+  trade_ships[index] = trade_ships[num_trade_ships];
 }
 
 void restore_trade_ship_mercs(ivec2 target_chunk, unsigned int target_island) {

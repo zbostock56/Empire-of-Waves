@@ -11,6 +11,7 @@ void keyboard_input(GLFWwindow *window) {
     // Exploration mode keyboard handlers here
     exploration_movement(window);
     close_merchant_menu(window);
+    inventory_open_listner(window);
   } else if (mode == COMBAT && !console_input_enabled) {
     combat_movement(window);
   }
@@ -45,7 +46,7 @@ void mouse_pos(GLFWwindow *window, double x_pos, double y_pos) {
 }
 
 void mouse_click(GLFWwindow *window, int button, int action, int mods) {
-  if (mode == COMBAT) {
+  if (mode == COMBAT && !container_menu_open) {
     combat_mode_attack(action);
   }
   if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
@@ -86,6 +87,7 @@ void exploration_movement(GLFWwindow *window) {
   }
 
   e_player.moving = 0;
+  /*  W KEY CONTROLS  */
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
     vec2 movement = GLM_VEC2_ZERO_INIT;
     if (e_player.embarked) {
@@ -101,6 +103,7 @@ void exploration_movement(GLFWwindow *window) {
                       e_player.coords);
     }
   }
+  /*  S KEY CONTROLS  */
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
     vec2 movement = GLM_VEC2_ZERO_INIT;
     if (e_player.embarked) {
@@ -116,6 +119,7 @@ void exploration_movement(GLFWwindow *window) {
                      e_player.coords);
     }
   }
+  /*  E KEY CONTROLS  */
   if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && !holding_interaction) {
     if (shore_interaction_enabled) {
       if (e_player.embarked) {
@@ -145,6 +149,14 @@ void exploration_movement(GLFWwindow *window) {
       CONTAINER player_inv = { e_player.inventory, MAX_PLAYER_INV_SIZE };
       open_container(home_box, player_inv);
       get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
+    } else if (!e_player.embarked && item_interaction_enabled) {
+      /* Picking up item */
+      get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
+      item_interaction_enabled = 0;
+      /* -1 returned means inventory is full */
+      if (pickup_resource() == -1) {
+        set_prompt("Inventory Full!");
+      }
     }
     holding_interaction = 1;
   } else if (glfwGetKey(window, GLFW_KEY_E) != GLFW_PRESS) {
@@ -176,6 +188,26 @@ void combat_movement(GLFWwindow *window) {
   }
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
     glm_vec2_sub(c_player.coords, movement, c_player.coords);
+  }
+
+  if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && !holding_interaction) {
+    if (container_interaction_enabled) {
+      CONTAINER player_inv = { e_player.inventory, MAX_PLAYER_INV_SIZE };
+      open_container(loot[cur_lootable].inv, player_inv);
+      get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
+    }
+    holding_interaction = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_E) != GLFW_PRESS) {
+    holding_interaction = 0;
+  }
+  if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS && !holding_leave) {
+    leave_combat();
+    holding_leave = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_R) != GLFW_PRESS) {
+    holding_leave = 0;
+  }
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+    close_container();
   }
 }
 
@@ -262,6 +294,22 @@ void modifier_keys(GLFWwindow *window) {
   }
 }
 
+void inventory_open_listner(GLFWwindow *window) {
+  if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS && !holding_i) {
+    if (get_ui_component_by_ID(INVENTORY_BUTTON_PLAYER_ITEM_0)->enabled) {
+      close_inventory_ui();
+    } else if (get_ui_component_by_ID(DIALOG_NAME)->enabled == 0 && 
+               get_ui_component_by_ID(TRADE_BUTTON_TRADE)->enabled == 0 &&
+               get_ui_component_by_ID(NEW_GAME)->enabled == 0 && 
+               get_ui_component_by_ID(CONTAINER_1_SLOTS)->enabled == 0) {
+      open_inventory_ui();
+    }
+    holding_i = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_I) != GLFW_PRESS) {
+    holding_i = 0;
+  }
+}
+
 // =============================== HELPERS ===================================
 
 void combat_mode_attack(int action) {
@@ -295,6 +343,7 @@ void close_merchant_menu(GLFWwindow *window) {
     close_mercenary_reassignment_menu();
     close_ransom_menu();
     close_container();
+    close_inventory_ui();
   }
 }
 

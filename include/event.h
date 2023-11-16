@@ -29,9 +29,11 @@ void init_menu(vec2, void (*)(void *), void (*)(void *), void *, void *,
                PIVOT, TEXT_ANCHOR, UI_COMPONENT *);
 float calc_stealing_interval();
 void steal_item(CONTAINER *);
+void spawn_new_items();
 
 /* ================ INTERNALLY DEFINED FUNCTIONS ================== */
 void update_event_timer();
 void spawn_event();
 void update_timers();
 float decrement_timer(float);
+void item_respawn_event();

@@ -128,6 +128,7 @@ void free_chunk(CHUNK *chunk) {
     if (chunk->islands[i].has_merchant) {
       free(chunk->islands[i].merchant.listings);
     }
+    glDeleteTextures(1, &chunk->islands[i].texture);
   }
   free(chunk->enemies);
   chunk->coords[0] = 0xBAADF00D;
@@ -248,7 +249,7 @@ int generate_chunk(CHUNK *chunk) {
   ivec2 isl_locations[MAX_ISLANDS];
   /* Generate random number to find how many islands will */
   /* be in a chunk */
-  int num_islands = generate_rand() % MAX_ISLANDS;
+  int num_islands = rand() % MAX_ISLANDS;
   chunk->num_islands = num_islands;
   island_locator(isl_locations, num_islands);
 
