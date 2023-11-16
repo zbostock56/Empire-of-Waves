@@ -693,7 +693,7 @@ void on_click_ui_listing(void *listing_ui_index) {
       } else {
         listing_slot->quantity += 1;
         e_player.money += item.value;
-        // TODO: popup when player's inventory is full already
+        set_prompt("Inventory Full!");
         return;
       }
 
@@ -708,18 +708,6 @@ void on_click_ui_listing(void *listing_ui_index) {
       if (trade.merchant->relationship > 100.0) {
         trade.merchant->relationship = 100.0;
       }
-
-/*#ifndef __linux__
-      printf("**** [SLOT %ld] [ITEM \"%s\"] [QUATITY %d] ****\n",
-             listing_index + 1, trade.ui_listing[listing_index]->text,
-             get_merchant_listing_item_by_index(trade.merchant,
-                                                listing_index)->quantity);
-#else
-      printf("**** [SLOT %ld] [ITEM \"%s\"] [QUATITY %d] ****\n",
-             listing_index + 1, trade.ui_listing[listing_index]->text,
-             get_merchant_listing_item_by_index(trade.merchant,
-                                                listing_index)->quantity);
-#endif*/
     }
   } else if (trade.type == SELL &&
              get_player_inventory_slot_by_index(listing_index)->quantity > 0) {
@@ -759,16 +747,6 @@ void on_click_ui_listing(void *listing_ui_index) {
     if (trade.merchant->relationship > 100.0) {
       trade.merchant->relationship = 100.0;
     }
-
-/*#ifndef __linux__
-    printf("**** [SLOT %ld] [ITEM \"%s\"] [QUATITY %d] ****\n",
-           listing_index + 1, trade.ui_listing[listing_index]->text,
-           get_player_inventory_slot_by_index(listing_index)->quantity);
-#else
-    printf("**** [SLOT %ld] [ITEM \"%s\"] [QUATITY %d] ****\n",
-           listing_index + 1, trade.ui_listing[listing_index]->text,
-           get_player_inventory_slot_by_index(listing_index)->quantity);
-#endif*/
   }
 }
 

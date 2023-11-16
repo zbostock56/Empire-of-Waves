@@ -325,9 +325,9 @@ int set_dialog(MERCHANT *merchant, T_DIALOG dialog_type, char *name,
     strncpy(dialog.content, content, MAX_CONTENT_STR_LENGTH);
     dialog.content[MAX_CONTENT_STR_LENGTH - 1] = '\0'; // Ensures null termination
     if (merchant->has_trade_route) {
-      dialog.ui_button_trade_route->text = "3. Cancel trade route";
+      dialog.ui_button_trade_route->text = "2. Cancel trade route";
     } else {
-      dialog.ui_button_trade_route->text = "3. Establish trade route";
+      dialog.ui_button_trade_route->text = "2. Establish trade route";
     }
     return 1;
   }

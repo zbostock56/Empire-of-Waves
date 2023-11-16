@@ -144,7 +144,58 @@ void detect_context_interaction() {
     check_mercenary_reassignment_prompt(world_coords_char);
     // Check chest interaction prompt
     check_chest_prompt(world_coords_char);
+    /* Check item interaciton */
+    check_item_pickup_prompt(world_coords_char);
   }
+}
+
+/*
+  Helper routine to check if the player is within
+  range of an item, given that they are currently
+  on an island and another prompt is not active,
+  opening the prompt to pick up an item
+*/
+void check_item_pickup_prompt(vec2 coords) {
+  UI_COMPONENT *item_interaction_prompt = get_ui_component_by_ID(INTERACT_PROMPT);
+  /* No prompts will appear while using ship */
+  if (e_player.embarked) {
+    item_interaction_enabled = 0;
+    return;
+  }
+
+  /* Other menus are open, do not prompt */
+  if (trade.ui_button_trade->enabled || dialog.ui_text_name->enabled ||
+      container_menu_open || reassignment_menu_open || save_menu_open()) {
+    item_interaction_enabled = 0;
+    item_interaction_prompt->enabled = 0;
+    return;
+  }
+
+  CHUNK *chunk = chunk_buffer + player_chunks[PLAYER_CHUNK];
+  ISLAND *island = cur_island(chunk, coords);
+  /* Find the world coords of all items and */
+  /* check if the player is within range    */
+  float dist = 100000.0;
+  vec2 item_world_coords = GLM_VEC2_ZERO_INIT;
+  vec2 item_chunk_coords = GLM_VEC2_ZERO_INIT;
+  for (int i = 0; i < island->num_items; i++) {
+    if (island->item_tiles[i].resource != INVALID_REC) {
+      item_chunk_coords[0] = island->item_tiles[i].position[0]
+                             + island->coords[0];
+      item_chunk_coords[1] = island->item_tiles[i].position[1]
+                             + island->coords[1];
+      chunk_to_world(island->chunk, item_chunk_coords, item_world_coords); 
+      dist = glm_vec2_distance(item_world_coords, coords);
+      if (dist <= 3.0 * T_WIDTH) {
+        item_interaction_enabled = 1;
+        item_interaction_prompt->enabled = 1;
+        return;
+      }
+    }
+  }
+  /* An item has not been found to be */
+  /* within the range of the player   */
+  item_interaction_enabled = 0;
 }
 
 /*
