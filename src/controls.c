@@ -266,7 +266,10 @@ void inventory_open_listner(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS && !holding_i) {
     if (get_ui_component_by_ID(INVENTORY_BUTTON_PLAYER_ITEM_0)->enabled) {
       close_inventory_ui();
-    } else {
+    } else if (get_ui_component_by_ID(DIALOG_NAME)->enabled == 0 && 
+               get_ui_component_by_ID(TRADE_BUTTON_TRADE)->enabled == 0 &&
+               get_ui_component_by_ID(NEW_GAME)->enabled == 0 && 
+               get_ui_component_by_ID(CONTAINER_1_SLOTS)->enabled == 0) {
       open_inventory_ui();
     }
     holding_i = 1;
@@ -307,6 +310,7 @@ void close_merchant_menu(GLFWwindow *window) {
     close_trade();
     close_mercenary_reassignment_menu();
     close_container();
+    close_inventory_ui();
   }
 }
 
