@@ -327,3 +327,14 @@ int item_isArmor(ITEM_IDS item_id) {
     return 0;
   }
 }
+
+/*
+Helper function to determine if an item is edible
+to increase the hunger stat
+*/
+int item_is_food(ITEM_IDS item_id) {
+  if (item_id == CITRUS || item_id == RUM) {
+    return 1;
+  }
+  return 0;
+}

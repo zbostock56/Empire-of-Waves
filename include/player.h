@@ -13,3 +13,4 @@ unsigned int get_num_empty_slots(I_SLOT *, unsigned int);
 void give_player_copper(unsigned int);
 I_SLOT *get_requested_inventory_slot(ITEM_IDS);
 int are_inventory_slots_open();
+void set_hunger_level(float);

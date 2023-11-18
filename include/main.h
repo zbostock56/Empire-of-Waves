@@ -38,3 +38,4 @@ int init_containers();
 void init_container_ui();
 void init_game(char *);
 void free_game();
+void start_hunger_timer();

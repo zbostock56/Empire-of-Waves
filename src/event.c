@@ -19,6 +19,8 @@ void update_event_timer() {
   }
 }
 
+
+
 /*
   Helper routine to spawn items
   on islands which have already had
@@ -76,6 +78,55 @@ void update_timers() {
       close_prompt();
     }
   }
+
+  if (event_flags[HEALTH_REDUCTION_TIMER]) {
+    timers[HEALTH_REDUCTION_TIMER] -= delta_time;
+    if (timers[HEALTH_REDUCTION_TIMER] <= 0.0) {
+      decrease_health();
+      reset_health_reduction_timer();
+    }
+  }
+
+  if (event_flags[HEALTH_INCREASE_TIMER]) {
+    timers[HEALTH_INCREASE_TIMER] -= delta_time;
+    if (timers[HEALTH_INCREASE_TIMER] <= 0.0) {
+      increase_health();
+      reset_health_increase_timer();
+    }
+  }
+
+  /*
+    Hunger statistic timer control
+  */
+  if (event_flags[HUNGER_TIMER] && mode == EXPLORATION) {
+    timers[HUNGER_TIMER] -= delta_time;
+    if (e_player.hunger > MIN_HUNGER_BEFORE_HEALTH_REDUCTION &&
+        event_flags[HEALTH_REDUCTION_TIMER]) {
+      /* Hunger has been restored to high enough level, stop */
+      /* removing health from the player */
+      stop_health_reduction_timer();
+    } else if (e_player.hunger > MAX_HUNGER_BEFORE_HEALTH_INCREASE &&
+               !event_flags[HEALTH_INCREASE_TIMER]) {
+      /* Player has now gotten into the health increase range, */
+      /* start health increasing */
+      start_health_increase_timer();
+    } else if (e_player.hunger <= MAX_HUNGER_BEFORE_HEALTH_INCREASE &&
+               event_flags[HEALTH_INCREASE_TIMER]) {
+      /* Player is now outside the health increase range,  */
+      /* stop health increasing */
+      stop_health_increase_timer();
+    }
+    if (timers[HUNGER_TIMER] <= 0.0) {
+      decrease_hunger();
+      if (e_player.hunger <= MIN_HUNGER_BEFORE_HEALTH_REDUCTION &&
+          !event_flags[HEALTH_REDUCTION_TIMER]) {
+        /* Hunger has reached critical low, begin decrementing */
+        /* health from the player */
+        start_health_reduction_timer();
+      } 
+      reset_hunger_timer();
+    }
+  }
   if (mode == EXPLORATION) {
     TRADE_SHIP *cur_ship = NULL;
     for (int i = 0; i < num_trade_ships; i++) {
@@ -103,14 +154,86 @@ float decrement_timer(float timer) {
   return timer;
 }
 
+/* =============== HUNGER HELPERS ==================== */
+/*
+  Helper function to start the hunger reduction timer
+
+  Hunger drops by 1.0 every 10 seconds
+*/
+void start_hunger_timer() {
+  reset_hunger_timer();
+  event_flags[HUNGER_TIMER] = ENABLED; 
+}
+
+void stop_health_reduction_timer() {
+  event_flags[HEALTH_REDUCTION_TIMER] = DISABLED;
+}
+
+void stop_health_increase_timer() {
+  event_flags[HEALTH_INCREASE_TIMER] = DISABLED;
+}
+
+void start_health_reduction_timer() {
+  reset_health_reduction_timer();
+  event_flags[HEALTH_REDUCTION_TIMER] = ENABLED;
+}
+
+void start_health_increase_timer() {
+  reset_health_increase_timer();
+  event_flags[HEALTH_INCREASE_TIMER] = ENABLED;
+}
+
+void reset_health_reduction_timer() {
+  timers[HEALTH_REDUCTION_TIMER] = HEALTH_REDUCTION_TIME;
+}
+
+void reset_health_increase_timer() {
+  timers[HEALTH_INCREASE_TIMER] = HEALTH_INCREASE_TIME;
+}
+
+void decrease_hunger() {
+  e_player.hunger -= 1.0;
+  if (e_player.hunger <= 0.0) {
+    e_player.hunger = 0.0;
+  }
+}
+
+void decrease_health() {
+  e_player.health -= 1.0;
+  if (e_player.health <= 0.0) {
+    e_player.health = 0.0;
+  }
+}
+
+void increase_health() {
+  e_player.health += 5.0;
+  if (e_player.health >= e_player.max_health) {
+    e_player.health = e_player.max_health;
+  }
+}
+
+void reset_hunger_timer() {
+  timers[HUNGER_TIMER] = hunger_timer;
+}
+
+/*
+  Adjusts the hunger timer for the console
+*/
+void set_hunger_timer(float new_time) {
+  hunger_timer = new_time; 
+  reset_hunger_timer();
+}
+
+/* ================================================= */
+
 /*
   Generalized function to set a simple
   prompt to the screen that disappears
   in 1.5 seconds
 */
 void set_prompt(const char *buffer) {
-  timers[GENERAL_PROMPT] = 1.5;
-  event_flags[GENERAL_PROMPT] = 1;
+  timers[GENERAL_PROMPT] = GENERAL_PROMPT_TIME;
+  event_flags[GENERAL_PROMPT] = ENABLED;
   vec2 prompt_pos = { 0.0, 0.25 };
   init_menu(
       prompt_pos, // position

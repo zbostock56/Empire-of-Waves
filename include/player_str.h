@@ -36,6 +36,12 @@ typedef struct exploration_player {
   unsigned int ship_mercenaries;
   float max_health;
   float health;
+  /* Value between 0.0 and 100.0 */
+  /* Once value gets below 10.0, the player begins to lose */
+  /* health. */
+  /* In the same vein, when the player's hunger is above 90.0 */
+  /* the player begins to gain health. */
+  float hunger;
   float speed;
 } E_PLAYER;
 
