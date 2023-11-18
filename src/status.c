@@ -157,9 +157,9 @@ int init_status_menu() {
   vec2 attack_position = { 0, 0.1 };
   init_menu(
     attack_position, // position
-    NULL, // on_click
+    increment_buff, // on_click
     NULL, // on_hover
-    (void *) 0xBAADF00D, // on_click_args
+    (void *) "attack", // on_click_args
     (void *) 0xBAADF00D, // on_hover_args
     NULL, // text
     0, // enabled
@@ -185,9 +185,9 @@ int init_status_menu() {
   vec2 defense_position = { 0, 0.0 };
   init_menu(
     defense_position, // position
-    NULL, // on_click
+    increment_buff, // on_click
     NULL, // on_hover
-    (void *) 0xBAADF00D, // on_click_args
+    (void *) "defense", // on_click_args
     (void *) 0xBAADF00D, // on_hover_args
     NULL, // text
     0, // enabled
@@ -263,7 +263,38 @@ int init_status_menu() {
     return -1;
   }
   status_menu.ui_menu_speed->text[0] = '\0';
-
+  
+  // initilaize buff list 
+  for (int i = 0; i < MAX_BUFF_NUM; i++) {
+    status_menu.buff_list[i].ui_menu_buff = &ui_tab[172 + i];
+    status_menu.buff_list[i].buff_timer = 0;
+    vec2 buff_position = {-0.5, 0.0 - i * 0.1};
+      init_menu(
+      buff_position, // position
+      NULL, // on_click
+      NULL, // on_hover
+      (void *) 0xBAADF00D, // on_click_args
+      (void *) 0xBAADF00D, // on_hover_args
+      NULL, // text
+      0, // enabled
+      1, // textured
+      0, // texture
+      0, // text_padding
+      0.5, // text_scale
+      0, // width
+      0, // height
+      PIVOT_CENTER, // pivot
+      T_CENTER, // text_anchor
+      status_menu.buff_list[i].ui_menu_buff // dest
+    );
+    status_menu.buff_list[i].ui_menu_buff->text = malloc(MAX_STATUS_STR_LENGTH * sizeof(char));
+    if (!status_menu.buff_list[i].ui_menu_buff->text) {
+      fprintf(stderr, "status.c: Failed to allocate stat buff buffer\n");
+      return -1;
+    }
+    status_menu.buff_list[i].ui_menu_buff->text[0] = '\0';
+  }
+  status_menu.num_buff = 0;
   return 0;
 }
 
@@ -291,6 +322,10 @@ void free_status_menu() {
   status_menu.ui_menu_fire = NULL;
   free(status_menu.ui_menu_speed->text);
   status_menu.ui_menu_speed = NULL;
+  for (int i = 0; i < MAX_BUFF_NUM; i++) {
+    free(status_menu.buff_list[i].ui_menu_buff->text);
+    status_menu.buff_list[i].ui_menu_buff = NULL;
+  }
 }
 
 /* Update status bar for each frame */
@@ -313,6 +348,55 @@ void update_status_menu() {
   snprintf(status_menu.ui_menu_defense->text, MAX_STATUS_STR_LENGTH, " Defense : 10 (+0) ");
   snprintf(status_menu.ui_menu_fire->text, MAX_STATUS_STR_LENGTH, " Fire Rate : %.1f ", c_player.fire_rate);
   snprintf(status_menu.ui_menu_speed->text, MAX_STATUS_STR_LENGTH, " Speed : 0.5 ");
+  update_buff_list();
+}
+
+void update_buff_list() {
+  for (int i = 0; i < status_menu.num_buff; i++) {
+    
+    snprintf(status_menu.buff_list[i].ui_menu_buff->text, MAX_STATUS_STR_LENGTH, 
+             " %s : %ds ", status_menu.buff_list[i].text, (int)status_menu.buff_list[i].buff_timer);
+    status_menu.buff_list[i].buff_timer = decrement_timer(status_menu.buff_list[i].buff_timer);
+    if (status_menu.buff_list[i].buff_timer == 0.0) {
+      status_menu.buff_list[i].ui_menu_buff->enabled = 0;
+      status_menu.num_buff--;
+      // printf("%d\n",status_menu.num_buff);
+
+      // If there is another buff remaining, pull that to the current buff UI slot.
+      if (status_menu.num_buff > 0) {
+        status_menu.buff_list[i].buff_timer = status_menu.buff_list[status_menu.num_buff].buff_timer;
+        status_menu.buff_list[i].text = status_menu.buff_list[status_menu.num_buff].text;
+        status_menu.buff_list[status_menu.num_buff].buff_timer = 0.0;
+        if (status_menu_open) {
+          status_menu.buff_list[i].ui_menu_buff->enabled = 1;
+        } 
+        status_menu.buff_list[status_menu.num_buff].ui_menu_buff->enabled = 0;
+      }
+      
+    } else if (status_menu.buff_list[i].buff_timer < 2.0) {
+      static int frameCount = 0;
+      frameCount++;
+      if (frameCount >= 10 && status_menu_open) {
+        status_menu.buff_list[i].ui_menu_buff->enabled = !status_menu.buff_list[i].ui_menu_buff->enabled;
+        frameCount = 0; 
+      }
+    }
+    
+  }
+}
+
+void increment_buff(void * txt) {
+  char* text = (char*) txt;
+  int idx = status_menu.num_buff;
+  if (idx < 0 || idx > MAX_BUFF_NUM-1) {
+    return;
+  }
+  status_menu.buff_list[idx].buff_timer+=10.0;
+  status_menu.buff_list[idx].text = text;
+  if (status_menu.buff_list[idx].ui_menu_buff->enabled == 0) {
+    status_menu.buff_list[idx].ui_menu_buff->enabled = 1;
+    status_menu.num_buff++;
+  }
 }
 
 /* Render status bar */
@@ -341,6 +425,9 @@ void open_status_menu() {
   status_menu.ui_menu_defense->enabled = 1;
   status_menu.ui_menu_fire->enabled = 1;
   status_menu.ui_menu_speed->enabled = 1;
+  for (int i = 0; i < status_menu.num_buff; i++) {
+    status_menu.buff_list[i].ui_menu_buff->enabled = 1;
+  }
   status_menu_open = 1;
   get_ui_component_by_ID(NEW_GAME)->enabled = 0;
   get_ui_component_by_ID(SAVE)->enabled = 0;
@@ -359,5 +446,8 @@ void close_status_menu() {
   status_menu.ui_menu_defense->enabled = 0;
   status_menu.ui_menu_fire->enabled = 0;
   status_menu.ui_menu_speed->enabled = 0;
+  for (int i = 0; i < status_menu.num_buff; i++) {
+    status_menu.buff_list[i].ui_menu_buff->enabled = 0;
+  }
   status_menu_open = 0;
 }
