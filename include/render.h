@@ -34,13 +34,20 @@
 #define C (2.0)
 #define K (1.0)
 #define H (0.05)
+
+// Constants for weather effects
+#define RAIN_PERIOD (5.0)
+#define RAIN_SPEED (10.0)
+#define WIND_DIR (-0.5)
+
 #include <shader_code.h>
 
-#define WORLD_DEPTH (-0.7)
-#define OBSTACLE_DEPTH (-0.6)
-#define EFFECT_DEPTH (-0.5)
-#define SHIP_DEPTH (-0.4)
-#define AVATAR_DEPTH (-0.3)
+#define WORLD_DEPTH (-0.8)
+#define OBSTACLE_DEPTH (-0.7)
+#define EFFECT_DEPTH (-0.6)
+#define SHIP_DEPTH (-0.5)
+#define AVATAR_DEPTH (-0.4)
+#define WEATHER_DEPTH (-0.3)
 #define UI_DEPTH (-0.2)
 #define TEXT_DEPTH (-0.1)
 
@@ -93,6 +100,7 @@ unsigned int ripple_shader;
 unsigned int menu_shader;
 unsigned int chunk_shader;
 unsigned int island_shader;
+unsigned int weather_shader;
 
 FRAMEBUFFER entity_framebuffer;
 
@@ -137,6 +145,7 @@ void render_hitbox(vec2, float);
 void render_health_bar_background(vec2);
 void render_health_bar_filled(vec2, float, float);
 void render_resource(vec2, ISLAND *, REC_IDS);
+void render_weather();
 
 void calc_screen_scale();
 

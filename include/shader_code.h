@@ -15,11 +15,13 @@ const char *vertex_shader = " \
   layout (location = 1) in vec3 in_norm;\n \
   layout (location = 2) in vec2 in_tex;\n \
   out vec2 tex_coords;\n \
+  out vec2 frag_pos;\n \
   uniform mat4 model;\n \
   uniform mat4 view;\n \
   uniform mat4 proj;\n \
   void main() {\n \
     gl_Position = proj * view * model * vec4(in_pos, 1.0);\n \
+    frag_pos = vec2(model * vec4(in_pos, 1.0));\n \
     tex_coords = in_tex;\n \
   }\n \
 ";
@@ -281,3 +283,43 @@ const char *fragment_shader_ripple =
 "}\n"
 ;
 
+const char *fragment_shader_weather =
+"#version 430 core\n"
+""
+"#define PI " TO_STRING(PI) "\n"
+"#define RAIN_SPEED " TO_STRING(RAIN_SPEED) "\n"
+"#define RAIN_PERIOD " TO_STRING(RAIN_PERIOD) "\n"
+"#define WIND_DIR " TO_STRING(WIND_DIR) "\n"
+""
+"out vec4 FragColor;\n"
+"in vec2 frag_pos;\n"
+"uniform vec2 player_pos;\n"
+"uniform float time;\n"
+"uniform float wind_dir;\n"
+"uniform float T_WIDTH;\n"
+"int calc_rain(vec2);\n"
+"void main() {\n"
+"  float pix_size = 10.0 * (1.0 / 1024.0);\n"
+"  vec2 pixel_pos = vec2(pix_size * floor(frag_pos.x / pix_size),\n"
+"                        pix_size * floor(frag_pos.y / pix_size));\n"
+"  if (calc_rain(pixel_pos) == 1) {\n"
+"    FragColor = vec4(vec3(0.8), 1.0);\n"
+"  } else {\n"
+"    FragColor = vec4(vec3(0.0), 0.2);\n"
+"  }\n"
+"}\n"
+""
+"int calc_rain(vec2 pixel_pos) {\n"
+"  float mask = abs(RAIN_PERIOD * (pixel_pos.y - (pixel_pos.x / WIND_DIR)));\n"
+"  mask = (mask / 2.0) - int(mask / 2.0);\n"
+"  float offset = sin(sin(PI * pixel_pos.x) + sin(2.0 * pixel_pos.x) + pixel_pos.y);\n"
+"  float wind = pixel_pos.y + (WIND_DIR * pixel_pos.x);\n"
+"  float rain_fall = sin(RAIN_PERIOD * (wind + (RAIN_SPEED * time)));\n"
+"  float val = rain_fall - offset;\n"
+"  if (abs(val) > 0.95 && mask >= 0.95) {\n"
+"    return 1;\n"
+"  } else {\n"
+"    return 0;\n"
+"  }\n"
+"}\n"
+;
