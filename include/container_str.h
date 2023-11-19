@@ -4,6 +4,7 @@
 #include <items.h>
 
 typedef struct item_slot {
+  /* Set to EMTPY if empty  */
   int item_id;
   unsigned int quantity;
 } I_SLOT;

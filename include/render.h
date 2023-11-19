@@ -12,6 +12,7 @@
 #include <items.h>
 #include <trade_ship_str.h>
 #include <globals.h>
+#include <inventory_str.h>
 
 #define PI (3.14159265)
 #define WAVE_PERIOD (4.0)
@@ -68,6 +69,8 @@ extern DIALOG dialog;
 extern float time_schdule_trade_toute_prompt;
 extern TRADE trade;
 extern float time_trade_event_prompt;
+extern INVENTORY inventory;
+extern float time_inventory_event_prompt;
 
 // Insert declarations of global render elemements:
 // - models
@@ -93,6 +96,7 @@ unsigned int island_shader;
 
 FRAMEBUFFER entity_framebuffer;
 
+unsigned int resource_textures[NUM_RESOURCES];
 MODEL *player;
 MODEL *enemy;
 MODEL *merchant;
@@ -132,6 +136,7 @@ void render_arena();
 void render_hitbox(vec2, float);
 void render_health_bar_background(vec2);
 void render_health_bar_filled(vec2, float, float);
+void render_resource(vec2, ISLAND *, REC_IDS);
 
 void calc_screen_scale();
 
@@ -170,3 +175,6 @@ int get_tile(unsigned int, vec2);
 unsigned int texture_from_buffer(unsigned char *, int, int, int);
 void update_status_bar();
 void update_status_menu();
+
+// ======================== MACROS =======================
+#define resource_to_buffer(x) (x + 1) 

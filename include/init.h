@@ -32,6 +32,7 @@ int init_trade_ship_buffers();
 void init_timers();
 void open_status_bar();
 void open_status_menu();
+int init_inventory_ui();
 
 void free_dialog();
 void free_trade();
@@ -40,5 +41,6 @@ void free_status_menu();
 void clear_chunk_buffer();
 void free_containers();
 void free_trade_ship_buffers();
+void free_inventory_ui();
 
 void copy_valid_path(const char *, char *, int);
