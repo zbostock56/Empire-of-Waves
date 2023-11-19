@@ -109,7 +109,7 @@ int init_status_menu() {
     0, // enabled
     1, // textured
     0, // texture
-    0.05, // text_padding
+    0.03, // text_padding
     0.5, // text_scale
     0.65, // width
     0, // height
@@ -124,9 +124,37 @@ int init_status_menu() {
   }
   status_menu.ui_menu_health->text[0] = '\0';
 
+  // Initialize hunger stat
+  status_menu.ui_menu_hunger = get_ui_component_by_ID(STATUS_MENU_HUNGER);
+  vec2 hunger_position = { 0, 0.2 }; 
+  init_menu(
+    hunger_position, // position
+    NULL, // on_click
+    NULL, // on_hover
+    (void *) 0xBAADF00D, // on_click_args
+    (void *) 0xBAADF00D, // on_hover_args
+    NULL, // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.03, // text_padding
+    0.5, // text_scale
+    0.65, // width
+    0, // height
+    PIVOT_CENTER, // pivot
+    T_LEFT, // text_anchor
+    status_menu.ui_menu_hunger // dest
+  );
+  status_menu.ui_menu_hunger->text = malloc(MAX_STATUS_STR_LENGTH * sizeof(char));
+  if (!status_menu.ui_menu_hunger->text) {
+    fprintf(stderr, "status.c: Failed to allocate hunger status buffer\n");
+    return -1;
+  }
+  status_menu.ui_menu_hunger->text[0] = '\0';
+
   // Initialize money stat
   status_menu.ui_menu_money = get_ui_component_by_ID(STATUS_MENU_MONEY);
-  vec2 money_position = { 0, 0.2 }; // Example position (adjust as needed)
+  vec2 money_position = { 0, 0.1 }; 
   init_menu(
     money_position, // position
     NULL, // on_click
@@ -137,7 +165,7 @@ int init_status_menu() {
     0, // enabled
     1, // textured
     0, // texture
-    0.05, // text_padding
+    0.03, // text_padding
     0.5, // text_scale
     0.65, // width
     0, // height
@@ -154,7 +182,7 @@ int init_status_menu() {
 
   // Initialize attack stat
   status_menu.ui_menu_attack = get_ui_component_by_ID(STATUS_MENU_ATTACK);
-  vec2 attack_position = { 0, 0.1 };
+  vec2 attack_position = { 0, 0.0 };
   init_menu(
     attack_position, // position
     increment_buff, // on_click
@@ -165,7 +193,7 @@ int init_status_menu() {
     0, // enabled
     1, // textured
     0, // texture
-    0.05, // text_padding
+    0.03, // text_padding
     0.5, // text_scale
     0.65, // width
     0, // height
@@ -182,7 +210,7 @@ int init_status_menu() {
 
   // Initialize defense stat
   status_menu.ui_menu_defense = get_ui_component_by_ID(STATUS_MENU_DEFENSE);
-  vec2 defense_position = { 0, 0.0 };
+  vec2 defense_position = { 0, -0.1 };
   init_menu(
     defense_position, // position
     increment_buff, // on_click
@@ -193,7 +221,7 @@ int init_status_menu() {
     0, // enabled
     1, // textured
     0, // texture
-    0.05, // text_padding
+    0.03, // text_padding
     0.5, // text_scale
     0.65, // width
     0, // height
@@ -210,7 +238,7 @@ int init_status_menu() {
 
   // Initialize fire rate stat
   status_menu.ui_menu_fire = get_ui_component_by_ID(STATUS_MENU_FIRE);
-  vec2 fire_position = { 0, -0.1 };
+  vec2 fire_position = { 0, -0.2 };
   init_menu(
     fire_position, // position
     NULL, // on_click
@@ -221,7 +249,7 @@ int init_status_menu() {
     0, // enabled
     1, // textured
     0, // texture
-    0.05, // text_padding
+    0.03, // text_padding
     0.5, // text_scale
     0.65, // width
     0, // height
@@ -238,7 +266,7 @@ int init_status_menu() {
 
   // Initialize speed stat
   status_menu.ui_menu_speed = get_ui_component_by_ID(STATUS_MENU_SPEED);
-  vec2 speed_position = { 0, -0.2 }; 
+  vec2 speed_position = { 0, -0.3 }; 
   init_menu(
     speed_position, // position
     NULL, // on_click
@@ -249,7 +277,7 @@ int init_status_menu() {
     0, // enabled
     1, // textured
     0, // texture
-    0.05, // text_padding
+    0.03, // text_padding
     0.5, // text_scale
     0.65, // width
     0, // height
@@ -266,7 +294,7 @@ int init_status_menu() {
   
   // initilaize buff list 
   for (int i = 0; i < MAX_BUFF_NUM; i++) {
-    status_menu.buff_list[i].ui_menu_buff = &ui_tab[172 + i];
+    status_menu.buff_list[i].ui_menu_buff = &ui_tab[192 + i];
     status_menu.buff_list[i].buff_timer = 0;
     vec2 buff_position = {-0.5, 0.0 - i * 0.1};
       init_menu(
@@ -312,6 +340,8 @@ void free_status_menu() {
   status_menu.ui_status_menu = NULL;
   free(status_menu.ui_menu_health->text);
   status_menu.ui_menu_health = NULL;
+  free(status_menu.ui_menu_hunger->text);
+  status_menu.ui_menu_hunger = NULL;
   free(status_menu.ui_menu_money->text);
   status_menu.ui_menu_money = NULL;
   free(status_menu.ui_menu_attack->text);
@@ -342,7 +372,10 @@ void update_status_menu() {
            " Player Stats ");
   snprintf(status_menu.ui_menu_health->text, MAX_STATUS_STR_LENGTH,
            " Health : %3.1f / %3.1f ", c_player.health, c_player.max_health);
-  snprintf(status_menu.ui_menu_money->text, MAX_STATUS_STR_LENGTH, " Money : G [%2d] S [%2d] C [%2d] ",
+  snprintf(status_menu.ui_menu_hunger->text, MAX_STATUS_STR_LENGTH,
+           " Hunger : %3.1f / %3.1f ", 100.0, 100.0);
+  snprintf(status_menu.ui_menu_money->text, MAX_STATUS_STR_LENGTH, 
+           " Money : G [%2d] S [%2d] C [%2d] ",
            get_player_gold(), get_player_silver(), get_player_copper());
   snprintf(status_menu.ui_menu_attack->text, MAX_STATUS_STR_LENGTH, " Attack : 10 (+0) ");
   snprintf(status_menu.ui_menu_defense->text, MAX_STATUS_STR_LENGTH, " Defense : 10 (+0) ");
@@ -420,6 +453,7 @@ void close_status_bar() {
 void open_status_menu() {
   status_menu.ui_status_menu->enabled = 1;
   status_menu.ui_menu_health->enabled = 1;
+  status_menu.ui_menu_hunger->enabled = 1;
   status_menu.ui_menu_money->enabled = 1;
   status_menu.ui_menu_attack->enabled = 1;
   status_menu.ui_menu_defense->enabled = 1;
@@ -441,6 +475,7 @@ void open_status_menu() {
 void close_status_menu() {
   status_menu.ui_status_menu->enabled = 0;
   status_menu.ui_menu_health->enabled = 0;
+  status_menu.ui_menu_hunger->enabled = 0;
   status_menu.ui_menu_money->enabled = 0;
   status_menu.ui_menu_attack->enabled = 0;
   status_menu.ui_menu_defense->enabled = 0;
