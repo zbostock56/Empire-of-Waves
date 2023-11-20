@@ -15,6 +15,7 @@ used for conversation with merchants or other places that need a dialog box.
 /* GLOBALS */
 DIALOG dialog;
 float time_schdule_trade_toute_prompt;
+int merchant_dialog_enabled = 0;
 
 /* ================= INTERNALLY DEFINED FUNCTIONS ================= */
 int init_dialog();

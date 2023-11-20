@@ -198,6 +198,7 @@ void on_click_inventory_item(void *inventory_item_index) {
   ITEM item = get_item_info_by_ID(item_id);
   // int price = item.value;
   float health_mod = item.health_mod;
+  float hunger_mod = item_food_value(item_id);
   float firerate_mod = item.firerate_mod;
   float speed_mod = item.speed_mod;
   // float max_health_mod = item.max_heath_mod;
@@ -205,6 +206,9 @@ void on_click_inventory_item(void *inventory_item_index) {
     if (item.edible) {
       e_player.health += health_mod;
       c_player.health += health_mod;
+      if (hunger_mod != -1.0) {
+        e_player.hunger += hunger_mod;
+      }
       c_player.fire_rate += firerate_mod;
       c_player.speed += speed_mod;
       i_slot->quantity -= 1;
