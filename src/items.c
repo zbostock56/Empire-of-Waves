@@ -83,19 +83,19 @@ ITEM item_tab[NUM_ITEMS] = {
   /* LEATHER */
   {15, 0, 0, 0.0, 0.0, 0.0, 0.0},
   /* CHEESE */
-  {15, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  {15, 1, 0, 0.0, 0.0, 0.0, 0.0},
   /* IRON_ORE */
   {18, 0, 0, 0.0, 0.0, 0.0, 0.0},
   /* WINE */
-  {20, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  {20, 1, 0, 0.0, 0.0, 0.0, 0.0},
   /* COPPER_ORE */
   {20, 0, 0, 0.0, 0.0, 0.0, 0.0},
   /* SPICE */  
-  {25, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  {25, 1, 0, 0.0, 0.0, 0.0, 0.0},
   /* HERB */
-  {28, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  {28, 1, 0, 0.0, 0.0, 0.0, 0.0},
   /* TEA */
-  {30, 0, 0, 0.0, 0.0, 0.0, 0.0},
+  {30, 1, 0, 0.0, 0.0, 0.0, 0.0},
   /* SILVER_ORE */
   {30, 0, 0, 0.0, 0.0, 0.0, 0.0},
   /* PORCELAIN */
@@ -330,11 +330,24 @@ int item_isArmor(ITEM_IDS item_id) {
 
 /*
 Helper function to determine if an item is edible
-to increase the hunger stat
+to increase the hunger stat and how much it is worth
+in terms of hunger
 */
-int item_is_food(ITEM_IDS item_id) {
-  if (item_id == CITRUS || item_id == RUM) {
-    return 1;
+float item_food_value(ITEM_IDS item_id) {
+  if (item_id == CITRUS) {
+    return 30.0;
+  } else if (item_id == RUM) {
+    return 10.0;
+  } else if (item_id == ITEM_CHEESE) {
+    return 40.0;
+  } else if (item_id == ITEM_SPICE) {
+    return 5.0;
+  } else if (item_id == ITEM_HERB) {
+    return 15.0;
+  } else if (item_id == ITEM_TEA) {
+    return 10.0;
+  } else if (item_id == ITEM_WINE) {
+    return 10.0;
   }
-  return 0;
+  return -1.0;
 }

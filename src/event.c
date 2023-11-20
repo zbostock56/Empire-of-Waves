@@ -199,7 +199,7 @@ void decrease_hunger() {
 }
 
 void decrease_health() {
-  e_player.health -= 1.0;
+  e_player.health -= 3.0;
   if (e_player.health <= 0.0) {
     e_player.health = 0.0;
   }

@@ -120,6 +120,6 @@ int item_isWeapon(ITEM_IDS item_id);
 int item_isMeleeWeapon(ITEM_IDS item_id);
 int item_isRangedWeapon(ITEM_IDS item_id);
 int item_isArmor(ITEM_IDS item_id);
-int item_is_food(ITEM_IDS);
+float item_food_value(ITEM_IDS);
 
 #endif

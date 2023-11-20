@@ -255,6 +255,7 @@ void free_dialog() {
 
 /* Open Dialog UI based on dialog type */
 void open_dialog() {
+  merchant_dialog_enabled = 1;
   switch (dialog.type) {
     case TALK: {
       dialog.ui_text_content->enabled = 1;
@@ -293,6 +294,7 @@ void open_dialog() {
 
 /* Close dialog and reset schedule trade route prompt timer to 2.0 */
 void close_dialog() {
+  merchant_dialog_enabled = 0;
   dialog.merchant = NULL;
   dialog.ui_text_content->enabled = 0;
   dialog.ui_text_name->enabled = 0;
