@@ -17,8 +17,10 @@ float decrement_timer(float);
 void update_projectiles();
 int spawn_projectile(vec2, vec2, float, UNIT_T);
 void knockback(C_UNIT *);
+void perform_surrender();
 
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 
 void c_enemy_pathfind(C_UNIT *, vec2);
 int double_buffer(void **, unsigned int *, unsigned int);
+I_SLOT *get_player_inventory_slot_by_index(unsigned int);

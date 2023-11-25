@@ -14,6 +14,7 @@ void keyboard_input(GLFWwindow *window) {
     inventory_open_listner(window);
   } else if (mode == COMBAT && !console_input_enabled) {
     combat_movement(window);
+    surrender_listener(window);
   }
   modifier_keys(window);
   debug_keys(window);
@@ -286,6 +287,17 @@ void inventory_open_listner(GLFWwindow *window) {
     holding_i = 1;
   } else if (glfwGetKey(window, GLFW_KEY_I) != GLFW_PRESS) {
     holding_i = 0;
+  }
+}
+
+void surrender_listener(GLFWwindow *window) {
+  if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS && !holding_f) {
+    if (mode == COMBAT) {
+      perform_surrender();
+    }
+    holding_f = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_F) != GLFW_PRESS) {
+    holding_f = 0;
   }
 }
 

@@ -290,9 +290,47 @@ void npc_ranged_attack(C_UNIT *unit) {
   }
 }
 
+/*
+  Applies a Knockback behavior to a unit
+  Args:
+  - C_UNIT *unit: Combat mode unit to get knockbacked
+*/
 void knockback(C_UNIT *unit) {
   vec2 movement = GLM_VEC2_ZERO_INIT;
   glm_vec2_scale(unit->direction, delta_time * unit->speed, movement);
   glm_vec2_sub(unit->coords, movement, unit->coords);
 }
 
+/*
+  Perform surrender actions
+  Assumption: Only possible when in combat mode.
+*/
+void perform_surrender() {
+  if (mode == EXPLORATION) {
+    return;
+  }
+  
+  from_combat_mode();
+
+  // If has merceneries assigned, get rid of them
+  if (e_player.ship_mercenaries > 0) {
+    e_player.ship_mercenaries = 0;
+  }
+
+  // If player has >0 item, get rid of one of them randomly. Should also work o
+  int item_indices[MAX_PLAYER_INV_SIZE];
+  int num_item = 0;
+  for (int i = 0; i < MAX_PLAYER_INV_SIZE; i++) {
+    if (get_player_inventory_slot_by_index(i)->item_id != EMPTY) {
+      item_indices[num_item++] = i;
+    }
+  }
+  if (num_item > 0) {
+    
+    int lost_item_idx = item_indices[rand() % num_item];
+    I_SLOT *lost_item = get_player_inventory_slot_by_index(lost_item_idx);
+    printf("ITEM: %s\n", get_item_name_by_ID(lost_item->item_id));   
+    //ui this lost_item was lost.
+    
+  }
+}
