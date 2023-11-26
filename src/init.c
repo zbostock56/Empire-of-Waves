@@ -88,7 +88,7 @@ int init_game(char *save_name) {
   if (status) {
     return -1;
   }
-
+  init_surrender_ui();
   return 0;
 }
 

@@ -98,6 +98,7 @@ int to_combat_mode(unsigned int enemy_index) {
     npc_units[i].coords[Y] = ((arena_dimensions[Y] - 2) / 2) - (i * 2);
     fflush(stdout);
   }
+  get_ui_component_by_ID(SURRENDER_BUTTON)->enabled = 1;
 
   return 0;
 }
@@ -117,6 +118,7 @@ void from_combat_mode() {
   unsigned int last_enemy_index = cur_chunk->num_enemies;
   // Swap last enemy ship with deleted enemy ship
   cur_chunk->enemies[e_enemy_index] = cur_chunk->enemies[last_enemy_index];
+  get_ui_component_by_ID(SURRENDER_BUTTON)->enabled = 0;
 }
 
 void update_combat_state() {
@@ -309,9 +311,9 @@ void perform_surrender() {
   if (mode == EXPLORATION) {
     return;
   }
-  
+  close_surrender_prompt();
   from_combat_mode();
-
+  
   // If has merceneries assigned, get rid of them
   if (e_player.ship_mercenaries > 0) {
     e_player.ship_mercenaries = 0;
@@ -329,8 +331,163 @@ void perform_surrender() {
     
     int lost_item_idx = item_indices[rand() % num_item];
     I_SLOT *lost_item = get_player_inventory_slot_by_index(lost_item_idx);
-    printf("ITEM: %s\n", get_item_name_by_ID(lost_item->item_id));   
-    //ui this lost_item was lost.
+    I_SLOT *last_item = get_player_inventory_slot_by_index(item_indices[num_item-1]);
     
+    snprintf(lost_item_prompt_buffer, PROMPT_BUFFER_MAX, " %s got lost. ", get_item_name_by_ID(lost_item->item_id));
+    set_prompt(lost_item_prompt_buffer);
+    
+    lost_item->item_id = last_item->item_id;
+    lost_item->quantity = last_item->quantity;
+    last_item->item_id = EMPTY;
+    last_item->quantity = EMPTY;
+
   }
+}
+
+void init_surrender_ui() {
+  UI_COMPONENT * surrender_button = get_ui_component_by_ID(SURRENDER_BUTTON);
+
+  vec2 button_pos = { -0.95, -0.5 };
+  init_menu(
+    button_pos, // position
+    open_surrender_prompt, // on_click
+    NULL, // on_hover
+    NULL, // on_click_args
+    (void *) 0xBAADF00D, // on_hover_args
+    "Surrender", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    0.75, // text_scale
+    0, // width
+    0, // height
+    PIVOT_TOP_LEFT, // pivot
+    T_LEFT, // text_anchor
+    surrender_button // dest
+  );
+  
+  UI_COMPONENT * surrender_prompt = get_ui_component_by_ID(SURRENDER_CONFIRMATION_PROMPT);
+  vec2 prompt_pos = {0, 0.15};
+  init_menu(
+    prompt_pos, // position
+    NULL, // on_click
+    NULL, // on_hover
+    (void *) 0xBAADF00D, // on_click_args
+    (void *) 0xBAADF00D, // on_hover_args
+    "Captain, your crew is counting on you.", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    0.75, // text_scale
+    1.65, // width
+    0, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    surrender_prompt // dest
+  );
+  
+  UI_COMPONENT *surrender_prompt_2 = get_ui_component_by_ID(SURRENDER_CONFIRMATION_PROMPT_2);
+  vec2 prompt_pos_2 = {0.0, 0.0};
+  init_menu(
+    prompt_pos_2, // position
+    NULL, // on_click
+    NULL, // on_hover
+    (void *) 0xBAADF00D, // on_click_args
+    (void *) 0xBAADF00D, // on_hover_args
+    "Surrendering means losing valuable items and loyal mercenaries.", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    0.75, // text_scale
+    1.65, // width
+    0, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    surrender_prompt_2 // dest
+  );
+  
+  UI_COMPONENT *surrender_prompt_3 = get_ui_component_by_ID(SURRENDER_CONFIRMATION_PROMPT_3);
+  vec2 prompt_pos_3 = {0.0, -0.15};
+  init_menu(
+    prompt_pos_3, // position
+    NULL, // on_click
+    NULL, // on_hover
+    (void *) 0xBAADF00D, // on_click_args
+    (void *) 0xBAADF00D, // on_hover_args
+    "Are you sure you want to proceed?", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    0.75, // text_scale
+    1.65, // width
+    0, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    surrender_prompt_3 // dest
+  );
+  
+  UI_COMPONENT *prompt_yes = get_ui_component_by_ID(SURRENDER_CONFIRMATION_YES);
+  UI_COMPONENT *prompt_no = get_ui_component_by_ID(SURRENDER_CONFIRMATION_NO);
+  vec2 yes_pos = {0.2, -0.3};
+  vec2 no_pos = {-0.2, -0.3};
+  
+  init_menu(
+    yes_pos, // position
+    perform_surrender, // on_click
+    NULL, // on_hover
+    NULL, // on_click_args
+    (void *) 0xBAADF00D, // on_hover_args
+    "Yes, I surrender.", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    0.5, // text_scale
+    0, // width
+    0, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    prompt_yes // dest
+  );
+
+  init_menu(
+    no_pos, // position
+    close_surrender_prompt, // on_click
+    NULL, // on_hover
+    NULL, // on_click_args
+    (void *) 0xBAADF00D, // on_hover_args
+    "No, I'll stay and fight!", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    0.5, // text_scale
+    0, // width
+    0, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    prompt_no // dest
+  );
+  
+
+}
+
+void open_surrender_prompt() {
+  get_ui_component_by_ID(SURRENDER_CONFIRMATION_PROMPT)->enabled = 1;
+  get_ui_component_by_ID(SURRENDER_CONFIRMATION_PROMPT_2)->enabled = 1;
+  get_ui_component_by_ID(SURRENDER_CONFIRMATION_PROMPT_3)->enabled = 1;
+  get_ui_component_by_ID(SURRENDER_CONFIRMATION_YES)->enabled = 1;
+  get_ui_component_by_ID(SURRENDER_CONFIRMATION_NO)->enabled = 1;
+}
+
+void close_surrender_prompt() {
+  get_ui_component_by_ID(SURRENDER_CONFIRMATION_PROMPT)->enabled = 0;
+  get_ui_component_by_ID(SURRENDER_CONFIRMATION_PROMPT_2)->enabled = 0;
+  get_ui_component_by_ID(SURRENDER_CONFIRMATION_PROMPT_3)->enabled = 0;
+  get_ui_component_by_ID(SURRENDER_CONFIRMATION_YES)->enabled = 0;
+  get_ui_component_by_ID(SURRENDER_CONFIRMATION_NO)->enabled = 0;
 }

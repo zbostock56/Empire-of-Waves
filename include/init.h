@@ -31,6 +31,7 @@ int init_trade_ship_buffers();
 void init_timers();
 void open_status_bar();
 int init_inventory_ui();
+void init_surrender_ui();
 
 void free_dialog();
 void free_trade();
