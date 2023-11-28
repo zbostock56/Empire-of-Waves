@@ -49,6 +49,7 @@ void clear_chunk_buffer();
 void free_chunk(CHUNK *);
 int add_chunk(ivec2);
 int remove_chunk(unsigned int);
+void update_chunk_refs(unsigned int, unsigned int);
 
 char *index_to_str(int);
 int double_buffer(void **, unsigned int *, unsigned int);

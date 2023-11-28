@@ -24,6 +24,9 @@ extern CHUNK *chunk_buffer;
 extern unsigned int chunk_buff_size;
 extern unsigned int chunk_buff_len;
 
+// Index to chunk in chunk_buffer which represents the persistant home chunk
+extern unsigned int home_chunk_index;
+
 extern E_PLAYER e_player;
 // Indexs to chunks in chunk_buffer which represent the chunks loaded by the
 // player
@@ -43,6 +46,9 @@ extern unsigned int weather;
 
 // ========================= COMBAT MODE STATE ===============================
 extern C_PLAYER c_player;
+extern L_UNIT *loot;
+extern unsigned int num_loot;
+extern unsigned int loot_buf_len;
 extern C_UNIT *npc_units;
 extern unsigned int num_npc_units;
 extern PROJ *projectiles;

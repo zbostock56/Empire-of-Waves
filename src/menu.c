@@ -169,4 +169,21 @@ void init_menus() {
     T_CENTER,
     get_ui_component_by_ID(INTERACT_PROMPT)
   );
+
+  // Combat mode info bar
+  init_menu(
+    (vec2) { 0.0, 1.0 },
+    NULL, NULL, NULL, NULL,
+    "Press 'r' to leave combat",
+    0,
+    1,
+    0,
+    0.05,
+    0.5,
+    0.0,
+    0.1,
+    PIVOT_TOP,
+    T_CENTER,
+    get_ui_component_by_ID(COMBAT_INFO_BAR)
+  );
 }

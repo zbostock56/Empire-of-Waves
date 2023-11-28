@@ -3,6 +3,11 @@
 #include <cglm/cglm.h>
 #include <globals.h>
 
+#define INVASION_REP (-25.0)
+#define TOP (0)
+#define BOTTOM (1)
+#define LEFT (2)
+#define RIGHT (3)
 
 /* Names of the merchants that can be chosen from */
 char merchant_name_list[NUM_NAMES][NAME_SIZE] = {
@@ -138,3 +143,4 @@ LISTING * get_merchant_first_empty_listing(MERCHANT * merchant);
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 
 int double_buffer(void **, unsigned int *, unsigned int);
+void init_enemy(E_ENEMY *, ivec2, vec2);

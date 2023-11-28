@@ -32,10 +32,20 @@ void item_respawn_event() {
 }
 
 /* Handles event spawning */
-/* Enemy spawn rate chances (50%) */
+/*
+  Enemy spawn rate chances (50%)
+  Invasion spawn rate chances (10%)
+*/
 void spawn_event() {
-  if (rand() % 2 == 0) {
+  unsigned int event = rand() % 100;
+  int status = 0;
+  if (event < 50) {
     spawn_enemy();
+  } else if (event < 60) {
+    status = invade_home_island();
+    if (status) {
+      exit(1);
+    }
   }
 }
 
@@ -95,11 +105,18 @@ void update_timers() {
     }
 
     if (event_flags[WEATHER]) {
-      timers[WEATHER] -= delta_time;
-      if (timers[WEATHER] <= 0.0) {
+      timers[WEATHER] = decrement_timer(timers[STEALING_TIMER]);
+      if (timers[WEATHER] == 0.0) {
         event_flags[WEATHER] = DISABLED;
         timers[WEATHER] = WEATHER_TIME;
         weather = CLEAR;
+      }
+    }
+    if (event_flags[STEALING_TIMER]) {
+      timers[STEALING_TIMER] = decrement_timer(timers[STEALING_TIMER]);
+      if (timers[STEALING_TIMER] == 0.0) {
+        timers[STEALING_TIMER] = calc_stealing_interval();
+        steal_item(&home_box);
       }
     }
   } else if (mode == COMBAT) {

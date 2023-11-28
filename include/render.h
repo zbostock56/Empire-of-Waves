@@ -151,6 +151,7 @@ void render_arena();
 void render_hitbox(vec2, float);
 void render_health_bar_background(vec2);
 void render_health_bar_filled(vec2, float, float);
+void render_loot(L_UNIT *);
 void render_resource(vec2, ISLAND *, REC_IDS);
 void render_weather();
 

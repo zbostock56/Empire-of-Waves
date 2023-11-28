@@ -301,6 +301,10 @@ void render_scene(GLFWwindow *window) {
       }
     }
 
+    for (int i = 0; i < num_loot; i++) {
+      render_loot(loot + i);
+    }
+
     render_arena();
 
     if (c_player.attack_active) {
@@ -450,6 +454,10 @@ void render_unit(C_UNIT *unit) {
   } else if (unit->type == ALLY) {
     render_c_npc(mercenary, unit->coords, unit->direction, scale);
   }
+}
+
+void render_loot(L_UNIT *loot) {
+  render_c_npc(chest, loot->coords, (vec2) { 0.0, 1.0 }, 0.25);
 }
 
 void render_merchant(MERCHANT *m) {

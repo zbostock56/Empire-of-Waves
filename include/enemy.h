@@ -3,13 +3,18 @@
 #include <player_str.h>
 #include <chunk_str.h>
 #include <trade_ship_str.h>
+#include <event_str.h>
 #include <globals.h>
 
 /* DEFINES */
+#define BASE_STEALING_TIMER (10.0)
+#define MIN_STEALING_TIMER (1.0)
 #define NODE_BUF_START_LEN (4)
 #define CURRENT_CHUNK (4)
 #define SHIP_COLLISION_RADIUS (1.0)
 #define SHIP_CHASE_RADIUS (20)
+#define RANSOM_UNIT (50.0)
+#define RANSOM_MAX (5000.0)
 #define X (0)
 #define Y (1)
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
@@ -34,6 +39,8 @@ typedef struct Node {
     float h_cost;
 } Node;
 
+static unsigned int num_invading_enemies = 0;
+
 /* =================== INTERNALLY DEFINED FUNCTIONS =================== */
 void spawn_enemy();
 int find_avail_chunks();
@@ -52,6 +59,10 @@ void open_node(Node *, Node *, Node **, unsigned int *, unsigned int *);
 int add_node(Node **, unsigned int *, unsigned int *, Node *);
 void delete_node(Node *, unsigned int *, unsigned int);
 void update_enemy_chunk(E_ENEMY*, CHUNK*, int);
+void pathfind_to_chunk(E_ENEMY *, ivec2);
+void pathfind_to_shore(E_ENEMY *, CHUNK *, CHUNK *, unsigned int);
+float calc_stealing_interval();
+void init_enemy(E_ENEMY *, ivec2, vec2);
 
 /* =================== EXTERNALLY DEFINED FUNCTIONS =================== */
 
@@ -59,8 +70,15 @@ int double_buffer(void **, unsigned int *, unsigned int);
 void chunk_to_world(ivec2, vec2, vec2);
 void world_to_chunk(vec2, ivec2, vec2);
 int circle_circle_collision(vec2, float, vec2, float);
+int circle_aabb_collision(vec2, float, vec2, float, float, vec2);
 int get_tile(unsigned int chunk, vec2 coords);
 int spawn_projectile(vec2, vec2, float, UNIT_T);
 int npc_melee_attack(C_UNIT *);
 int npc_ranged_attack(C_UNIT *);
 int trade_ship_active(unsigned int);
+float dist_to_island(ivec2, vec2, ISLAND *);
+void ship_steering(ivec2, vec2, vec2, CHUNK *, CHUNK *, unsigned int);
+unsigned int get_random_item(CONTAINER *);
+void refresh_containers();
+void set_prompt(const char *);
+void refresh_ransom_menu();

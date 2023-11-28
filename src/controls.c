@@ -46,7 +46,7 @@ void mouse_pos(GLFWwindow *window, double x_pos, double y_pos) {
 }
 
 void mouse_click(GLFWwindow *window, int button, int action, int mods) {
-  if (mode == COMBAT) {
+  if (mode == COMBAT && !container_menu_open) {
     combat_mode_attack(action);
   }
   if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
@@ -143,6 +143,7 @@ void exploration_movement(GLFWwindow *window) {
     } else if (!e_player.embarked && home_interaction_enabled) {
       /* Mercenary Reassignment list open */
       open_mercenary_reassignment_menu();
+      open_ransom_menu();
       get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
     } else if (!e_player.embarked && container_interaction_enabled) {
       CONTAINER player_inv = { e_player.inventory, MAX_PLAYER_INV_SIZE };
@@ -187,6 +188,26 @@ void combat_movement(GLFWwindow *window) {
   }
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
     glm_vec2_sub(c_player.coords, movement, c_player.coords);
+  }
+
+  if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && !holding_interaction) {
+    if (container_interaction_enabled) {
+      CONTAINER player_inv = { e_player.inventory, MAX_PLAYER_INV_SIZE };
+      open_container(loot[cur_lootable].inv, player_inv);
+      get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
+    }
+    holding_interaction = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_E) != GLFW_PRESS) {
+    holding_interaction = 0;
+  }
+  if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS && !holding_leave) {
+    leave_combat();
+    holding_leave = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_R) != GLFW_PRESS) {
+    holding_leave = 0;
+  }
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+    close_container();
   }
 }
 
@@ -320,6 +341,7 @@ void close_merchant_menu(GLFWwindow *window) {
     close_dialog();
     close_trade();
     close_mercenary_reassignment_menu();
+    close_ransom_menu();
     close_container();
     close_inventory_ui();
   }

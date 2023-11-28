@@ -12,6 +12,7 @@ void init_player() {
   e_player.ship_direction[1] = 1.0;
   e_player.embarked = 1;
   e_player.moving = 0;
+  e_player.reputation = 0.0;
   e_player.inventory[0].item_id = RUM;
   e_player.inventory[0].quantity = 2;
   e_player.inventory[1].item_id = CITRUS;
@@ -36,6 +37,29 @@ void init_player() {
   e_player.inventory[10].quantity = 1;
   e_player.inventory[11].item_id = FIRERATE_POTION;
   e_player.inventory[11].quantity = 1;
+}
+
+// Reset player inventory, ship merchants, and position back to the home island
+void respawn_player() {
+  glm_ivec2_zero(e_player.chunk);
+  glm_ivec2_zero(e_player.ship_chunk);
+
+  int home_chunk = add_chunk((ivec2) {0, 0});
+  find_shore_tile(chunk_buffer[home_chunk].islands, e_player.ship_coords);
+  glm_vec2_copy(e_player.ship_coords, e_player.coords);
+  remove_chunk(home_chunk);
+
+  unsigned int num_ts = num_trade_ships;
+  for (unsigned int i = 0; i < num_ts; i++) {
+    delete_trade_ship(0);
+  }
+
+  e_player.embarked = 1;
+  e_player.ship_mercenaries = 0;
+  for (unsigned int i = 0; i < MAX_PLAYER_INV_SIZE; i++) {
+    e_player.inventory[i].item_id = EMPTY;
+    e_player.inventory[i].quantity = 0;
+  }
 }
 
 /*

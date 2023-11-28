@@ -43,6 +43,7 @@ extern char *save_input_buffer;
 extern unsigned int save_input_len;
 extern int console_input_enabled;
 extern int container_menu_open;
+extern unsigned int cur_lootable;
 
 int holding_left_click = 0;
 int holding_equals = 0;
@@ -64,6 +65,7 @@ int holding_attack = 0;
 int holding_save = 0;
 int holding_load = 0;
 int holding_esc = 0;
+int holding_leave = 0;
 int holding_i = 0;
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
@@ -105,11 +107,14 @@ int spawn_projectile(vec2, vec2, float, UNIT_T);
 void open_container(CONTAINER, CONTAINER);
 void close_container();
 char *get_merchant_name(short);
+void leave_combat();
 void set_prompt(const char *);
 
 void open_mercenary_reassignment_menu();
 void close_mercenary_reassignment_menu();
 void close_console_prompt();
+void open_ransom_menu();
+void close_ransom_menu();
 
 void inventory_open_listner();
 void open_inventory_ui();
