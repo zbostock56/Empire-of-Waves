@@ -36,9 +36,16 @@
 #define H (0.05)
 
 // Constants for weather effects
+#define BASE_PIX_CT (6.0)
 #define RAIN_PERIOD (5.0)
 #define RAIN_SPEED (10.0)
 #define WIND_DIR (-0.5)
+#define FADE_DIST (20.0)
+#define I (127.1)
+#define J (311.7)
+#define L (43758.5453123)
+#define M (269.5)
+#define N (183.3)
 
 #include <shader_code.h>
 

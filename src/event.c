@@ -15,6 +15,7 @@ void update_event_timer() {
     }
     if (mode == EXPLORATION) {
       item_respawn_event();
+      weather_event();
     }
   }
 }
@@ -35,6 +36,14 @@ void item_respawn_event() {
 void spawn_event() {
   if (rand() % 2 == 0) {
     spawn_enemy();
+  }
+}
+
+void weather_event() {
+  if (rand() % 5 == 0 && weather == CLEAR) {
+    weather = FOG;
+    event_flags[WEATHER] = ENABLED;
+    timers[WEATHER] = WEATHER_TIME;
   }
 }
 
@@ -82,6 +91,15 @@ void update_timers() {
       cur_ship = trade_ships + i;
       if (cur_ship->death_animation > 0.0) {
         cur_ship->death_animation = decrement_timer(cur_ship->death_animation);
+      }
+    }
+
+    if (event_flags[WEATHER]) {
+      timers[WEATHER] -= delta_time;
+      if (timers[WEATHER] <= 0.0) {
+        event_flags[WEATHER] = DISABLED;
+        timers[WEATHER] = WEATHER_TIME;
+        weather = CLEAR;
       }
     }
   } else if (mode == COMBAT) {

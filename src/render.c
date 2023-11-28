@@ -272,7 +272,9 @@ void render_scene(GLFWwindow *window) {
     }
 
     // Render weather
-    render_weather();
+    if (weather == FOG) {
+      render_weather();
+    }
   } else {
     if (npc_units) {
       for (int i = 0; i < num_npc_units; i++) {
@@ -879,6 +881,10 @@ void render_weather() {
   set_vec2("player_pos", player_world_coords, weather_shader);
   set_float("time", glfwGetTime(), weather_shader);
   set_float("T_WIDTH", T_WIDTH, weather_shader);
+  set_float("ratio_x", RES_X / BASE_RES_X, weather_shader);
+  set_float("ratio_y", RES_Y / BASE_RES_Y, weather_shader);
+  set_float("res_x", RES_X, weather_shader);
+  set_float("res_y", RES_Y, weather_shader);
   set_mat4("model", model_mat, weather_shader);
   set_mat4("view", view_mat, weather_shader);
   set_mat4("proj", ortho_proj, weather_shader);

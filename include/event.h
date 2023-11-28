@@ -34,3 +34,4 @@ void spawn_event();
 void update_timers();
 float decrement_timer(float);
 void item_respawn_event();
+void weather_event();

@@ -6,6 +6,8 @@
 #include <trade_ship_str.h>
 
 #define MAX_SAVE_NAME_LEN (32)
+#define CLEAR (0)
+#define FOG (1)
 
 // ========================= GLOBAL GAME STATE ===============================
 typedef enum game_mode {
@@ -37,6 +39,7 @@ extern TRADE_SHIP *trade_ships;
 extern unsigned int num_trade_ships;
 extern unsigned int trade_ship_buf_size;
 extern float global_time;
+extern unsigned int weather;
 
 // ========================= COMBAT MODE STATE ===============================
 extern C_PLAYER c_player;
