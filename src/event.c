@@ -15,6 +15,7 @@ void update_event_timer() {
     }
     if (mode == EXPLORATION) {
       item_respawn_event();
+      weather_event();
     }
   }
 }
@@ -45,6 +46,14 @@ void spawn_event() {
     if (status) {
       exit(1);
     }
+  }
+}
+
+void weather_event() {
+  if (rand() % 5 == 0 && weather == CLEAR) {
+    weather = FOG;
+    event_flags[WEATHER] = ENABLED;
+    timers[WEATHER] = WEATHER_TIME;
   }
 }
 
@@ -95,6 +104,14 @@ void update_timers() {
       }
     }
 
+    if (event_flags[WEATHER]) {
+      timers[WEATHER] = decrement_timer(timers[STEALING_TIMER]);
+      if (timers[WEATHER] == 0.0) {
+        event_flags[WEATHER] = DISABLED;
+        timers[WEATHER] = WEATHER_TIME;
+        weather = CLEAR;
+      }
+    }
     if (event_flags[STEALING_TIMER]) {
       timers[STEALING_TIMER] = decrement_timer(timers[STEALING_TIMER]);
       if (timers[STEALING_TIMER] == 0.0) {

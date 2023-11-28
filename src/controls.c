@@ -91,13 +91,16 @@ void exploration_movement(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
     vec2 movement = GLM_VEC2_ZERO_INIT;
     if (e_player.embarked) {
-      glm_vec2_scale(e_player.ship_direction, delta_time * e_player.speed, movement);
+      glm_vec2_scale(e_player.ship_direction,
+                     delta_time * e_player.speed * (1.0 - (weather * 0.25)),
+                     movement);
       glm_vec2_add(movement, world_coords, world_coords);
       world_to_chunk(world_coords, e_player.ship_chunk,
                      e_player.ship_coords);
       e_player.moving = 1;
     } else {
-        glm_vec2_scale(e_player.direction, delta_time * e_player.speed, movement);
+        glm_vec2_scale(e_player.direction, delta_time * e_player.speed,
+                       movement);
         glm_vec2_add(movement, world_coords, world_coords);
         world_to_chunk(world_coords, e_player.chunk,
                       e_player.coords);
@@ -107,7 +110,9 @@ void exploration_movement(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
     vec2 movement = GLM_VEC2_ZERO_INIT;
     if (e_player.embarked) {
-      glm_vec2_scale(e_player.ship_direction, delta_time, movement);
+      glm_vec2_scale(e_player.ship_direction,
+                     delta_time * e_player.speed * (1.0 - (weather * 0.25)),
+                     movement);
       glm_vec2_sub(world_coords, movement, world_coords);
       world_to_chunk(world_coords, e_player.ship_chunk,
                      e_player.ship_coords);

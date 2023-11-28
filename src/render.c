@@ -13,47 +13,47 @@ void init_scene() {
   entity_framebuffer = framebuffer_init();
 
   // Create Resource Textures
-  resource_textures[resource_to_buffer(INVALID_REC)] = 
+  resource_textures[resource_to_buffer(INVALID_REC)] =
      gen_texture("assets/resources/invalid.png");
-  resource_textures[resource_to_buffer(GRAIN)] = 
+  resource_textures[resource_to_buffer(GRAIN)] =
      gen_texture("assets/resources/grain.png");
-  resource_textures[resource_to_buffer(COTTON)] = 
+  resource_textures[resource_to_buffer(COTTON)] =
      gen_texture("assets/resources/cotton.png");
-  resource_textures[resource_to_buffer(WOOL)] = 
+  resource_textures[resource_to_buffer(WOOL)] =
      gen_texture("assets/resources/wool.png");
-  resource_textures[resource_to_buffer(DYES)] = 
+  resource_textures[resource_to_buffer(DYES)] =
      gen_texture("assets/resources/dyes.png");
-  resource_textures[resource_to_buffer(SUGAR)] = 
+  resource_textures[resource_to_buffer(SUGAR)] =
      gen_texture("assets/resources/sugar.png");
-  resource_textures[resource_to_buffer(LEATHER)] = 
+  resource_textures[resource_to_buffer(LEATHER)] =
      gen_texture("assets/resources/leather.png");
-  resource_textures[resource_to_buffer(CHEESE)] = 
+  resource_textures[resource_to_buffer(CHEESE)] =
      gen_texture("assets/resources/cheese.png");
-  resource_textures[resource_to_buffer(IRON_ORE)] = 
+  resource_textures[resource_to_buffer(IRON_ORE)] =
      gen_texture("assets/resources/iron_ore.png");
-  resource_textures[resource_to_buffer(WINE)] = 
+  resource_textures[resource_to_buffer(WINE)] =
      gen_texture("assets/resources/wine.png");
-  resource_textures[resource_to_buffer(COPPER_ORE)] = 
+  resource_textures[resource_to_buffer(COPPER_ORE)] =
      gen_texture("assets/resources/copper_ore.png");
-  resource_textures[resource_to_buffer(SPICE)] = 
+  resource_textures[resource_to_buffer(SPICE)] =
      gen_texture("assets/resources/spice.png");
-  resource_textures[resource_to_buffer(HERB)] = 
+  resource_textures[resource_to_buffer(HERB)] =
      gen_texture("assets/resources/herb.png");
-  resource_textures[resource_to_buffer(TEA)] = 
+  resource_textures[resource_to_buffer(TEA)] =
      gen_texture("assets/resources/tea.png");
-  resource_textures[resource_to_buffer(SILVER_ORE)] = 
+  resource_textures[resource_to_buffer(SILVER_ORE)] =
      gen_texture("assets/resources/silver_ore.png");
-  resource_textures[resource_to_buffer(PORCELAIN)] = 
+  resource_textures[resource_to_buffer(PORCELAIN)] =
      gen_texture("assets/resources/porcelain.png");
-  resource_textures[resource_to_buffer(SILK)] = 
+  resource_textures[resource_to_buffer(SILK)] =
      gen_texture("assets/resources/silk.png");
-  resource_textures[resource_to_buffer(PEARL)] = 
+  resource_textures[resource_to_buffer(PEARL)] =
      gen_texture("assets/resources/pearl.png");
-  resource_textures[resource_to_buffer(GOLD_ORE)] = 
+  resource_textures[resource_to_buffer(GOLD_ORE)] =
      gen_texture("assets/resources/gold_ore.png");
-  resource_textures[resource_to_buffer(SAFFRON)] = 
+  resource_textures[resource_to_buffer(SAFFRON)] =
      gen_texture("assets/resources/saffron.png");
-  resource_textures[resource_to_buffer(AMBERGRIS)] = 
+  resource_textures[resource_to_buffer(AMBERGRIS)] =
      gen_texture("assets/resources/ambergris.png");
 
   // Initialize shaders
@@ -64,6 +64,7 @@ void init_scene() {
   ripple_shader = shader_init(vertex_shader, fragment_shader_ripple);
   chunk_shader = shader_init(vertex_shader, fragment_shader_chunk);
   island_shader = shader_init(vertex_shader, fragment_shader_island);
+  weather_shader = shader_init(vertex_shader, fragment_shader_weather);
 
   // Initialize models
   player = load_model("assets/player.bin", "assets/3A.png");
@@ -224,6 +225,12 @@ void render_scene(GLFWwindow *window) {
   glClearColor(1.0, 0.0, 0.0, 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+  for (int i = 0; i < NUM_COMPONENTS; i++) {
+    if (ui_tab[i].enabled) {
+      render_ui(ui_tab + i);
+    }
+  }
+
   render_player();
   if (mode == EXPLORATION) {
     for (int i = 0; i < 5; i++) {
@@ -262,6 +269,11 @@ void render_scene(GLFWwindow *window) {
           }
         }
       }
+    }
+
+    // Render weather
+    if (weather == FOG) {
+      render_weather();
     }
   } else {
     if (npc_units) {
@@ -309,12 +321,6 @@ void render_scene(GLFWwindow *window) {
     for (unsigned int i = 0; i < num_projectiles; i++) {
       cur_proj = projectiles + i;
       render_hitbox(cur_proj->pos, PROJ_RAD);
-    }
-  }
-
-  for (int i = 0; i < NUM_COMPONENTS; i++) {
-    if (ui_tab[i].enabled) {
-      render_ui(ui_tab + i);
     }
   }
   update_status_bar();
@@ -527,8 +533,8 @@ void render_resource(vec2 position, ISLAND *island, REC_IDS r_type) {
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
   vec3 world_coords = {0.0, 0.0, OBSTACLE_DEPTH };
-  vec2 island_tile = { 
-    island->coords[0] + position[0], 
+  vec2 island_tile = {
+    island->coords[0] + position[0],
     island->coords[1] + position[1]
   };
   chunk_to_world(island->chunk, island_tile, world_coords);
@@ -548,7 +554,7 @@ void render_resource(vec2 position, ISLAND *island, REC_IDS r_type) {
   glm_vec3_negate(player_world_coords);
   glm_translate(view_mat, player_world_coords);
 
-  quad->texture = resource_textures[resource_to_buffer(r_type)]; 
+  quad->texture = resource_textures[resource_to_buffer(r_type)];
 
   glUseProgram(pixel_shader);
   set_float("num_pixels", 256.0, pixel_shader);
@@ -648,7 +654,7 @@ void render_ui(UI_COMPONENT *comp) {
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   // Dimensions of UI component (width, height)
   vec3 comp_scale = { 0.5 * screen_scale[0] * comp->width,
-                      0.5 * screen_scale[1] * comp->height, 0.0 };
+                      0.5 * screen_scale[1] * comp->height, 1.0 };
   // Location of "pivot" point of ui component
   vec3 comp_pivot = { 0.0, 0.0, UI_DEPTH };
   // Number of characters in ui component text
@@ -861,6 +867,36 @@ void render_ripple(unsigned int chunk_index, vec2 chunk_coords, vec2 direction,
   set_float("time", glfwGetTime(), ripple_shader);
   set_int("moving", moving, ripple_shader);
   draw_model(quad, ripple_shader);
+}
+
+void render_weather() {
+  vec3 weather_coords = { 0.0, 0.0, WEATHER_DEPTH };
+  vec3 player_world_coords = GLM_VEC2_ZERO_INIT;
+  if (e_player.embarked) {
+    chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
+                   player_world_coords);
+  } else {
+    chunk_to_world(e_player.chunk, e_player.coords, player_world_coords);
+  }
+
+  mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+  glm_translate(model_mat, weather_coords);
+  glm_scale(model_mat, (vec3) { RES_X / BASE_RES_X, RES_Y / BASE_RES_Y, 1.0 });
+
+  mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+
+  glUseProgram(weather_shader);
+  set_vec2("player_pos", player_world_coords, weather_shader);
+  set_float("time", glfwGetTime(), weather_shader);
+  set_float("T_WIDTH", T_WIDTH, weather_shader);
+  set_float("ratio_x", RES_X / BASE_RES_X, weather_shader);
+  set_float("ratio_y", RES_Y / BASE_RES_Y, weather_shader);
+  set_float("res_x", RES_X, weather_shader);
+  set_float("res_y", RES_Y, weather_shader);
+  set_mat4("model", model_mat, weather_shader);
+  set_mat4("view", view_mat, weather_shader);
+  set_mat4("proj", ortho_proj, weather_shader);
+  draw_model(quad, weather_shader);
 }
 
 void render_chunk(ivec2 chunk) {
