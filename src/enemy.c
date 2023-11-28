@@ -164,7 +164,8 @@ void update_enemy_position(E_ENEMY *enemy) {
   vec2 enemy_world_coords = GLM_VEC2_ZERO_INIT;
   vec2 movement = GLM_VEC2_ZERO_INIT;
   chunk_to_world(enemy->chunk, enemy->coords, enemy_world_coords);
-  glm_vec2_scale(enemy->direction, delta_time * enemy->speed * T_WIDTH,
+  glm_vec2_scale(enemy->direction,
+                 delta_time * enemy->speed * T_WIDTH * (1.0-(weather*0.25)),
                  movement);
   glm_vec2_add(movement, enemy_world_coords, enemy_world_coords);
   world_to_chunk(enemy_world_coords, enemy->chunk, enemy->coords);
@@ -339,8 +340,9 @@ void pathfind_enemy(E_ENEMY *enemy, unsigned int enemy_chunk) {
       vec2 enemy_world_coords = GLM_VEC2_ZERO_INIT;
       vec2 movement = GLM_VEC2_ZERO_INIT;
       chunk_to_world(enemy->chunk, enemy->coords, enemy_world_coords);
-      glm_vec2_scale(enemy->direction, delta_time * enemy->speed * T_WIDTH,
-                     movement);
+      glm_vec2_scale(enemy->direction,
+                     delta_time * enemy->speed * T_WIDTH *
+                     (1.0 - (weather * 0.25)), movement);
       glm_vec2_add(movement, enemy_world_coords, enemy_world_coords);
       world_to_chunk(enemy_world_coords, enemy->chunk, enemy->coords);
       enemy->moving = 1;

@@ -41,7 +41,7 @@ int detect_collisions() {
 
     // Home island collision
     detect_island_invasion();
-    
+
     detect_context_interaction();
   } else {
     unit_collision(c_player.coords);

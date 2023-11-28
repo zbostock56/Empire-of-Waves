@@ -183,7 +183,8 @@ void trade_ship_pathfind(TRADE_SHIP *ship) {
 
   // Update ship position
   vec2 movement = GLM_VEC2_ZERO_INIT;
-  glm_vec2_scale(ship->direction, delta_time * ship->speed * T_WIDTH,
+  glm_vec2_scale(ship->direction,
+                 delta_time * ship->speed * T_WIDTH * (1.0 - (weather * 0.25)),
                  movement);
   glm_vec2_add(movement, ship_world, ship_world);
   world_to_chunk(ship_world, ship->chunk_coords, ship->coords);
