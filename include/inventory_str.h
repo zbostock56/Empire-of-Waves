@@ -10,6 +10,7 @@ typedef struct inventory {
   UI_COMPONENT *ui_equipment_armor;
   UI_COMPONENT *ui_text_on_hover_item;
   UI_COMPONENT *ui_text_event_prompt;
+  UI_COMPONENT *ui_drop;
 } INVENTORY;
 
 #endif
