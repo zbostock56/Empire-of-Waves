@@ -46,6 +46,14 @@
 #define L (43758.5453123)
 #define M (269.5)
 #define N (183.3)
+#define O (12.9898)
+#define P (78.233)
+
+// Constants for rain ripple
+#define PUDDLE_DUR (2.0)
+#define PUDDLE_PERIOD (64.0)
+#define PUDDLE_FREQ (4.0)
+#define PUDDLE_THRESH (4.9)
 
 #include <shader_code.h>
 
@@ -105,7 +113,8 @@ unsigned int pixel_shader;
 unsigned int text_shader;
 unsigned int ripple_shader;
 unsigned int menu_shader;
-unsigned int chunk_shader;
+unsigned int chunk_wave_shader;
+unsigned int chunk_rain_shader;
 unsigned int island_shader;
 unsigned int weather_shader;
 

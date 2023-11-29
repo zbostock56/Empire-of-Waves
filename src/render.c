@@ -86,7 +86,8 @@ void init_scene() {
   pixel_shader = shader_init(vertex_shader, fragment_shader_pixelated);
   text_shader = shader_init(vertex_shader, fragment_shader_text);
   ripple_shader = shader_init(vertex_shader, fragment_shader_ripple);
-  chunk_shader = shader_init(vertex_shader, fragment_shader_chunk);
+  chunk_wave_shader = shader_init(vertex_shader, fragment_shader_wave);
+  chunk_rain_shader = shader_init(vertex_shader, fragment_shader_rain);
   island_shader = shader_init(vertex_shader, fragment_shader_island);
   weather_shader = shader_init(vertex_shader, fragment_shader_weather);
 
@@ -617,7 +618,7 @@ void render_hunger_bar() {
   } else if (e_player.hunger <= 0.0) {
     tex_num = 0;
   }
-  quad->texture = hunger_bar_textures[tex_num]; 
+  quad->texture = hunger_bar_textures[tex_num];
 
   glUseProgram(std_shader);
   set_mat4("model", model_mat, std_shader);
@@ -640,7 +641,7 @@ void render_player_health_bar() {
   } else {
     health_bar_pos[1] = -ratio_y * 0.675;
   }
-  
+
   glm_translate(model_mat, health_bar_pos);
   vec3 scale = {0.25, 0.25, 1.0};
   glm_scale(model_mat, scale);
@@ -651,7 +652,7 @@ void render_player_health_bar() {
   if (actual_health <= 0.0) {
     tex_num = 0;
   }
-  quad->texture = health_bar_textures[tex_num]; 
+  quad->texture = health_bar_textures[tex_num];
 
   glUseProgram(std_shader);
   set_mat4("model", model_mat, std_shader);
@@ -1035,23 +1036,10 @@ void render_chunk(ivec2 chunk) {
   glm_translate(view_mat, player_world_coords);
   glm_translate_z(view_mat, -1.0f);
 
-  /*
-  glUseProgram(color_shader);
-  set_vec3("color", color, color_shader);
-  set_mat4("model", model_mat, color_shader);
-  set_mat4("view", view_mat, color_shader);
-  set_mat4("proj", ortho_proj, color_shader);
-  draw_model(quad, color_shader);
-  */
-  /*
-  glUseProgram(std_shader);
-  set_mat4("model", model_mat, std_shader);
-  set_mat4("view", view_mat, std_shader);
-  set_mat4("proj", ortho_proj, std_shader);
-  quad->texture = ocean_texture;
-  draw_model(quad, std_shader);
-  */
-  float threshold = (H*sin((2*PI/WAVE_PERIOD) * glfwGetTime()))+K;
+  float time = glfwGetTime();
+  float puddle_offset = floor(time / 0.5);
+
+  float threshold = (H*sin((2*PI/WAVE_PERIOD) * time))+K;
   if (((threshold >= K+H && threshold <= K+H+0.0001) ||
       (threshold <= K+H && threshold >= K+H-0.0001)) && !incremented_1) {
     incremented_1 = 1;
@@ -1075,13 +1063,23 @@ void render_chunk(ivec2 chunk) {
     incremented_2 = 0;
   }
 
-  glUseProgram(chunk_shader);
+  unsigned int chunk_shader = 0;
+  if (weather == CLEAR) {
+    chunk_shader = chunk_wave_shader;
+    glUseProgram(chunk_shader);
+    set_vec2("chunk_coords", world_coords, chunk_shader);
+    set_float("threshold", threshold, chunk_shader);
+    set_float("offset_1", wave_offset_1, chunk_shader);
+    set_float("offset_2", wave_offset_2, chunk_shader);
+  } else {
+    chunk_shader = chunk_rain_shader;
+    glUseProgram(chunk_shader);
+    set_float("puddle_offset", puddle_offset, chunk_shader);
+  }
   set_mat4("model", model_mat, chunk_shader);
   set_mat4("view", view_mat, chunk_shader);
   set_mat4("proj", ortho_proj, chunk_shader);
-  set_float("threshold", threshold, chunk_shader);
-  set_float("offset_1", wave_offset_1, chunk_shader);
-  set_float("offset_2", wave_offset_2, chunk_shader);
+  set_float("time", time, chunk_shader);
   //set_float("chunk", c_val, chunk_shader);
   draw_model(quad, chunk_shader);
 }
