@@ -11,12 +11,15 @@
 #define EVENT_TIMER (10.0)
 #define ENABLED (1)
 #define DISABLED (0)
+#define MIN_HUNGER_BEFORE_HEALTH_REDUCTION (10.0)
+#define MAX_HUNGER_BEFORE_HEALTH_INCREASE (90.0)
 
 /* GLOBALS */
 extern int console_input_enabled;
 float timers[NUM_TIMERS];
 int event_flags[NUM_TIMERS];
 extern int console_enabled;
+float hunger_timer = 10.0;
 
 /* ================ EXTERNALLY DEFINED FUNCTIONS ================== */
 void spawn_enemy();
@@ -38,3 +41,17 @@ void update_timers();
 float decrement_timer(float);
 void item_respawn_event();
 void weather_event();
+/* Hunger helpers */
+void start_hunger_timer();
+void set_hunger_timer(float);
+void reset_hunger_timer();
+void decrease_hunger();
+void decrease_health();
+void increase_health();
+void start_health_increase_timer();
+void start_health_reduction_timer();
+void stop_health_increase_timer();
+void stop_health_reduction_timer();
+void reset_health_increase_timer();
+void reset_health_reduction_timer();
+

@@ -14,7 +14,7 @@ which reads/manipulates enemy state.
 
 /* DEFINES */
 /* Specifies the max number of enemies per chunk */
-#define MAX_ENEMIES (3)
+#define MAX_ENEMIES (1)
 #define ENEMY_INV_SIZE (3)
 #define CHUNKS_SIMULATED (9)
 #define STEER_SPEED (3.0)

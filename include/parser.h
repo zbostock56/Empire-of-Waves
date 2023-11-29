@@ -4,6 +4,7 @@
 #include <lexer_str.h>
 #include <parser_str.h>
 #include <globals.h>
+#include <float.h>
 
 /* DEFINES */
 #define MAX_TOKS (10)
@@ -11,6 +12,8 @@
 #define TELEPORT ("tp")
 #define SPAWN ("spawn")
 #define SET ("set")
+#define HUNGER ("hunger")
+#define TIMER ("timer")
 #define ENEMY ("enemy")
 #define SPEED ("speed")
 #define TELEPORT_NEAREST_ISLAND ("tni")
@@ -33,6 +36,7 @@ enum KIND peek_token();
 void console_dispatcher();
 void init_parse_table();
 void print_parse_table();
+float create_float(int);
 
 /* ================ EXTERNALLY DEFINED FUNCTIONS ===================*/
 void print_tokens();
@@ -45,4 +49,7 @@ void spawn_enemy();
 void teleport_home();
 void close_coords();
 void teleport_nearest_merchant();
+void set_hunger_level(float);
+void set_hunger_timer(float);
+void set_prompt(const char *);
 //void establish_nearest_traderoute();
