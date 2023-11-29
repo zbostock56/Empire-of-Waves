@@ -1,6 +1,6 @@
 
 /* DEFINES  */
-#define NUM_COMPONENTS (195) // UI COMPONENT:: Max number of UI component
+#define NUM_COMPONENTS (201) // UI COMPONENT:: Max number of UI component
 
 /*
   Enum mapping human-readable component names to the index of the ui component
@@ -130,8 +130,14 @@ typedef enum component_ids {
   STAT = 191,
   STAT_BUFF_1 = 192,
   STAT_BUFF_2 = 193,
-  STAT_BUFF_3 = 194
+  STAT_BUFF_3 = 194,
 
+  SURRENDER_BUTTON = 195,
+  SURRENDER_CONFIRMATION_PROMPT = 196,
+  SURRENDER_CONFIRMATION_PROMPT_2 = 197,
+  SURRENDER_CONFIRMATION_PROMPT_3 = 198,
+  SURRENDER_CONFIRMATION_YES = 199,
+  SURRENDER_CONFIRMATION_NO = 200
   // Populate as more components are added
 } UI_ID;
 

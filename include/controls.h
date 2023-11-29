@@ -66,6 +66,7 @@ int holding_save = 0;
 int holding_load = 0;
 int holding_esc = 0;
 int holding_i = 0;
+int holding_f = 0;
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 
@@ -79,6 +80,7 @@ void close_merchant_menu(GLFWwindow *window);
 void load_keys(GLFWwindow *);
 void combat_mode_attack(int);
 void modifier_keys(GLFWwindow *);
+void surrender_listener(GLFWwindow *);
 void open_stats(GLFWwindow *);
 
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
@@ -121,3 +123,5 @@ void open_inventory_ui();
 void close_inventory_ui();
 
 int pickup_resource();
+
+void perform_surrender();
