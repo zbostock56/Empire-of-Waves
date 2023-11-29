@@ -39,6 +39,8 @@ void init_player() {
   e_player.inventory[10].quantity = 1;
   e_player.inventory[11].item_id = FIRERATE_POTION;
   e_player.inventory[11].quantity = 1;
+  c_player.health = 100;
+  c_player.max_health = 100;
 }
 
 /*

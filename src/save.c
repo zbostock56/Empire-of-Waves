@@ -60,8 +60,26 @@ int init_save_menu() {
     get_ui_component_by_ID(LOAD) // dest
   );
 
+  // View Stats button
+  vec2 stats_position = { 0.0, -0.25 };
+  init_menu(
+    stats_position, // position
+    open_status_menu, NULL, NULL, NULL,
+    "Stats", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0, // text_padding
+    1.0, // text_scale
+    0.5, // width
+    0.0, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    get_ui_component_by_ID(STAT) // dest
+  );
+
   // Close button
-  vec2 close_position = { 0.0, -0.25 };
+  vec2 close_position = { 0.0, -0.5 };
   init_menu(
     close_position, // position
     close_callback, NULL, NULL, NULL,
@@ -139,6 +157,7 @@ void open_save_menu() {
   get_ui_component_by_ID(SAVE)->enabled = 1;
   get_ui_component_by_ID(LOAD)->enabled = 1;
   get_ui_component_by_ID(SAVE_CLOSE)->enabled = 1;
+  get_ui_component_by_ID(STAT)->enabled = 1;
   get_ui_component_by_ID(SAVE_PROMPT)->enabled = 0;
   get_ui_component_by_ID(SAVE_INPUT)->enabled = 0;
   open_prompt = INVALID_MENU;
@@ -154,6 +173,7 @@ void close_save_menu() {
   get_ui_component_by_ID(SAVE_CLOSE)->enabled = 0;
   get_ui_component_by_ID(SAVE_PROMPT)->enabled = 0;
   get_ui_component_by_ID(SAVE_INPUT)->enabled = 0;
+  get_ui_component_by_ID(STAT)->enabled = 0;
 
   save_input_len = 0;
   get_ui_component_by_ID(SAVE_INPUT)->text[0] = '\0';
@@ -185,7 +205,8 @@ int save_menu_opened() {
     get_ui_component_by_ID(LOAD)->enabled ||
     get_ui_component_by_ID(SAVE_CLOSE)->enabled ||
     get_ui_component_by_ID(SAVE_PROMPT)->enabled ||
-    get_ui_component_by_ID(SAVE_INPUT)->enabled
+    get_ui_component_by_ID(SAVE_INPUT)->enabled ||
+    get_ui_component_by_ID(STAT)->enabled
   );
 }
 
@@ -193,6 +214,7 @@ void new_game_callback(void *arg) {
   get_ui_component_by_ID(NEW_GAME)->enabled = 0;
   get_ui_component_by_ID(SAVE)->enabled = 0;
   get_ui_component_by_ID(LOAD)->enabled = 0;
+  get_ui_component_by_ID(STAT)->enabled = 0;
   get_ui_component_by_ID(SAVE_CLOSE)->enabled = 1;
   get_ui_component_by_ID(SAVE_PROMPT)->enabled = 1;
   get_ui_component_by_ID(SAVE_INPUT)->enabled = 1;
@@ -217,6 +239,7 @@ void load_callback(void *arg) {
   get_ui_component_by_ID(NEW_GAME)->enabled = 0;
   get_ui_component_by_ID(SAVE)->enabled = 0;
   get_ui_component_by_ID(LOAD)->enabled = 0;
+  get_ui_component_by_ID(STAT)->enabled = 0;
   get_ui_component_by_ID(SAVE_CLOSE)->enabled = 1;
   get_ui_component_by_ID(SAVE_PROMPT)->enabled = 1;
   get_ui_component_by_ID(SAVE_INPUT)->enabled = 1;
@@ -228,6 +251,7 @@ void load_callback(void *arg) {
 
 void close_callback(void *arg) {
   close_save_menu();
+  close_status_menu();
 }
 
 void update_save_interval() {

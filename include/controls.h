@@ -43,6 +43,7 @@ extern char *save_input_buffer;
 extern unsigned int save_input_len;
 extern int console_input_enabled;
 extern int container_menu_open;
+extern int status_menu_open;
 
 int holding_left_click = 0;
 int holding_equals = 0;
@@ -80,6 +81,7 @@ void load_keys(GLFWwindow *);
 void combat_mode_attack(int);
 void modifier_keys(GLFWwindow *);
 void surrender_listener(GLFWwindow *);
+void open_stats(GLFWwindow *);
 
 // ======================= EXTERNALLY DEFINED FUNCTIONS ======================
 void detect_context_interaction();
@@ -112,6 +114,9 @@ void set_prompt(const char *);
 void open_mercenary_reassignment_menu();
 void close_mercenary_reassignment_menu();
 void close_console_prompt();
+
+void open_status_menu();
+void close_status_menu();
 
 void inventory_open_listner();
 void open_inventory_ui();
