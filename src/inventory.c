@@ -570,7 +570,9 @@ void drop_item(ITEM_IDS item_id) {
     island->num_items += 1;
     int num_items = island->num_items - 1;
     ITEM_TILES *drop_tile = island->item_tiles + num_items;  // didn't check buff overflow
-    glm_vec2_copy(e_player.coords, drop_tile->position);
+    vec2 intra_island_pos = {island->coords[0], island->coords[1]};
+    glm_vec2_sub(e_player.coords, intra_island_pos, drop_tile->position);
+    // glm_vec2_copy(intra_island_pos, drop_tile->position);
     drop_tile->quantity = 1;
     drop_tile->resource = (int)item_id;
     sprintf(inventory.ui_text_event_prompt->text, " Item Dropped - %s ", get_item_name_by_ID(item_id));

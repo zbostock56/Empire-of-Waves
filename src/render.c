@@ -594,6 +594,8 @@ void render_resource(vec2 position, ISLAND *island, REC_IDS r_type) {
   chunk_to_world(island->chunk, island_tile, world_coords);
   world_coords[0] = world_coords[0] + (0.5 * 2 * T_WIDTH);
   world_coords[1] = world_coords[1] - (0.5 * 2 * T_WIDTH);
+  // world_coords[0] = 25.0 + (0.5 * 2 * T_WIDTH);
+  // world_coords[1] = 74.0 - (0.5 * 2 * T_WIDTH);
 
   glm_translate(model_mat, world_coords);
   glm_scale_uni(model_mat, 0.5 * 2 * T_WIDTH);
