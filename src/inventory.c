@@ -321,6 +321,10 @@ void taken_off_weapon() {
   if (equipment.weapon_equipped == EMPTY || equipment.weapon_equipped == INVALID_ITEM) {
     return;
   } else if (equipment.weapon_equipped != EMPTY && equipment.weapon_equipped != INVALID_ITEM) {
+    float health_mod = get_item_info_by_ID(equipment.armor_equipped).health_mod;
+    float firerate_mod = get_item_info_by_ID(equipment.armor_equipped).firerate_mod;
+    float speed_mod = get_item_info_by_ID(equipment.armor_equipped).speed_mod;
+    float max_health_mod = get_item_info_by_ID(equipment.armor_equipped).max_heath_mod;
     // Have equipped weapon then taken off the equipped weapon
     if (search_player_inventory_by_ID(equipment.weapon_equipped) != NULL) {
       // Have same type of equipped weapon in inventory then increment its quantity
@@ -339,6 +343,14 @@ void taken_off_weapon() {
         time_inventory_event_prompt = 2.0;
       }
     }
+    e_player.health -= health_mod;
+    c_player.health -= health_mod;
+    c_player.fire_rate -= firerate_mod;
+    e_player.speed -= speed_mod;
+    c_player.speed -= speed_mod;
+    e_player.max_health -= max_health_mod;
+    c_player.max_health -= max_health_mod;
+    
     equipment.weapon_type = MELEE;
     equipment.weapon_equipped = EMPTY;
   }
@@ -353,6 +365,10 @@ void taken_off_armor() {
   if (equipment.armor_equipped == EMPTY || equipment.armor_equipped == INVALID_ITEM) {
     return;
   } else if (equipment.armor_equipped != EMPTY && equipment.armor_equipped != INVALID_ITEM) {
+    float health_mod = get_item_info_by_ID(equipment.armor_equipped).health_mod;
+    float firerate_mod = get_item_info_by_ID(equipment.armor_equipped).firerate_mod;
+    float speed_mod = get_item_info_by_ID(equipment.armor_equipped).speed_mod;
+    float max_health_mod = get_item_info_by_ID(equipment.armor_equipped).max_heath_mod;
     // Have equipped weapon then taken off the equipped weapon
     if (search_player_inventory_by_ID(equipment.armor_equipped) != NULL) {
       // Have same type of equipped weapon in inventory then increment its quantity
@@ -371,6 +387,14 @@ void taken_off_armor() {
         time_inventory_event_prompt = 2.0;
       }
     }
+    e_player.health -= health_mod;
+    c_player.health -= health_mod;
+    c_player.fire_rate -= firerate_mod;
+    e_player.speed -= speed_mod;
+    c_player.speed -= speed_mod;
+    e_player.max_health -= max_health_mod;
+    c_player.max_health -= max_health_mod;
+
     equipment.armor_equipped = EMPTY;
   }
   update_inventory_ui();
