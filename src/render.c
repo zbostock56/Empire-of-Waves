@@ -24,7 +24,7 @@ void init_scene() {
   resource_textures[resource_to_buffer(REC_FIRERATE_POTION)] = 
      gen_texture("assets/resources/firerate_potion.png");
   resource_textures[resource_to_buffer(REC_SPEED_POTION)] = 
-     gen_texture("assets/resources/life_potion.png");
+     gen_texture("assets/resources/speed_potion.png");
   resource_textures[resource_to_buffer(REC_KNIFE)] = 
      gen_texture("assets/resources/knife.png");
   resource_textures[resource_to_buffer(REC_SWORD)] = 
