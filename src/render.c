@@ -382,6 +382,7 @@ void render_scene(GLFWwindow *window) {
     }
   }
   update_status_bar();
+  update_status_menu();
   // Schedule trade route prompt delay
   if (time_schdule_trade_toute_prompt < 0) {
     dialog.ui_text_schedule_trade_route_prompt->enabled = 0;

@@ -67,3 +67,4 @@ float get_text_width(char *, int);
 float get_screen_text_scale();
 void print_parse_table();
 void open_establish_trade_route();
+void open_status_menu();
