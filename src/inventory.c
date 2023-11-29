@@ -11,10 +11,11 @@ int init_inventory_ui() {
   inventory.ui_equipment_armor = get_ui_component_by_ID(INVENTORY_BUTTON_ARMOR);
   inventory.ui_text_on_hover_item = get_ui_component_by_ID(INVENTORY_TEXT_HOVER_ITEM);
   inventory.ui_text_event_prompt = get_ui_component_by_ID(INVENTORY_TEXT_EVENT_PROMPT);
+  inventory.ui_drop = get_ui_component_by_ID(INVENTORY_BUTTON_DROP);
 
   // Init inventory items
   for (uintptr_t i = 0; i < MAX_PLAYER_INV_SIZE; i++) {
-    float pos_x = -0.5 + (i % 4) * 0.25;
+    float pos_x = -0.55 + (i % 4) * 0.25;
     float pos_y = 0.4 - (i / 4) * 0.25;
     init_menu(
       (vec2) { pos_x, pos_y }, // position
@@ -38,7 +39,7 @@ int init_inventory_ui() {
 
   // Init equipment items
   init_menu(
-    (vec2) { 0.5, 0.20 }, // position
+    (vec2) { 0.45, 0.3 }, // position
     on_click_weapon, // on_click
     on_hover_weapon, // on_hover
     NULL, // on_click_args
@@ -57,7 +58,7 @@ int init_inventory_ui() {
   );
 
   init_menu(
-    (vec2) { 0.5, -0.15 }, // position
+    (vec2) { 0.7, 0.3 }, // position
     on_click_armor, // on_click
     on_hover_armor, // on_hover
     NULL, // on_click_args
@@ -129,6 +130,26 @@ int init_inventory_ui() {
   inventory.ui_text_event_prompt->text[0] = '\0'; // Ensures null termination
   strcpy(inventory.ui_text_event_prompt->text, " EVENT PROMPT ");
 
+  // Init drop
+  init_menu(
+    (vec2) { 0.575, -0.3 }, // position
+    on_click_drop, // on_click
+    NULL, // on_hover
+    NULL, // on_click_args
+    NULL, // on_hover_args
+    " ENABLE DROP ", // text
+    0, // enabled
+    1, // textured
+    0, // texture
+    0.05, // text_padding
+    0.5, // text_scale
+    0.3, // width
+    0.2, // height
+    PIVOT_CENTER, // pivot
+    T_CENTER, // text_anchor
+    inventory.ui_drop // dest
+  );
+
   return 0;
 }
 
@@ -156,6 +177,7 @@ void open_inventory_ui() {
   inventory.ui_equipment_armor->enabled = 1;
   inventory.ui_text_on_hover_item->enabled = 1;
   inventory.ui_text_event_prompt->enabled = 0;
+  inventory.ui_drop->enabled = 1;
 }
 
 /*
@@ -169,6 +191,8 @@ void close_inventory_ui() {
   inventory.ui_equipment_armor->enabled = 0;
   inventory.ui_text_on_hover_item->enabled = 0;
   inventory.ui_text_event_prompt->enabled = 0;
+  inventory.ui_drop->enabled = 0;
+  inventory.ui_drop->text = " ENABLE DROP ";
 }
 
 /*
@@ -202,31 +226,40 @@ void on_click_inventory_item(void *inventory_item_index) {
   float firerate_mod = item.firerate_mod;
   float speed_mod = item.speed_mod;
   // float max_health_mod = item.max_heath_mod;
-  if (item_id != EMPTY && item_id != INVALID_ITEM && quantity >= 1 && (item.edible || item.equippable)) {
-    if (item.edible) {
-      e_player.health += health_mod;
-      c_player.health += health_mod;
-      if (hunger_mod != -1.0) {
-        e_player.hunger += hunger_mod;
+  if (strcmp(inventory.ui_drop->text, " ENABLE DROP ") == 0) {
+    if (item_id != EMPTY && item_id != INVALID_ITEM && quantity >= 1 && (item.edible || item.equippable)) {
+      if (item.edible) {
+        e_player.health += health_mod;
+        c_player.health += health_mod;
+        if (hunger_mod != -1.0) {
+          e_player.hunger += hunger_mod;
+        }
+        c_player.fire_rate += firerate_mod;
+        c_player.speed += speed_mod;
+        i_slot->quantity -= 1;
+        if (i_slot->quantity < 1) {
+          i_slot->item_id = EMPTY;
+        }
+      } else if (item.equippable) {
+        // No equipped weapon
+        if (item_isWeapon(item_id)) {
+          taken_off_weapon();
+        } else if (item_isArmor(item_id)) {
+          taken_off_armor();
+        }
+        equip_slot_item(i_slot);
+      } else {
+        sprintf(inventory.ui_text_event_prompt->text, " ITEM CANNOT BE INTERACTED WITH ");
+        inventory.ui_text_event_prompt->enabled = 1;
+        time_inventory_event_prompt = 2.0;
       }
-      c_player.fire_rate += firerate_mod;
-      c_player.speed += speed_mod;
-      i_slot->quantity -= 1;
-      if (i_slot->quantity < 1) {
-        i_slot->item_id = EMPTY;
-      }
-    } else if (item.equippable) {
-      // No equipped weapon
-      if (item_isWeapon(item_id)) {
-        taken_off_weapon();
-      } else if (item_isArmor(item_id)) {
-        taken_off_armor();
-      }
-      equip_slot_item(i_slot);
-    } else {
-      sprintf(inventory.ui_text_event_prompt->text, " ITEM CANNOT BE INTERACTED WITH ");
-      inventory.ui_text_event_prompt->enabled = 1;
-      time_inventory_event_prompt = 2.0;
+    }
+  } else if (strcmp(inventory.ui_drop->text, " DISABLE DROP ") == 0) {
+    drop_item(item_id);
+    i_slot->quantity -= 1;
+    if (i_slot->quantity <= 0) {
+      i_slot->item_id = EMPTY;
+      i_slot->quantity = 0;
     }
   }
   update_inventory_ui();
@@ -288,6 +321,10 @@ void taken_off_weapon() {
   if (equipment.weapon_equipped == EMPTY || equipment.weapon_equipped == INVALID_ITEM) {
     return;
   } else if (equipment.weapon_equipped != EMPTY && equipment.weapon_equipped != INVALID_ITEM) {
+    float health_mod = get_item_info_by_ID(equipment.armor_equipped).health_mod;
+    float firerate_mod = get_item_info_by_ID(equipment.armor_equipped).firerate_mod;
+    float speed_mod = get_item_info_by_ID(equipment.armor_equipped).speed_mod;
+    float max_health_mod = get_item_info_by_ID(equipment.armor_equipped).max_heath_mod;
     // Have equipped weapon then taken off the equipped weapon
     if (search_player_inventory_by_ID(equipment.weapon_equipped) != NULL) {
       // Have same type of equipped weapon in inventory then increment its quantity
@@ -298,14 +335,22 @@ void taken_off_weapon() {
         get_player_first_empty_inventory_slot()->item_id = equipment.weapon_equipped;
         get_player_first_empty_inventory_slot()->quantity = 1;
       } else if (get_player_first_empty_inventory_slot() == NULL) {
-        // TODO: Drop to the ground
-        // Currently the item will disappear
+        // Drop to the ground
+        drop_item(equipment.weapon_equipped);
         // Show prompt
         sprintf(inventory.ui_text_event_prompt->text, " Weapon Dropped - Insufficient Inventory Space ");
         inventory.ui_text_event_prompt->enabled = 1;
         time_inventory_event_prompt = 2.0;
       }
     }
+    e_player.health -= health_mod;
+    c_player.health -= health_mod;
+    c_player.fire_rate -= firerate_mod;
+    e_player.speed -= speed_mod;
+    c_player.speed -= speed_mod;
+    e_player.max_health -= max_health_mod;
+    c_player.max_health -= max_health_mod;
+    
     equipment.weapon_type = MELEE;
     equipment.weapon_equipped = EMPTY;
   }
@@ -320,6 +365,10 @@ void taken_off_armor() {
   if (equipment.armor_equipped == EMPTY || equipment.armor_equipped == INVALID_ITEM) {
     return;
   } else if (equipment.armor_equipped != EMPTY && equipment.armor_equipped != INVALID_ITEM) {
+    float health_mod = get_item_info_by_ID(equipment.armor_equipped).health_mod;
+    float firerate_mod = get_item_info_by_ID(equipment.armor_equipped).firerate_mod;
+    float speed_mod = get_item_info_by_ID(equipment.armor_equipped).speed_mod;
+    float max_health_mod = get_item_info_by_ID(equipment.armor_equipped).max_heath_mod;
     // Have equipped weapon then taken off the equipped weapon
     if (search_player_inventory_by_ID(equipment.armor_equipped) != NULL) {
       // Have same type of equipped weapon in inventory then increment its quantity
@@ -330,14 +379,22 @@ void taken_off_armor() {
         get_player_first_empty_inventory_slot()->item_id = equipment.armor_equipped;
         get_player_first_empty_inventory_slot()->quantity = 1;
       } else if (get_player_first_empty_inventory_slot() == NULL) {
-        // TODO: Drop to the ground
-        // Currently the item will disappear
+        // Drop to the ground
+        drop_item(equipment.armor_equipped);
         // Show prompt
         sprintf(inventory.ui_text_event_prompt->text, " Armor Dropped - Insufficient Inventory Space ");
         inventory.ui_text_event_prompt->enabled = 1;
         time_inventory_event_prompt = 2.0;
       }
     }
+    e_player.health -= health_mod;
+    c_player.health -= health_mod;
+    c_player.fire_rate -= firerate_mod;
+    e_player.speed -= speed_mod;
+    c_player.speed -= speed_mod;
+    e_player.max_health -= max_health_mod;
+    c_player.max_health -= max_health_mod;
+
     equipment.armor_equipped = EMPTY;
   }
   update_inventory_ui();
@@ -426,10 +483,16 @@ void on_hover_inventory_item(void *inventory_item_index) {
   }
 }
 
+/*
+Taken off weapon when equipped
+*/
 void on_click_weapon() {
   taken_off_weapon();
 }
 
+/*
+Show weapon stats when equipped
+*/
 void on_hover_weapon() {
   ITEM_IDS item_id = equipment.weapon_equipped;
   ITEM item = get_item_info_by_ID(item_id);
@@ -462,10 +525,16 @@ void on_hover_weapon() {
   }
 }
 
+/*
+Taken off armor when equipped
+*/
 void on_click_armor() {
   taken_off_armor();
 }
 
+/*
+Show armor stats when equipped
+*/
 void on_hover_armor() {
   ITEM_IDS item_id = equipment.armor_equipped;
   ITEM item = get_item_info_by_ID(item_id);
@@ -492,5 +561,46 @@ void on_hover_armor() {
     }
   } else {
     sprintf(inventory.ui_text_on_hover_item->text, " [-] ");
+  }
+}
+
+/*
+Switch on/off for drop mode
+*/
+void on_click_drop() {
+  if (strcmp(inventory.ui_drop->text, " ENABLE DROP ") == 0) {
+    inventory.ui_drop->text = " DISABLE DROP ";
+  } else if (strcmp(inventory.ui_drop->text, " DISABLE DROP ") == 0) {
+    inventory.ui_drop->text = " ENABLE DROP ";
+  }
+}
+
+/*
+Drop an item
+*/
+void drop_item(ITEM_IDS item_id) {
+  if (e_player.embarked) {
+    /* item directly disappeared when on the ship */
+    sprintf(inventory.ui_text_event_prompt->text, " Item Dropped to Ocean - %s ", get_item_name_by_ID(item_id));
+    inventory.ui_text_event_prompt->enabled = 1;
+    time_inventory_event_prompt = 2.0;
+  } else {
+    /* Find the current island that the player is on */
+    vec2 coords = GLM_VEC2_ZERO_INIT;
+    chunk_to_world(e_player.chunk, e_player.coords, coords);
+    CHUNK *chunk = chunk_buffer + player_chunks[PLAYER_CHUNK];
+    ISLAND *island = cur_island(chunk, coords);
+
+    island->num_items += 1;
+    int num_items = island->num_items - 1;
+    ITEM_TILES *drop_tile = island->item_tiles + num_items;  // didn't check buff overflow
+    vec2 intra_island_pos = {island->coords[0], island->coords[1]};
+    glm_vec2_sub(e_player.coords, intra_island_pos, drop_tile->position);
+    // glm_vec2_copy(intra_island_pos, drop_tile->position);
+    drop_tile->quantity = 1;
+    drop_tile->resource = (int)item_id;
+    sprintf(inventory.ui_text_event_prompt->text, " Item Dropped - %s ", get_item_name_by_ID(item_id));
+    inventory.ui_text_event_prompt->enabled = 1;
+    time_inventory_event_prompt = 2.0;
   }
 }

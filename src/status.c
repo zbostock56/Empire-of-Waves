@@ -294,7 +294,7 @@ int init_status_menu() {
   
   // initilaize buff list 
   for (int i = 0; i < MAX_BUFF_NUM; i++) {
-    status_menu.buff_list[i].ui_menu_buff = &ui_tab[192 + i];
+    status_menu.buff_list[i].ui_menu_buff = &ui_tab[STAT_BUFF_1 + i];
     status_menu.buff_list[i].buff_timer = 0;
     vec2 buff_position = {-0.5, 0.0 - i * 0.1};
       init_menu(
