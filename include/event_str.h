@@ -1,8 +1,10 @@
-#define NUM_TIMERS (5)
+#define NUM_TIMERS (8)
 #define C_CURSOR_TIME (0.25)
 #define C_ERROR_TIME (1.5)
 #define GENERAL_PROMPT_TIME (1.5)
 #define WEATHER_TIME (60.0)
+#define HEALTH_REDUCTION_TIME (5.0)
+#define HEALTH_INCREASE_TIME (3.0)
 
 typedef enum timer_list {
   CONS_CURSOR,
@@ -10,6 +12,9 @@ typedef enum timer_list {
   GENERAL_PROMPT,
   WEATHER,
   STEALING_TIMER,
+  HUNGER_TIMER,
+  HEALTH_REDUCTION_TIMER,
+  HEALTH_INCREASE_TIMER,
 } TIMER_LIST;
 
 extern float timers[NUM_TIMERS];
