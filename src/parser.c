@@ -49,37 +49,41 @@ void console_dispatcher() {
       if (strncmp(command[1].tok, SPEED, sizeof(SPEED)) == 0) {
         /* Generate the float out of the token string */
         if (command[2].num_chars > 3) {
-          fprintf(stderr, "Speed too large! Must be < 1000.0!\n");
+          set_prompt("Speed too high!");
           return;
         }
-        char fl[6];
-        int index = command[2].num_chars;
-        /* snprintf will fail if not accounting for null byte  */
-        /* therefore need to add one to size to copy to work   */
-        /* properly                                            */
-        snprintf(fl, index + 1, "%s", command[2].tok);
-        fl[index++] = '.';
-        if (command[4].kind != NUMBER) {
-          fl[index] = '0';
-        } else {
-          /* Only take the first and second decimal places and discard the rest */
-          if (command[4].num_chars == 1) {
-            fl[index++] = command[4].tok[0];
-          } else {
-            fl[index++] = command[4].tok[0];
-            fl[index++] = command[4].tok[1];
-          }
-          while (index < 6) {
-            fl[index++] = '0';
-          }
-        }
-        /* atof() returns 0.0 when it can't make a conversion */
-        /* set to default speed if conversion can't be made */
-        if (atof(fl) == 0.0) {
+        float speed = create_float(2);
+        if (speed == 0.0) {
           set_speed(1.0);
           return;
+        } else if (speed == FLT_MAX) {
+          set_prompt("Invalid Number");
+          return;
         }
-        set_speed(atof(fl));
+        set_speed(speed);
+      } else if (strncmp(command[1].tok, HUNGER, sizeof(HUNGER)) == 0) {
+        if (command[2].kind == NUMBER) {
+          float hunger = create_float(2); 
+          if (hunger == 0.0) {
+            set_prompt("Invalid hunger level!");
+            return;
+          } else if (hunger == FLT_MAX) {
+            set_prompt("Invalid Number");
+            return;
+          }
+          set_hunger_level(hunger);
+          return;
+        } else if (strncmp(command[2].tok, TIMER, sizeof(TIMER)) == 0) {
+          float timer = create_float(3);
+          if (timer == 0.0 || timer == FLT_MAX) {
+            set_prompt("Invalid number");
+          }
+          set_hunger_timer(timer);
+          return;
+        } else {
+          command_not_found();
+          return;
+        }
       } else {
         command_not_found();
       }
@@ -169,6 +173,36 @@ enum KIND peek_token() {
     exit(1);
   }
   return lexer.lines[current.line].tokens[current.token].kind;
+}
+
+float create_float(int start) {
+  char fl[6];
+  int index = command[start].num_chars;
+  /* snprintf will fail if not accounting for null byte  */
+  /* therefore need to add one to size to copy to work   */
+  /* properly                                            */
+  if (command[start].kind != NUMBER) {
+    return FLT_MAX;
+  }
+  snprintf(fl, index + 1, "%s", command[start].tok);
+  start++;
+  fl[index++] = '.';
+  start++;
+  if (command[start].kind != NUMBER) {
+    fl[index] = '0';
+  } else {
+    /* Only take the first and second decimal places and discard the rest */
+    if (command[start].num_chars == 1) {
+      fl[index++] = command[start].tok[0];
+    } else {
+      fl[index++] = command[start].tok[0];
+      fl[index++] = command[start].tok[1];
+    }
+    while (index < 6) {
+      fl[index++] = '0';
+    }
+  }
+  return atof(fl);
 }
 
 void print_parse_table() {

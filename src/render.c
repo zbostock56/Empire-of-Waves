@@ -56,6 +56,30 @@ void init_scene() {
   resource_textures[resource_to_buffer(AMBERGRIS)] = 
      gen_texture("assets/resources/ambergris.png");
 
+  hunger_bar_textures[0] = gen_texture("assets/hunger_bars/hunger_bar.png");
+  hunger_bar_textures[1] = gen_texture("assets/hunger_bars/hunger_bar_1.png");
+  hunger_bar_textures[2] = gen_texture("assets/hunger_bars/hunger_bar_2.png");
+  hunger_bar_textures[3] = gen_texture("assets/hunger_bars/hunger_bar_3.png");
+  hunger_bar_textures[4] = gen_texture("assets/hunger_bars/hunger_bar_4.png");
+  hunger_bar_textures[5] = gen_texture("assets/hunger_bars/hunger_bar_5.png");
+  hunger_bar_textures[6] = gen_texture("assets/hunger_bars/hunger_bar_6.png");
+  hunger_bar_textures[7] = gen_texture("assets/hunger_bars/hunger_bar_7.png");
+  hunger_bar_textures[8] = gen_texture("assets/hunger_bars/hunger_bar_8.png");
+  hunger_bar_textures[9] = gen_texture("assets/hunger_bars/hunger_bar_9.png");
+  hunger_bar_textures[10] = gen_texture("assets/hunger_bars/hunger_bar_10.png");
+
+  health_bar_textures[0] = gen_texture("assets/health_bars/health_bar.png");
+  health_bar_textures[1] = gen_texture("assets/health_bars/health_bar_1.png");
+  health_bar_textures[2] = gen_texture("assets/health_bars/health_bar_2.png");
+  health_bar_textures[3] = gen_texture("assets/health_bars/health_bar_3.png");
+  health_bar_textures[4] = gen_texture("assets/health_bars/health_bar_4.png");
+  health_bar_textures[5] = gen_texture("assets/health_bars/health_bar_5.png");
+  health_bar_textures[6] = gen_texture("assets/health_bars/health_bar_6.png");
+  health_bar_textures[7] = gen_texture("assets/health_bars/health_bar_7.png");
+  health_bar_textures[8] = gen_texture("assets/health_bars/health_bar_8.png");
+  health_bar_textures[9] = gen_texture("assets/health_bars/health_bar_9.png");
+  health_bar_textures[10] = gen_texture("assets/health_bars/health_bar_10.png");
+
   // Initialize shaders
   std_shader = shader_init(vertex_shader, fragment_shader_texture);
   color_shader = shader_init(vertex_shader, fragment_shader_color);
@@ -233,6 +257,10 @@ void render_scene(GLFWwindow *window) {
           e_player.ship_chunk[1] - 2 + i
         };
         render_chunk(chunk);
+      }
+      if (!merchant_dialog_enabled) {
+        render_player_health_bar();
+        render_hunger_bar();
       }
     }
 
@@ -549,6 +577,74 @@ void render_resource(vec2 position, ISLAND *island, REC_IDS r_type) {
   set_mat4("view", view_mat, pixel_shader);
   set_mat4("proj", ortho_proj, pixel_shader);
   draw_model(quad, pixel_shader);
+}
+
+void render_hunger_bar() {
+  mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+  mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+
+  float ratio_x = RES_X / BASE_RES_X;
+  float ratio_y = RES_Y / BASE_RES_Y;
+  vec3 hunger_bar_pos = GLM_VEC3_ZERO_INIT;
+  hunger_bar_pos[0] = -ratio_x + 0.2;
+  hunger_bar_pos[2] = UI_DEPTH;
+  if (!console_input_enabled) {
+    hunger_bar_pos[1] = -ratio_y * 0.9;
+  } else {
+    hunger_bar_pos[1] = -ratio_y * 0.675;
+  }
+
+  glm_translate(model_mat, hunger_bar_pos);
+  vec3 scale = {0.25, 0.25, 1.0};
+  glm_scale(model_mat, scale);
+
+  int tex_num = (int) (e_player.hunger / 11.0) + 1;
+  if (e_player.hunger > 100.0) {
+    tex_num = 10;
+  } else if (e_player.hunger <= 0.0) {
+    tex_num = 0;
+  }
+  quad->texture = hunger_bar_textures[tex_num]; 
+
+  glUseProgram(std_shader);
+  set_mat4("model", model_mat, std_shader);
+  set_mat4("view", view_mat, std_shader);
+  set_mat4("proj", ortho_proj, std_shader);
+  draw_model(quad, std_shader);
+}
+
+void render_player_health_bar() {
+  mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+  mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+
+  float ratio_x = RES_X / BASE_RES_X;
+  float ratio_y = RES_Y / BASE_RES_Y;
+  vec3 health_bar_pos = GLM_VEC3_ZERO_INIT;
+  health_bar_pos[0] = -ratio_x + 0.6;
+  health_bar_pos[2] = UI_DEPTH;
+  if (!console_input_enabled) {
+    health_bar_pos[1] = -ratio_y * 0.9;
+  } else {
+    health_bar_pos[1] = -ratio_y * 0.675;
+  }
+  
+  glm_translate(model_mat, health_bar_pos);
+  vec3 scale = {0.25, 0.25, 1.0};
+  glm_scale(model_mat, scale);
+
+  float actual_health = glm_clamp(e_player.health, 0.0, 100.0);
+
+  int tex_num = (int) (actual_health / 11.0) + 1;
+  if (actual_health <= 0.0) {
+    tex_num = 0;
+  }
+  quad->texture = health_bar_textures[tex_num]; 
+
+  glUseProgram(std_shader);
+  set_mat4("model", model_mat, std_shader);
+  set_mat4("view", view_mat, std_shader);
+  set_mat4("proj", ortho_proj, std_shader);
+  draw_model(quad, std_shader);
 }
 
 void render_health_bar_background(vec2 position) {

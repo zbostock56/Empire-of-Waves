@@ -7,6 +7,9 @@ void init_player() {
   glm_ivec2_zero(e_player.ship_chunk);
   glm_vec2_zero(e_player.direction);
   glm_vec2_zero(e_player.ship_direction);
+  e_player.hunger = 100.0;
+  e_player.max_health = 100.0;
+  e_player.health = e_player.max_health;
   e_player.speed = 1.0;
   e_player.direction[1] = 1.0;
   e_player.ship_direction[1] = 1.0;
@@ -419,4 +422,8 @@ unsigned int check_fit(LISTING *from, int *from_selected,
     return 1;
   }
   return 0;
+}
+
+void set_hunger_level(float level) {
+  e_player.hunger = level;
 }
