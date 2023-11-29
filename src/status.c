@@ -373,7 +373,7 @@ void update_status_menu() {
   snprintf(status_menu.ui_menu_health->text, MAX_STATUS_STR_LENGTH,
            " Health : %3.1f / %3.1f ", c_player.health, c_player.max_health);
   snprintf(status_menu.ui_menu_hunger->text, MAX_STATUS_STR_LENGTH,
-           " Hunger : %3.1f / %3.1f ", 100.0, 100.0);
+           " Hunger : %3.1f / %3.1f ", e_player.hunger, 100.0);
   snprintf(status_menu.ui_menu_money->text, MAX_STATUS_STR_LENGTH, 
            " Money : G [%2d] S [%2d] C [%2d] ",
            get_player_gold(), get_player_silver(), get_player_copper());

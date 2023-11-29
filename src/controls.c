@@ -332,6 +332,7 @@ void open_stats(GLFWwindow *window) {
     holding_alpha[GLFW_KEY_C - GLFW_KEY_A] = 1;
     if (status_menu_open) {
       close_status_menu();
+      get_ui_component_by_ID(SAVE_CLOSE)->enabled = 0;
     } else {
       open_status_menu();
     }
