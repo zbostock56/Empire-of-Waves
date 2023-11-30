@@ -423,28 +423,28 @@ void item_rng(ITEM_TILES *tile) {
   switch (category) {
     /* Grain, Cotton, Wool, Dyes, Sugar */
     case 0:
-    tile->resource = (rand() % 5);
+    tile->resource = (rand() % 5) + 21;
     break;
     /* Leather, Cheese, Iron Ore */
     case 1:
     /* Add offset to account for REC_IDS not starting at 0 */
-    tile->resource = (rand() % 3) + 5;
+    tile->resource = (rand() % 3) + 5 + 21;
     break;
     /* Wine, Copper Ore, Spice */
     case 2:
     /* Add offset to account for REC_IDS not starting at 0 */
-    tile->resource = (rand() % 3) + 8;
+    tile->resource = (rand() % 3) + 8 + 21;
     break;
     /* Herb, Tea */
     case 3:
     /* Add offset to account for REC_IDS not starting at 0 */
-    tile->resource = (rand() % 2) + 11;
+    tile->resource = (rand() % 2) + 11 + 21;
     break;
     /* Silver Ore, Porcelain, Silk, Pearl */
     /* Gold Ore, Saffron, Amergris */
     case 4: case 5: case 6: case 7:
     case 8: case 9: case 10:
-    tile->resource = category + 9;
+    tile->resource = category + 9 + 21;
     break;
   }
 }
@@ -456,9 +456,9 @@ void item_rng(ITEM_TILES *tile) {
 */
 ITEM_IDS translate_resource_to_item(REC_IDS resource) {
   if (resource == INVALID_REC) {
-    return ((ITEM_IDS) -1);
+    return (INVALID_ITEM);
   }
-  return (ITEM_IDS) ((int) resource + 21);
+  return (ITEM_IDS) ((int) resource);
 }
 
 /*
@@ -468,10 +468,10 @@ ITEM_IDS translate_resource_to_item(REC_IDS resource) {
   NOTE: To get back INVALID_REC, input INVALID_ITEM
 */
 REC_IDS translate_item_to_resource(ITEM_IDS item) {
-  if (INVALID_ITEM) {
+  if (item == INVALID_ITEM) {
     return INVALID_REC;
   }
-  return (REC_IDS) (((int) item) - 21);
+  return (REC_IDS) ((int) item);
 }
 
 /*

@@ -15,7 +15,47 @@ void init_scene() {
   // Create Resource Textures
   resource_textures[resource_to_buffer(INVALID_REC)] =
      gen_texture("assets/resources/invalid.png");
-  resource_textures[resource_to_buffer(GRAIN)] =
+  resource_textures[resource_to_buffer(REC_EMPTY)] = 
+     gen_texture("assets/resources/invalid.png");
+  resource_textures[resource_to_buffer(REC_CITRUS)] = 
+     gen_texture("assets/resources/citrus.png");
+  resource_textures[resource_to_buffer(REC_LIFE_POTION)] = 
+     gen_texture("assets/resources/life_potion.png");
+  resource_textures[resource_to_buffer(REC_FIRERATE_POTION)] = 
+     gen_texture("assets/resources/firerate_potion.png");
+  resource_textures[resource_to_buffer(REC_SPEED_POTION)] = 
+     gen_texture("assets/resources/speed_potion.png");
+  resource_textures[resource_to_buffer(REC_KNIFE)] = 
+     gen_texture("assets/resources/knife.png");
+  resource_textures[resource_to_buffer(REC_SWORD)] = 
+     gen_texture("assets/resources/sword.png");
+  resource_textures[resource_to_buffer(REC_AXE)] = 
+     gen_texture("assets/resources/axe.png");
+  resource_textures[resource_to_buffer(REC_BOW)] = 
+     gen_texture("assets/resources/bow.png");
+  resource_textures[resource_to_buffer(REC_CROSSBOW)] = 
+     gen_texture("assets/resources/crossbow.png");
+  resource_textures[resource_to_buffer(REC_FLINTLOCK)] = 
+     gen_texture("assets/resources/flintlock.png");
+  resource_textures[resource_to_buffer(REC_CLOTH_ARMOR)] = 
+     gen_texture("assets/resources/cloth_armor.png");
+  resource_textures[resource_to_buffer(REC_LEATHER_ARMOR)] = 
+     gen_texture("assets/resources/leather_armor.png");
+  resource_textures[resource_to_buffer(REC_LIGHT_ARMOR)] = 
+     gen_texture("assets/resources/light_armor.png");
+  resource_textures[resource_to_buffer(REC_MEDIUM_ARMOR)] = 
+     gen_texture("assets/resources/medium_armor.png");
+  resource_textures[resource_to_buffer(REC_HEAVY_ARMOR)] = 
+     gen_texture("assets/resources/heavy_armor.png");
+  resource_textures[resource_to_buffer(REC_PLATE_ARMOR)] = 
+     gen_texture("assets/resources/plate_armor.png");
+  resource_textures[resource_to_buffer(REC_GOLD_COIN)] = 
+     gen_texture("assets/resources/gold_coin.png");
+  resource_textures[resource_to_buffer(REC_SILVER_COIN)] = 
+     gen_texture("assets/resources/silver_coin.png");
+  resource_textures[resource_to_buffer(REC_COPPER_COIN)] = 
+     gen_texture("assets/resources/copper_coin.png");
+  resource_textures[resource_to_buffer(GRAIN)] = 
      gen_texture("assets/resources/grain.png");
   resource_textures[resource_to_buffer(COTTON)] =
      gen_texture("assets/resources/cotton.png");
@@ -605,6 +645,8 @@ void render_resource(vec2 position, ISLAND *island, REC_IDS r_type) {
   chunk_to_world(island->chunk, island_tile, world_coords);
   world_coords[0] = world_coords[0] + (0.5 * 2 * T_WIDTH);
   world_coords[1] = world_coords[1] - (0.5 * 2 * T_WIDTH);
+  // world_coords[0] = 25.0 + (0.5 * 2 * T_WIDTH);
+  // world_coords[1] = 74.0 - (0.5 * 2 * T_WIDTH);
 
   glm_translate(model_mat, world_coords);
   glm_scale_uni(model_mat, 0.5 * 2 * T_WIDTH);

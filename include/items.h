@@ -2,7 +2,7 @@
 #define __ITEMS_H__
 
 #define NUM_ITEMS (42)
-#define NUM_RESOURCES (21)
+#define NUM_RESOURCES (42)
 #define COPPER_PER_SILVER (10)
 #define SILVER_PER_GOLD (10)
 
@@ -12,26 +12,49 @@
 */
 typedef enum resource_ids {
   INVALID_REC = -1,
-  GRAIN =        0,
-  COTTON =       1,
-  WOOL =         2,
-  DYES =         3,
-  SUGAR =        4,
-  LEATHER =      5,
-  CHEESE =       6,
-  IRON_ORE =     7,
-  WINE =         8,
-  COPPER_ORE =   9,
-  SPICE =        10,
-  HERB =         11,
-  TEA =          12,
-  SILVER_ORE =   13,
-  PORCELAIN =    14,
-  SILK =         15,
-  PEARL =        16,
-  GOLD_ORE =     17,
-  SAFFRON =      18,
-  AMBERGRIS =    19
+  // items below
+  REC_EMPTY = 0,
+  REC_CITRUS = 1,
+  REC_RUM = 2,
+  REC_LIFE_POTION = 3,
+  REC_FIRERATE_POTION = 4,
+  REC_SPEED_POTION = 5,
+  REC_KNIFE = 6,
+  REC_SWORD = 7,
+  REC_AXE = 8,
+  REC_BOW = 9,
+  REC_CROSSBOW = 10,
+  REC_FLINTLOCK = 11,
+  REC_CLOTH_ARMOR = 12,
+  REC_LEATHER_ARMOR = 13,
+  REC_LIGHT_ARMOR = 14,
+  REC_MEDIUM_ARMOR = 15,
+  REC_HEAVY_ARMOR = 16,
+  REC_PLATE_ARMOR = 17,
+  REC_GOLD_COIN = 18,
+  REC_SILVER_COIN = 19,
+  REC_COPPER_COIN = 20,
+  // recourses below
+  GRAIN =        21,
+  COTTON =       22,
+  WOOL =         23,
+  DYES =         24,
+  SUGAR =        25,
+  LEATHER =      26,
+  CHEESE =       27,
+  IRON_ORE =     28,
+  WINE =         29,
+  COPPER_ORE =   30,
+  SPICE =        31,
+  HERB =         32,
+  TEA =          33,
+  SILVER_ORE =   34,
+  PORCELAIN =    35,
+  SILK =         36,
+  PEARL =        37,
+  GOLD_ORE =     38,
+  SAFFRON =      39,
+  AMBERGRIS =    40
 } REC_IDS;
 
 /*
