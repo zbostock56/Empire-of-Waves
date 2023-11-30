@@ -118,8 +118,10 @@ MESH_DATA read_mesh(char *path) {
     return md;
   }
 
-  fread(&md.num_verts, sizeof(size_t), 1, file);
-  fread(&md.num_indices, sizeof(size_t), 1, file);
+  fread_check(fread(&md.num_verts, sizeof(size_t), 1, file),
+              "model.c: error reading vertices");
+  fread_check(fread(&md.num_indices, sizeof(size_t), 1, file),
+             "model.c: error reading indices");
 
   if (md.num_verts) {
     md.vertices = malloc(sizeof(MESH_VERT) * md.num_verts);
@@ -132,7 +134,8 @@ MESH_DATA read_mesh(char *path) {
               path);
       return md;
     }
-    fread(md.vertices, sizeof(MESH_VERT), md.num_verts, file);
+    fread_check(fread(md.vertices, sizeof(MESH_VERT), md.num_verts, file),
+                "model.c: error reading vertices");
   }
 
   if (md.num_indices) {
@@ -148,7 +151,8 @@ MESH_DATA read_mesh(char *path) {
               path);
       return md;
     }
-    fread(md.indices, sizeof(int) * 3, md.num_indices, file);
+    fread_check(fread(md.indices, sizeof(int) * 3, md.num_indices, file),
+                "model.c: error reading indices");
   }
   fclose(file);
 

@@ -461,7 +461,7 @@ void console_error_init() {
 Helper function to raise errors when they occur
 */
 void set_console_error(const char *error) {
-  strncpy(console_error_buffer, error, strlen(error));
+  memcpy(console_error_buffer, error, strlen(error));
   timers[CONS_ERROR] = 1.5;
   event_flags[CONS_ERROR] = 1;
   console_error_init();

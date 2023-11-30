@@ -51,4 +51,9 @@ extern unsigned int e_enemy_index;
 // Specifies width and height of game arena in tiles
 extern ivec2 arena_dimensions;
 
+#define fread_check(status, message) { \
+  if (!status) {                       \
+    fprintf(stderr, "%s", message);    \
+  }                                    \
+}                                      
 #endif
