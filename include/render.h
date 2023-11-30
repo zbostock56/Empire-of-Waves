@@ -177,6 +177,7 @@ void render_resource(vec2, ISLAND *, REC_IDS);
 void render_weather();
 void render_hunger_bar();
 void render_player_health_bar();
+void render_player_health_bar_combat();
 
 void calc_screen_scale();
 
