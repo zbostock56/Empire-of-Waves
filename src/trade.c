@@ -488,6 +488,7 @@ void free_trade() {
 
 /* Render trade menu in frontend */
 void open_trade() {
+  merchant_trade_enabled = 1;
   int is_ui_buy_sell_enabled = 0;
   int is_ui_trade_with_items_enabled = 0;
   switch (trade.type) {
@@ -532,6 +533,7 @@ void open_trade() {
 
 /* Derender trade menu */
 void close_trade() {
+  merchant_trade_enabled = 0;
   trade.type = INVALID_TRADE;
   for (int i = 0; i < 9; i++) {
     trade.ui_listing[i]->enabled = 0;
