@@ -1307,7 +1307,7 @@ unsigned int shader_init(const char *vs, const char *fs) {
     int info_log_len = 0;
     glGetShaderiv(vert_shader, GL_INFO_LOG_LENGTH, &info_log_len);
     glGetShaderInfoLog(vert_shader, 1024, &info_log_len, info_log);
-    fprintf(stderr, "Vertex shader error:\n%s\n", info_log);
+    fprintf(stderr, "Vertex shader error for %s:\n%s\n", vs, info_log);
 
     return INVALID_SHADER;
   }
@@ -1322,7 +1322,7 @@ unsigned int shader_init(const char *vs, const char *fs) {
     int info_log_len = 0;
     glGetShaderiv(frag_shader, GL_INFO_LOG_LENGTH, &info_log_len);
     glGetShaderInfoLog(frag_shader, 1024, &info_log_len, info_log);
-    fprintf(stderr, "Fragment shader error:\n%s\n", info_log);
+    fprintf(stderr, "Fragment shader error for %s:\n%s\n", fs, info_log);
 
     return INVALID_SHADER;
   }
