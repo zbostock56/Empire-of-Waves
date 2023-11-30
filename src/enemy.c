@@ -186,8 +186,8 @@ void pathfind_enemy(E_ENEMY *enemy, unsigned int enemy_chunk) {
   bool prioritize_player = false;
   bool prioritize_invasion = false;
   TRADE_SHIP *target_tradeship = NULL;
-  int goal_col;
-  int goal_row;
+  int goal_col = 0;
+  int goal_row = 0;
   // Adjust this value to control the smoothness of the transition.
   float lerp_factor = 0.1;
   /*
