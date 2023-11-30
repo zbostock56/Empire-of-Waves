@@ -877,7 +877,7 @@ int list_all_files(char *dir, char (**dest_list)[MAX_CHUNK_NAME_LEN],
       continue;
     }
 
-    strncpy((*dest_list)[*dest_len], cur_file.cFileName, MAX_CHUNK_NAME_LEN);
+    memcpy((*dest_list)[*dest_len], cur_file.cFileName, MAX_CHUNK_NAME_LEN);
     (*dest_len)++;
     if (*dest_len == dest_list_size) {
       status = double_buffer((void **) dest_list, &dest_list_size,
