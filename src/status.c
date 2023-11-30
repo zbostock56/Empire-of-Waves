@@ -433,7 +433,7 @@ void increment_buff(void * txt, void *mod) {
   if (idx < 0 || idx > MAX_BUFF_NUM-1) {
     return;
   }
-  status_menu.buff_list[idx].buff_timer+=10.0;
+  status_menu.buff_list[idx].buff_timer+=30.0;
   status_menu.buff_list[idx].text = text;
   status_menu.buff_list[idx].buff_mod = *mod_value;
   if (strcmp(text, "Speed") == 0) {

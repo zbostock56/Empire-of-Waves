@@ -339,10 +339,10 @@ void taken_off_weapon() {
   if (equipment.weapon_equipped == EMPTY || equipment.weapon_equipped == INVALID_ITEM) {
     return;
   } else if (equipment.weapon_equipped != EMPTY && equipment.weapon_equipped != INVALID_ITEM) {
-    float health_mod = get_item_info_by_ID(equipment.armor_equipped).health_mod;
-    float firerate_mod = get_item_info_by_ID(equipment.armor_equipped).firerate_mod;
-    float speed_mod = get_item_info_by_ID(equipment.armor_equipped).speed_mod;
-    float max_health_mod = get_item_info_by_ID(equipment.armor_equipped).max_heath_mod;
+    float health_mod = get_item_info_by_ID(equipment.weapon_equipped).health_mod;
+    float firerate_mod = get_item_info_by_ID(equipment.weapon_equipped).firerate_mod;
+    float speed_mod = get_item_info_by_ID(equipment.weapon_equipped).speed_mod;
+    float max_health_mod = get_item_info_by_ID(equipment.weapon_equipped).max_heath_mod;
     // Have equipped weapon then taken off the equipped weapon
     if (search_player_inventory_by_ID(equipment.weapon_equipped) != NULL) {
       // Have same type of equipped weapon in inventory then increment its quantity

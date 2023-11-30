@@ -11,11 +11,11 @@ void keyboard_input(GLFWwindow *window) {
     // Exploration mode keyboard handlers here
     exploration_movement(window);
     close_merchant_menu(window);
-    inventory_open_listner(window);
   } else if (mode == COMBAT && !console_input_enabled) {
     combat_movement(window);
     surrender_listener(window);
   }
+  inventory_open_listner(window);
   open_stats(window);
   modifier_keys(window);
   debug_keys(window);
