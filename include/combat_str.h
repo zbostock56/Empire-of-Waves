@@ -2,7 +2,7 @@
 #define __COMBAT_STR__
 
 #include <cglm/vec2.h>
-#define PROJ_RAD (0.5)
+#define PROJ_RAD (0.75)
 
 typedef enum unit_type {
   ENEMY,

@@ -130,6 +130,7 @@ FRAMEBUFFER entity_framebuffer;
 unsigned int resource_textures[NUM_RESOURCES];
 unsigned int hunger_bar_textures[11];
 unsigned int health_bar_textures[11];
+unsigned int bullet_texture;
 extern int console_input_enabled;
 extern int merchant_dialog_enabled;
 

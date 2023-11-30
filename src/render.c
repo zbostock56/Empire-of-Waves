@@ -120,6 +120,8 @@ void init_scene() {
   health_bar_textures[9] = gen_texture("assets/health_bars/health_bar_9.png");
   health_bar_textures[10] = gen_texture("assets/health_bars/health_bar_10.png");
 
+  bullet_texture = gen_texture("assets/bullet.png");
+
   // Initialize shaders
   std_shader = shader_init(vertex_shader, fragment_shader_texture);
   color_shader = shader_init(vertex_shader, fragment_shader_color);
@@ -401,7 +403,7 @@ void render_scene(GLFWwindow *window) {
       glm_vec2_scale_as(c_player.direction, T_WIDTH, hitbox_offset);
       hitbox_offset[1] += T_WIDTH;
       glm_vec2_add(hitbox_pos, hitbox_offset, hitbox_pos);
-      render_hitbox(hitbox_pos, 1.0);
+      render_hitbox(hitbox_pos, PROJ_RAD);
     }
 
     PROJ *cur_proj = NULL;
@@ -1317,13 +1319,12 @@ void render_hitbox(vec2 world_coords, float radius) {
   glm_vec2_negate(player_coords);
   glm_translate(view_mat, player_coords);
 
-  vec3 hit_box_col = { 1.0, 0.0, 0.0 };
-  glUseProgram(color_shader);
-  set_mat4("model", model_mat, color_shader);
-  set_mat4("view", view_mat, color_shader);
-  set_mat4("proj", ortho_proj, color_shader);
-  set_vec3("color", hit_box_col, color_shader);
-  draw_model(circle, color_shader);
+  glUseProgram(pixel_shader);
+  quad->texture = bullet_texture;
+  set_mat4("model", model_mat, pixel_shader);
+  set_mat4("view", view_mat, pixel_shader);
+  set_mat4("proj", ortho_proj, pixel_shader);
+  draw_model(quad, pixel_shader);
 }
 
 /*
