@@ -120,6 +120,8 @@ void init_scene() {
   health_bar_textures[9] = gen_texture("assets/health_bars/health_bar_9.png");
   health_bar_textures[10] = gen_texture("assets/health_bars/health_bar_10.png");
 
+  bullet_texture = gen_texture("assets/bullet.png");
+
   // Initialize shaders
   std_shader = shader_init(vertex_shader, fragment_shader_texture);
   color_shader = shader_init(vertex_shader, fragment_shader_color);
@@ -384,6 +386,7 @@ void render_scene(GLFWwindow *window) {
         health_bar_position[1]+= 2.7*T_WIDTH;
         render_health_bar_filled(health_bar_position, npc_units[i].max_life, npc_units[i].life);
         render_health_bar_background(health_bar_position);
+        render_player_health_bar_combat();
       }
     }
 
@@ -400,7 +403,7 @@ void render_scene(GLFWwindow *window) {
       glm_vec2_scale_as(c_player.direction, T_WIDTH, hitbox_offset);
       hitbox_offset[1] += T_WIDTH;
       glm_vec2_add(hitbox_pos, hitbox_offset, hitbox_pos);
-      render_hitbox(hitbox_pos, 1.0);
+      render_hitbox(hitbox_pos, PROJ_RAD);
     }
 
     PROJ *cur_proj = NULL;
@@ -725,6 +728,40 @@ void render_player_health_bar() {
   glm_scale(model_mat, scale);
 
   float actual_health = glm_clamp(e_player.health, 0.0, 100.0);
+
+  int tex_num = (int) (actual_health / 11.0) + 1;
+  if (actual_health <= 0.0) {
+    tex_num = 0;
+  }
+  quad->texture = health_bar_textures[tex_num];
+
+  glUseProgram(std_shader);
+  set_mat4("model", model_mat, std_shader);
+  set_mat4("view", view_mat, std_shader);
+  set_mat4("proj", ortho_proj, std_shader);
+  draw_model(quad, std_shader);
+}
+
+void render_player_health_bar_combat() {
+  mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+  mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+
+  float ratio_x = RES_X / BASE_RES_X;
+  float ratio_y = RES_Y / BASE_RES_Y;
+  vec3 health_bar_pos = GLM_VEC3_ZERO_INIT;
+  health_bar_pos[0] = -ratio_x + 0.2;
+  if (!console_input_enabled) {
+    health_bar_pos[1] = -ratio_y * 0.9;
+  } else {
+    health_bar_pos[1] = -ratio_y * 0.675;
+  }
+  health_bar_pos[2] = UI_DEPTH;
+
+  glm_translate(model_mat, health_bar_pos);
+  vec3 scale = {0.25, 0.25, 1.0};
+  glm_scale(model_mat, scale);
+
+  float actual_health = glm_clamp(c_player.health, 0.0, 100.0);
 
   int tex_num = (int) (actual_health / 11.0) + 1;
   if (actual_health <= 0.0) {
@@ -1282,13 +1319,12 @@ void render_hitbox(vec2 world_coords, float radius) {
   glm_vec2_negate(player_coords);
   glm_translate(view_mat, player_coords);
 
-  vec3 hit_box_col = { 1.0, 0.0, 0.0 };
-  glUseProgram(color_shader);
-  set_mat4("model", model_mat, color_shader);
-  set_mat4("view", view_mat, color_shader);
-  set_mat4("proj", ortho_proj, color_shader);
-  set_vec3("color", hit_box_col, color_shader);
-  draw_model(circle, color_shader);
+  glUseProgram(pixel_shader);
+  quad->texture = bullet_texture;
+  set_mat4("model", model_mat, pixel_shader);
+  set_mat4("view", view_mat, pixel_shader);
+  set_mat4("proj", ortho_proj, pixel_shader);
+  draw_model(quad, pixel_shader);
 }
 
 /*
