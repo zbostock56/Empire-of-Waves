@@ -1,4 +1,4 @@
-#define NUM_TIMERS (5)
+#define NUM_TIMERS (6)
 #define C_CURSOR_TIME (0.25)
 #define C_ERROR_TIME (1.5)
 #define GENERAL_PROMPT_TIME (1.5)
