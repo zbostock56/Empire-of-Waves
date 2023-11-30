@@ -37,4 +37,4 @@ void on_click_drop();
 void drop_item(ITEM_IDS item_ids);
 
 /* ==================== EXTERNALLY DEFINED FUNCTIONS ================== */
-
+void increment_buff(void*, void*);

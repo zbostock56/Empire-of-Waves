@@ -351,3 +351,11 @@ float item_food_value(ITEM_IDS item_id) {
   }
   return -1.0;
 }
+
+int item_isPotion(ITEM_IDS item_id) {
+  if (item_id == SPEED_POTION || item_id == FIRERATE_POTION ) {
+    return 1;
+  } else {
+    return 0;
+  }
+}

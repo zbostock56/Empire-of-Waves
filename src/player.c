@@ -40,8 +40,13 @@ void init_player() {
   e_player.inventory[10].quantity = 1;
   e_player.inventory[11].item_id = FIRERATE_POTION;
   e_player.inventory[11].quantity = 1;
+
+  /* combat mode initilization */
   c_player.health = 100;
   c_player.max_health = 100;
+  c_player.fire_rate = 0.5;
+  c_player.speed = 15.0;
+  
 }
 
 // Reset player inventory, ship merchants, and position back to the home island

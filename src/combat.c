@@ -18,13 +18,13 @@ int to_combat_mode(unsigned int enemy_index) {
   // Initialize combat mode player
   c_player.weapon_type = RANGED;
   c_player.ammo = 5;
-  c_player.max_health = 100.0;
-  c_player.health = 100.0;
-  c_player.speed = 15.0;
+  // c_player.max_health = 100.0;
+  // c_player.health = 100.0;
+  // c_player.speed = 15.0;
   c_player.proj_speed = 5.0;
   c_player.attack_active = 0.0;
   c_player.attack_cooldown = 0.0;
-  c_player.fire_rate = 0.5;
+  // c_player.fire_rate = 0.5;
   c_player.invuln_timer = 0.0;
   glm_vec2_zero(c_player.direction);
   glm_vec2_zero(c_player.coords);
