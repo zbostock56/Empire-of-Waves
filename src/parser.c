@@ -83,7 +83,18 @@ void console_dispatcher() {
         } else {
           command_not_found();
           return;
-        }
+        } 
+      } else if (strncmp(command[1].tok, HEALTH, sizeof(HEALTH)) == 0) {
+          float health = create_float(2);
+          if (health == 0.0) {
+            set_prompt("Invalid number");
+            return;
+          } else if (health > e_player.max_health) {
+            set_prompt("Over max available health");
+            return;
+          }
+          set_health(health);
+          return;
       } else {
         command_not_found();
       }
