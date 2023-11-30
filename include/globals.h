@@ -64,5 +64,5 @@ extern ivec2 arena_dimensions;
   if (!status) {                       \
     fprintf(stderr, "%s", message);    \
   }                                    \
-}                                      
+}
 #endif

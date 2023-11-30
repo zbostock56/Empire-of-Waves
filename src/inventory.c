@@ -168,6 +168,7 @@ void free_inventory_ui() {
 Open the inventory UI
 */
 void open_inventory_ui() {
+  inventory_open = 1;
   update_inventory_ui();
 
   for (int i = 0; i < 16; i++) {
@@ -184,6 +185,7 @@ void open_inventory_ui() {
 Close the inventory UI
 */
 void close_inventory_ui() {
+  inventory_open = 0;
   for (int i = 0; i < 16; i++) {
     inventory.ui_inventory_items[i]->enabled = 0;
   }

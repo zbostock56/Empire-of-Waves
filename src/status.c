@@ -126,7 +126,7 @@ int init_status_menu() {
 
   // Initialize hunger stat
   status_menu.ui_menu_hunger = get_ui_component_by_ID(STATUS_MENU_HUNGER);
-  vec2 hunger_position = { 0, 0.2 }; 
+  vec2 hunger_position = { 0, 0.2 };
   init_menu(
     hunger_position, // position
     NULL, // on_click
@@ -154,7 +154,7 @@ int init_status_menu() {
 
   // Initialize money stat
   status_menu.ui_menu_money = get_ui_component_by_ID(STATUS_MENU_MONEY);
-  vec2 money_position = { 0, 0.1 }; 
+  vec2 money_position = { 0, 0.1 };
   init_menu(
     money_position, // position
     NULL, // on_click
@@ -291,8 +291,8 @@ int init_status_menu() {
     return -1;
   }
   status_menu.ui_menu_speed->text[0] = '\0';
-  
-  // initilaize buff list 
+
+  // initilaize buff list
   for (int i = 0; i < MAX_BUFF_NUM; i++) {
     status_menu.buff_list[i].ui_menu_buff = &ui_tab[STAT_BUFF_1 + i];
     status_menu.buff_list[i].buff_timer = 0;
@@ -374,7 +374,7 @@ void update_status_menu() {
            " Health : %3.1f / %3.1f ", c_player.health, c_player.max_health);
   snprintf(status_menu.ui_menu_hunger->text, MAX_STATUS_STR_LENGTH,
            " Hunger : %3.1f / %3.1f ", e_player.hunger, 100.0);
-  snprintf(status_menu.ui_menu_money->text, MAX_STATUS_STR_LENGTH, 
+  snprintf(status_menu.ui_menu_money->text, MAX_STATUS_STR_LENGTH,
            " Money : G [%2d] S [%2d] C [%2d] ",
            get_player_gold(), get_player_silver(), get_player_copper());
   snprintf(status_menu.ui_menu_attack->text, MAX_STATUS_STR_LENGTH, " Attack : 10 (+0) ");
@@ -386,8 +386,7 @@ void update_status_menu() {
 
 void update_buff_list() {
   for (int i = 0; i < status_menu.num_buff; i++) {
-    
-    snprintf(status_menu.buff_list[i].ui_menu_buff->text, MAX_STATUS_STR_LENGTH, 
+    snprintf(status_menu.buff_list[i].ui_menu_buff->text, MAX_STATUS_STR_LENGTH,
              " %s : %ds ", status_menu.buff_list[i].text, (int)status_menu.buff_list[i].buff_timer);
     status_menu.buff_list[i].buff_timer = decrement_timer(status_menu.buff_list[i].buff_timer);
     if (status_menu.buff_list[i].buff_timer == 0.0) {
@@ -402,19 +401,17 @@ void update_buff_list() {
         status_menu.buff_list[status_menu.num_buff].buff_timer = 0.0;
         if (status_menu_open) {
           status_menu.buff_list[i].ui_menu_buff->enabled = 1;
-        } 
+        }
         status_menu.buff_list[status_menu.num_buff].ui_menu_buff->enabled = 0;
       }
-      
     } else if (status_menu.buff_list[i].buff_timer < 2.0) {
       static int frameCount = 0;
       frameCount++;
       if (frameCount >= 10 && status_menu_open) {
         status_menu.buff_list[i].ui_menu_buff->enabled = !status_menu.buff_list[i].ui_menu_buff->enabled;
-        frameCount = 0; 
+        frameCount = 0;
       }
     }
-    
   }
 }
 

@@ -23,15 +23,22 @@
 extern float T_WIDTH;
 extern TRADE trade;
 extern DIALOG dialog;
-MERCHANT *close_merchant = NULL;
 unsigned int cur_lootable = 0;
 
-int shore_interaction_enabled = 0;
+// Interaction Trackers
 int home_interaction_enabled = 0;
 int container_interaction_enabled = 0;
+MERCHANT *close_merchant = NULL;
 int item_interaction_enabled = 0;
+int shore_interaction_enabled = 0;
+
+// Menu Trackers
 extern int reassignment_menu_open;
 extern int container_menu_open;
+extern int merchant_dialog_enabled;
+extern int merchant_trade_enabled;
+extern int status_menu_open;
+extern int inventory_open;
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 

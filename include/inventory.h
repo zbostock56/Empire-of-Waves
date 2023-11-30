@@ -17,6 +17,7 @@ Implements the functionality for player inventory.
 INVENTORY inventory;
 float time_inventory_event_prompt;
 int isDropping;
+int inventory_open = 0;
 
 /* ==================== INTERNALLY DEFINED FUNCITONS ================== */
 int init_inventory_ui();

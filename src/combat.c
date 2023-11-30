@@ -117,6 +117,9 @@ int to_combat_mode(unsigned int enemy_index) {
     npc_units[i].coords[Y] = ((arena_dimensions[Y] - 2) / 2) - (i * 2);
     fflush(stdout);
   }
+
+  close_all_menus();
+
   get_ui_component_by_ID(SURRENDER_BUTTON)->enabled = 1;
 
   return 0;
@@ -150,6 +153,8 @@ void from_combat_mode() {
   get_ui_component_by_ID(COMBAT_INFO_BAR)->enabled = 0;
   close_container();
   get_ui_component_by_ID(SURRENDER_BUTTON)->enabled = 0;
+
+  close_all_menus();
 }
 
 void update_combat_state() {

@@ -38,3 +38,4 @@ void respawn_player();
 void close_container();
 I_SLOT *get_player_inventory_slot_by_index(unsigned int);
 void set_prompt(const char *buffer);
+void close_all_menus();
