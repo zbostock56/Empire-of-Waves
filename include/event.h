@@ -23,12 +23,15 @@ float hunger_timer = 10.0;
 
 /* ================ EXTERNALLY DEFINED FUNCTIONS ================== */
 void spawn_enemy();
+int invade_home_island();
 void reset_console_error();
 void set_prompt(const char *);
 void close_prompt();
 void init_menu(vec2, void (*)(void *), void (*)(void *), void *, void *,
                char *, int, int, unsigned int, float, float, float, float,
                PIVOT, TEXT_ANCHOR, UI_COMPONENT *);
+float calc_stealing_interval();
+void steal_item(CONTAINER *);
 void spawn_new_items();
 
 /* ================ INTERNALLY DEFINED FUNCTIONS ================== */
@@ -37,6 +40,7 @@ void spawn_event();
 void update_timers();
 float decrement_timer(float);
 void item_respawn_event();
+void weather_event();
 /* Hunger helpers */
 void start_hunger_timer();
 void set_hunger_timer(float);

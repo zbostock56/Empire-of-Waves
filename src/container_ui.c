@@ -166,6 +166,7 @@ void open_container(CONTAINER container_1, CONTAINER container_2) {
   c2 = container_2;
   c1_page = 0;
   c2_page = 0;
+  container_menu_open = 1;
   refresh_containers();
   get_ui_component_by_ID(CONTAINER_1_NEXT)->enabled = 1;
   get_ui_component_by_ID(CONTAINER_1_PREV)->enabled = 1;
@@ -173,12 +174,12 @@ void open_container(CONTAINER container_1, CONTAINER container_2) {
   get_ui_component_by_ID(CONTAINER_2_NEXT)->enabled = 1;
   get_ui_component_by_ID(CONTAINER_2_PREV)->enabled = 1;
   get_ui_component_by_ID(CONTAINER_2_MOVE)->enabled = 1;
-  container_menu_open = 1;
 }
 
 void close_container() {
   c1_page = 0;
   c2_page = 0;
+  container_menu_open = 0;
   for (int i = CONTAINER_1_SLOTS; i <= CONTAINER_2_MOVE; i++) {
     get_ui_component_by_ID(i)->enabled = 0;
   }
@@ -188,10 +189,13 @@ void close_container() {
   get_ui_component_by_ID(CONTAINER_2_NEXT)->enabled = 0;
   get_ui_component_by_ID(CONTAINER_2_PREV)->enabled = 0;
   get_ui_component_by_ID(CONTAINER_2_MOVE)->enabled = 0;
-  container_menu_open = 0;
 }
 
 void refresh_containers() {
+  if (!container_menu_open) {
+    return;
+  }
+
   UI_COMPONENT *slot = NULL;
   for (int i = 0; i < 36; i++) {
     if (i < c1.capacity) {

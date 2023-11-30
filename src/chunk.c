@@ -4,10 +4,7 @@
 Implements the functionality for chunk loading and unloading, random chunk
 generation, and detection of which chunks to load/unload.
 */
-
 int init_chunks() {
-  // Since we are not saving the game, the forseeable chunks will be saved to
-  // the unsaved directory rather than the chunks of the saved game
   chunk_buffer = malloc(sizeof(CHUNK) * CHUNK_BUFF_STARTING_LEN);
   if (chunk_buffer == NULL) {
     return -1;
@@ -24,6 +21,12 @@ int init_chunks() {
 
   int status = 0;
   ivec2 chunk_coords = { 0, 0 };
+  status = add_chunk(chunk_coords);
+  if (status == -1) {
+    return -1;
+  }
+  home_chunk_index = status;
+
   for (int i = CHUNK_UPPER_LEFT; i <= CHUNK_LOWER_RIGHT; i++) {
     glm_ivec2_add(player_chunk, CHUNK_OFFSETS[i], chunk_coords);
     status = add_chunk(chunk_coords);
@@ -31,6 +34,8 @@ int init_chunks() {
       return -1;
     }
 
+    // Since we are not saving the game, the forseeable chunks will be saved to
+    // the unsaved directory rather than the chunks of the saved game
     save_chunk(chunk_buffer + status, UNSAVED_DIR_PATH);
     player_chunks[i] = status;
   }
@@ -225,32 +230,8 @@ int remove_chunk(unsigned int index) {
   // Swap last chunk in buffer to replace spot of deleted chunk
   chunk_buffer[index] = chunk_buffer[chunk_buff_len];
 
-  // Update chunk index for player and trade ships referring to the swapped
-  // chunk
-  for (int i = 0; i < CHUNKS_SIMULATED; i++) {
-    if (player_chunks[i] == chunk_buff_len) {
-      player_chunks[i] = index;
-    }
-  }
-
-  for (int i = 0; i < CHUNKS_SIMULATED; i++) {
-    if (updated_chunks[i] == chunk_buff_len) {
-      updated_chunks[i] = index;
-    }
-  }
-
-  // Update ref for trade ship chunk
-  for (int i = 0; i < num_trade_ships; i++) {
-    if (trade_ships[i].cur_chunk_index == chunk_buff_len) {
-      trade_ships[i].cur_chunk_index = index;
-    }
-    if (trade_ships[i].target_chunk_index == chunk_buff_len) {
-      trade_ships[i].target_chunk_index = index;
-    }
-    if (trade_ships[i].updated_chunk_index == chunk_buff_len) {
-      trade_ships[i].updated_chunk_index = index;
-    }
-  }
+  // Update references to chunk_buffer since a swap has occured
+  update_chunk_refs(chunk_buff_len, index);
 
   return 0;
 }
@@ -426,6 +407,47 @@ char *index_to_str(int index) {
     return "LOWER_RIGHT";
   } else {
     return "INVALID";
+  }
+}
+
+/*
+  Helper function for automatically updating the player, trade ship, etc..
+  references to chunks in chunk_buffer.
+  Everytime chunks in chunk_buffer are moved/rearranged/swapped, this function
+  MUST be called, or else player_chunks, updated_chunks,
+  trade_ship.*_chunk_index, home_chunk, etc... can become innaccurate
+
+  Args:
+  - unsigned int old: The old index of the moved chunk in chunk_buffer
+  - unsigned int new: The new index of the moved chunk in chunk_buffer
+*/
+void update_chunk_refs(unsigned int old, unsigned int new) {
+  for (int i = 0; i < CHUNKS_SIMULATED; i++) {
+    if (player_chunks[i] == old) {
+      player_chunks[i] = new;
+    }
+  }
+
+  for (int i = 0; i < CHUNKS_SIMULATED; i++) {
+    if (updated_chunks[i] == old) {
+      updated_chunks[i] = new;
+    }
+  }
+
+  for (int i = 0; i < num_trade_ships; i++) {
+    if (trade_ships[i].cur_chunk_index == old) {
+      trade_ships[i].cur_chunk_index = new;
+    }
+    if (trade_ships[i].target_chunk_index == old) {
+      trade_ships[i].target_chunk_index = new;
+    }
+    if (trade_ships[i].updated_chunk_index == old) {
+      trade_ships[i].updated_chunk_index = new;
+    }
+  }
+
+  if (home_chunk_index == old) {
+    home_chunk_index = new;
   }
 }
 

@@ -1,4 +1,4 @@
-#ifndef __CONTAINER_STR___
+#ifndef __CONTAINER_STR__
 #define __CONTAINER_STR__
 
 #include <items.h>

@@ -14,6 +14,8 @@ which reads/manipulates player state.
 */
 
 #define MAX_PLAYER_INV_SIZE (16)
+#define REP_MIN (-100000.0)
+#define REP_MAX (100.0)
 
 /*
   Player state in exploration mode
@@ -27,6 +29,7 @@ typedef struct exploration_player {
   vec2 ship_direction;
   int embarked;
   int moving;
+  int ship_moving;
   I_SLOT inventory[MAX_PLAYER_INV_SIZE];
   unsigned int resources[NUM_RESOURCES];
   unsigned int money;
@@ -43,6 +46,9 @@ typedef struct exploration_player {
   /* the player begins to gain health. */
   float hunger;
   float speed;
+  // Number representing reputation of player amongst merchants. If negative,
+  // there is a possibility for the player islant to be invaded
+  float reputation;
 } E_PLAYER;
 
 /*

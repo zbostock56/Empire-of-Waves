@@ -13,7 +13,7 @@ void init_scene() {
   entity_framebuffer = framebuffer_init();
 
   // Create Resource Textures
-  resource_textures[resource_to_buffer(INVALID_REC)] = 
+  resource_textures[resource_to_buffer(INVALID_REC)] =
      gen_texture("assets/resources/invalid.png");
   resource_textures[resource_to_buffer(REC_EMPTY)] = 
      gen_texture("assets/resources/invalid.png");
@@ -57,43 +57,43 @@ void init_scene() {
      gen_texture("assets/resources/copper_coin.png");
   resource_textures[resource_to_buffer(GRAIN)] = 
      gen_texture("assets/resources/grain.png");
-  resource_textures[resource_to_buffer(COTTON)] = 
+  resource_textures[resource_to_buffer(COTTON)] =
      gen_texture("assets/resources/cotton.png");
-  resource_textures[resource_to_buffer(WOOL)] = 
+  resource_textures[resource_to_buffer(WOOL)] =
      gen_texture("assets/resources/wool.png");
-  resource_textures[resource_to_buffer(DYES)] = 
+  resource_textures[resource_to_buffer(DYES)] =
      gen_texture("assets/resources/dyes.png");
-  resource_textures[resource_to_buffer(SUGAR)] = 
+  resource_textures[resource_to_buffer(SUGAR)] =
      gen_texture("assets/resources/sugar.png");
-  resource_textures[resource_to_buffer(LEATHER)] = 
+  resource_textures[resource_to_buffer(LEATHER)] =
      gen_texture("assets/resources/leather.png");
-  resource_textures[resource_to_buffer(CHEESE)] = 
+  resource_textures[resource_to_buffer(CHEESE)] =
      gen_texture("assets/resources/cheese.png");
-  resource_textures[resource_to_buffer(IRON_ORE)] = 
+  resource_textures[resource_to_buffer(IRON_ORE)] =
      gen_texture("assets/resources/iron_ore.png");
-  resource_textures[resource_to_buffer(WINE)] = 
+  resource_textures[resource_to_buffer(WINE)] =
      gen_texture("assets/resources/wine.png");
-  resource_textures[resource_to_buffer(COPPER_ORE)] = 
+  resource_textures[resource_to_buffer(COPPER_ORE)] =
      gen_texture("assets/resources/copper_ore.png");
-  resource_textures[resource_to_buffer(SPICE)] = 
+  resource_textures[resource_to_buffer(SPICE)] =
      gen_texture("assets/resources/spice.png");
-  resource_textures[resource_to_buffer(HERB)] = 
+  resource_textures[resource_to_buffer(HERB)] =
      gen_texture("assets/resources/herb.png");
-  resource_textures[resource_to_buffer(TEA)] = 
+  resource_textures[resource_to_buffer(TEA)] =
      gen_texture("assets/resources/tea.png");
-  resource_textures[resource_to_buffer(SILVER_ORE)] = 
+  resource_textures[resource_to_buffer(SILVER_ORE)] =
      gen_texture("assets/resources/silver_ore.png");
-  resource_textures[resource_to_buffer(PORCELAIN)] = 
+  resource_textures[resource_to_buffer(PORCELAIN)] =
      gen_texture("assets/resources/porcelain.png");
-  resource_textures[resource_to_buffer(SILK)] = 
+  resource_textures[resource_to_buffer(SILK)] =
      gen_texture("assets/resources/silk.png");
-  resource_textures[resource_to_buffer(PEARL)] = 
+  resource_textures[resource_to_buffer(PEARL)] =
      gen_texture("assets/resources/pearl.png");
-  resource_textures[resource_to_buffer(GOLD_ORE)] = 
+  resource_textures[resource_to_buffer(GOLD_ORE)] =
      gen_texture("assets/resources/gold_ore.png");
-  resource_textures[resource_to_buffer(SAFFRON)] = 
+  resource_textures[resource_to_buffer(SAFFRON)] =
      gen_texture("assets/resources/saffron.png");
-  resource_textures[resource_to_buffer(AMBERGRIS)] = 
+  resource_textures[resource_to_buffer(AMBERGRIS)] =
      gen_texture("assets/resources/ambergris.png");
 
   hunger_bar_textures[0] = gen_texture("assets/hunger_bars/hunger_bar.png");
@@ -126,13 +126,25 @@ void init_scene() {
   pixel_shader = shader_init(vertex_shader, fragment_shader_pixelated);
   text_shader = shader_init(vertex_shader, fragment_shader_text);
   ripple_shader = shader_init(vertex_shader, fragment_shader_ripple);
-  chunk_shader = shader_init(vertex_shader, fragment_shader_chunk);
+  chunk_wave_shader = shader_init(vertex_shader, fragment_shader_wave);
+  chunk_rain_shader = shader_init(vertex_shader, fragment_shader_rain);
   island_shader = shader_init(vertex_shader, fragment_shader_island);
+  weather_shader = shader_init(vertex_shader, fragment_shader_weather);
 
   // Initialize models
-  player = load_model("assets/player.bin", "assets/3A.png");
-  mercenary = load_model("assets/player.bin", "assets/1A.png");
-  enemy = load_model("assets/enemy.bin", "assets/2A.png");
+  //player = load_model("assets/player.bin", "assets/3A.png");
+  player[STILL] = load_model("assets/player_still.bin", "assets/3A.png");
+  player[WALK_1] = load_model("assets/player_walk_1.bin", "assets/3A.png");
+  player[WALK_2] = load_model("assets/player_walk_2.bin", "assets/3A.png");
+  player[WALK_3] = load_model("assets/player_walk_3.bin", "assets/3A.png");
+  mercenary[STILL] = load_model("assets/player_still.bin", "assets/1A.png");
+  mercenary[WALK_1] = load_model("assets/player_walk_1.bin", "assets/1A.png");
+  mercenary[WALK_2] = load_model("assets/player_walk_2.bin", "assets/1A.png");
+  mercenary[WALK_3] = load_model("assets/player_walk_3.bin", "assets/1A.png");
+  enemy[STILL] = load_model("assets/enemy_still.bin", "assets/2A.png");
+  enemy[WALK_1] = load_model("assets/enemy_walk_1.bin", "assets/2A.png");
+  enemy[WALK_2] = load_model("assets/enemy_walk_2.bin", "assets/2A.png");
+  enemy[WALK_3] = load_model("assets/enemy_walk_3.bin", "assets/2A.png");
   merchant = load_model("assets/merchant.bin", "assets/2A.png");
   player_ship = load_model("assets/player_ship.bin", "assets/1A.png");
   enemy_ship = load_model("assets/enemy_ship.bin", "assets/1B.png");
@@ -266,8 +278,15 @@ void init_scene() {
 }
 
 void cleanup_scene() {
-  free_model(player);
-  free_model(enemy);
+  for (int i = 0; i < NUM_PLAYER_FRAMES; i++) {
+    free_model(player[i]);
+  }
+  for (int i = 0; i < NUM_PLAYER_FRAMES; i++) {
+    free_model(mercenary[i]);
+  }
+  for (int i = 0; i < NUM_ENEMY_FRAMES; i++) {
+    free_model(enemy[i]);
+  }
   free_model(merchant);
   free_model(player_ship);
   free_model(enemy_ship);
@@ -287,6 +306,12 @@ void render_scene(GLFWwindow *window) {
 
   glClearColor(1.0, 0.0, 0.0, 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  for (int i = 0; i < NUM_COMPONENTS; i++) {
+    if (ui_tab[i].enabled) {
+      render_ui(ui_tab + i);
+    }
+  }
 
   render_player();
   if (mode == EXPLORATION) {
@@ -331,11 +356,16 @@ void render_scene(GLFWwindow *window) {
         }
       }
     }
+
+    // Render weather
+    if (weather == FOG) {
+      render_weather();
+    }
   } else {
     if (npc_units) {
       for (int i = 0; i < num_npc_units; i++) {
         render_unit(npc_units + i);
-        if (npc_units[i].attack_active) {
+        /*if (npc_units[i].attack_active) {
           vec2 hitbox_pos = GLM_VEC2_ZERO_INIT;
           vec2 hitbox_offset = GLM_VEC2_ZERO_INIT;
           glm_vec2_scale(npc_units[i].coords, T_WIDTH, hitbox_pos);
@@ -343,18 +373,22 @@ void render_scene(GLFWwindow *window) {
           hitbox_offset[1] += T_WIDTH;
           glm_vec2_add(hitbox_pos, hitbox_offset, hitbox_pos);
           render_hitbox(hitbox_pos, 1.0);
-        }
+        }*/
 
-        vec2 hitbox_pos = GLM_VEC2_ZERO_INIT;
+        /*vec2 hitbox_pos = GLM_VEC2_ZERO_INIT;
         glm_vec2_scale(npc_units[i].coords, T_WIDTH, hitbox_pos);
         hitbox_pos[1] += T_WIDTH;
-        render_hitbox(hitbox_pos, 1.0);
+        render_hitbox(hitbox_pos, 1.0);*/
         vec2 health_bar_position = GLM_VEC2_ZERO_INIT;
         glm_vec2_scale(npc_units[i].coords, T_WIDTH, health_bar_position);
         health_bar_position[1]+= 2.7*T_WIDTH;
         render_health_bar_filled(health_bar_position, npc_units[i].max_life, npc_units[i].life);
         render_health_bar_background(health_bar_position);
       }
+    }
+
+    for (int i = 0; i < num_loot; i++) {
+      render_loot(loot + i);
     }
 
     render_arena();
@@ -373,12 +407,6 @@ void render_scene(GLFWwindow *window) {
     for (unsigned int i = 0; i < num_projectiles; i++) {
       cur_proj = projectiles + i;
       render_hitbox(cur_proj->pos, PROJ_RAD);
-    }
-  }
-
-  for (int i = 0; i < NUM_COMPONENTS; i++) {
-    if (ui_tab[i].enabled) {
-      render_ui(ui_tab + i);
     }
   }
   update_status_bar();
@@ -453,7 +481,7 @@ void render_player_ship() {
   render_fbo_entity(player_ship, fbo_model_mat, model_mat, fbo_view_mat,
                     view_mat, persp_proj, ortho_proj);
   render_ripple(player_chunks[PLAYER_CHUNK], e_player.ship_coords,
-                e_player.ship_direction, e_player.moving);
+                e_player.ship_direction, e_player.ship_moving);
 }
 
 void render_enemy_ship(E_ENEMY *es, unsigned int chunk) {
@@ -498,7 +526,13 @@ void render_player() {
 
     mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
 
-    render_fbo_entity(player, fbo_model_mat, model_mat, fbo_view_mat,
+    MODEL *player_model = player[STILL];
+    if (e_player.moving) {
+      unsigned int frame = ((unsigned int) (glfwGetTime() * 10)) % 2;
+      player_model = player[WALK_1 + frame];
+    }
+
+    render_fbo_entity(player_model, fbo_model_mat, model_mat, fbo_view_mat,
                       view_mat, persp_proj, ortho_proj);
   }
 }
@@ -509,10 +543,26 @@ void render_unit(C_UNIT *unit) {
     scale = scale * unit->death_animation;
   }
   if (unit->type == ENEMY) {
-    render_c_npc(enemy, unit->coords, unit->direction, scale);
+    MODEL *enemy_model = enemy[STILL];
+    if (unit->moving) {
+      unsigned int frame = ((unsigned int) (glfwGetTime() * 10)) % 2;
+      enemy_model = enemy[WALK_1 + frame];
+    }
+
+    render_c_npc(enemy_model, unit->coords, unit->direction, scale);
   } else if (unit->type == ALLY) {
-    render_c_npc(mercenary, unit->coords, unit->direction, scale);
+    MODEL *merc_model = mercenary[STILL];
+    if (unit->moving) {
+      unsigned int frame = ((unsigned int) (glfwGetTime() * 10)) % 2;
+      merc_model = mercenary[WALK_1 + frame];
+    }
+
+    render_c_npc(merc_model, unit->coords, unit->direction, scale);
   }
+}
+
+void render_loot(L_UNIT *loot) {
+  render_c_npc(chest, loot->coords, (vec2) { 0.0, 1.0 }, 0.25);
 }
 
 void render_merchant(MERCHANT *m) {
@@ -587,9 +637,9 @@ void render_c_npc(MODEL *model, vec2 coords, vec2 direction, float scale) {
 void render_resource(vec2 position, ISLAND *island, REC_IDS r_type) {
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
-  vec3 world_coords = { 0.0, 0.0, OBSTACLE_DEPTH };
-  vec2 island_tile = { 
-    island->coords[0] + position[0], 
+  vec3 world_coords = {0.0, 0.0, OBSTACLE_DEPTH };
+  vec2 island_tile = {
+    island->coords[0] + position[0],
     island->coords[1] + position[1]
   };
   chunk_to_world(island->chunk, island_tile, world_coords);
@@ -611,7 +661,7 @@ void render_resource(vec2 position, ISLAND *island, REC_IDS r_type) {
   glm_vec3_negate(player_world_coords);
   glm_translate(view_mat, player_world_coords);
 
-  quad->texture = resource_textures[resource_to_buffer(r_type)]; 
+  quad->texture = resource_textures[resource_to_buffer(r_type)];
 
   glUseProgram(pixel_shader);
   set_float("num_pixels", 256.0, pixel_shader);
@@ -646,7 +696,7 @@ void render_hunger_bar() {
   } else if (e_player.hunger <= 0.0) {
     tex_num = 0;
   }
-  quad->texture = hunger_bar_textures[tex_num]; 
+  quad->texture = hunger_bar_textures[tex_num];
 
   glUseProgram(std_shader);
   set_mat4("model", model_mat, std_shader);
@@ -669,7 +719,7 @@ void render_player_health_bar() {
   } else {
     health_bar_pos[1] = -ratio_y * 0.675;
   }
-  
+
   glm_translate(model_mat, health_bar_pos);
   vec3 scale = {0.25, 0.25, 1.0};
   glm_scale(model_mat, scale);
@@ -680,7 +730,7 @@ void render_player_health_bar() {
   if (actual_health <= 0.0) {
     tex_num = 0;
   }
-  quad->texture = health_bar_textures[tex_num]; 
+  quad->texture = health_bar_textures[tex_num];
 
   glUseProgram(std_shader);
   set_mat4("model", model_mat, std_shader);
@@ -779,7 +829,7 @@ void render_ui(UI_COMPONENT *comp) {
   mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
   // Dimensions of UI component (width, height)
   vec3 comp_scale = { 0.5 * screen_scale[0] * comp->width,
-                      0.5 * screen_scale[1] * comp->height, 0.0 };
+                      0.5 * screen_scale[1] * comp->height, 1.0 };
   // Location of "pivot" point of ui component
   vec3 comp_pivot = { 0.0, 0.0, UI_DEPTH };
   // Number of characters in ui component text
@@ -994,6 +1044,36 @@ void render_ripple(unsigned int chunk_index, vec2 chunk_coords, vec2 direction,
   draw_model(quad, ripple_shader);
 }
 
+void render_weather() {
+  vec3 weather_coords = { 0.0, 0.0, WEATHER_DEPTH };
+  vec3 player_world_coords = GLM_VEC2_ZERO_INIT;
+  if (e_player.embarked) {
+    chunk_to_world(e_player.ship_chunk, e_player.ship_coords,
+                   player_world_coords);
+  } else {
+    chunk_to_world(e_player.chunk, e_player.coords, player_world_coords);
+  }
+
+  mat4 model_mat = GLM_MAT4_IDENTITY_INIT;
+  glm_translate(model_mat, weather_coords);
+  glm_scale(model_mat, (vec3) { RES_X / BASE_RES_X, RES_Y / BASE_RES_Y, 1.0 });
+
+  mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
+
+  glUseProgram(weather_shader);
+  set_vec2("player_pos", player_world_coords, weather_shader);
+  set_float("time", glfwGetTime(), weather_shader);
+  set_float("T_WIDTH", T_WIDTH, weather_shader);
+  set_float("ratio_x", RES_X / BASE_RES_X, weather_shader);
+  set_float("ratio_y", RES_Y / BASE_RES_Y, weather_shader);
+  set_float("res_x", RES_X, weather_shader);
+  set_float("res_y", RES_Y, weather_shader);
+  set_mat4("model", model_mat, weather_shader);
+  set_mat4("view", view_mat, weather_shader);
+  set_mat4("proj", ortho_proj, weather_shader);
+  draw_model(quad, weather_shader);
+}
+
 void render_chunk(ivec2 chunk) {
   vec3 world_coords = { 0.0, 0.0, WORLD_DEPTH};
   vec2 tile_coords = GLM_VEC2_ZERO_INIT;
@@ -1034,23 +1114,10 @@ void render_chunk(ivec2 chunk) {
   glm_translate(view_mat, player_world_coords);
   glm_translate_z(view_mat, -1.0f);
 
-  /*
-  glUseProgram(color_shader);
-  set_vec3("color", color, color_shader);
-  set_mat4("model", model_mat, color_shader);
-  set_mat4("view", view_mat, color_shader);
-  set_mat4("proj", ortho_proj, color_shader);
-  draw_model(quad, color_shader);
-  */
-  /*
-  glUseProgram(std_shader);
-  set_mat4("model", model_mat, std_shader);
-  set_mat4("view", view_mat, std_shader);
-  set_mat4("proj", ortho_proj, std_shader);
-  quad->texture = ocean_texture;
-  draw_model(quad, std_shader);
-  */
-  float threshold = (H*sin((2*PI/WAVE_PERIOD) * glfwGetTime()))+K;
+  float time = glfwGetTime();
+  float puddle_offset = floor(time / 0.5);
+
+  float threshold = (H*sin((2*PI/WAVE_PERIOD) * time))+K;
   if (((threshold >= K+H && threshold <= K+H+0.0001) ||
       (threshold <= K+H && threshold >= K+H-0.0001)) && !incremented_1) {
     incremented_1 = 1;
@@ -1074,13 +1141,23 @@ void render_chunk(ivec2 chunk) {
     incremented_2 = 0;
   }
 
-  glUseProgram(chunk_shader);
+  unsigned int chunk_shader = 0;
+  if (weather == CLEAR) {
+    chunk_shader = chunk_wave_shader;
+    glUseProgram(chunk_shader);
+    set_vec2("chunk_coords", world_coords, chunk_shader);
+    set_float("threshold", threshold, chunk_shader);
+    set_float("offset_1", wave_offset_1, chunk_shader);
+    set_float("offset_2", wave_offset_2, chunk_shader);
+  } else {
+    chunk_shader = chunk_rain_shader;
+    glUseProgram(chunk_shader);
+    set_float("puddle_offset", puddle_offset, chunk_shader);
+  }
   set_mat4("model", model_mat, chunk_shader);
   set_mat4("view", view_mat, chunk_shader);
   set_mat4("proj", ortho_proj, chunk_shader);
-  set_float("threshold", threshold, chunk_shader);
-  set_float("offset_1", wave_offset_1, chunk_shader);
-  set_float("offset_2", wave_offset_2, chunk_shader);
+  set_float("time", time, chunk_shader);
   //set_float("chunk", c_val, chunk_shader);
   draw_model(quad, chunk_shader);
 }

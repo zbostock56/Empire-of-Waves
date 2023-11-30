@@ -45,6 +45,7 @@ int init_game(char *save_name) {
   init_menus();
   init_ui_lists();
   init_container_ui();
+  init_invasion_ui();
   init_timers();
 
   int status = 0;

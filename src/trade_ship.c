@@ -63,7 +63,8 @@ TRADE_SHIP *init_trade_ship(char *merch_name, ivec2 target_chunk,
   return trade_ships + num_trade_ships - 1;
 }
 
-void delete_trade_ship(ivec2 target_chunk, unsigned int target_island) {
+void delete_trade_ship_by_target(ivec2 target_chunk,
+                                 unsigned int target_island) {
   TRADE_SHIP *cur_ship = NULL;
   CHUNK *cur_chunk = NULL;
   for (int i = 0; i < num_trade_ships; i++) {
@@ -72,11 +73,17 @@ void delete_trade_ship(ivec2 target_chunk, unsigned int target_island) {
     if (target_chunk[0] == cur_chunk->coords[0] &&
         target_chunk[1] == cur_chunk->coords[1] &&
         target_island == cur_ship->target_island) {
-      num_trade_ships--;
-      trade_ships[i] = trade_ships[num_trade_ships];
+      delete_trade_ship(i);
       return;
     }
   }
+}
+
+void delete_trade_ship(unsigned int index) {
+  remove_chunk(trade_ships[index].cur_chunk_index);
+  remove_chunk(trade_ships[index].target_chunk_index);
+  num_trade_ships--;
+  trade_ships[index] = trade_ships[num_trade_ships];
 }
 
 void restore_trade_ship_mercs(ivec2 target_chunk, unsigned int target_island) {
@@ -115,10 +122,7 @@ void update_trade_ships() {
 
       // Spawn prompt to show that trade ship was plundered
       prompt_plundered_trade_ship();
-      target_island->merchant.relationship -= 10.0;
-      if (target_island->merchant.relationship < -100.0) {
-        target_island->merchant.relationship = -100.0;
-      }
+      update_relationship(&target_island->merchant, -10.0);
       i--;
     }
     /*
@@ -142,24 +146,45 @@ void trade_ship_pathfind(TRADE_SHIP *ship) {
     -T_WIDTH * I_WIDTH * 0.5
   };
   vec2 ship_world = GLM_VEC2_ZERO_INIT;
-  vec2 to_target = GLM_VEC2_ZERO_INIT;
 
   // Steer toward target island
+  vec2 to_target = GLM_VEC2_ZERO_INIT;
   chunk_to_world(target_chunk->coords, target_world, target_world);
   glm_vec2_add(to_center_target, target_world, target_world);
   chunk_to_world(cur_chunk->coords, ship->coords, ship_world);
   glm_vec2_sub(target_world, ship_world, to_target);
   glm_vec2_normalize(to_target);
-  glm_vec2_scale(to_target, delta_time, to_target);
-  glm_vec2_add(to_target, ship->direction, ship->direction);
-
 
   // Steer away from non-target island tiles
-  trade_ship_steering(ship, ship->direction);
-  glm_vec2_normalize(ship->direction);
+  vec2 from_obstacles = GLM_VEC2_ZERO_INIT;
+  ship_steering(ship->chunk_coords, ship->coords, from_obstacles,
+                cur_chunk, target_chunk, ship->target_island);
 
+  // Steer away from enemy ships
+  vec2 from_enemies = GLM_VEC2_ZERO_INIT;
+  trade_ship_detect_enemies(ship, from_enemies, cur_chunk);
+
+  // Combine steering calculations
+  glm_vec2_add(to_target, from_enemies, to_target);
+  glm_vec2_add(to_target, from_obstacles, to_target);
+  glm_vec2_normalize(to_target);
+
+  // Linearly interpolate current ship direction with target direction
+  vec2 smoothed_direction = GLM_VEC2_ZERO_INIT;
+  glm_vec2_lerp(ship->direction, to_target, 0.1, smoothed_direction);
+  if (smoothed_direction[0] == 0) {
+    smoothed_direction[0] = 0.05;
+  }
+  if (smoothed_direction[1] == 0) {
+    smoothed_direction[1] = 0.05;
+  }
+  glm_vec2_normalize(smoothed_direction);
+  glm_vec2_copy(smoothed_direction, ship->direction);
+
+  // Update ship position
   vec2 movement = GLM_VEC2_ZERO_INIT;
-  glm_vec2_scale(ship->direction, delta_time * ship->speed * T_WIDTH,
+  glm_vec2_scale(ship->direction,
+                 delta_time * ship->speed * T_WIDTH * (1.0 - (weather * 0.25)),
                  movement);
   glm_vec2_add(movement, ship_world, ship_world);
   world_to_chunk(ship_world, ship->chunk_coords, ship->coords);

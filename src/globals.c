@@ -21,6 +21,8 @@ CHUNK *chunk_buffer = NULL;
 unsigned int chunk_buff_size = 0;
 unsigned int chunk_buff_len = 0;
 
+unsigned int home_chunk_index = 0;
+
 E_PLAYER e_player;
 unsigned int player_chunks[9];
 unsigned int updated_chunks[9];
@@ -33,9 +35,13 @@ unsigned int num_trade_ships = 0;
 unsigned int trade_ship_buf_size = 0;
 float global_time = 0.0;
 MERCHANT *cur_merchant = NULL;
+unsigned int weather = CLEAR;
 
 // ========================== COMBAT MODE STATE ==============================
 C_PLAYER c_player;
+L_UNIT *loot;
+unsigned int num_loot = 0;
+unsigned int loot_buf_len = 0;
 C_UNIT *npc_units = NULL;
 unsigned int num_npc_units = 0;
 PROJ *projectiles = NULL;

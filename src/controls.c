@@ -48,7 +48,7 @@ void mouse_pos(GLFWwindow *window, double x_pos, double y_pos) {
 }
 
 void mouse_click(GLFWwindow *window, int button, int action, int mods) {
-  if (mode == COMBAT) {
+  if (mode == COMBAT && !container_menu_open) {
     combat_mode_attack(action);
   }
   if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
@@ -89,36 +89,44 @@ void exploration_movement(GLFWwindow *window) {
   }
 
   e_player.moving = 0;
+  e_player.ship_moving = 0;
   /*  W KEY CONTROLS  */
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
     vec2 movement = GLM_VEC2_ZERO_INIT;
     if (e_player.embarked) {
-      glm_vec2_scale(e_player.ship_direction, delta_time * e_player.speed, movement);
+      glm_vec2_scale(e_player.ship_direction,
+                     delta_time * e_player.speed * (1.0 - (weather * 0.25)),
+                     movement);
       glm_vec2_add(movement, world_coords, world_coords);
       world_to_chunk(world_coords, e_player.ship_chunk,
                      e_player.ship_coords);
-      e_player.moving = 1;
+      e_player.ship_moving = 1;
     } else {
-        glm_vec2_scale(e_player.direction, delta_time * e_player.speed, movement);
+        glm_vec2_scale(e_player.direction, delta_time * e_player.speed,
+                       movement);
         glm_vec2_add(movement, world_coords, world_coords);
         world_to_chunk(world_coords, e_player.chunk,
                       e_player.coords);
+      e_player.moving = 1;
     }
   }
   /*  S KEY CONTROLS  */
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
     vec2 movement = GLM_VEC2_ZERO_INIT;
     if (e_player.embarked) {
-      glm_vec2_scale(e_player.ship_direction, delta_time, movement);
+      glm_vec2_scale(e_player.ship_direction,
+                     delta_time * e_player.speed * (1.0 - (weather * 0.25)),
+                     movement);
       glm_vec2_sub(world_coords, movement, world_coords);
       world_to_chunk(world_coords, e_player.ship_chunk,
                      e_player.ship_coords);
-      e_player.moving = 1;
+      e_player.ship_moving = 1;
     } else {
       glm_vec2_scale(e_player.direction, delta_time, movement);
       glm_vec2_sub(world_coords, movement, world_coords);
       world_to_chunk(world_coords, e_player.chunk,
                      e_player.coords);
+      e_player.moving = 1;
     }
   }
   /*  E KEY CONTROLS  */
@@ -145,6 +153,7 @@ void exploration_movement(GLFWwindow *window) {
     } else if (!e_player.embarked && home_interaction_enabled) {
       /* Mercenary Reassignment list open */
       open_mercenary_reassignment_menu();
+      open_ransom_menu();
       get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
     } else if (!e_player.embarked && container_interaction_enabled) {
       CONTAINER player_inv = { e_player.inventory, MAX_PLAYER_INV_SIZE };
@@ -185,11 +194,34 @@ void combat_movement(GLFWwindow *window) {
   glm_vec2_scale(c_player.direction, delta_time * c_player.speed,
                  movement);
   // Movement
+  e_player.moving = 0;
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
     glm_vec2_add(movement, c_player.coords, c_player.coords);
+    e_player.moving = 1;
   }
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
     glm_vec2_sub(c_player.coords, movement, c_player.coords);
+    e_player.moving = 1;
+  }
+
+  if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && !holding_interaction) {
+    if (container_interaction_enabled) {
+      CONTAINER player_inv = { e_player.inventory, MAX_PLAYER_INV_SIZE };
+      open_container(loot[cur_lootable].inv, player_inv);
+      get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
+    }
+    holding_interaction = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_E) != GLFW_PRESS) {
+    holding_interaction = 0;
+  }
+  if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS && !holding_leave) {
+    leave_combat();
+    holding_leave = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_R) != GLFW_PRESS) {
+    holding_leave = 0;
+  }
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+    close_container();
   }
 }
 
@@ -334,6 +366,7 @@ void close_merchant_menu(GLFWwindow *window) {
     close_dialog();
     close_trade();
     close_mercenary_reassignment_menu();
+    close_ransom_menu();
     close_container();
     close_inventory_ui();
   }

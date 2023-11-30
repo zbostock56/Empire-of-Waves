@@ -15,6 +15,8 @@
 // ================================ GLOBALS ================================
 char lost_item_prompt_buffer[PROMPT_BUFFER_MAX];
 
+extern int container_menu_open;
+
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 
 float decrement_timer(float);
@@ -30,5 +32,9 @@ void close_surrender_prompt();
 
 void c_enemy_pathfind(C_UNIT *, vec2);
 int double_buffer(void **, unsigned int *, unsigned int);
+void free_container(CONTAINER *);
+void init_container(CONTAINER *, unsigned int);
+void respawn_player();
+void close_container();
 I_SLOT *get_player_inventory_slot_by_index(unsigned int);
 void set_prompt(const char *buffer);

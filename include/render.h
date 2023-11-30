@@ -34,15 +34,44 @@
 #define C (2.0)
 #define K (1.0)
 #define H (0.05)
+
+// Constants for weather effects
+#define BASE_PIX_CT (6.0)
+#define RAIN_PERIOD (5.0)
+#define RAIN_SPEED (10.0)
+#define WIND_DIR (-0.5)
+#define FADE_DIST (20.0)
+#define I (127.1)
+#define J (311.7)
+#define L (43758.5453123)
+#define M (269.5)
+#define N (183.3)
+#define O (12.9898)
+#define P (78.233)
+
+// Constants for rain ripple
+#define PUDDLE_DUR (2.0)
+#define PUDDLE_PERIOD (64.0)
+#define PUDDLE_FREQ (4.0)
+#define PUDDLE_THRESH (4.9)
+
 #include <shader_code.h>
 
-#define WORLD_DEPTH (-0.7)
-#define OBSTACLE_DEPTH (-0.6)
-#define EFFECT_DEPTH (-0.5)
-#define SHIP_DEPTH (-0.4)
-#define AVATAR_DEPTH (-0.3)
+#define WORLD_DEPTH (-0.8)
+#define OBSTACLE_DEPTH (-0.7)
+#define EFFECT_DEPTH (-0.6)
+#define SHIP_DEPTH (-0.5)
+#define AVATAR_DEPTH (-0.4)
+#define WEATHER_DEPTH (-0.3)
 #define UI_DEPTH (-0.2)
 #define TEXT_DEPTH (-0.1)
+
+#define NUM_PLAYER_FRAMES (4)
+#define NUM_ENEMY_FRAMES (4)
+#define STILL (0)
+#define WALK_1 (1)
+#define WALK_2 (2)
+#define WALK_3 (3)
 
 typedef struct framebuffer {
   unsigned int FBO;
@@ -91,8 +120,10 @@ unsigned int pixel_shader;
 unsigned int text_shader;
 unsigned int ripple_shader;
 unsigned int menu_shader;
-unsigned int chunk_shader;
+unsigned int chunk_wave_shader;
+unsigned int chunk_rain_shader;
 unsigned int island_shader;
+unsigned int weather_shader;
 
 FRAMEBUFFER entity_framebuffer;
 
@@ -102,10 +133,10 @@ unsigned int health_bar_textures[11];
 extern int console_input_enabled;
 extern int merchant_dialog_enabled;
 
-MODEL *player;
-MODEL *enemy;
+MODEL *player[NUM_PLAYER_FRAMES];
+MODEL *mercenary[NUM_PLAYER_FRAMES];
+MODEL *enemy[NUM_ENEMY_FRAMES];
 MODEL *merchant;
-MODEL *mercenary;
 MODEL *player_ship;
 MODEL *enemy_ship;
 MODEL *trade_ship;
@@ -141,7 +172,9 @@ void render_arena();
 void render_hitbox(vec2, float);
 void render_health_bar_background(vec2);
 void render_health_bar_filled(vec2, float, float);
+void render_loot(L_UNIT *);
 void render_resource(vec2, ISLAND *, REC_IDS);
+void render_weather();
 void render_hunger_bar();
 void render_player_health_bar();
 

@@ -31,6 +31,7 @@ int init_container(CONTAINER *cont, unsigned int capacity) {
 
 void free_container(CONTAINER *cont) {
   free(cont->items);
+  cont->items = NULL;
 }
 
 int move_item(I_SLOT *to, I_SLOT *from) {
@@ -67,4 +68,36 @@ int move_all_item(I_SLOT *to, I_SLOT *from) {
   from->item_id = EMPTY;
   from->quantity = 0;;
   return 0;
+}
+
+/*
+  Finds the index of a random item in a given container
+
+  Returns:
+  - index of an item in the container. If the container is empty, the index of
+    the first item slot is returned
+*/
+unsigned int get_random_item(CONTAINER *cont) {
+  unsigned int num_items = 0;
+  for (unsigned int i = 0; i < cont->capacity; i++) {
+    if (cont->items[i].item_id != EMPTY) {
+      num_items++;
+    }
+  }
+
+  if (!num_items) {
+    return 0;
+  }
+
+  unsigned int filled_item = rand() % num_items;
+  unsigned int item_index = 0;
+  for (unsigned int i = 0; i < cont->capacity; i++) {
+    if (cont->items[i].item_id != EMPTY && item_index == filled_item) {
+      return i;
+    } else if (cont->items[i].item_id != EMPTY) {
+      item_index++;
+    }
+  }
+
+  return 0; // Should never happen
 }

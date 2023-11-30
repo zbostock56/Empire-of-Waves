@@ -612,3 +612,50 @@ void merchant_generate(MERCHANT *merchant, ISLAND *island) {
   return;
 }
 
+/*
+  Calculates the distance from a point to an island in tiles
+  Args:
+  - ivec2 chunk: Chunk coords of point
+  - vec2 coords: tile coords of point
+  - ISLAND *island: desired island
+
+  Returns:
+  Tile distance between the point and the island
+*/
+float dist_to_island(ivec2 chunk, vec2 coords, ISLAND *island) {
+  vec2 world_coords = GLM_VEC2_ZERO_INIT;
+  chunk_to_world(chunk, coords, world_coords);
+
+  vec2 island_world_coords = GLM_VEC2_ZERO_INIT;
+  vec2 island_coords = {
+    island->coords[0], island->coords[1]
+  };
+  chunk_to_world(island->chunk, island_coords, island_world_coords);
+
+  float y_max = island_world_coords[1];
+  float y_min = island_world_coords[1] - (I_WIDTH * T_WIDTH);
+  float x_max = island_world_coords[0] + (I_WIDTH * T_WIDTH);
+  float x_min = island_world_coords[0];
+
+  // Calculate closest point on aabb to circle
+  vec2 closest_island_point = {
+    fmax(x_min, fmin(x_max, world_coords[X])),
+    fmax(y_min, fmin(y_max, world_coords[Y]))
+  };
+
+  float dist_to_island = glm_vec2_distance(closest_island_point,
+                                           world_coords);
+  return dist_to_island / T_WIDTH;
+}
+
+void find_shore_tile(ISLAND *island, vec2 dest) {
+  for (unsigned int i = 0; i < I_WIDTH * I_WIDTH; i++) {
+    if (island->tiles[i] == SHORE) {
+      vec2 coords = {
+        i % I_WIDTH,
+        i / I_WIDTH
+      };
+      glm_vec2_copy(coords, dest);
+    }
+  }
+}
