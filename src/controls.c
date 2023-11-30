@@ -104,6 +104,7 @@ void exploration_movement(GLFWwindow *window) {
         glm_vec2_add(movement, world_coords, world_coords);
         world_to_chunk(world_coords, e_player.chunk,
                       e_player.coords);
+      e_player.moving = 1;
     }
   }
   /*  S KEY CONTROLS  */
@@ -122,6 +123,7 @@ void exploration_movement(GLFWwindow *window) {
       glm_vec2_sub(world_coords, movement, world_coords);
       world_to_chunk(world_coords, e_player.chunk,
                      e_player.coords);
+      e_player.moving = 1;
     }
   }
   /*  E KEY CONTROLS  */
@@ -188,11 +190,14 @@ void combat_movement(GLFWwindow *window) {
   glm_vec2_scale(c_player.direction, delta_time * c_player.speed,
                  movement);
   // Movement
+  e_player.moving = 0;
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
     glm_vec2_add(movement, c_player.coords, c_player.coords);
+    e_player.moving = 1;
   }
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
     glm_vec2_sub(c_player.coords, movement, c_player.coords);
+    e_player.moving = 1;
   }
 
   if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && !holding_interaction) {

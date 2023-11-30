@@ -92,9 +92,19 @@ void init_scene() {
   weather_shader = shader_init(vertex_shader, fragment_shader_weather);
 
   // Initialize models
-  player = load_model("assets/player.bin", "assets/3A.png");
-  mercenary = load_model("assets/player.bin", "assets/1A.png");
-  enemy = load_model("assets/enemy.bin", "assets/2A.png");
+  //player = load_model("assets/player.bin", "assets/3A.png");
+  player[STILL] = load_model("assets/player_still.bin", "assets/3A.png");
+  player[WALK_1] = load_model("assets/player_walk_1.bin", "assets/3A.png");
+  player[WALK_2] = load_model("assets/player_walk_2.bin", "assets/3A.png");
+  player[WALK_3] = load_model("assets/player_walk_3.bin", "assets/3A.png");
+  mercenary[STILL] = load_model("assets/player_still.bin", "assets/1A.png");
+  mercenary[WALK_1] = load_model("assets/player_walk_1.bin", "assets/1A.png");
+  mercenary[WALK_2] = load_model("assets/player_walk_2.bin", "assets/1A.png");
+  mercenary[WALK_3] = load_model("assets/player_walk_3.bin", "assets/1A.png");
+  enemy[STILL] = load_model("assets/enemy_still.bin", "assets/2A.png");
+  enemy[WALK_1] = load_model("assets/enemy_walk_1.bin", "assets/2A.png");
+  enemy[WALK_2] = load_model("assets/enemy_walk_2.bin", "assets/2A.png");
+  enemy[WALK_3] = load_model("assets/enemy_walk_3.bin", "assets/2A.png");
   merchant = load_model("assets/merchant.bin", "assets/2A.png");
   player_ship = load_model("assets/player_ship.bin", "assets/1A.png");
   enemy_ship = load_model("assets/enemy_ship.bin", "assets/1B.png");
@@ -228,8 +238,15 @@ void init_scene() {
 }
 
 void cleanup_scene() {
-  free_model(player);
-  free_model(enemy);
+  for (int i = 0; i < NUM_PLAYER_FRAMES; i++) {
+    free_model(player[i]);
+  }
+  for (int i = 0; i < NUM_PLAYER_FRAMES; i++) {
+    free_model(mercenary[i]);
+  }
+  for (int i = 0; i < NUM_ENEMY_FRAMES; i++) {
+    free_model(enemy[i]);
+  }
   free_model(merchant);
   free_model(player_ship);
   free_model(enemy_ship);
@@ -308,7 +325,7 @@ void render_scene(GLFWwindow *window) {
     if (npc_units) {
       for (int i = 0; i < num_npc_units; i++) {
         render_unit(npc_units + i);
-        if (npc_units[i].attack_active) {
+        /*if (npc_units[i].attack_active) {
           vec2 hitbox_pos = GLM_VEC2_ZERO_INIT;
           vec2 hitbox_offset = GLM_VEC2_ZERO_INIT;
           glm_vec2_scale(npc_units[i].coords, T_WIDTH, hitbox_pos);
@@ -316,12 +333,12 @@ void render_scene(GLFWwindow *window) {
           hitbox_offset[1] += T_WIDTH;
           glm_vec2_add(hitbox_pos, hitbox_offset, hitbox_pos);
           render_hitbox(hitbox_pos, 1.0);
-        }
+        }*/
 
-        vec2 hitbox_pos = GLM_VEC2_ZERO_INIT;
+        /*vec2 hitbox_pos = GLM_VEC2_ZERO_INIT;
         glm_vec2_scale(npc_units[i].coords, T_WIDTH, hitbox_pos);
         hitbox_pos[1] += T_WIDTH;
-        render_hitbox(hitbox_pos, 1.0);
+        render_hitbox(hitbox_pos, 1.0);*/
         vec2 health_bar_position = GLM_VEC2_ZERO_INIT;
         glm_vec2_scale(npc_units[i].coords, T_WIDTH, health_bar_position);
         health_bar_position[1]+= 2.7*T_WIDTH;
@@ -468,7 +485,13 @@ void render_player() {
 
     mat4 view_mat = GLM_MAT4_IDENTITY_INIT;
 
-    render_fbo_entity(player, fbo_model_mat, model_mat, fbo_view_mat,
+    MODEL *player_model = player[STILL];
+    if (e_player.moving) {
+      unsigned int frame = ((unsigned int) (glfwGetTime() * 10)) % 2;
+      player_model = player[WALK_1 + frame];
+    }
+
+    render_fbo_entity(player_model, fbo_model_mat, model_mat, fbo_view_mat,
                       view_mat, persp_proj, ortho_proj);
   }
 }
@@ -479,9 +502,21 @@ void render_unit(C_UNIT *unit) {
     scale = scale * unit->death_animation;
   }
   if (unit->type == ENEMY) {
-    render_c_npc(enemy, unit->coords, unit->direction, scale);
+    MODEL *enemy_model = enemy[STILL];
+    if (unit->moving) {
+      unsigned int frame = ((unsigned int) (glfwGetTime() * 10)) % 2;
+      enemy_model = enemy[WALK_1 + frame];
+    }
+
+    render_c_npc(enemy_model, unit->coords, unit->direction, scale);
   } else if (unit->type == ALLY) {
-    render_c_npc(mercenary, unit->coords, unit->direction, scale);
+    MODEL *merc_model = mercenary[STILL];
+    if (unit->moving) {
+      unsigned int frame = ((unsigned int) (glfwGetTime() * 10)) % 2;
+      merc_model = mercenary[WALK_1 + frame];
+    }
+
+    render_c_npc(merc_model, unit->coords, unit->direction, scale);
   }
 }
 

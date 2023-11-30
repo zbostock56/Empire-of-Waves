@@ -66,6 +66,13 @@
 #define UI_DEPTH (-0.2)
 #define TEXT_DEPTH (-0.1)
 
+#define NUM_PLAYER_FRAMES (4)
+#define NUM_ENEMY_FRAMES (4)
+#define STILL (0)
+#define WALK_1 (1)
+#define WALK_2 (2)
+#define WALK_3 (3)
+
 typedef struct framebuffer {
   unsigned int FBO;
   unsigned int color_texture;
@@ -126,10 +133,10 @@ unsigned int health_bar_textures[11];
 extern int console_input_enabled;
 extern int merchant_dialog_enabled;
 
-MODEL *player;
-MODEL *enemy;
+MODEL *player[NUM_PLAYER_FRAMES];
+MODEL *mercenary[NUM_PLAYER_FRAMES];
+MODEL *enemy[NUM_ENEMY_FRAMES];
 MODEL *merchant;
-MODEL *mercenary;
 MODEL *player_ship;
 MODEL *enemy_ship;
 MODEL *trade_ship;

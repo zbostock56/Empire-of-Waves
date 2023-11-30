@@ -523,6 +523,7 @@ int search(
 // ============================= COMBAT MODE =================================
 
 void c_enemy_pathfind(C_UNIT *enemy, vec2 target_coords) {
+  enemy->moving = 0;
   float target_dist = glm_vec2_distance(target_coords, enemy->coords);
   if (enemy->weapon_type == RANGED) {
     if (target_dist >= 5.0 && enemy->attack_cooldown == 0.0) {
@@ -581,10 +582,12 @@ void c_enemy_pathfind(C_UNIT *enemy, vec2 target_coords) {
     glm_vec2_scale(enemy->direction, (delta_time * enemy->speed),
                    movement);
     glm_vec2_add(movement, enemy->coords, enemy->coords);
+    enemy->moving = 1;
   } else if (move == BACK) {
     glm_vec2_scale(enemy->direction,
                    -1.0 * (delta_time * enemy->speed), movement);
     glm_vec2_add(movement, enemy->coords, enemy->coords);
+    enemy->moving = 1;
   }
 }
 

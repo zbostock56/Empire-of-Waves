@@ -41,6 +41,7 @@ typedef struct combat_unit {
   UNIT_T type;
   WEAPON_T weapon_type;
   unsigned int ammo;
+  unsigned int moving;
   float speed;
   // Indicates the current step in the death animation of the enemy in the case
   // it collides with a player hitbox. If -1.0, the enemy has not yet been hit.
