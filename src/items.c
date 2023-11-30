@@ -38,7 +38,7 @@ ITEM item_tab[NUM_ITEMS] = {
   // FIRERATE_POTION
   {50, 1, 0, 0.0, 1.0, 0.0, 0.0},
   // SPEED_POTION
-  {50, 1, 0, 0.0, 0.0, 1.0, 0.0},
+  {50, 1, 0, 0.0, 0.0, 10.0, 0.0},
   // KNIVE
   {80, 0, 1, 0.0, 0.8, 0.0, 0.0},
   // SWORD
@@ -350,4 +350,12 @@ float item_food_value(ITEM_IDS item_id) {
     return 10.0;
   }
   return -1.0;
+}
+
+int item_isPotion(ITEM_IDS item_id) {
+  if (item_id == SPEED_POTION || item_id == FIRERATE_POTION ) {
+    return 1;
+  } else {
+    return 0;
+  }
 }

@@ -234,16 +234,16 @@ void decrease_hunger() {
 }
 
 void decrease_health() {
-  e_player.health -= 3.0;
-  if (e_player.health <= 0.0) {
-    e_player.health = 0.0;
+  c_player.health -= 3.0;
+  if (c_player.health <= 0.0) {
+    c_player.health = 0.0;
   }
 }
 
 void increase_health() {
-  e_player.health += 5.0;
-  if (e_player.health >= e_player.max_health) {
-    e_player.health = e_player.max_health;
+  c_player.health += 5.0;
+  if (c_player.health >= c_player.max_health) {
+    c_player.health = c_player.max_health;
   }
 }
 

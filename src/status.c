@@ -185,9 +185,9 @@ int init_status_menu() {
   vec2 attack_position = { 0, 0.0 };
   init_menu(
     attack_position, // position
-    increment_buff, // on_click
+    NULL, // on_click
     NULL, // on_hover
-    (void *) "attack", // on_click_args
+    (void *) 0xBAADF00D, // on_click_args
     (void *) 0xBAADF00D, // on_hover_args
     NULL, // text
     0, // enabled
@@ -213,9 +213,9 @@ int init_status_menu() {
   vec2 defense_position = { 0, -0.1 };
   init_menu(
     defense_position, // position
-    increment_buff, // on_click
+    NULL, // on_click
     NULL, // on_hover
-    (void *) "defense", // on_click_args
+    (void *) 0xBAADF00D, // on_click_args
     (void *) 0xBAADF00D, // on_hover_args
     NULL, // text
     0, // enabled
@@ -377,10 +377,11 @@ void update_status_menu() {
   snprintf(status_menu.ui_menu_money->text, MAX_STATUS_STR_LENGTH,
            " Money : G [%2d] S [%2d] C [%2d] ",
            get_player_gold(), get_player_silver(), get_player_copper());
+  //TODO damage adjustion based on weapon
   snprintf(status_menu.ui_menu_attack->text, MAX_STATUS_STR_LENGTH, " Attack : 10 (+0) ");
   snprintf(status_menu.ui_menu_defense->text, MAX_STATUS_STR_LENGTH, " Defense : 10 (+0) ");
   snprintf(status_menu.ui_menu_fire->text, MAX_STATUS_STR_LENGTH, " Fire Rate : %.1f ", c_player.fire_rate);
-  snprintf(status_menu.ui_menu_speed->text, MAX_STATUS_STR_LENGTH, " Speed : 0.5 ");
+  snprintf(status_menu.ui_menu_speed->text, MAX_STATUS_STR_LENGTH, " Speed : %.1f ", c_player.speed);
   update_buff_list();
 }
 
@@ -392,6 +393,13 @@ void update_buff_list() {
     if (status_menu.buff_list[i].buff_timer == 0.0) {
       status_menu.buff_list[i].ui_menu_buff->enabled = 0;
       status_menu.num_buff--;
+
+      /* revert back the buffed stats */  
+      if (strcmp(status_menu.buff_list[i].text, "Speed") == 0) {
+        c_player.speed -= status_menu.buff_list[i].buff_mod;
+      } else if (strcmp(status_menu.buff_list[i].text, "Fire Rate") == 0) {
+        c_player.fire_rate -= status_menu.buff_list[i].buff_mod;
+      }
       // printf("%d\n",status_menu.num_buff);
 
       // If there is another buff remaining, pull that to the current buff UI slot.
@@ -415,18 +423,26 @@ void update_buff_list() {
   }
 }
 
-void increment_buff(void * txt) {
+void increment_buff(void * txt, void *mod) {
   char* text = (char*) txt;
+  float* mod_value = (float*) mod;
   int idx = status_menu.num_buff;
   if (idx < 0 || idx > MAX_BUFF_NUM-1) {
     return;
   }
-  status_menu.buff_list[idx].buff_timer+=10.0;
+  status_menu.buff_list[idx].buff_timer+=30.0;
   status_menu.buff_list[idx].text = text;
-  if (status_menu.buff_list[idx].ui_menu_buff->enabled == 0) {
-    status_menu.buff_list[idx].ui_menu_buff->enabled = 1;
-    status_menu.num_buff++;
+  status_menu.buff_list[idx].buff_mod = *mod_value;
+  if (strcmp(text, "Speed") == 0) {
+    c_player.speed += *mod_value;
+  } else if (strcmp(text, "Fire Rate") == 0) {
+    c_player.fire_rate += *mod_value;
   }
+  status_menu.num_buff++;
+  // if (status_menu.buff_list[idx].ui_menu_buff->enabled == 0) {
+  //   status_menu.buff_list[idx].ui_menu_buff->enabled = 1;
+  //   status_menu.num_buff++;
+  // }
 }
 
 /* Render status bar */

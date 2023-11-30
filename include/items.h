@@ -144,5 +144,6 @@ int item_isMeleeWeapon(ITEM_IDS item_id);
 int item_isRangedWeapon(ITEM_IDS item_id);
 int item_isArmor(ITEM_IDS item_id);
 float item_food_value(ITEM_IDS);
+int item_isPotion(ITEM_IDS item_id);
 
 #endif
