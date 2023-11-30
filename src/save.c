@@ -185,10 +185,10 @@ void close_save_menu() {
 
 void open_save_status(char *status) {
   if (strlen(status) >= STATUS_BUFFER_SIZE) {
-    strncpy(status_buffer, status, STATUS_BUFFER_SIZE);
+    memcpy(status_buffer, status, STATUS_BUFFER_SIZE);
     status_buffer[STATUS_BUFFER_SIZE - 1] = '\0';
   } else {
-    strncpy(status_buffer, status, strlen(status) + 1);
+    memcpy(status_buffer, status, strlen(status) + 1);
   }
   get_ui_component_by_ID(SAVE_STATUS)->enabled = 1;
 }

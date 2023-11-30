@@ -5,6 +5,7 @@
 #include <stb/stb_image.h>
 #include <cglm/cglm.h>
 #include <model_str.h>
+#include <globals.h>
 
 typedef struct mesh_vertex {
   vec3 coords;
