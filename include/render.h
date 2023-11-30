@@ -214,6 +214,7 @@ int get_tile(unsigned int, vec2);
 
 unsigned int texture_from_buffer(unsigned char *, int, int, int);
 void update_status_bar();
+void update_status_menu();
 
 // ======================== MACROS =======================
 #define resource_to_buffer(x) (x + 1) 

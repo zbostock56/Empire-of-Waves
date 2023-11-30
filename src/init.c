@@ -60,6 +60,11 @@ int init_game(char *save_name) {
   }
   open_status_bar();
 
+  status = init_status_menu();
+  if (status) {
+    return -1;
+  }
+
   status = init_trade();
   if (status) {
     return -1;
@@ -89,7 +94,7 @@ int init_game(char *save_name) {
   if (status) {
     return -1;
   }
-
+  init_surrender_ui();
   return 0;
 }
 
@@ -97,6 +102,7 @@ void free_game() {
   free_dialog();
   free_trade();
   free_status_bar();
+  free_status_menu();
   clear_chunk_buffer();
   free_containers();
   free_trade_ship_buffers();

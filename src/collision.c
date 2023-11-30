@@ -177,6 +177,11 @@ void check_item_pickup_prompt(vec2 coords) {
 
   CHUNK *chunk = chunk_buffer + player_chunks[PLAYER_CHUNK];
   ISLAND *island = cur_island(chunk, coords);
+
+  /* If player is not on island, do not prompt */
+  if (island == NULL) {
+    return;
+  }
   /* Find the world coords of all items and */
   /* check if the player is within range    */
   float dist = 100000.0;

@@ -370,6 +370,7 @@ void render_scene(GLFWwindow *window) {
     }
   }
   update_status_bar();
+  update_status_menu();
   // Schedule trade route prompt delay
   if (time_schdule_trade_toute_prompt < 0) {
     dialog.ui_text_schedule_trade_route_prompt->enabled = 0;
@@ -440,7 +441,7 @@ void render_player_ship() {
   render_fbo_entity(player_ship, fbo_model_mat, model_mat, fbo_view_mat,
                     view_mat, persp_proj, ortho_proj);
   render_ripple(player_chunks[PLAYER_CHUNK], e_player.ship_coords,
-                e_player.ship_direction, e_player.moving);
+                e_player.ship_direction, e_player.ship_moving);
 }
 
 void render_enemy_ship(E_ENEMY *es, unsigned int chunk) {

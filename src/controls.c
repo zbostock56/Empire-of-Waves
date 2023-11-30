@@ -14,7 +14,9 @@ void keyboard_input(GLFWwindow *window) {
     inventory_open_listner(window);
   } else if (mode == COMBAT && !console_input_enabled) {
     combat_movement(window);
+    surrender_listener(window);
   }
+  open_stats(window);
   modifier_keys(window);
   debug_keys(window);
   if (console_input_enabled || save_input_enabled) {
@@ -87,6 +89,7 @@ void exploration_movement(GLFWwindow *window) {
   }
 
   e_player.moving = 0;
+  e_player.ship_moving = 0;
   /*  W KEY CONTROLS  */
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
     vec2 movement = GLM_VEC2_ZERO_INIT;
@@ -97,7 +100,7 @@ void exploration_movement(GLFWwindow *window) {
       glm_vec2_add(movement, world_coords, world_coords);
       world_to_chunk(world_coords, e_player.ship_chunk,
                      e_player.ship_coords);
-      e_player.moving = 1;
+      e_player.ship_moving = 1;
     } else {
         glm_vec2_scale(e_player.direction, delta_time * e_player.speed,
                        movement);
@@ -117,7 +120,7 @@ void exploration_movement(GLFWwindow *window) {
       glm_vec2_sub(world_coords, movement, world_coords);
       world_to_chunk(world_coords, e_player.ship_chunk,
                      e_player.ship_coords);
-      e_player.moving = 1;
+      e_player.ship_moving = 1;
     } else {
       glm_vec2_scale(e_player.direction, delta_time, movement);
       glm_vec2_sub(world_coords, movement, world_coords);
@@ -174,6 +177,7 @@ void exploration_movement(GLFWwindow *window) {
         !container_menu_open && !reassignment_menu_open) {
       if (save_menu_opened()) {
         close_save_menu();
+        close_status_menu();
       } else {
         open_save_menu();
         close_save_status();
@@ -320,6 +324,17 @@ void inventory_open_listner(GLFWwindow *window) {
   }
 }
 
+void surrender_listener(GLFWwindow *window) {
+  if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS && !holding_f) {
+    if (mode == COMBAT) {
+      perform_surrender();
+    }
+    holding_f = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_F) != GLFW_PRESS) {
+    holding_f = 0;
+  }
+}
+
 // =============================== HELPERS ===================================
 
 void combat_mode_attack(int action) {
@@ -354,6 +369,20 @@ void close_merchant_menu(GLFWwindow *window) {
     close_ransom_menu();
     close_container();
     close_inventory_ui();
+  }
+}
+
+void open_stats(GLFWwindow *window) {
+  if (!console_input_enabled && glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS && !holding_alpha[GLFW_KEY_C - GLFW_KEY_A]) {
+    holding_alpha[GLFW_KEY_C - GLFW_KEY_A] = 1;
+    if (status_menu_open) {
+      close_status_menu();
+      get_ui_component_by_ID(SAVE_CLOSE)->enabled = 0;
+    } else {
+      open_status_menu();
+    }
+  } else if (!console_input_enabled && glfwGetKey(window, GLFW_KEY_C) != GLFW_PRESS) {
+    holding_alpha[GLFW_KEY_C - GLFW_KEY_A] = 0;
   }
 }
 
