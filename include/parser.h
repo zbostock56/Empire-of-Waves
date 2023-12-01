@@ -23,6 +23,11 @@
 #define TELEPORT_NEAREST_MERCHANT ("tnm")
 #define ESTABLISH_NEAREST_TRADEROUTE ("ent")
 #define EVENT ("event")
+#define HEALTH ("health")
+#define WEATHER_TOK ("weather")
+#define CLEAR_TOK ("clear")
+#define FOG_TOK ("fog")
+#define INVASION ("invasion")
 
 /* GLOBALS */
 extern LEXER lexer;
@@ -54,4 +59,7 @@ void set_hunger_level(float);
 void set_hunger_timer(float);
 void set_prompt(const char *);
 void set_event_timer(float);
+void set_health(float);
+void set_weather(int);
+void spawn_invasion();
 //void establish_nearest_traderoute();

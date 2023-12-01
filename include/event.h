@@ -33,6 +33,7 @@ void init_menu(vec2, void (*)(void *), void (*)(void *), void *, void *,
 float calc_stealing_interval();
 void steal_item(CONTAINER *);
 void spawn_new_items();
+void respawn_player();
 
 /* ================ INTERNALLY DEFINED FUNCTIONS ================== */
 void update_event_timer();

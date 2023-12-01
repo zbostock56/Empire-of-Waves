@@ -168,6 +168,7 @@ void free_inventory_ui() {
 Open the inventory UI
 */
 void open_inventory_ui() {
+  inventory_open = 1;
   update_inventory_ui();
 
   for (int i = 0; i < 16; i++) {
@@ -184,6 +185,7 @@ void open_inventory_ui() {
 Close the inventory UI
 */
 void close_inventory_ui() {
+  inventory_open = 0;
   for (int i = 0; i < 16; i++) {
     inventory.ui_inventory_items[i]->enabled = 0;
   }
@@ -229,13 +231,31 @@ void on_click_inventory_item(void *inventory_item_index) {
   if (strcmp(inventory.ui_drop->text, " ENABLE DROP ") == 0) {
     if (item_id != EMPTY && item_id != INVALID_ITEM && quantity >= 1 && (item.edible || item.equippable)) {
       if (item.edible) {
-        e_player.health += health_mod;
-        c_player.health += health_mod;
-        if (hunger_mod != -1.0) {
-          e_player.hunger += hunger_mod;
+        if (item_id == LIFE_POTION) {
+          if (c_player.health == c_player.max_health) {
+            sprintf(inventory.ui_text_event_prompt->text, " You are already at Maximum Health ");
+            inventory.ui_text_event_prompt->enabled = 1;
+            time_inventory_event_prompt = 2.0;
+            update_inventory_ui();
+            return;
+          }
         }
-        c_player.fire_rate += firerate_mod;
-        c_player.speed += speed_mod;
+        if (item_isPotion(item_id)) {
+          if (item.speed_mod > 0) {
+            increment_buff((void *)"Speed", (void *)&item.speed_mod);
+          }
+          if (item.firerate_mod > 0) {
+            increment_buff((void*)"Fire Rate", (void*)&item.firerate_mod);
+          }
+        } else {
+            e_player.health = glm_clamp(e_player.health + health_mod, 0.0, e_player.max_health);
+            c_player.health = glm_clamp(c_player.health + health_mod, 0.0, c_player.max_health);
+            if (hunger_mod != -1.0) {
+              e_player.hunger += hunger_mod;
+            }
+            c_player.fire_rate += firerate_mod;
+            c_player.speed += speed_mod;
+        }
         i_slot->quantity -= 1;
         if (i_slot->quantity < 1) {
           i_slot->item_id = EMPTY;
@@ -321,10 +341,10 @@ void taken_off_weapon() {
   if (equipment.weapon_equipped == EMPTY || equipment.weapon_equipped == INVALID_ITEM) {
     return;
   } else if (equipment.weapon_equipped != EMPTY && equipment.weapon_equipped != INVALID_ITEM) {
-    float health_mod = get_item_info_by_ID(equipment.armor_equipped).health_mod;
-    float firerate_mod = get_item_info_by_ID(equipment.armor_equipped).firerate_mod;
-    float speed_mod = get_item_info_by_ID(equipment.armor_equipped).speed_mod;
-    float max_health_mod = get_item_info_by_ID(equipment.armor_equipped).max_heath_mod;
+    float health_mod = get_item_info_by_ID(equipment.weapon_equipped).health_mod;
+    float firerate_mod = get_item_info_by_ID(equipment.weapon_equipped).firerate_mod;
+    float speed_mod = get_item_info_by_ID(equipment.weapon_equipped).speed_mod;
+    float max_health_mod = get_item_info_by_ID(equipment.weapon_equipped).max_heath_mod;
     // Have equipped weapon then taken off the equipped weapon
     if (search_player_inventory_by_ID(equipment.weapon_equipped) != NULL) {
       // Have same type of equipped weapon in inventory then increment its quantity

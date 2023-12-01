@@ -456,35 +456,35 @@ void save_trade_ship(TRADE_SHIP *ship, FILE *file) {
 
 void load_player_state(FILE *file) {
   fread_check(fread(&e_player, sizeof(E_PLAYER), 1, file),
-  "serialize.c: error loading player state");
+  "serialize.c: error loading player state\n");
 }
 
 int load_game_state(FILE *file) {
   num_trade_ships = 0;
 
   fread_check(fread(&mode, sizeof(GAME_MODE), 1, file),
-  "serialize.c: error loading game state");
+  "serialize.c: error loading game state\n");
   fread_check(fread(home_island_coords, sizeof(float), 2, file),
-  "serialize.c: error loading game state");
+  "serialize.c: error loading game state\n");
   fread_check(fread(home_box_tile, sizeof(float), 2, file),
-  "serialize.c: error loading game state");
+  "serialize.c: error loading game state\n");
   fread_check(fread(house_tile, sizeof(float), 2, file),
-  "serialize.c: error loading game state");
+  "serialize.c: error loading game state\n");
   fread_check(fread(&global_time, sizeof(float), 1, file),
-  "serialize.c: error loading game state");
+  "serialize.c: error loading game state\n");
 
   unsigned int to_read = 0;
   fread_check(fread(&to_read, sizeof(unsigned int), 1, file),
-  "seralize.c: error loading game state");
+  "seralize.c: error loading game state\n");
   for (unsigned int i = 0; i < to_read; i++) {
     load_trade_ship(file);
   }
 
   fread_check(fread(&home_box.capacity, sizeof(unsigned int), 1, file),
-  "serialize.c: error loading game state");
+  "serialize.c: error loading game state\n");
   for (int i = 0; i < home_box.capacity; i++) {
     fread_check(fread(home_box.items + i, sizeof(I_SLOT), 1, file),
-    "serialize.c: error loading game state");
+    "serialize.c: error loading game state\n");
   }
   return 0;
 }
@@ -493,30 +493,30 @@ void load_trade_ship(FILE *file) {
   ivec2 target_chunk_coords = { 0, 0 };
   unsigned int target_island = 0;
   fread_check(fread(target_chunk_coords, sizeof(int), 2, file),
-  "serialize.c: error loading trade ship");
+  "serialize.c: error loading trade ship\n");
   fread_check(fread(&target_island, sizeof(unsigned int), 1, file),
-  "serialize.c: error loading trade ship");
+  "serialize.c: error loading trade ship\n");
   TRADE_SHIP *cur_ship = init_trade_ship("", target_chunk_coords,
                                          target_island);
 
   fread_check(fread(cur_ship->chunk_coords, sizeof(float), 2, file),
-  "serialize.c: error loading trade ship");
+  "serialize.c: error loading trade ship\n");
   fread_check(fread(cur_ship->coords, sizeof(float), 2, file),
-  "serialize.c: error loading trade ship");
+  "serialize.c: error loading trade ship\n");
   fread_check(fread(cur_ship->direction, sizeof(float), 2, file),
-  "serialize.c: error loading trade ship");
+  "serialize.c: error loading trade ship\n");
   fread_check(fread(&cur_ship->export_rec, sizeof(unsigned int), 1, file),
-  "serialize.c: error loading trade ship");
+  "serialize.c: error loading trade ship\n");
   fread_check(fread(&cur_ship->import_rec, sizeof(unsigned int), 1, file),
-  "serialize.c: error loading trade ship");
+  "serialize.c: error loading trade ship\n");
   fread_check(fread(&cur_ship->num_mercenaries, sizeof(unsigned int), 1, file),
-  "serialize.c: error loading trade ship");
+  "serialize.c: error loading trade ship\n");
   fread_check(fread(cur_ship->desc, sizeof(char), MAX_TRADE_SHIP_DESC, file),
-  "serialize.c: error loading trade ship");
+  "serialize.c: error loading trade ship\n");
   fread_check(fread(&cur_ship->speed, sizeof(float), 1, file),
-  "serialize.c: error loading trade ship");
+  "serialize.c: error loading trade ship\n");
   fread_check(fread(&cur_ship->death_animation, sizeof(float), 1, file),
-  "serialize.c: error loading trade ship");
+  "serialize.c: error loading trade ship\n");
 }
 
 void chunk_to_disk(char *chunk_path, CHUNK *chunk) {
@@ -545,6 +545,7 @@ void save_island(FILE *file, ISLAND *island) {
   fwrite(island->coords, sizeof(int), 2, file);
   fwrite(island->tiles, sizeof(TILE), I_WIDTH * I_WIDTH, file);
   fwrite(island->item_tiles, sizeof(ITEM_TILES), 262, file);
+  fwrite(&island->num_items, sizeof(unsigned int), 1, file);
   fwrite(&island->has_merchant, sizeof(int), 1, file);
   if (island->has_merchant) {
     save_merchant(file, &island->merchant);
@@ -571,11 +572,11 @@ int chunk_from_disk(char *chunk_path, CHUNK *dest) {
   }
 
   fread_check(fread(dest->coords, sizeof(int), 2, file),
-  "serialize.c: error loading chunk from disk");
+  "serialize.c: error loading chunk from disk\n");
   fread_check(fread(&dest->num_islands, sizeof(unsigned int), 1, file),
-  "serialize.c: error loading chunk from disk");
+  "serialize.c: error loading chunk from disk\n");
   fread_check(fread(&dest->num_enemies, sizeof(unsigned int), 1, file),
-  "serialize.c: error loading chunk from disk");
+  "serialize.c: error loading chunk from disk\n");
   if (dest->num_enemies) {
     dest->enemies = malloc(sizeof(E_ENEMY) * dest->num_enemies * 2);
     if (dest->enemies == NULL) {
@@ -586,7 +587,7 @@ int chunk_from_disk(char *chunk_path, CHUNK *dest) {
     dest->enemy_buf_size = dest->num_enemies * 2;
 
     fread_check(fread(dest->enemies, sizeof(E_ENEMY), dest->num_enemies, file),
-    "serialize.c: error loading chunk from disk");
+    "serialize.c: error loading chunk from disk\n");
   } else {
     dest->enemies = malloc(sizeof(E_ENEMY) * STARTING_BUFF_SIZE);
     if (dest->enemies == NULL) {
@@ -617,15 +618,17 @@ int chunk_from_disk(char *chunk_path, CHUNK *dest) {
 
 int load_island(FILE *file, ISLAND *dest) {
   fread_check(fread(dest->chunk, sizeof(int), 2, file),
-  "serialize.c: error loading island");
+  "serialize.c: error loading island\n");
   fread_check(fread(dest->coords, sizeof(int), 2, file),
-  "serialize.c: error loading island");
+  "serialize.c: error loading island\n");
   fread_check(fread(dest->tiles, sizeof(TILE), I_WIDTH * I_WIDTH, file),
-  "serialize.c: error loading island");
+  "serialize.c: error loading island\n");
   fread_check(fread(dest->item_tiles, sizeof(ITEM_TILES), 262, file),
-  "serialize.c: error loading island");
+  "serialize.c: error loading island\n");
+  fread_check(fread(&dest->num_items, sizeof(unsigned int), 1, file),
+  "serialize.c: error loading island\n");
   fread_check(fread(&dest->has_merchant, sizeof(int), 1, file),
-  "serialize.c: error loading island");
+  "serialize.c: error loading island\n");
   int status  = 0;
   if (dest->has_merchant) {
     status = load_merchant(file, &dest->merchant);
@@ -644,19 +647,19 @@ int load_island(FILE *file, ISLAND *dest) {
 
 int load_merchant(FILE *file, MERCHANT *dest) {
   fread_check(fread(dest->chunk, sizeof(int), 2, file),
-  "serialize.c: error loading merchant");
+  "serialize.c: error loading merchant\n");
   fread_check(fread(dest->coords, sizeof(float), 2, file),
-  "serialize.c: error loading merchant");
+  "serialize.c: error loading merchant\n");
   fread_check(fread(&dest->has_trade_route, sizeof(unsigned int), 1, file),
-  "serialize.c: error loading merchant");
+  "serialize.c: error loading merchant\n");
   fread_check(fread(&dest->num_mercenaries, sizeof(unsigned int), 1, file),
-  "serialize.c: error loading merchant");
+  "serialize.c: error loading merchant\n");
   fread_check(fread(&dest->num_listings, sizeof(unsigned int), 1, file),
-  "serialize.c: error loading merchant");
+  "serialize.c: error loading merchant\n");
   fread_check(fread(&dest->relationship, sizeof(float), 1, file),
-  "serialize.c: error loading merchant");
+  "serialize.c: error loading merchant\n");
   fread_check(fread(&dest->name, sizeof(short), 1, file),
-  "serialize.c: error loading merchant");
+  "serialize.c: error loading merchant\n");
 
   dest->listings = NULL;
   if (dest->num_listings) {
@@ -668,7 +671,7 @@ int load_merchant(FILE *file, MERCHANT *dest) {
     }
 
     fread_check(fread(dest->listings, sizeof(LISTING), dest->num_listings, file),
-    "serialize.c: error loading merchant");
+    "serialize.c: error loading merchant\n");
   } else {
     dest->listings = malloc(sizeof(LISTING) * STARTING_BUFF_SIZE);
     dest->listings_buf_size = STARTING_BUFF_SIZE;

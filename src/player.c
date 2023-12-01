@@ -7,9 +7,9 @@ void init_player() {
   glm_ivec2_zero(e_player.ship_chunk);
   glm_vec2_zero(e_player.direction);
   glm_vec2_zero(e_player.ship_direction);
-  e_player.hunger = 100.0;
-  e_player.max_health = 100.0;
-  e_player.health = e_player.max_health;
+  e_player.hunger = PLAYER_BASE_HUNGER;
+  e_player.max_health = PLAYER_BASE_HEALTH;
+  e_player.health = PLAYER_BASE_HEALTH;
   e_player.speed = 1.0;
   e_player.direction[1] = 1.0;
   e_player.ship_direction[1] = 1.0;
@@ -40,8 +40,13 @@ void init_player() {
   e_player.inventory[10].quantity = 1;
   e_player.inventory[11].item_id = FIRERATE_POTION;
   e_player.inventory[11].quantity = 1;
+
+  /* combat mode initilization */
   c_player.health = 100;
   c_player.max_health = 100;
+  c_player.fire_rate = 0.5;
+  c_player.speed = 15.0;
+  
 }
 
 // Reset player inventory, ship merchants, and position back to the home island
@@ -65,6 +70,8 @@ void respawn_player() {
     e_player.inventory[i].item_id = EMPTY;
     e_player.inventory[i].quantity = 0;
   }
+  e_player.health = PLAYER_BASE_HEALTH;
+  e_player.hunger = PLAYER_BASE_HUNGER;
 }
 
 /*
@@ -450,4 +457,9 @@ unsigned int check_fit(LISTING *from, int *from_selected,
 
 void set_hunger_level(float level) {
   e_player.hunger = level;
+}
+
+void set_health(float health) {
+  e_player.health = health;
+  c_player.health = health;
 }

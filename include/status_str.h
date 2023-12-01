@@ -9,6 +9,7 @@ typedef struct status {
 
 typedef struct buff {
   float buff_timer;
+  float buff_mod;
   char* text;
   UI_COMPONENT* ui_menu_buff;
 } BUFF;
