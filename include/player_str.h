@@ -75,4 +75,8 @@ typedef struct combat_player {
   float invuln_timer;
 } C_PLAYER;
 
+typedef struct temp_item {
+  I_SLOT slot;
+} TEMP_ITEM;
+
 #endif

@@ -247,7 +247,8 @@ void spawn_new_items() {
     chunk = chunk_buffer + player_chunks[i];
     for (int j = 0; j < chunk->num_islands; j++) {
       island = chunk->islands + j;
-      for (int k = 0; k < island->num_items; k++) {
+      /* ITEM_BUFFER_SIZE -> Prev: island->num_items */
+      for (int k = 0; k < ITEM_BUFFER_SIZE + island->num_items; k++) {
         /* If item has an item_tile that is not populated */
         /* then populate it. Otherwise, discard item_tile */
         /* randomly and replace with new resource         */
@@ -528,10 +529,10 @@ int find_item_slot_specific_loc(ISLAND *island, vec2 pos) {
   for (int i = 0; i < island->num_items; i++) {
     if (island->item_tiles[i].position[0] == pos[0] &&
         island->item_tiles[i].position[1] == pos[1]) {
-      return i;
+      return 0;
     }
   }
-  return -1;
+  return 1;
 }
 
 int find_first_avail_item_slot(ISLAND *island) {
