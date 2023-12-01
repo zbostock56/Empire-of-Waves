@@ -231,7 +231,7 @@ void on_click_inventory_item(void *inventory_item_index) {
   if (strcmp(inventory.ui_drop->text, " ENABLE DROP ") == 0) {
     if (item_id != EMPTY && item_id != INVALID_ITEM && quantity >= 1 && (item.edible || item.equippable)) {
       if (item.edible) {
-        if (item_id == LIFE_POTION) {
+        if (health_mod > 0.0) {
           if (c_player.health == c_player.max_health) {
             sprintf(inventory.ui_text_event_prompt->text, " You are already at Maximum Health ");
             inventory.ui_text_event_prompt->enabled = 1;
