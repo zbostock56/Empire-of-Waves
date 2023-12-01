@@ -52,7 +52,7 @@ void spawn_event() {
 }
 
 void weather_event() {
-  if (rand() % 5 == 0 && weather == CLEAR) {
+  if (rand() % 100 == 0 && weather == CLEAR) {
     weather = FOG;
     event_flags[WEATHER_TIMER] = ENABLED;
     timers[WEATHER_TIMER] = WEATHER_TIME;
