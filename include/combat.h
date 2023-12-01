@@ -5,6 +5,7 @@
 #include <globals.h>
 #include <ui_component.h>
 #include <menu.h>
+#include <equipment_str.h>
 
 #define X (0)
 #define Y (1)
@@ -17,6 +18,7 @@ char lost_item_prompt_buffer[PROMPT_BUFFER_MAX];
 
 extern int container_menu_open;
 int surrender_menu_open = 0;
+extern EQUIPMENT equipment;
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 

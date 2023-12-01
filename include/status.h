@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <globals.h>
-#include <player.h>
 
 /*
                                    STATUS
@@ -36,3 +35,6 @@ void init_menu(vec2, void (*)(void *), void (*)(void *), void *, void *,
                char *, int, int, unsigned int, float, float, float, float,
                PIVOT, TEXT_ANCHOR, UI_COMPONENT *);
 float decrement_timer(float);
+int get_player_gold();
+int get_player_silver();
+int get_player_copper();

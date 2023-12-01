@@ -78,6 +78,7 @@ int holding_esc = 0;
 int holding_leave = 0;
 int holding_i = 0;
 int holding_f = 0;
+int holding_surrender = 0;
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 
@@ -131,6 +132,9 @@ void close_ransom_menu();
 
 void open_status_menu();
 void close_status_menu();
+
+void open_surrender_prompt();
+void close_surrender_prompt();
 
 void inventory_open_listner();
 void open_inventory_ui();

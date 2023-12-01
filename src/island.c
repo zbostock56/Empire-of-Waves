@@ -73,7 +73,9 @@ int generate_island(ISLAND *island) {
   }
   island->num_items = 0;
   init_resource_buffer(island);
-  spawn_items(island);
+  if (rand() % 3 != 0) {
+    spawn_items(island);
+  }
   return 0;
 }
 
@@ -276,6 +278,18 @@ void spawn_new_items() {
             fprintf(stderr, "island.c: Item respawning found item tile without existing item\n");
             exit(1);
           }
+          int *tile_info = find_rand_tile(island, RETRIES_NEW_ITEM);
+          if (tile_info[0] == 0) {
+            /* Not duplicate location  */
+            tile->position[0] = (float) tile_info[1];
+            tile->position[1] = (float) tile_info[2];
+            int tile_location = tile_info[1] + (tile_info[2] * I_WIDTH);
+            tile->type = island->tiles[tile_location];
+          } else if (tile_info[0] == 1) {
+            /* Duplicate location */
+            tile->quantity++;
+            break;
+          }
           tile->quantity = 1;
           item_rng(tile);
           if (tile->resource == INVALID_REC) {
@@ -349,7 +363,8 @@ int *find_rand_tile(ISLAND *island, int bound) {
   [3]: item_tile number
 */
 void spawn_items(ISLAND *island) {
-  int num_potential_items = (int) ((float) I_WIDTH * (float) I_WIDTH * ITEM_SPAWN_CHANCE);
+  //int num_potential_items = (int) ((float) I_WIDTH * (float) I_WIDTH * ITEM_SPAWN_CHANCE);
+  int num_potential_items = 5;
   /* Choose random tiles for the number of potential items that can spawn */
   for (int i = 0; i < num_potential_items; i++) {
     int *tile_info = find_rand_tile(island, RETRIES);
@@ -497,6 +512,35 @@ int find_closet_resource(ISLAND *island, vec2 avatar_coords) {
     } 
   }
   return lowest;
+}
+
+int num_items_on_island(ISLAND *island) {
+  int ret = 0;
+  for (int i = 0; i < island->num_items; i++) {
+    if (island->item_tiles[i].resource != INVALID_REC) {
+      ret++;
+    }
+  }
+  return ret;
+}
+
+int find_item_slot_specific_loc(ISLAND *island, vec2 pos) {
+  for (int i = 0; i < island->num_items; i++) {
+    if (island->item_tiles[i].position[0] == pos[0] &&
+        island->item_tiles[i].position[1] == pos[1]) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+int find_first_avail_item_slot(ISLAND *island) {
+  for (int i = 0; i < island->num_items; i++) {
+    if (island->item_tiles[i].resource == INVALID_REC) {
+      return i;
+    }
+  }
+  return -1;
 }
 
 /*

@@ -1,9 +1,13 @@
 #include <stdio.h>
 #include <items.h>
 #include <globals.h>
+#include <equipment_str.h>
+
 
 #define PLAYER_BASE_HEALTH (100.0)
 #define PLAYER_BASE_HUNGER (100.0)
+
+EQUIPMENT equipment;
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 

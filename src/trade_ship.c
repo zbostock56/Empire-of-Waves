@@ -80,6 +80,10 @@ void delete_trade_ship_by_target(ivec2 target_chunk,
 }
 
 void delete_trade_ship(unsigned int index) {
+  CHUNK *target_chunk = chunk_buffer + trade_ships[index].target_chunk_index;
+  ISLAND *target_island = target_chunk->islands +
+                          trade_ships[index].target_island;
+  target_island->merchant.has_trade_route = 0;
   remove_chunk(trade_ships[index].cur_chunk_index);
   remove_chunk(trade_ships[index].target_chunk_index);
   num_trade_ships--;

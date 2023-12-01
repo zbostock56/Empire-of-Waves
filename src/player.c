@@ -40,13 +40,19 @@ void init_player() {
   e_player.inventory[10].quantity = 1;
   e_player.inventory[11].item_id = FIRERATE_POTION;
   e_player.inventory[11].quantity = 1;
+  e_player.inventory[12].item_id = LIFE_POTION;
+  e_player.inventory[12].quantity = 1;
+
+  equipment.weapon_type = MELEE;
+  equipment.weapon_equipped = EMPTY;
+  equipment.armor_equipped = EMPTY;
 
   /* combat mode initilization */
-  c_player.health = 100;
-  c_player.max_health = 100;
+  c_player.max_health = PLAYER_BASE_HEALTH;
+  c_player.health = PLAYER_BASE_HEALTH;
+  e_player.hunger = PLAYER_BASE_HUNGER;
   c_player.fire_rate = 0.5;
   c_player.speed = 15.0;
-  
 }
 
 // Reset player inventory, ship merchants, and position back to the home island
@@ -66,12 +72,21 @@ void respawn_player() {
 
   e_player.embarked = 1;
   e_player.ship_mercenaries = 0;
+  e_player.total_mercenaries = 0;
   for (unsigned int i = 0; i < MAX_PLAYER_INV_SIZE; i++) {
     e_player.inventory[i].item_id = EMPTY;
     e_player.inventory[i].quantity = 0;
   }
-  e_player.health = PLAYER_BASE_HEALTH;
+  equipment.weapon_type = MELEE;
+  equipment.weapon_equipped = EMPTY;
+  equipment.armor_equipped = EMPTY;
+
+  c_player.max_health = PLAYER_BASE_HEALTH;
+  c_player.health = PLAYER_BASE_HEALTH;
   e_player.hunger = PLAYER_BASE_HUNGER;
+  c_player.health = 100;
+  c_player.fire_rate = 0.5;
+  c_player.speed = 15.0;
 }
 
 /*
