@@ -8,13 +8,13 @@
 #include <event_str.h>
 
 /* DEFINES */
-#define EVENT_TIMER (10.0)
 #define ENABLED (1)
 #define DISABLED (0)
 #define MIN_HUNGER_BEFORE_HEALTH_REDUCTION (10.0)
 #define MAX_HUNGER_BEFORE_HEALTH_INCREASE (90.0)
 
 /* GLOBALS */
+float event_timer = 10.0;
 extern int console_input_enabled;
 float timers[NUM_TIMERS];
 int event_flags[NUM_TIMERS];

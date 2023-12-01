@@ -77,6 +77,7 @@ void console_dispatcher() {
           float timer = create_float(3);
           if (timer == 0.0 || timer == FLT_MAX) {
             set_prompt("Invalid number");
+            return;
           }
           set_hunger_timer(timer);
           return;
@@ -84,6 +85,18 @@ void console_dispatcher() {
           command_not_found();
           return;
         }
+      } else if (strncmp(command[1].tok, EVENT, sizeof(EVENT)) == 0) { 
+          if (strncmp(command[2].tok, TIMER, sizeof(TIMER)) == 0) {
+            float timer = create_float(3);
+            if (timer == 0.0) {
+              set_prompt("Invalid number");
+              return;
+            }
+            set_event_timer(timer);
+            return;
+          } else {
+            command_not_found();
+          }
       } else if (strncmp(command[1].tok, HEALTH, sizeof(HEALTH)) == 0) {
           float health = create_float(2);
           if (health == 0.0) {
@@ -108,8 +121,9 @@ void console_dispatcher() {
           return;
         }
       } else {
-        command_not_found();
-      }
+          command_not_found();
+          return;
+      } 
     /* END: set */
     } else if (strncmp(command[0].tok, TELEPORT_NEAREST_ISLAND, sizeof(TELEPORT_NEAREST_ISLAND)) == 0) {
       /* BEGIN: tni  */

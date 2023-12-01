@@ -9,7 +9,7 @@ random events.
 /* attempt a spawn event */
 void update_event_timer() {
   if ((global_time -= delta_time) <= 0.0) {
-    global_time = EVENT_TIMER;
+    global_time = event_timer;
     if (mode == EXPLORATION && e_player.embarked == 1) {
       spawn_event();
     }
@@ -20,7 +20,10 @@ void update_event_timer() {
   }
 }
 
-
+void set_event_timer(float timer) {
+  event_timer = timer;
+  global_time = event_timer;
+}
 
 /*
   Helper routine to spawn items

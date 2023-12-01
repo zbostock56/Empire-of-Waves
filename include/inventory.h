@@ -35,9 +35,13 @@ void taken_off_weapon();
 void taken_off_armor();
 void equip_slot_item(I_SLOT *i_slot);
 void on_click_drop();
-void drop_item(ITEM_IDS item_ids);
+int drop_item(ITEM_IDS item_ids);
 
 /* ==================== EXTERNALLY DEFINED FUNCTIONS ================== */
 void increment_buff(void*, void*);
 I_SLOT * get_player_inventory_slot_by_index(unsigned int item_index);
 I_SLOT * search_player_inventory_by_ID(ITEM_IDS item_id);
+int num_items_on_island(ISLAND *);
+int find_first_avail_item_slot(ISLAND *);
+int find_item_slot_specific_loc(ISLAND *, vec2);
+void set_prompt(const char *);

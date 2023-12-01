@@ -231,7 +231,7 @@ void on_click_inventory_item(void *inventory_item_index) {
   if (strcmp(inventory.ui_drop->text, " ENABLE DROP ") == 0) {
     if (item_id != EMPTY && item_id != INVALID_ITEM && quantity >= 1 && (item.edible || item.equippable)) {
       if (item.edible) {
-        if (item_id == LIFE_POTION) {
+        if (health_mod > 0.0) {
           if (c_player.health == c_player.max_health) {
             sprintf(inventory.ui_text_event_prompt->text, " You are already at Maximum Health ");
             inventory.ui_text_event_prompt->enabled = 1;
@@ -275,11 +275,12 @@ void on_click_inventory_item(void *inventory_item_index) {
       }
     }
   } else if (strcmp(inventory.ui_drop->text, " DISABLE DROP ") == 0) {
-    drop_item(item_id);
-    i_slot->quantity -= 1;
-    if (i_slot->quantity <= 0) {
-      i_slot->item_id = EMPTY;
-      i_slot->quantity = 0;
+    if (item_id != INVALID_ITEM && item_id != EMPTY && drop_item(item_id)) {
+      i_slot->quantity -= 1;
+      if (i_slot->quantity <= 0) {
+        i_slot->item_id = EMPTY;
+        i_slot->quantity = 0;
+      }
     }
   }
   update_inventory_ui();
@@ -598,12 +599,13 @@ void on_click_drop() {
 /*
 Drop an item
 */
-void drop_item(ITEM_IDS item_id) {
+int drop_item(ITEM_IDS item_id) {
   if (e_player.embarked) {
     /* item directly disappeared when on the ship */
     sprintf(inventory.ui_text_event_prompt->text, " Item Dropped to Ocean - %s ", get_item_name_by_ID(item_id));
     inventory.ui_text_event_prompt->enabled = 1;
     time_inventory_event_prompt = 2.0;
+    return 1;
   } else {
     /* Find the current island that the player is on */
     vec2 coords = GLM_VEC2_ZERO_INIT;
@@ -611,16 +613,36 @@ void drop_item(ITEM_IDS item_id) {
     CHUNK *chunk = chunk_buffer + player_chunks[PLAYER_CHUNK];
     ISLAND *island = cur_island(chunk, coords);
 
-    island->num_items += 1;
-    int num_items = island->num_items - 1;
-    ITEM_TILES *drop_tile = island->item_tiles + num_items;  // didn't check buff overflow
+    if (num_items_on_island(island) == island->num_items) {
+      /* Items slots full in base buffer, start to add more as needed */
+      if (++island->num_items > ITEM_BUFFER_SIZE) {
+        island->num_items = ITEM_BUFFER_SIZE - 1;
+        set_prompt("Cannot drop more items on island!");
+        return 0;
+      }
+    }
+    vec2 location = GLM_VEC2_ZERO_INIT;
     vec2 intra_island_pos = {island->coords[0], island->coords[1]};
-    glm_vec2_sub(e_player.coords, intra_island_pos, drop_tile->position);
-    // glm_vec2_copy(intra_island_pos, drop_tile->position);
+    glm_vec2_sub(e_player.coords, intra_island_pos, location);
+    /* Check if the player is about to drop an item on an  */
+    /* existing other item */
+    int slot = find_item_slot_specific_loc(island, location); 
+    if (slot == -1) {
+      if ((slot = find_first_avail_item_slot(island)) == -1) {
+        set_prompt("ERR: could not drop item");
+        return 0;
+      }
+    } else {
+      return 0;
+    }
+
+    ITEM_TILES *drop_tile = island->item_tiles + slot;
+    glm_vec2_copy(location, drop_tile->position);
     drop_tile->quantity = 1;
     drop_tile->resource = (int)item_id;
     sprintf(inventory.ui_text_event_prompt->text, " Item Dropped - %s ", get_item_name_by_ID(item_id));
     inventory.ui_text_event_prompt->enabled = 1;
     time_inventory_event_prompt = 2.0;
+    return 1;
   }
 }

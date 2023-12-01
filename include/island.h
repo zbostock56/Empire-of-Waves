@@ -48,6 +48,9 @@ int *find_rand_tile(ISLAND *, int);
 void find_closest_resource(ISLAND *, vec2);
 ITEM_IDS translate_resource_to_item(REC_IDS);
 int pickup_resource();
+int num_items_on_island(ISLAND *);
+int find_first_avail_item_slot(ISLAND *);
+int find_item_slot_specific_loc(ISLAND *, vec2);
 
 /* ======================= EXTERNALLY DEFINED FUNCTIONS ===================== */
 ISLAND *cur_island(CHUNK *, vec2);
