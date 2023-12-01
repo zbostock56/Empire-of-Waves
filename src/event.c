@@ -22,6 +22,7 @@ void update_event_timer() {
 
 void set_event_timer(float timer) {
   event_timer = timer;
+  global_time = event_timer;
 }
 
 /*
