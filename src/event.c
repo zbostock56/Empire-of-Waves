@@ -10,7 +10,7 @@ random events.
 void update_event_timer() {
   if ((global_time -= delta_time) <= 0.0) {
     global_time = event_timer;
-    if (mode == EXPLORATION && e_player.embarked == 1) {
+    if (mode == EXPLORATION) {
       spawn_event();
     }
     if (mode == EXPLORATION) {
@@ -44,9 +44,9 @@ void item_respawn_event() {
 void spawn_event() {
   unsigned int event = rand() % 100;
   int status = 0;
-  if (event < 50) {
+  if (event < 50 && e_player.embarked) {
     spawn_enemy();
-  } else if (event < 60) {
+  } else if (event > 50 && event < 60) {
     status = invade_home_island();
     if (status) {
       exit(1);

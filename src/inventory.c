@@ -260,19 +260,19 @@ void on_click_inventory_item(void *inventory_item_index) {
     } else {
       /* Currently occupied spot */
       if (i_slot->item_id == t.slot.item_id) {
-        if ((i_slot->item_id == GOLD_COIN || 
+        if ((i_slot->item_id == GOLD_COIN ||
             i_slot->item_id == SILVER_COIN ||
             i_slot->item_id == COPPER_COIN) &&
             (i_slot->quantity + t.slot.quantity) < COIN_STACK_LIMIT) {
-          place_item(i_slot); 
+          place_item(i_slot);
           update_inventory_ui();
         } else {
           if ((i_slot->quantity + t.slot.quantity) < STACK_LIMIT) {
-            place_item(i_slot); 
+            place_item(i_slot);
             update_inventory_ui();
           }
         }
-      } 
+      }
     }
     return;
   }
@@ -410,12 +410,11 @@ void taken_off_weapon() {
   if (equipment.weapon_equipped == EMPTY || equipment.weapon_equipped == INVALID_ITEM) {
     return;
   } else if (equipment.weapon_equipped != EMPTY && equipment.weapon_equipped != INVALID_ITEM) {
-    float health_mod = get_item_info_by_ID(equipment.weapon_equipped).health_mod;
     float firerate_mod = get_item_info_by_ID(equipment.weapon_equipped).firerate_mod;
     float speed_mod = get_item_info_by_ID(equipment.weapon_equipped).speed_mod;
     float max_health_mod = get_item_info_by_ID(equipment.weapon_equipped).max_heath_mod;
     // Have equipped weapon then taken off the equipped weapon
-    if (is_dropping) {
+    if (is_dropping || holding_drop) {
       if (!drop_item(equipment.weapon_equipped)) {
         return;
       }
@@ -439,13 +438,13 @@ void taken_off_weapon() {
         time_inventory_event_prompt = 2.0;
       }
     }
-    e_player.health -= health_mod;
-    c_player.health -= health_mod;
+    c_player.max_health -= max_health_mod;
+    if (c_player.health > c_player.max_health) {
+      c_player.health = c_player.max_health;
+    }
     c_player.fire_rate -= firerate_mod;
     e_player.speed -= speed_mod;
     c_player.speed -= speed_mod;
-    e_player.max_health -= max_health_mod;
-    c_player.max_health -= max_health_mod;
 
     equipment.weapon_type = MELEE;
     equipment.weapon_equipped = EMPTY;
@@ -461,12 +460,11 @@ void taken_off_armor() {
   if (equipment.armor_equipped == EMPTY || equipment.armor_equipped == INVALID_ITEM) {
     return;
   } else if (equipment.armor_equipped != EMPTY && equipment.armor_equipped != INVALID_ITEM) {
-    float health_mod = get_item_info_by_ID(equipment.armor_equipped).health_mod;
     float firerate_mod = get_item_info_by_ID(equipment.armor_equipped).firerate_mod;
     float speed_mod = get_item_info_by_ID(equipment.armor_equipped).speed_mod;
     float max_health_mod = get_item_info_by_ID(equipment.armor_equipped).max_heath_mod;
     // Have equipped weapon then taken off the equipped weapon
-    if (is_dropping) {
+    if (is_dropping || holding_drop) {
       if (!drop_item(equipment.armor_equipped)) {
         return;
       }
@@ -489,13 +487,13 @@ void taken_off_armor() {
         time_inventory_event_prompt = 2.0;
       }
     }
-    e_player.health -= health_mod;
-    c_player.health -= health_mod;
+    c_player.max_health -= max_health_mod;
+    if (c_player.health > c_player.max_health) {
+      c_player.health = c_player.max_health;
+    }
     c_player.fire_rate -= firerate_mod;
     e_player.speed -= speed_mod;
     c_player.speed -= speed_mod;
-    e_player.max_health -= max_health_mod;
-    c_player.max_health -= max_health_mod;
 
     equipment.armor_equipped = EMPTY;
   }

@@ -24,7 +24,7 @@ TEMP_ITEM t;
 
 #define place_item(s) {\
   s->item_id = t.slot.item_id; \
-  s->quantity = t.slot.quantity; \
+  s->quantity += t.slot.quantity; \
   t.slot.item_id = EMPTY; \
   t.slot.quantity = -1; \
 }
