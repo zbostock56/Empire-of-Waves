@@ -231,14 +231,13 @@ void on_click_inventory_item(void *inventory_item_index) {
   if (strcmp(inventory.ui_drop->text, " ENABLE DROP ") == 0) {
     if (item_id != EMPTY && item_id != INVALID_ITEM && quantity >= 1 && (item.edible || item.equippable)) {
       if (item.edible) {
-        if (health_mod > 0.0) {
-          if (c_player.health == c_player.max_health) {
-            sprintf(inventory.ui_text_event_prompt->text, " You are already at Maximum Health ");
-            inventory.ui_text_event_prompt->enabled = 1;
-            time_inventory_event_prompt = 2.0;
-            update_inventory_ui();
-            return;
-          }
+        if (health_mod > 0.0 && c_player.health == c_player.max_health &&
+            hunger_mod == -1.0) {
+          sprintf(inventory.ui_text_event_prompt->text, " You are already at Maximum Health");
+          inventory.ui_text_event_prompt->enabled = 1;
+          time_inventory_event_prompt = 2.0;
+          update_inventory_ui();
+          return;
         }
         if (item_isPotion(item_id)) {
           if (item.speed_mod > 0) {

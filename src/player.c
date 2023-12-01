@@ -40,6 +40,8 @@ void init_player() {
   e_player.inventory[10].quantity = 1;
   e_player.inventory[11].item_id = FIRERATE_POTION;
   e_player.inventory[11].quantity = 1;
+  e_player.inventory[12].item_id = LIFE_POTION;
+  e_player.inventory[12].quantity = 1;
 
   equipment.weapon_type = MELEE;
   equipment.weapon_equipped = EMPTY;
