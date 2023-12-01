@@ -727,12 +727,7 @@ void render_player_health_bar() {
   vec3 scale = {0.25, 0.25, 1.0};
   glm_scale(model_mat, scale);
 
-  float actual_health = glm_clamp(c_player.health, 0.0, c_player.max_health);
-
-  int tex_num = (int) (actual_health / (c_player.max_health /(100.0/11.0))) + 1;
-  if (actual_health <= 0.0) {
-    tex_num = 0;
-  }
+  int tex_num = (int) ((c_player.health / c_player.max_health) * 10.0);
   quad->texture = health_bar_textures[tex_num];
 
   glUseProgram(std_shader);
@@ -761,12 +756,8 @@ void render_player_health_bar_combat() {
   vec3 scale = {0.25, 0.25, 1.0};
   glm_scale(model_mat, scale);
 
-  float actual_health = glm_clamp(c_player.health, 0.0, 100.0);
 
-  int tex_num = (int) (actual_health / 11.0) + 1;
-  if (actual_health <= 0.0) {
-    tex_num = 0;
-  }
+  int tex_num = (int) ((c_player.health / c_player.max_health) * 10.0);
   quad->texture = health_bar_textures[tex_num];
 
   glUseProgram(std_shader);
