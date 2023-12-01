@@ -39,6 +39,7 @@ extern int merchant_dialog_enabled;
 extern int merchant_trade_enabled;
 extern int status_menu_open;
 extern int inventory_open;
+extern int surrender_menu_open;
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 

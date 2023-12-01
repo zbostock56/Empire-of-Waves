@@ -10,6 +10,7 @@ void close_save_menu();
 void close_status_menu();
 void close_trade();
 void close_mercenary_reassignment_menu();
+void close_surrender_prompt();
 
 extern int container_interaction_enabled;
 extern int shore_interaction_enabled;
@@ -210,6 +211,7 @@ void close_all_menus() {
   close_status_menu();
   close_trade();
   close_mercenary_reassignment_menu();
+  close_surrender_prompt();
   get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
   get_ui_component_by_ID(EMBARK_PROMPT)->enabled = 0;
 

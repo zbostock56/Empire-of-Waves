@@ -133,7 +133,7 @@ void exploration_movement(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && !holding_interaction &&
       !reassignment_menu_open && !container_menu_open &&
       !merchant_dialog_enabled && !merchant_trade_enabled &&
-      !status_menu_open && !inventory_open) {
+      !status_menu_open && !inventory_open && !surrender_menu_open) {
     if (shore_interaction_enabled) {
       if (e_player.embarked) {
         e_player.embarked = 0;

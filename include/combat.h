@@ -16,6 +16,7 @@
 char lost_item_prompt_buffer[PROMPT_BUFFER_MAX];
 
 extern int container_menu_open;
+int surrender_menu_open = 0;
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 

@@ -390,7 +390,7 @@ void perform_surrender() {
   }
   close_surrender_prompt();
   from_combat_mode();
-  
+
   // If has merceneries assigned, get rid of them
   if (e_player.ship_mercenaries > 0) {
     e_player.ship_mercenaries = 0;
@@ -405,14 +405,11 @@ void perform_surrender() {
     }
   }
   if (num_item > 0) {
-    
     int lost_item_idx = item_indices[rand() % num_item];
     I_SLOT *lost_item = get_player_inventory_slot_by_index(lost_item_idx);
     I_SLOT *last_item = get_player_inventory_slot_by_index(item_indices[num_item-1]);
-    
     snprintf(lost_item_prompt_buffer, PROMPT_BUFFER_MAX, " %s got lost. ", get_item_name_by_ID(lost_item->item_id));
     set_prompt(lost_item_prompt_buffer);
-    
     lost_item->item_id = last_item->item_id;
     lost_item->quantity = last_item->quantity;
     last_item->item_id = EMPTY;
@@ -443,7 +440,7 @@ void init_surrender_ui() {
     T_LEFT, // text_anchor
     surrender_button // dest
   );
-  
+
   UI_COMPONENT * surrender_prompt = get_ui_component_by_ID(SURRENDER_CONFIRMATION_PROMPT);
   vec2 prompt_pos = {0, 0.15};
   init_menu(
@@ -464,7 +461,7 @@ void init_surrender_ui() {
     T_CENTER, // text_anchor
     surrender_prompt // dest
   );
-  
+
   UI_COMPONENT *surrender_prompt_2 = get_ui_component_by_ID(SURRENDER_CONFIRMATION_PROMPT_2);
   vec2 prompt_pos_2 = {0.0, 0.0};
   init_menu(
@@ -485,7 +482,7 @@ void init_surrender_ui() {
     T_CENTER, // text_anchor
     surrender_prompt_2 // dest
   );
-  
+
   UI_COMPONENT *surrender_prompt_3 = get_ui_component_by_ID(SURRENDER_CONFIRMATION_PROMPT_3);
   vec2 prompt_pos_3 = {0.0, -0.15};
   init_menu(
@@ -506,12 +503,11 @@ void init_surrender_ui() {
     T_CENTER, // text_anchor
     surrender_prompt_3 // dest
   );
-  
+
   UI_COMPONENT *prompt_yes = get_ui_component_by_ID(SURRENDER_CONFIRMATION_YES);
   UI_COMPONENT *prompt_no = get_ui_component_by_ID(SURRENDER_CONFIRMATION_NO);
   vec2 yes_pos = {0.2, -0.3};
   vec2 no_pos = {-0.2, -0.3};
-  
   init_menu(
     yes_pos, // position
     perform_surrender, // on_click
@@ -549,11 +545,10 @@ void init_surrender_ui() {
     T_CENTER, // text_anchor
     prompt_no // dest
   );
-  
-
 }
 
 void open_surrender_prompt() {
+  surrender_menu_open = 1;
   get_ui_component_by_ID(SURRENDER_CONFIRMATION_PROMPT)->enabled = 1;
   get_ui_component_by_ID(SURRENDER_CONFIRMATION_PROMPT_2)->enabled = 1;
   get_ui_component_by_ID(SURRENDER_CONFIRMATION_PROMPT_3)->enabled = 1;
@@ -562,6 +557,7 @@ void open_surrender_prompt() {
 }
 
 void close_surrender_prompt() {
+  surrender_menu_open = 0;
   get_ui_component_by_ID(SURRENDER_CONFIRMATION_PROMPT)->enabled = 0;
   get_ui_component_by_ID(SURRENDER_CONFIRMATION_PROMPT_2)->enabled = 0;
   get_ui_component_by_ID(SURRENDER_CONFIRMATION_PROMPT_3)->enabled = 0;

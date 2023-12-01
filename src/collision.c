@@ -780,6 +780,7 @@ void attack_collision() {
 
 void detect_combat_lootables() {
   UI_COMPONENT *interaction_prompt = get_ui_component_by_ID(INTERACT_PROMPT);
+
   unsigned int in_range = 0;
   unsigned int new_lootable = 0;
   for (unsigned int i = 0; i < num_loot; i++) {
@@ -805,6 +806,15 @@ void detect_combat_lootables() {
     interaction_prompt->enabled = 0;
     close_container();
     get_ui_component_by_ID(SURRENDER_BUTTON)->enabled = 1;
+  }
+
+  if (reassignment_menu_open || container_menu_open ||
+      merchant_dialog_enabled || merchant_trade_enabled ||
+      status_menu_open || inventory_open || surrender_menu_open ||
+      save_menu_open()) {
+    container_interaction_enabled = 0;
+    interaction_prompt->enabled = 0;
+    get_ui_component_by_ID(SURRENDER_BUTTON)->enabled = 0;
   }
 }
 
