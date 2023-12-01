@@ -91,6 +91,8 @@ int detect_enemy_ships() {
 
 // Detects collision with shore, player ship, merchants, etc for prompts
 void detect_context_interaction() {
+  UI_COMPONENT *interact_prompt = get_ui_component_by_ID(INTERACT_PROMPT);
+
   // Disembark / embark
   vec2 world_coords_ship = GLM_VEC2_ZERO_INIT;
   vec2 world_coords_char = GLM_VEC2_ZERO_INIT;
@@ -112,8 +114,10 @@ void detect_context_interaction() {
         get_ui_component_by_ID(EMBARK_PROMPT)->enabled = 0;
       }
     }
-    if (trade.ui_button_trade->enabled || dialog.ui_text_name->enabled ||
-        container_menu_open || reassignment_menu_open || save_menu_open()) {
+    if (reassignment_menu_open || container_menu_open ||
+        merchant_dialog_enabled || merchant_trade_enabled ||
+        status_menu_open || inventory_open || save_menu_open() ||
+        interact_prompt->enabled) {
       shore_interaction_enabled = 0;
       get_ui_component_by_ID(EMBARK_PROMPT)->enabled = 0;
     }
@@ -135,8 +139,10 @@ void detect_context_interaction() {
       shore_interaction_enabled = 0;
       get_ui_component_by_ID(EMBARK_PROMPT)->enabled = 0;
     }
-    if (trade.ui_button_trade->enabled || dialog.ui_text_name->enabled ||
-        container_menu_open || reassignment_menu_open || save_menu_open()) {
+    if (reassignment_menu_open || container_menu_open ||
+        merchant_dialog_enabled || merchant_trade_enabled ||
+        status_menu_open || inventory_open || save_menu_open() ||
+        interact_prompt->enabled) {
       shore_interaction_enabled = 0;
       get_ui_component_by_ID(EMBARK_PROMPT)->enabled = 0;
     }
@@ -168,8 +174,9 @@ void check_item_pickup_prompt(vec2 coords) {
   }
 
   /* Other menus are open, do not prompt */
-  if (trade.ui_button_trade->enabled || dialog.ui_text_name->enabled ||
-      container_menu_open || reassignment_menu_open || save_menu_open()) {
+  if (reassignment_menu_open || container_menu_open ||
+      merchant_dialog_enabled || merchant_trade_enabled ||
+      status_menu_open || inventory_open || save_menu_open()) {
     item_interaction_enabled = 0;
     item_interaction_prompt->enabled = 0;
     return;
@@ -193,7 +200,7 @@ void check_item_pickup_prompt(vec2 coords) {
                              + island->coords[0];
       item_chunk_coords[1] = island->item_tiles[i].position[1]
                              + island->coords[1];
-      chunk_to_world(island->chunk, item_chunk_coords, item_world_coords); 
+      chunk_to_world(island->chunk, item_chunk_coords, item_world_coords);
       dist = glm_vec2_distance(item_world_coords, coords);
       if (dist <= 3.0 * T_WIDTH) {
         item_interaction_enabled = 1;
@@ -237,8 +244,9 @@ void check_mercenary_reassignment_prompt(vec2 coords) {
     close_ransom_menu();
   }
 
-  if (trade.ui_button_trade->enabled || dialog.ui_text_name->enabled ||
-      container_menu_open || reassignment_menu_open || save_menu_open()) {
+  if (reassignment_menu_open || container_menu_open ||
+      merchant_dialog_enabled || merchant_trade_enabled ||
+      status_menu_open || inventory_open || save_menu_open()) {
     interaction_prompt->enabled = 0;
     home_interaction_enabled = 0;
   }
@@ -267,8 +275,9 @@ void check_chest_prompt(vec2 coords) {
   } else if (dist > 3.0 * T_WIDTH) {
     close_container();
   }
-  if (trade.ui_button_trade->enabled || dialog.ui_text_name->enabled ||
-      container_menu_open || reassignment_menu_open || save_menu_open()) {
+  if (reassignment_menu_open || container_menu_open ||
+      merchant_dialog_enabled || merchant_trade_enabled ||
+      status_menu_open || inventory_open || save_menu_open()) {
     interaction_prompt->enabled = 0;
     container_interaction_enabled = 0;
   }
@@ -298,8 +307,9 @@ void check_merchant_prompt(vec2 world_player_coords) {
       }
     }
   }
-  if (trade.ui_button_trade->enabled || dialog.ui_text_name->enabled ||
-      container_menu_open || reassignment_menu_open || save_menu_open()) {
+  if (reassignment_menu_open || container_menu_open ||
+      merchant_dialog_enabled || merchant_trade_enabled ||
+      status_menu_open || inventory_open || save_menu_open()) {
     get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
   }
   if (!cur_merchant) {
@@ -770,6 +780,7 @@ void attack_collision() {
 
 void detect_combat_lootables() {
   UI_COMPONENT *interaction_prompt = get_ui_component_by_ID(INTERACT_PROMPT);
+
   unsigned int in_range = 0;
   unsigned int new_lootable = 0;
   for (unsigned int i = 0; i < num_loot; i++) {
@@ -789,10 +800,21 @@ void detect_combat_lootables() {
     container_interaction_enabled = 1;
     interaction_prompt->enabled = 1;
     cur_lootable = new_lootable;
+    get_ui_component_by_ID(SURRENDER_BUTTON)->enabled = 1;
   } else if (!in_range) {
     container_interaction_enabled = 0;
     interaction_prompt->enabled = 0;
     close_container();
+    get_ui_component_by_ID(SURRENDER_BUTTON)->enabled = 1;
+  }
+
+  if (reassignment_menu_open || container_menu_open ||
+      merchant_dialog_enabled || merchant_trade_enabled ||
+      status_menu_open || inventory_open || surrender_menu_open ||
+      save_menu_open()) {
+    container_interaction_enabled = 0;
+    interaction_prompt->enabled = 0;
+    get_ui_component_by_ID(SURRENDER_BUTTON)->enabled = 0;
   }
 }
 

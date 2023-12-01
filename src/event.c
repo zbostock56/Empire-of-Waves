@@ -52,10 +52,10 @@ void spawn_event() {
 }
 
 void weather_event() {
-  if (rand() % 5 == 0 && weather == CLEAR) {
+  if (rand() % 100 == 0 && weather == CLEAR) {
     weather = FOG;
-    event_flags[WEATHER] = ENABLED;
-    timers[WEATHER] = WEATHER_TIME;
+    event_flags[WEATHER_TIMER] = ENABLED;
+    timers[WEATHER_TIMER] = WEATHER_TIME;
   }
 }
 
@@ -98,19 +98,21 @@ void update_timers() {
     }
   }
 
-  if (event_flags[HEALTH_REDUCTION_TIMER]) {
-    timers[HEALTH_REDUCTION_TIMER] -= delta_time;
-    if (timers[HEALTH_REDUCTION_TIMER] <= 0.0) {
-      decrease_health();
-      reset_health_reduction_timer();
+  if (mode == EXPLORATION) {
+    if (event_flags[HEALTH_REDUCTION_TIMER]) {
+      timers[HEALTH_REDUCTION_TIMER] -= delta_time;
+      if (timers[HEALTH_REDUCTION_TIMER] <= 0.0) {
+        decrease_health();
+        reset_health_reduction_timer();
+      }
     }
-  }
 
-  if (event_flags[HEALTH_INCREASE_TIMER]) {
-    timers[HEALTH_INCREASE_TIMER] -= delta_time;
-    if (timers[HEALTH_INCREASE_TIMER] <= 0.0) {
-      increase_health();
-      reset_health_increase_timer();
+    if (event_flags[HEALTH_INCREASE_TIMER]) {
+      timers[HEALTH_INCREASE_TIMER] -= delta_time;
+      if (timers[HEALTH_INCREASE_TIMER] <= 0.0) {
+        increase_health();
+        reset_health_increase_timer();
+      }
     }
   }
 
@@ -142,7 +144,7 @@ void update_timers() {
         /* Hunger has reached critical low, begin decrementing */
         /* health from the player */
         start_health_reduction_timer();
-      } 
+      }
       reset_hunger_timer();
     }
   }
@@ -155,11 +157,11 @@ void update_timers() {
       }
     }
 
-    if (event_flags[WEATHER]) {
-      timers[WEATHER] = decrement_timer(timers[STEALING_TIMER]);
-      if (timers[WEATHER] == 0.0) {
-        event_flags[WEATHER] = DISABLED;
-        timers[WEATHER] = WEATHER_TIME;
+    if (event_flags[WEATHER_TIMER]) {
+      timers[WEATHER_TIMER] = decrement_timer(timers[WEATHER_TIMER]);
+      if (timers[WEATHER_TIMER] == 0.0) {
+        event_flags[WEATHER_TIMER] = DISABLED;
+        timers[WEATHER_TIMER] = WEATHER_TIME;
         weather = CLEAR;
       }
     }
@@ -197,7 +199,7 @@ float decrement_timer(float timer) {
 */
 void start_hunger_timer() {
   reset_hunger_timer();
-  event_flags[HUNGER_TIMER] = ENABLED; 
+  event_flags[HUNGER_TIMER] = ENABLED;
 }
 
 void stop_health_reduction_timer() {
@@ -234,16 +236,16 @@ void decrease_hunger() {
 }
 
 void decrease_health() {
-  e_player.health -= 3.0;
-  if (e_player.health <= 0.0) {
-    e_player.health = 0.0;
+  c_player.health -= 3.0;
+  if (c_player.health <= 0.0) {
+    respawn_player();
   }
 }
 
 void increase_health() {
-  e_player.health += 5.0;
-  if (e_player.health >= e_player.max_health) {
-    e_player.health = e_player.max_health;
+  c_player.health += 5.0;
+  if (c_player.health >= c_player.max_health) {
+    c_player.health = c_player.max_health;
   }
 }
 
@@ -255,7 +257,7 @@ void reset_hunger_timer() {
   Adjusts the hunger timer for the console
 */
 void set_hunger_timer(float new_time) {
-  hunger_timer = new_time; 
+  hunger_timer = new_time;
   reset_hunger_timer();
 }
 

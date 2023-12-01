@@ -63,7 +63,7 @@ void console_dispatcher() {
         set_speed(speed);
       } else if (strncmp(command[1].tok, HUNGER, sizeof(HUNGER)) == 0) {
         if (command[2].kind == NUMBER) {
-          float hunger = create_float(2); 
+          float hunger = create_float(2);
           if (hunger == 0.0) {
             set_prompt("Invalid hunger level!");
             return;
@@ -79,6 +79,29 @@ void console_dispatcher() {
             set_prompt("Invalid number");
           }
           set_hunger_timer(timer);
+          return;
+        } else {
+          command_not_found();
+          return;
+        }
+      } else if (strncmp(command[1].tok, HEALTH, sizeof(HEALTH)) == 0) {
+          float health = create_float(2);
+          if (health == 0.0) {
+            set_prompt("Invalid number");
+            return;
+          } else if (health > e_player.max_health) {
+            set_prompt("Over max available health");
+            return;
+          }
+          set_health(health);
+          return;
+      } else if (strncmp(command[1].tok, WEATHER_TOK, sizeof(WEATHER_TOK)) ==
+                 0) {
+        if (strncmp(command[2].tok, CLEAR_TOK, sizeof(CLEAR_TOK)) == 0) {
+          set_weather(CLEAR);
+          return;
+        } else if (strncmp(command[2].tok, FOG_TOK, sizeof(FOG_TOK)) == 0) {
+          set_weather(FOG);
           return;
         } else {
           command_not_found();
@@ -124,6 +147,9 @@ void console_dispatcher() {
         } else {
           spawn_enemy();
         }
+      } else if (command[1].kind == IDENTIFIER &&
+                 strncmp(command[1].tok, INVASION, sizeof(INVASION)) == 0) {
+        spawn_invasion();
       } else {
         command_not_found();
       }

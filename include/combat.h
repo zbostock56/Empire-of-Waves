@@ -16,6 +16,7 @@
 char lost_item_prompt_buffer[PROMPT_BUFFER_MAX];
 
 extern int container_menu_open;
+int surrender_menu_open = 0;
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 
@@ -38,3 +39,4 @@ void respawn_player();
 void close_container();
 I_SLOT *get_player_inventory_slot_by_index(unsigned int);
 void set_prompt(const char *buffer);
+void close_all_menus();
