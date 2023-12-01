@@ -472,3 +472,22 @@ void reset_console_error() {
   get_ui_component_by_ID(CONSOLE_ERROR)->enabled = 0;
   memset(console_error_buffer, '\0', CONSOLE_BUFFER_MAX);
 }
+
+void set_weather(int w) {
+  if (w == CLEAR) {
+    weather = CLEAR;
+    event_flags[WEATHER_TIMER] = 0;
+    timers[WEATHER_TIMER] = WEATHER_TIME;
+  } else if (w == FOG) {
+    weather = FOG;
+    event_flags[WEATHER_TIMER] = 1;
+    timers[WEATHER_TIMER] = WEATHER_TIME;
+  }
+}
+
+void spawn_invasion() {
+  float temp = e_player.reputation;
+  e_player.reputation = REP_MIN;
+  invade_home_island();
+  e_player.reputation = temp;
+}

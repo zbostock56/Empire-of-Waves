@@ -54,8 +54,8 @@ void spawn_event() {
 void weather_event() {
   if (rand() % 5 == 0 && weather == CLEAR) {
     weather = FOG;
-    event_flags[WEATHER] = ENABLED;
-    timers[WEATHER] = WEATHER_TIME;
+    event_flags[WEATHER_TIMER] = ENABLED;
+    timers[WEATHER_TIMER] = WEATHER_TIME;
   }
 }
 
@@ -157,11 +157,11 @@ void update_timers() {
       }
     }
 
-    if (event_flags[WEATHER]) {
-      timers[WEATHER] = decrement_timer(timers[STEALING_TIMER]);
-      if (timers[WEATHER] == 0.0) {
-        event_flags[WEATHER] = DISABLED;
-        timers[WEATHER] = WEATHER_TIME;
+    if (event_flags[WEATHER_TIMER]) {
+      timers[WEATHER_TIMER] = decrement_timer(timers[WEATHER_TIMER]);
+      if (timers[WEATHER_TIMER] == 0.0) {
+        event_flags[WEATHER_TIMER] = DISABLED;
+        timers[WEATHER_TIMER] = WEATHER_TIME;
         weather = CLEAR;
       }
     }
@@ -199,7 +199,7 @@ float decrement_timer(float timer) {
 */
 void start_hunger_timer() {
   reset_hunger_timer();
-  event_flags[HUNGER_TIMER] = ENABLED; 
+  event_flags[HUNGER_TIMER] = ENABLED;
 }
 
 void stop_health_reduction_timer() {
@@ -257,7 +257,7 @@ void reset_hunger_timer() {
   Adjusts the hunger timer for the console
 */
 void set_hunger_timer(float new_time) {
-  hunger_timer = new_time; 
+  hunger_timer = new_time;
   reset_hunger_timer();
 }
 

@@ -317,7 +317,7 @@ void inventory_open_listner(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS && !holding_i &&
       !reassignment_menu_open && !container_menu_open &&
       !merchant_dialog_enabled && !merchant_trade_enabled &&
-      !status_menu_open) {
+      !status_menu_open && !console_input_enabled) {
     if (get_ui_component_by_ID(INVENTORY_BUTTON_PLAYER_ITEM_0)->enabled) {
       close_inventory_ui();
     } else if (get_ui_component_by_ID(DIALOG_NAME)->enabled == 0 &&
