@@ -36,10 +36,10 @@ int main() {
     update_dialog_buffers();
     update_available_mercenaries();
     update_mercenary_reassignment();
-    render_scene(window);
     update_combat_state();
     update_event_timer();
     update_save_interval();
+    render_scene(window);
   }
 
   // Insert all "cleanup" functionality here

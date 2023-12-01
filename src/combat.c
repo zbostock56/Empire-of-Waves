@@ -260,6 +260,7 @@ void update_combat_state() {
 
   if (!num_enemies) {
     get_ui_component_by_ID(COMBAT_INFO_BAR)->enabled = 1;
+    get_ui_component_by_ID(SURRENDER_BUTTON)->enabled = 0;
   }
 
   e_player.ship_mercenaries = num_allies;

@@ -2,6 +2,9 @@
 #include <items.h>
 #include <globals.h>
 
+#define PLAYER_BASE_HEALTH (100.0)
+#define PLAYER_BASE_HUNGER (100.0)
+
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 
 I_SLOT * get_player_inventory_slot_by_index(unsigned int item_index);

@@ -7,9 +7,9 @@ void init_player() {
   glm_ivec2_zero(e_player.ship_chunk);
   glm_vec2_zero(e_player.direction);
   glm_vec2_zero(e_player.ship_direction);
-  e_player.hunger = 100.0;
-  e_player.max_health = 100.0;
-  e_player.health = e_player.max_health;
+  e_player.hunger = PLAYER_BASE_HUNGER;
+  e_player.max_health = PLAYER_BASE_HEALTH;
+  e_player.health = PLAYER_BASE_HEALTH;
   e_player.speed = 1.0;
   e_player.direction[1] = 1.0;
   e_player.ship_direction[1] = 1.0;
@@ -70,6 +70,8 @@ void respawn_player() {
     e_player.inventory[i].item_id = EMPTY;
     e_player.inventory[i].quantity = 0;
   }
+  e_player.health = PLAYER_BASE_HEALTH;
+  e_player.hunger = PLAYER_BASE_HUNGER;
 }
 
 /*
@@ -455,4 +457,9 @@ unsigned int check_fit(LISTING *from, int *from_selected,
 
 void set_hunger_level(float level) {
   e_player.hunger = level;
+}
+
+void set_health(float health) {
+  e_player.health = health;
+  c_player.health = health;
 }

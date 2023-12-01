@@ -98,19 +98,21 @@ void update_timers() {
     }
   }
 
-  if (event_flags[HEALTH_REDUCTION_TIMER]) {
-    timers[HEALTH_REDUCTION_TIMER] -= delta_time;
-    if (timers[HEALTH_REDUCTION_TIMER] <= 0.0) {
-      decrease_health();
-      reset_health_reduction_timer();
+  if (mode == EXPLORATION) {
+    if (event_flags[HEALTH_REDUCTION_TIMER]) {
+      timers[HEALTH_REDUCTION_TIMER] -= delta_time;
+      if (timers[HEALTH_REDUCTION_TIMER] <= 0.0) {
+        decrease_health();
+        reset_health_reduction_timer();
+      }
     }
-  }
 
-  if (event_flags[HEALTH_INCREASE_TIMER]) {
-    timers[HEALTH_INCREASE_TIMER] -= delta_time;
-    if (timers[HEALTH_INCREASE_TIMER] <= 0.0) {
-      increase_health();
-      reset_health_increase_timer();
+    if (event_flags[HEALTH_INCREASE_TIMER]) {
+      timers[HEALTH_INCREASE_TIMER] -= delta_time;
+      if (timers[HEALTH_INCREASE_TIMER] <= 0.0) {
+        increase_health();
+        reset_health_increase_timer();
+      }
     }
   }
 
@@ -142,7 +144,7 @@ void update_timers() {
         /* Hunger has reached critical low, begin decrementing */
         /* health from the player */
         start_health_reduction_timer();
-      } 
+      }
       reset_hunger_timer();
     }
   }
@@ -236,7 +238,7 @@ void decrease_hunger() {
 void decrease_health() {
   c_player.health -= 3.0;
   if (c_player.health <= 0.0) {
-    c_player.health = 0.0;
+    respawn_player();
   }
 }
 
