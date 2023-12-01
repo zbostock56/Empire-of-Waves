@@ -40,6 +40,7 @@ GLFWwindow *init_gl() {
 int init_game(char *save_name) {
   copy_valid_path(save_name, game_save_name, strlen(save_name));
   game_save_name[strlen(save_name)] = '\0';
+  weather = CLEAR;
 
   init_player();
   init_menus();

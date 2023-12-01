@@ -18,30 +18,33 @@ void init_player() {
   e_player.reputation = 0.0;
   e_player.inventory[0].item_id = RUM;
   e_player.inventory[0].quantity = 2;
-  e_player.inventory[1].item_id = CITRUS;
+  e_player.inventory[1].item_id = KNIFE;
   e_player.inventory[1].quantity = 1;
-  e_player.inventory[2].item_id = KNIFE;
-  e_player.inventory[2].quantity = 1;
-  e_player.inventory[3].item_id = GOLD_COIN;
-  e_player.inventory[3].quantity = 100;
-  e_player.inventory[4].item_id = SILVER_COIN;
-  e_player.inventory[4].quantity = 1;
-  e_player.inventory[5].item_id = COPPER_COIN;
+  e_player.inventory[2].item_id = GOLD_COIN;
+  e_player.inventory[2].quantity = COIN_STACK_LIMIT;
+  e_player.inventory[3].item_id = SILVER_COIN;
+  e_player.inventory[3].quantity = 1;
+  e_player.inventory[4].item_id = COPPER_COIN;
+  e_player.inventory[4].quantity = 50;
+  e_player.inventory[5].item_id = CROSSBOW;
   e_player.inventory[5].quantity = 1;
-  e_player.inventory[6].item_id = CROSSBOW;
+  e_player.inventory[6].item_id = COPPER_COIN;
   e_player.inventory[6].quantity = 1;
-  e_player.inventory[7].item_id = FLINTLOCK;
+  e_player.inventory[7].item_id = HEAVY_ARMOR;
   e_player.inventory[7].quantity = 1;
-  e_player.inventory[8].item_id = MEDIUM_ARMOR;
+  e_player.inventory[8].item_id = PLATE_ARMOR;
   e_player.inventory[8].quantity = 1;
-  e_player.inventory[9].item_id = HEAVY_ARMOR;
+  e_player.inventory[9].item_id = FIRERATE_POTION;
   e_player.inventory[9].quantity = 1;
-  e_player.inventory[10].item_id = PLATE_ARMOR;
-  e_player.inventory[10].quantity = 1;
-  e_player.inventory[11].item_id = FIRERATE_POTION;
-  e_player.inventory[11].quantity = 1;
-  e_player.inventory[12].item_id = LIFE_POTION;
-  e_player.inventory[12].quantity = 1;
+  e_player.inventory[10].item_id = LIFE_POTION;
+  e_player.inventory[10].quantity = 5;
+  e_player.inventory[11].item_id = RUM;
+  e_player.inventory[11].quantity = STACK_LIMIT;
+  e_player.inventory[12].item_id = GOLD_COIN;
+  e_player.inventory[12].quantity = 50;
+
+  t.slot.item_id = EMPTY;
+  t.slot.quantity = -1;
 
   equipment.weapon_type = MELEE;
   equipment.weapon_equipped = EMPTY;
@@ -81,6 +84,8 @@ void respawn_player() {
   equipment.weapon_equipped = EMPTY;
   equipment.armor_equipped = EMPTY;
 
+  reset_buff_list();
+
   c_player.max_health = PLAYER_BASE_HEALTH;
   c_player.health = PLAYER_BASE_HEALTH;
   e_player.hunger = PLAYER_BASE_HUNGER;
@@ -111,6 +116,7 @@ I_SLOT * get_player_first_empty_inventory_slot() {
   for (int i = 0; i < MAX_PLAYER_INV_SIZE; i++) {
     if ((e_player.inventory[i].item_id == 0) ||
          e_player.inventory[i].quantity == 0) {
+      e_player.inventory[i].quantity = 0;
       return &e_player.inventory[i];
     }
   }
@@ -125,7 +131,15 @@ I_SLOT *get_requested_inventory_slot_type(ITEM_IDS item) {
   for (int i = 0; i < MAX_PLAYER_INV_SIZE; i++) {
     if (e_player.inventory[i].item_id == item &&
         e_player.inventory[i].quantity > 0) {
-      return e_player.inventory + i;
+      if ((item == GOLD_COIN || item == SILVER_COIN ||
+          item == COPPER_COIN) &&
+          e_player.inventory[i].quantity < COIN_STACK_LIMIT) {
+          return e_player.inventory + i;
+      } else {
+        if (e_player.inventory[i].quantity < STACK_LIMIT) {
+          return e_player.inventory + i;
+        }
+      }
     }
   }
   return NULL;
@@ -192,39 +206,39 @@ void remove_money(I_SLOT *items, unsigned int num_items) {
 Return the gold coin player owns
 */
 int get_player_gold() {
-  // return e_player.money % 100;
+  int num_gold = 0;
   for (int i = 0; i < MAX_PLAYER_INV_SIZE; i++) {
     if (get_player_inventory_slot_by_index(i)->item_id == GOLD_COIN) {
-      return get_player_inventory_slot_by_index(i)->quantity;
+      num_gold += get_player_inventory_slot_by_index(i)->quantity;
     }
   }
-  return 0;
+  return num_gold;
 }
 
 /*
 Return the silver coin player owns
 */
 int get_player_silver() {
-  // return e_player.money % 10;
+  int num_silver = 0;
   for (int i = 0; i < MAX_PLAYER_INV_SIZE; i++) {
     if (get_player_inventory_slot_by_index(i)->item_id == SILVER_COIN) {
-      return get_player_inventory_slot_by_index(i)->quantity;
+      num_silver += get_player_inventory_slot_by_index(i)->quantity;
     }
   }
-  return 0;
+  return num_silver;
 }
 
 /*
 Return the copper coin player owns
 */
 int get_player_copper() {
-  // return e_player.money;
+  int num_copper = 0;
   for (int i = 0; i < MAX_PLAYER_INV_SIZE; i++) {
     if (get_player_inventory_slot_by_index(i)->item_id == COPPER_COIN) {
-      return get_player_inventory_slot_by_index(i)->quantity;
+      num_copper += get_player_inventory_slot_by_index(i)->quantity;
     }
   }
-  return 0;
+  return num_copper;
 }
 
 /*
@@ -306,69 +320,54 @@ void coalesce_currency(I_SLOT *items, unsigned int num_items) {
   num_gold += num_silver / SILVER_PER_GOLD;
   num_silver = num_silver % SILVER_PER_GOLD;
 
-  unsigned int num_empty = get_num_empty_slots(items, num_items);
-  if (num_empty >= 3) {
-    for (int i = 0; i < num_items; i++) {
-      I_SLOT *slot = items + i;
-      if (slot->item_id == EMPTY && num_gold) {
-        slot->item_id = items[0].item_id;
-        slot->quantity = items[0].quantity;
-        items[0].item_id = GOLD_COIN;
-        items[0].quantity = num_gold;
-        num_gold = 0;
-      } else if (slot->item_id == EMPTY && num_silver) {
-        slot->item_id = items[1].item_id;
-        slot->quantity = items[1].quantity;
-        items[1].item_id = SILVER_COIN;
-        items[1].quantity = num_silver;
-        num_silver = 0;
-      } else if (slot->item_id == EMPTY && num_copper) {
-        slot->item_id = items[2].item_id;
-        slot->quantity = items[2].quantity;
-        items[2].item_id = COPPER_COIN;
-        items[2].quantity = num_copper;
-        num_copper = 0;
-        return;
-      } else if (slot->item_id == EMPTY) {
-        return;
-      }
+  unsigned int num_stacks_gold = num_gold / COIN_STACK_LIMIT;
+  if (num_gold % COIN_STACK_LIMIT) {
+    num_stacks_gold++;
+  }
+  unsigned int num_stacks_silver = num_silver / COIN_STACK_LIMIT;
+  if (num_silver % COIN_STACK_LIMIT) {
+    num_stacks_silver++;
+  }
+  unsigned int num_stacks_copper = num_copper / COIN_STACK_LIMIT;
+  if (num_copper % COIN_STACK_LIMIT) {
+    num_stacks_copper++;
+  }
+
+  while (num_stacks_gold + num_stacks_silver + num_stacks_copper) {
+    I_SLOT *slot = get_player_first_empty_inventory_slot();
+    if (!slot) {
+      break;
     }
-  } else if (num_empty == 2) {
-    num_silver += num_gold * SILVER_PER_GOLD;
-    num_gold = 0;
-    for (int i = 0; i < num_items; i++) {
-      I_SLOT *slot = items + i;
-      if (slot->item_id == EMPTY && num_silver) {
-        slot->item_id = items[0].item_id;
-        slot->quantity = items[0].quantity;
-        items[0].item_id = SILVER_COIN;
-        items[0].quantity = num_silver;
-        num_silver = 0;
-      } else if (slot->item_id == EMPTY && num_copper) {
-        slot->item_id = items[1].item_id;
-        slot->quantity = items[1].quantity;
-        items[1].item_id = COPPER_COIN;
-        items[1].quantity = num_copper;
-        num_copper = 0;
-        return;
-      } else if (slot->item_id == EMPTY) {
-        return;
+
+    if (num_stacks_gold) {
+      slot->item_id = GOLD_COIN;
+      if (num_gold >= COIN_STACK_LIMIT) {
+        slot->quantity = COIN_STACK_LIMIT;
+      } else {
+        slot->quantity = num_gold;
       }
-    }
-  } else {
-    num_copper += ((num_gold*SILVER_PER_GOLD)+num_silver)*COPPER_PER_SILVER;
-    num_gold = 0;
-    num_silver = 0;
-    for (int i = 0; i < num_items; i++) {
-      I_SLOT *slot = items + i;
-      if (slot->item_id == EMPTY && num_copper) {
-        slot->item_id = items[0].item_id;
-        slot->quantity = items[0].quantity;
-        items[0].item_id = COPPER_COIN;
-        items[0].quantity = num_copper;
-        num_copper = 0;
-        return;
+      num_gold -= slot->quantity;
+      num_stacks_gold--;
+    } else if (num_stacks_silver) {
+      slot->item_id = SILVER_COIN;
+      if (num_silver >= COIN_STACK_LIMIT) {
+        slot->quantity = COIN_STACK_LIMIT;
+      } else {
+        slot->quantity = num_silver;
       }
+      num_silver -= slot->quantity;
+      num_stacks_silver--;
+    } else if (num_stacks_copper) {
+      slot->item_id = COPPER_COIN;
+      if (num_copper >= COIN_STACK_LIMIT) {
+        slot->quantity = COIN_STACK_LIMIT;
+      } else {
+        slot->quantity = num_copper;
+      }
+      num_copper -= slot->quantity;
+      num_stacks_copper--;
+    } else {
+      break;
     }
   }
 }

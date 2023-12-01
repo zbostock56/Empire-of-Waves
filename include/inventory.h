@@ -16,8 +16,25 @@ Implements the functionality for player inventory.
 INVENTORY inventory;
 extern EQUIPMENT equipment;
 float time_inventory_event_prompt;
-int isDropping;
+int is_dropping = 0;
 int inventory_open = 0;
+extern int holding_drop;
+extern int holding_shift;
+TEMP_ITEM t;
+
+#define place_item(s) {\
+  s->item_id = t.slot.item_id; \
+  s->quantity += t.slot.quantity; \
+  t.slot.item_id = EMPTY; \
+  t.slot.quantity = -1; \
+}
+
+#define grab_item(s) {\
+  t.slot.item_id = s->item_id; \
+  t.slot.quantity = s->quantity; \
+  s->item_id = EMPTY; \
+  s->quantity = 0; \
+}
 
 /* ==================== INTERNALLY DEFINED FUNCITONS ================== */
 int init_inventory_ui();

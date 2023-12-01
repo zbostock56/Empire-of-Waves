@@ -195,6 +195,31 @@ void close_inventory_ui() {
   inventory.ui_text_event_prompt->enabled = 0;
   inventory.ui_drop->enabled = 0;
   inventory.ui_drop->text = " ENABLE DROP ";
+  if (t.slot.item_id != EMPTY) {
+    /* Still something in the temporary spot */
+    I_SLOT *s = get_requested_inventory_slot_type(t.slot.item_id);
+    if (s && ((((s->item_id == GOLD_COIN || 
+            s->item_id == SILVER_COIN ||
+            s->item_id == COPPER_COIN) &&
+            (s->quantity + t.slot.quantity) >= COIN_STACK_LIMIT))
+            || (s->quantity + t.slot.quantity >= STACK_LIMIT))) {
+      s = NULL;
+    }
+    if (!s) {
+      s = get_player_first_empty_inventory_slot();
+    }
+    if (s) {
+      s->item_id = t.slot.item_id;
+      s->quantity += t.slot.quantity;
+    } else {
+      int status = drop_item(t.slot.item_id);
+      if (!status) {
+        printf("\n");
+      }
+    }
+    t.slot.item_id = EMPTY;
+    t.slot.quantity = -1;
+  }
 }
 
 /*
@@ -219,6 +244,38 @@ unsigned int inventory_item_index
 void on_click_inventory_item(void *inventory_item_index) {
   int index = (uintptr_t)inventory_item_index;
   I_SLOT *i_slot = get_player_inventory_slot_by_index(index);
+  /* Check if holding the item pickup key and temp */
+  /* location is empty */
+  if (holding_shift && t.slot.item_id == EMPTY && i_slot->item_id != EMPTY) {
+    /* store in temp location */
+    grab_item(i_slot);
+    update_inventory_ui();
+    return;
+  } else if (holding_shift && t.slot.item_id != EMPTY) {
+    /* Something is in the temp location  */
+    if (i_slot->item_id == EMPTY) {
+      /* Open slot */
+      place_item(i_slot);
+      update_inventory_ui();
+    } else {
+      /* Currently occupied spot */
+      if (i_slot->item_id == t.slot.item_id) {
+        if ((i_slot->item_id == GOLD_COIN ||
+            i_slot->item_id == SILVER_COIN ||
+            i_slot->item_id == COPPER_COIN) &&
+            (i_slot->quantity + t.slot.quantity) < COIN_STACK_LIMIT) {
+          place_item(i_slot);
+          update_inventory_ui();
+        } else {
+          if ((i_slot->quantity + t.slot.quantity) < STACK_LIMIT) {
+            place_item(i_slot);
+            update_inventory_ui();
+          }
+        }
+      }
+    }
+    return;
+  }
   ITEM_IDS item_id = i_slot->item_id;
   int quantity = i_slot->quantity;
   ITEM item = get_item_info_by_ID(item_id);
@@ -228,6 +285,18 @@ void on_click_inventory_item(void *inventory_item_index) {
   float firerate_mod = item.firerate_mod;
   float speed_mod = item.speed_mod;
   // float max_health_mod = item.max_heath_mod;
+  if (holding_drop) {
+    if (item_id != INVALID_ITEM && item_id != EMPTY && drop_item(item_id)) {
+      i_slot->quantity -= 1;
+      if (i_slot->quantity <= 0) {
+        i_slot->item_id = EMPTY;
+        i_slot->quantity = 0;
+      }
+    }
+    update_inventory_ui();
+    return;
+  }
+
   if (strcmp(inventory.ui_drop->text, " ENABLE DROP ") == 0) {
     if (item_id != EMPTY && item_id != INVALID_ITEM && quantity >= 1 && (item.edible || item.equippable)) {
       if (item.edible) {
@@ -341,12 +410,15 @@ void taken_off_weapon() {
   if (equipment.weapon_equipped == EMPTY || equipment.weapon_equipped == INVALID_ITEM) {
     return;
   } else if (equipment.weapon_equipped != EMPTY && equipment.weapon_equipped != INVALID_ITEM) {
-    float health_mod = get_item_info_by_ID(equipment.weapon_equipped).health_mod;
     float firerate_mod = get_item_info_by_ID(equipment.weapon_equipped).firerate_mod;
     float speed_mod = get_item_info_by_ID(equipment.weapon_equipped).speed_mod;
     float max_health_mod = get_item_info_by_ID(equipment.weapon_equipped).max_heath_mod;
     // Have equipped weapon then taken off the equipped weapon
-    if (search_player_inventory_by_ID(equipment.weapon_equipped) != NULL) {
+    if (is_dropping || holding_drop) {
+      if (!drop_item(equipment.weapon_equipped)) {
+        return;
+      }
+    } else if (search_player_inventory_by_ID(equipment.weapon_equipped) != NULL) {
       // Have same type of equipped weapon in inventory then increment its quantity
       search_player_inventory_by_ID(equipment.weapon_equipped)->quantity += 1;
     } else if (search_player_inventory_by_ID(equipment.weapon_equipped) == NULL) {
@@ -356,20 +428,23 @@ void taken_off_weapon() {
         get_player_first_empty_inventory_slot()->quantity = 1;
       } else if (get_player_first_empty_inventory_slot() == NULL) {
         // Drop to the ground
-        drop_item(equipment.weapon_equipped);
+        if (!drop_item(equipment.weapon_equipped)) {
+          return;
+        }
+
         // Show prompt
         sprintf(inventory.ui_text_event_prompt->text, " Weapon Dropped - Insufficient Inventory Space ");
         inventory.ui_text_event_prompt->enabled = 1;
         time_inventory_event_prompt = 2.0;
       }
     }
-    e_player.health -= health_mod;
-    c_player.health -= health_mod;
+    c_player.max_health -= max_health_mod;
+    if (c_player.health > c_player.max_health) {
+      c_player.health = c_player.max_health;
+    }
     c_player.fire_rate -= firerate_mod;
     e_player.speed -= speed_mod;
     c_player.speed -= speed_mod;
-    e_player.max_health -= max_health_mod;
-    c_player.max_health -= max_health_mod;
 
     equipment.weapon_type = MELEE;
     equipment.weapon_equipped = EMPTY;
@@ -385,12 +460,15 @@ void taken_off_armor() {
   if (equipment.armor_equipped == EMPTY || equipment.armor_equipped == INVALID_ITEM) {
     return;
   } else if (equipment.armor_equipped != EMPTY && equipment.armor_equipped != INVALID_ITEM) {
-    float health_mod = get_item_info_by_ID(equipment.armor_equipped).health_mod;
     float firerate_mod = get_item_info_by_ID(equipment.armor_equipped).firerate_mod;
     float speed_mod = get_item_info_by_ID(equipment.armor_equipped).speed_mod;
     float max_health_mod = get_item_info_by_ID(equipment.armor_equipped).max_heath_mod;
     // Have equipped weapon then taken off the equipped weapon
-    if (search_player_inventory_by_ID(equipment.armor_equipped) != NULL) {
+    if (is_dropping || holding_drop) {
+      if (!drop_item(equipment.armor_equipped)) {
+        return;
+      }
+    } else if (search_player_inventory_by_ID(equipment.armor_equipped) != NULL) {
       // Have same type of equipped weapon in inventory then increment its quantity
       search_player_inventory_by_ID(equipment.armor_equipped)->quantity += 1;
     } else if (search_player_inventory_by_ID(equipment.armor_equipped) == NULL) {
@@ -400,20 +478,22 @@ void taken_off_armor() {
         get_player_first_empty_inventory_slot()->quantity = 1;
       } else if (get_player_first_empty_inventory_slot() == NULL) {
         // Drop to the ground
-        drop_item(equipment.armor_equipped);
+        if (!drop_item(equipment.armor_equipped)) {
+          return;
+        }
         // Show prompt
         sprintf(inventory.ui_text_event_prompt->text, " Armor Dropped - Insufficient Inventory Space ");
         inventory.ui_text_event_prompt->enabled = 1;
         time_inventory_event_prompt = 2.0;
       }
     }
-    e_player.health -= health_mod;
-    c_player.health -= health_mod;
+    c_player.max_health -= max_health_mod;
+    if (c_player.health > c_player.max_health) {
+      c_player.health = c_player.max_health;
+    }
     c_player.fire_rate -= firerate_mod;
     e_player.speed -= speed_mod;
     c_player.speed -= speed_mod;
-    e_player.max_health -= max_health_mod;
-    c_player.max_health -= max_health_mod;
 
     equipment.armor_equipped = EMPTY;
   }
@@ -590,8 +670,10 @@ Switch on/off for drop mode
 void on_click_drop() {
   if (strcmp(inventory.ui_drop->text, " ENABLE DROP ") == 0) {
     inventory.ui_drop->text = " DISABLE DROP ";
+    is_dropping = 1;
   } else if (strcmp(inventory.ui_drop->text, " DISABLE DROP ") == 0) {
     inventory.ui_drop->text = " ENABLE DROP ";
+    is_dropping = 0;
   }
 }
 
@@ -625,20 +707,20 @@ int drop_item(ITEM_IDS item_id) {
     glm_vec2_sub(e_player.coords, intra_island_pos, location);
     /* Check if the player is about to drop an item on an  */
     /* existing other item */
-    int slot = find_item_slot_specific_loc(island, location); 
-    if (slot == -1) {
-      if ((slot = find_first_avail_item_slot(island)) == -1) {
-        set_prompt("ERR: could not drop item");
-        return 0;
-      }
-    } else {
+    int valid_slot = find_item_slot_specific_loc(island, location); 
+    if (!valid_slot) {
+      return 0;
+    } 
+    valid_slot = find_first_avail_item_slot(island);
+    if (valid_slot == -1) {
       return 0;
     }
 
-    ITEM_TILES *drop_tile = island->item_tiles + slot;
+    ITEM_TILES *drop_tile = island->item_tiles + valid_slot;
     glm_vec2_copy(location, drop_tile->position);
     drop_tile->quantity = 1;
     drop_tile->resource = (int)item_id;
+    drop_tile->type = island->tiles[(int)(location[0] + (location[1] * I_WIDTH))];
     sprintf(inventory.ui_text_event_prompt->text, " Item Dropped - %s ", get_item_name_by_ID(item_id));
     inventory.ui_text_event_prompt->enabled = 1;
     time_inventory_event_prompt = 2.0;
