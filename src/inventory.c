@@ -346,7 +346,11 @@ void taken_off_weapon() {
     float speed_mod = get_item_info_by_ID(equipment.weapon_equipped).speed_mod;
     float max_health_mod = get_item_info_by_ID(equipment.weapon_equipped).max_heath_mod;
     // Have equipped weapon then taken off the equipped weapon
-    if (search_player_inventory_by_ID(equipment.weapon_equipped) != NULL) {
+    if (is_dropping) {
+      if (!drop_item(equipment.weapon_equipped)) {
+        return;
+      }
+    } else if (search_player_inventory_by_ID(equipment.weapon_equipped) != NULL) {
       // Have same type of equipped weapon in inventory then increment its quantity
       search_player_inventory_by_ID(equipment.weapon_equipped)->quantity += 1;
     } else if (search_player_inventory_by_ID(equipment.weapon_equipped) == NULL) {
@@ -356,7 +360,10 @@ void taken_off_weapon() {
         get_player_first_empty_inventory_slot()->quantity = 1;
       } else if (get_player_first_empty_inventory_slot() == NULL) {
         // Drop to the ground
-        drop_item(equipment.weapon_equipped);
+        if (!drop_item(equipment.weapon_equipped)) {
+          return;
+        }
+
         // Show prompt
         sprintf(inventory.ui_text_event_prompt->text, " Weapon Dropped - Insufficient Inventory Space ");
         inventory.ui_text_event_prompt->enabled = 1;
@@ -390,7 +397,11 @@ void taken_off_armor() {
     float speed_mod = get_item_info_by_ID(equipment.armor_equipped).speed_mod;
     float max_health_mod = get_item_info_by_ID(equipment.armor_equipped).max_heath_mod;
     // Have equipped weapon then taken off the equipped weapon
-    if (search_player_inventory_by_ID(equipment.armor_equipped) != NULL) {
+    if (is_dropping) {
+      if (!drop_item(equipment.armor_equipped)) {
+        return;
+      }
+    } else if (search_player_inventory_by_ID(equipment.armor_equipped) != NULL) {
       // Have same type of equipped weapon in inventory then increment its quantity
       search_player_inventory_by_ID(equipment.armor_equipped)->quantity += 1;
     } else if (search_player_inventory_by_ID(equipment.armor_equipped) == NULL) {
@@ -400,7 +411,9 @@ void taken_off_armor() {
         get_player_first_empty_inventory_slot()->quantity = 1;
       } else if (get_player_first_empty_inventory_slot() == NULL) {
         // Drop to the ground
-        drop_item(equipment.armor_equipped);
+        if (!drop_item(equipment.armor_equipped)) {
+          return;
+        }
         // Show prompt
         sprintf(inventory.ui_text_event_prompt->text, " Armor Dropped - Insufficient Inventory Space ");
         inventory.ui_text_event_prompt->enabled = 1;
@@ -590,8 +603,10 @@ Switch on/off for drop mode
 void on_click_drop() {
   if (strcmp(inventory.ui_drop->text, " ENABLE DROP ") == 0) {
     inventory.ui_drop->text = " DISABLE DROP ";
+    is_dropping = 1;
   } else if (strcmp(inventory.ui_drop->text, " DISABLE DROP ") == 0) {
     inventory.ui_drop->text = " ENABLE DROP ";
+    is_dropping = 0;
   }
 }
 

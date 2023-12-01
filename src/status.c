@@ -362,7 +362,7 @@ void update_buff_list() {
       status_menu.buff_list[i].ui_menu_buff->enabled = 0;
       status_menu.num_buff--;
 
-      /* revert back the buffed stats */  
+      /* revert back the buffed stats */
       if (strcmp(status_menu.buff_list[i].text, "Speed") == 0) {
         c_player.speed -= status_menu.buff_list[i].buff_mod;
       } else if (strcmp(status_menu.buff_list[i].text, "Fire Rate") == 0) {
@@ -407,10 +407,10 @@ void increment_buff(void * txt, void *mod) {
     c_player.fire_rate += *mod_value;
   }
   status_menu.num_buff++;
-  // if (status_menu.buff_list[idx].ui_menu_buff->enabled == 0) {
-  //   status_menu.buff_list[idx].ui_menu_buff->enabled = 1;
-  //   status_menu.num_buff++;
-  // }
+  //if (status_menu.buff_list[idx].ui_menu_buff->enabled == 0) {
+  //  status_menu.buff_list[idx].ui_menu_buff->enabled = 1;
+  //  status_menu.num_buff++;
+  //}
 }
 
 /* Render status bar */
