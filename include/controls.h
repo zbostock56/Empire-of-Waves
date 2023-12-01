@@ -79,6 +79,7 @@ int holding_leave = 0;
 int holding_i = 0;
 int holding_f = 0;
 int holding_surrender = 0;
+int holding_drop = 0;
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 

@@ -33,3 +33,4 @@ int remove_chunk(unsigned int);
 void find_shore_tile(ISLAND *, vec2);
 void delete_trade_ship(unsigned int);
 int are_inventory_slots_open();
+void reset_buff_list();

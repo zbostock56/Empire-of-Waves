@@ -88,6 +88,8 @@ void respawn_player() {
   equipment.weapon_equipped = EMPTY;
   equipment.armor_equipped = EMPTY;
 
+  reset_buff_list();
+
   c_player.max_health = PLAYER_BASE_HEALTH;
   c_player.health = PLAYER_BASE_HEALTH;
   e_player.hunger = PLAYER_BASE_HUNGER;

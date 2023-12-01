@@ -16,8 +16,9 @@ Implements the functionality for player inventory.
 INVENTORY inventory;
 extern EQUIPMENT equipment;
 float time_inventory_event_prompt;
-int isDropping;
+int is_dropping = 0;
 int inventory_open = 0;
+extern int holding_drop;
 extern int holding_shift;
 TEMP_ITEM t;
 
