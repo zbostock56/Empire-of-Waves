@@ -226,7 +226,21 @@ void combat_movement(GLFWwindow *window) {
   }
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     close_container();
+    close_surrender_prompt();
     get_ui_component_by_ID(SURRENDER_BUTTON)->enabled = 1;
+  }
+  if (glfwGetKey(window, GLFW_KEY_APOSTROPHE) == GLFW_PRESS &&
+      !holding_surrender && !container_menu_open) {
+    if (get_ui_component_by_ID(SURRENDER_BUTTON)->enabled) {
+      if (surrender_menu_open) {
+        close_surrender_prompt();
+      } else {
+        open_surrender_prompt();
+      }
+    }
+    holding_surrender = 1;
+  } else if (glfwGetKey(window, GLFW_KEY_APOSTROPHE) != GLFW_PRESS) {
+    holding_surrender = 0;
   }
 }
 
