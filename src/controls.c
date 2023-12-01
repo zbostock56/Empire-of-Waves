@@ -11,11 +11,11 @@ void keyboard_input(GLFWwindow *window) {
     // Exploration mode keyboard handlers here
     exploration_movement(window);
     close_merchant_menu(window);
-    inventory_open_listner(window);
   } else if (mode == COMBAT && !console_input_enabled) {
     combat_movement(window);
     surrender_listener(window);
   }
+  inventory_open_listner(window);
   open_stats(window);
   modifier_keys(window);
   debug_keys(window);
@@ -130,7 +130,10 @@ void exploration_movement(GLFWwindow *window) {
     }
   }
   /*  E KEY CONTROLS  */
-  if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && !holding_interaction) {
+  if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && !holding_interaction &&
+      !reassignment_menu_open && !container_menu_open &&
+      !merchant_dialog_enabled && !merchant_trade_enabled &&
+      !status_menu_open && !inventory_open && !surrender_menu_open) {
     if (shore_interaction_enabled) {
       if (e_player.embarked) {
         e_player.embarked = 0;
@@ -209,6 +212,7 @@ void combat_movement(GLFWwindow *window) {
       CONTAINER player_inv = { e_player.inventory, MAX_PLAYER_INV_SIZE };
       open_container(loot[cur_lootable].inv, player_inv);
       get_ui_component_by_ID(INTERACT_PROMPT)->enabled = 0;
+      get_ui_component_by_ID(SURRENDER_BUTTON)->enabled = 0;
     }
     holding_interaction = 1;
   } else if (glfwGetKey(window, GLFW_KEY_E) != GLFW_PRESS) {
@@ -222,6 +226,7 @@ void combat_movement(GLFWwindow *window) {
   }
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     close_container();
+    get_ui_component_by_ID(SURRENDER_BUTTON)->enabled = 1;
   }
 }
 
@@ -309,12 +314,15 @@ void modifier_keys(GLFWwindow *window) {
 }
 
 void inventory_open_listner(GLFWwindow *window) {
-  if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS && !holding_i) {
+  if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS && !holding_i &&
+      !reassignment_menu_open && !container_menu_open &&
+      !merchant_dialog_enabled && !merchant_trade_enabled &&
+      !status_menu_open) {
     if (get_ui_component_by_ID(INVENTORY_BUTTON_PLAYER_ITEM_0)->enabled) {
       close_inventory_ui();
-    } else if (get_ui_component_by_ID(DIALOG_NAME)->enabled == 0 && 
+    } else if (get_ui_component_by_ID(DIALOG_NAME)->enabled == 0 &&
                get_ui_component_by_ID(TRADE_BUTTON_TRADE)->enabled == 0 &&
-               get_ui_component_by_ID(NEW_GAME)->enabled == 0 && 
+               get_ui_component_by_ID(NEW_GAME)->enabled == 0 &&
                get_ui_component_by_ID(CONTAINER_1_SLOTS)->enabled == 0) {
       open_inventory_ui();
     }
@@ -373,7 +381,10 @@ void close_merchant_menu(GLFWwindow *window) {
 }
 
 void open_stats(GLFWwindow *window) {
-  if (!console_input_enabled && glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS && !holding_alpha[GLFW_KEY_C - GLFW_KEY_A]) {
+  if (!console_input_enabled && glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS &&
+      !holding_alpha[GLFW_KEY_C - GLFW_KEY_A] &&
+      !reassignment_menu_open && !container_menu_open &&
+      !merchant_dialog_enabled && !merchant_trade_enabled && !inventory_open) {
     holding_alpha[GLFW_KEY_C - GLFW_KEY_A] = 1;
     if (status_menu_open) {
       close_status_menu();
@@ -583,3 +594,4 @@ void ui_hover_listener(double x_pos, double y_pos) {
     }
   }
 }
+

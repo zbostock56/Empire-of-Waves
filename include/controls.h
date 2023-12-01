@@ -25,13 +25,24 @@ vec2 mouse_position = GLM_VEC2_ZERO_INIT;
 
 extern int save_input_enabled;
 extern int console_input_enabled;
-extern int shore_interaction_enabled;
+
+// Interaction Trackers
 extern int home_interaction_enabled;
 extern int container_interaction_enabled;
-extern int item_interaction_enabled;
-extern int reassignment_menu_open;
-extern UI_ID open_prompt;
 extern MERCHANT *close_merchant;
+extern int item_interaction_enabled;
+extern int shore_interaction_enabled;
+
+// Menu Trackers
+extern int reassignment_menu_open;
+extern int container_menu_open;
+extern int merchant_dialog_enabled;
+extern int merchant_trade_enabled;
+extern int status_menu_open;
+extern int inventory_open;
+extern int surrender_menu_open;
+
+extern UI_ID open_prompt;
 extern TRADE trade;
 extern DIALOG dialog;
 extern int RES_X;
@@ -42,9 +53,7 @@ extern unsigned int cons_cmd_len;
 extern char *save_input_buffer;
 extern unsigned int save_input_len;
 extern int console_input_enabled;
-extern int container_menu_open;
 extern unsigned int cur_lootable;
-extern int status_menu_open;
 
 int holding_left_click = 0;
 int holding_equals = 0;
