@@ -8,6 +8,7 @@
 #define PLAYER_BASE_HUNGER (100.0)
 
 EQUIPMENT equipment;
+extern TEMP_ITEM t;
 
 // ======================= INTERNALLY DEFINED FUNCTIONS ======================
 

@@ -19,6 +19,8 @@ void init_scene() {
      gen_texture("assets/resources/invalid.png");
   resource_textures[resource_to_buffer(REC_CITRUS)] =
      gen_texture("assets/resources/citrus.png");
+  resource_textures[resource_to_buffer(REC_RUM)] =
+     gen_texture("assets/resources/rum.png");
   resource_textures[resource_to_buffer(REC_LIFE_POTION)] =
      gen_texture("assets/resources/life_potion.png");
   resource_textures[resource_to_buffer(REC_FIRERATE_POTION)] =

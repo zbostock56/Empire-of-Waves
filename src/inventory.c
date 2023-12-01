@@ -195,6 +195,31 @@ void close_inventory_ui() {
   inventory.ui_text_event_prompt->enabled = 0;
   inventory.ui_drop->enabled = 0;
   inventory.ui_drop->text = " ENABLE DROP ";
+  if (t.slot.item_id != EMPTY) {
+    /* Still something in the temporary spot */
+    I_SLOT *s = get_requested_inventory_slot_type(t.slot.item_id);
+    if (s && ((((s->item_id == GOLD_COIN || 
+            s->item_id == SILVER_COIN ||
+            s->item_id == COPPER_COIN) &&
+            (s->quantity + t.slot.quantity) >= COIN_STACK_LIMIT))
+            || (s->quantity + t.slot.quantity >= STACK_LIMIT))) {
+      s = NULL;
+    }
+    if (!s) {
+      s = get_player_first_empty_inventory_slot();
+    }
+    if (s) {
+      s->item_id = t.slot.item_id;
+      s->quantity += t.slot.quantity;
+    } else {
+      int status = drop_item(t.slot.item_id);
+      if (!status) {
+        printf("\n");
+      }
+    }
+    t.slot.item_id = EMPTY;
+    t.slot.quantity = -1;
+  }
 }
 
 /*
@@ -219,6 +244,38 @@ unsigned int inventory_item_index
 void on_click_inventory_item(void *inventory_item_index) {
   int index = (uintptr_t)inventory_item_index;
   I_SLOT *i_slot = get_player_inventory_slot_by_index(index);
+  /* Check if holding the item pickup key and temp */
+  /* location is empty */
+  if (holding_shift && t.slot.item_id == EMPTY && i_slot->item_id != EMPTY) {
+    /* store in temp location */
+    grab_item(i_slot);
+    update_inventory_ui();
+    return;
+  } else if (holding_shift && t.slot.item_id != EMPTY) {
+    /* Something is in the temp location  */
+    if (i_slot->item_id == EMPTY) {
+      /* Open slot */
+      place_item(i_slot);
+      update_inventory_ui();
+    } else {
+      /* Currently occupied spot */
+      if (i_slot->item_id == t.slot.item_id) {
+        if ((i_slot->item_id == GOLD_COIN || 
+            i_slot->item_id == SILVER_COIN ||
+            i_slot->item_id == COPPER_COIN) &&
+            (i_slot->quantity + t.slot.quantity) < COIN_STACK_LIMIT) {
+          place_item(i_slot); 
+          update_inventory_ui();
+        } else {
+          if ((i_slot->quantity + t.slot.quantity) < STACK_LIMIT) {
+            place_item(i_slot); 
+            update_inventory_ui();
+          }
+        }
+      } 
+    }
+    return;
+  }
   ITEM_IDS item_id = i_slot->item_id;
   int quantity = i_slot->quantity;
   ITEM item = get_item_info_by_ID(item_id);
@@ -625,20 +682,20 @@ int drop_item(ITEM_IDS item_id) {
     glm_vec2_sub(e_player.coords, intra_island_pos, location);
     /* Check if the player is about to drop an item on an  */
     /* existing other item */
-    int slot = find_item_slot_specific_loc(island, location); 
-    if (slot == -1) {
-      if ((slot = find_first_avail_item_slot(island)) == -1) {
-        set_prompt("ERR: could not drop item");
-        return 0;
-      }
-    } else {
+    int valid_slot = find_item_slot_specific_loc(island, location); 
+    if (!valid_slot) {
+      return 0;
+    } 
+    valid_slot = find_first_avail_item_slot(island);
+    if (valid_slot == -1) {
       return 0;
     }
 
-    ITEM_TILES *drop_tile = island->item_tiles + slot;
+    ITEM_TILES *drop_tile = island->item_tiles + valid_slot;
     glm_vec2_copy(location, drop_tile->position);
     drop_tile->quantity = 1;
     drop_tile->resource = (int)item_id;
+    drop_tile->type = island->tiles[(int)(location[0] + (location[1] * I_WIDTH))];
     sprintf(inventory.ui_text_event_prompt->text, " Item Dropped - %s ", get_item_name_by_ID(item_id));
     inventory.ui_text_event_prompt->enabled = 1;
     time_inventory_event_prompt = 2.0;
