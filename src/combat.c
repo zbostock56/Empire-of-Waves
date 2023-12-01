@@ -82,6 +82,7 @@ int to_combat_mode(unsigned int enemy_index) {
     npc_units[i].max_life = 20.0;
     npc_units[i].knockback_counter = -1.0;
     npc_units[i].life = 20.0;
+    npc_units[i].moving = 0;
     glm_vec2_zero(npc_units[i].direction);
     glm_vec2_zero(npc_units[i].coords);
     // Spawn enemies in line on right side of the arena

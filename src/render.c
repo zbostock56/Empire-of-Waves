@@ -15,47 +15,47 @@ void init_scene() {
   // Create Resource Textures
   resource_textures[resource_to_buffer(INVALID_REC)] =
      gen_texture("assets/resources/invalid.png");
-  resource_textures[resource_to_buffer(REC_EMPTY)] = 
+  resource_textures[resource_to_buffer(REC_EMPTY)] =
      gen_texture("assets/resources/invalid.png");
-  resource_textures[resource_to_buffer(REC_CITRUS)] = 
+  resource_textures[resource_to_buffer(REC_CITRUS)] =
      gen_texture("assets/resources/citrus.png");
-  resource_textures[resource_to_buffer(REC_LIFE_POTION)] = 
+  resource_textures[resource_to_buffer(REC_LIFE_POTION)] =
      gen_texture("assets/resources/life_potion.png");
-  resource_textures[resource_to_buffer(REC_FIRERATE_POTION)] = 
+  resource_textures[resource_to_buffer(REC_FIRERATE_POTION)] =
      gen_texture("assets/resources/firerate_potion.png");
-  resource_textures[resource_to_buffer(REC_SPEED_POTION)] = 
+  resource_textures[resource_to_buffer(REC_SPEED_POTION)] =
      gen_texture("assets/resources/speed_potion.png");
-  resource_textures[resource_to_buffer(REC_KNIFE)] = 
+  resource_textures[resource_to_buffer(REC_KNIFE)] =
      gen_texture("assets/resources/knife.png");
-  resource_textures[resource_to_buffer(REC_SWORD)] = 
+  resource_textures[resource_to_buffer(REC_SWORD)] =
      gen_texture("assets/resources/sword.png");
-  resource_textures[resource_to_buffer(REC_AXE)] = 
+  resource_textures[resource_to_buffer(REC_AXE)] =
      gen_texture("assets/resources/axe.png");
-  resource_textures[resource_to_buffer(REC_BOW)] = 
+  resource_textures[resource_to_buffer(REC_BOW)] =
      gen_texture("assets/resources/bow.png");
-  resource_textures[resource_to_buffer(REC_CROSSBOW)] = 
+  resource_textures[resource_to_buffer(REC_CROSSBOW)] =
      gen_texture("assets/resources/crossbow.png");
-  resource_textures[resource_to_buffer(REC_FLINTLOCK)] = 
+  resource_textures[resource_to_buffer(REC_FLINTLOCK)] =
      gen_texture("assets/resources/flintlock.png");
-  resource_textures[resource_to_buffer(REC_CLOTH_ARMOR)] = 
+  resource_textures[resource_to_buffer(REC_CLOTH_ARMOR)] =
      gen_texture("assets/resources/cloth_armor.png");
-  resource_textures[resource_to_buffer(REC_LEATHER_ARMOR)] = 
+  resource_textures[resource_to_buffer(REC_LEATHER_ARMOR)] =
      gen_texture("assets/resources/leather_armor.png");
-  resource_textures[resource_to_buffer(REC_LIGHT_ARMOR)] = 
+  resource_textures[resource_to_buffer(REC_LIGHT_ARMOR)] =
      gen_texture("assets/resources/light_armor.png");
-  resource_textures[resource_to_buffer(REC_MEDIUM_ARMOR)] = 
+  resource_textures[resource_to_buffer(REC_MEDIUM_ARMOR)] =
      gen_texture("assets/resources/medium_armor.png");
-  resource_textures[resource_to_buffer(REC_HEAVY_ARMOR)] = 
+  resource_textures[resource_to_buffer(REC_HEAVY_ARMOR)] =
      gen_texture("assets/resources/heavy_armor.png");
-  resource_textures[resource_to_buffer(REC_PLATE_ARMOR)] = 
+  resource_textures[resource_to_buffer(REC_PLATE_ARMOR)] =
      gen_texture("assets/resources/plate_armor.png");
-  resource_textures[resource_to_buffer(REC_GOLD_COIN)] = 
+  resource_textures[resource_to_buffer(REC_GOLD_COIN)] =
      gen_texture("assets/resources/gold_coin.png");
-  resource_textures[resource_to_buffer(REC_SILVER_COIN)] = 
+  resource_textures[resource_to_buffer(REC_SILVER_COIN)] =
      gen_texture("assets/resources/silver_coin.png");
-  resource_textures[resource_to_buffer(REC_COPPER_COIN)] = 
+  resource_textures[resource_to_buffer(REC_COPPER_COIN)] =
      gen_texture("assets/resources/copper_coin.png");
-  resource_textures[resource_to_buffer(GRAIN)] = 
+  resource_textures[resource_to_buffer(GRAIN)] =
      gen_texture("assets/resources/grain.png");
   resource_textures[resource_to_buffer(COTTON)] =
      gen_texture("assets/resources/cotton.png");

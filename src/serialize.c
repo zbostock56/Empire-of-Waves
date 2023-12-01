@@ -545,6 +545,7 @@ void save_island(FILE *file, ISLAND *island) {
   fwrite(island->coords, sizeof(int), 2, file);
   fwrite(island->tiles, sizeof(TILE), I_WIDTH * I_WIDTH, file);
   fwrite(island->item_tiles, sizeof(ITEM_TILES), 262, file);
+  fwrite(&island->num_items, sizeof(unsigned int), 1, file);
   fwrite(&island->has_merchant, sizeof(int), 1, file);
   if (island->has_merchant) {
     save_merchant(file, &island->merchant);
@@ -623,6 +624,8 @@ int load_island(FILE *file, ISLAND *dest) {
   fread_check(fread(dest->tiles, sizeof(TILE), I_WIDTH * I_WIDTH, file),
   "serialize.c: error loading island");
   fread_check(fread(dest->item_tiles, sizeof(ITEM_TILES), 262, file),
+  "serialize.c: error loading island");
+  fread_check(fread(&dest->num_items, sizeof(unsigned int), 1, file),
   "serialize.c: error loading island");
   fread_check(fread(&dest->has_merchant, sizeof(int), 1, file),
   "serialize.c: error loading island");
