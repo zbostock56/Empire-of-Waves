@@ -348,11 +348,8 @@ void surrender_listener(GLFWwindow *window) {
 void combat_mode_attack(int action) {
   if (c_player.weapon_type == MELEE || c_player.ammo == 0) {
     if (action == GLFW_PRESS && c_player.attack_cooldown == 0.0) {
-      c_player.speed = 0.5;
-    } else if (action != GLFW_PRESS && c_player.attack_cooldown == 0.0) {
       c_player.attack_cooldown = c_player.fire_rate;
       c_player.attack_active = 0.1;
-      c_player.speed = 1.0;
     }
   } else {
     if (action != GLFW_PRESS && c_player.attack_cooldown == 0.0) {

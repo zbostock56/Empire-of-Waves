@@ -1,11 +1,10 @@
 #include <inventory_str.h>
 #include <ui_component.h>
 #include <player_str.h>
-#include <player.h>
+#include <equipment_str.h>
 #include <menu.h>
 #include <stdio.h>
 #include <globals.h>
-#include <equipment.h>
 #include <island.h>
 
 /*
@@ -15,6 +14,7 @@ Implements the functionality for player inventory.
 
 /* GLOBALS */
 INVENTORY inventory;
+extern EQUIPMENT equipment;
 float time_inventory_event_prompt;
 int isDropping;
 int inventory_open = 0;
@@ -39,3 +39,5 @@ void drop_item(ITEM_IDS item_ids);
 
 /* ==================== EXTERNALLY DEFINED FUNCTIONS ================== */
 void increment_buff(void*, void*);
+I_SLOT * get_player_inventory_slot_by_index(unsigned int item_index);
+I_SLOT * search_player_inventory_by_ID(ITEM_IDS item_id);

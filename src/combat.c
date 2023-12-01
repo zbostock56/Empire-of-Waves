@@ -16,7 +16,7 @@ int to_combat_mode(unsigned int enemy_index) {
   E_ENEMY *enemy_ship = cur_chunk->enemies + enemy_index;
 
   // Initialize combat mode player
-  c_player.weapon_type = RANGED;
+  c_player.weapon_type = equipment.weapon_type;
   c_player.ammo = 5;
   // c_player.max_health = 100.0;
   // c_player.health = 100.0;
