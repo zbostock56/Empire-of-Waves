@@ -184,6 +184,8 @@ void console_dispatcher() {
                sizeof(ESTABLISH_NEAREST_TRADEROUTE)) == 0) {
       //establish_nearest_traderoute();
       return;
+    } else if (strncmp(command[0].tok, RESPAWN, sizeof(RESPAWN)) == 0) {
+      respawn_player();
     } else {
       command_not_found();
     }
