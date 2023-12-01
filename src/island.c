@@ -514,6 +514,35 @@ int find_closet_resource(ISLAND *island, vec2 avatar_coords) {
   return lowest;
 }
 
+int num_items_on_island(ISLAND *island) {
+  int ret = 0;
+  for (int i = 0; i < island->num_items; i++) {
+    if (island->item_tiles[i].resource != INVALID_REC) {
+      ret++;
+    }
+  }
+  return ret;
+}
+
+int find_item_slot_specific_loc(ISLAND *island, vec2 pos) {
+  for (int i = 0; i < island->num_items; i++) {
+    if (island->item_tiles[i].position[0] == pos[0] &&
+        island->item_tiles[i].position[1] == pos[1]) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+int find_first_avail_item_slot(ISLAND *island) {
+  for (int i = 0; i < island->num_items; i++) {
+    if (island->item_tiles[i].resource == INVALID_REC) {
+      return i;
+    }
+  }
+  return -1;
+}
+
 /*
   Helper function used in controls.c to pickup resource
   off the ground and remove from ITEM_TILES and place it
