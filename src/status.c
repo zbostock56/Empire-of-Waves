@@ -353,6 +353,13 @@ void update_status_menu() {
   update_buff_list();
 }
 
+void reset_buff_list() {
+  for (int i = 0; i < status_menu.num_buff; i++) {
+    status_menu.buff_list[i].buff_timer = 0.0;
+  }
+  status_menu.num_buff = 0;
+}
+
 void update_buff_list() {
   for (int i = 0; i < status_menu.num_buff; i++) {
     snprintf(status_menu.buff_list[i].ui_menu_buff->text, MAX_STATUS_STR_LENGTH,
@@ -407,10 +414,6 @@ void increment_buff(void * txt, void *mod) {
     c_player.fire_rate += *mod_value;
   }
   status_menu.num_buff++;
-  //if (status_menu.buff_list[idx].ui_menu_buff->enabled == 0) {
-  //  status_menu.buff_list[idx].ui_menu_buff->enabled = 1;
-  //  status_menu.num_buff++;
-  //}
 }
 
 /* Render status bar */
