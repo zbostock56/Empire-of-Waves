@@ -243,7 +243,7 @@ void on_click_inventory_item(void *inventory_item_index) {
           if (item.speed_mod > 0) {
             increment_buff((void *)"Speed", (void *)&item.speed_mod);
           }
-          if (item.firerate_mod > 0) {
+          if (item.firerate_mod < 0) {
             increment_buff((void*)"Fire Rate", (void*)&item.firerate_mod);
           }
         } else {
@@ -366,7 +366,7 @@ void taken_off_weapon() {
     e_player.health -= health_mod;
     c_player.health -= health_mod;
     c_player.fire_rate -= firerate_mod;
-    e_player.speed -= speed_mod;
+    //e_player.speed -= speed_mod;
     c_player.speed -= speed_mod;
     e_player.max_health -= max_health_mod;
     c_player.max_health -= max_health_mod;
@@ -410,7 +410,7 @@ void taken_off_armor() {
     e_player.health -= health_mod;
     c_player.health -= health_mod;
     c_player.fire_rate -= firerate_mod;
-    e_player.speed -= speed_mod;
+    //e_player.speed -= speed_mod;
     c_player.speed -= speed_mod;
     e_player.max_health -= max_health_mod;
     c_player.max_health -= max_health_mod;

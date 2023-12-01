@@ -162,7 +162,8 @@ void update_combat_state() {
   if (mode != COMBAT) {
     return;
   }
-
+  /* Update item type being changed during combat */
+  c_player.weapon_type = equipment.weapon_type;
   c_player.attack_cooldown = decrement_timer(c_player.attack_cooldown);
   c_player.attack_active = decrement_timer(c_player.attack_active);
   c_player.invuln_timer = decrement_timer(c_player.invuln_timer);
