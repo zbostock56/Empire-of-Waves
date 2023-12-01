@@ -18,6 +18,7 @@ extern EQUIPMENT equipment;
 float time_inventory_event_prompt;
 int is_dropping = 0;
 int inventory_open = 0;
+extern int holding_drop;
 
 /* ==================== INTERNALLY DEFINED FUNCITONS ================== */
 int init_inventory_ui();

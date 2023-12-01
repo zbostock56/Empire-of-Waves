@@ -175,6 +175,12 @@ void exploration_movement(GLFWwindow *window) {
   } else if (glfwGetKey(window, GLFW_KEY_E) != GLFW_PRESS) {
     holding_interaction = 0;
   }
+  if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && inventory_open &&
+      !console_input_enabled) {
+    holding_drop = 1;
+  } else {
+    holding_drop = 0;
+  }
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS && !holding_esc) {
     if (!trade.ui_button_trade->enabled && !dialog.ui_text_name->enabled &&
         !container_menu_open && !reassignment_menu_open) {

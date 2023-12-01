@@ -228,6 +228,18 @@ void on_click_inventory_item(void *inventory_item_index) {
   float firerate_mod = item.firerate_mod;
   float speed_mod = item.speed_mod;
   // float max_health_mod = item.max_heath_mod;
+  if (holding_drop) {
+    if (item_id != INVALID_ITEM && item_id != EMPTY && drop_item(item_id)) {
+      i_slot->quantity -= 1;
+      if (i_slot->quantity <= 0) {
+        i_slot->item_id = EMPTY;
+        i_slot->quantity = 0;
+      }
+    }
+    update_inventory_ui();
+    return;
+  }
+
   if (strcmp(inventory.ui_drop->text, " ENABLE DROP ") == 0) {
     if (item_id != EMPTY && item_id != INVALID_ITEM && quantity >= 1 && (item.edible || item.equippable)) {
       if (item.edible) {
