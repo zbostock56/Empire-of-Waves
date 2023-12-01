@@ -371,7 +371,7 @@ void taken_off_weapon() {
     c_player.speed -= speed_mod;
     e_player.max_health -= max_health_mod;
     c_player.max_health -= max_health_mod;
-    
+
     equipment.weapon_type = MELEE;
     equipment.weapon_equipped = EMPTY;
   }
