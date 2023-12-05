@@ -312,7 +312,7 @@ void on_click_inventory_item(void *inventory_item_index) {
           if (item.speed_mod > 0) {
             increment_buff((void *)"Speed", (void *)&item.speed_mod);
           }
-          if (item.firerate_mod > 0) {
+          if (item.firerate_mod < 0) {
             increment_buff((void*)"Fire Rate", (void*)&item.firerate_mod);
           }
         } else {
@@ -443,7 +443,7 @@ void taken_off_weapon() {
       c_player.health = c_player.max_health;
     }
     c_player.fire_rate -= firerate_mod;
-    e_player.speed -= speed_mod;
+    //e_player.speed -= speed_mod;
     c_player.speed -= speed_mod;
 
     equipment.weapon_type = MELEE;
@@ -492,7 +492,7 @@ void taken_off_armor() {
       c_player.health = c_player.max_health;
     }
     c_player.fire_rate -= firerate_mod;
-    e_player.speed -= speed_mod;
+    //e_player.speed -= speed_mod;
     c_player.speed -= speed_mod;
 
     equipment.armor_equipped = EMPTY;

@@ -117,7 +117,7 @@ void detect_context_interaction() {
     if (reassignment_menu_open || container_menu_open ||
         merchant_dialog_enabled || merchant_trade_enabled ||
         status_menu_open || inventory_open || save_menu_open() ||
-        interact_prompt->enabled) {
+        interact_prompt->enabled || mode == COMBAT) {
       shore_interaction_enabled = 0;
       get_ui_component_by_ID(EMBARK_PROMPT)->enabled = 0;
     }

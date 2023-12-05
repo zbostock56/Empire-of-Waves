@@ -411,7 +411,7 @@ void increment_buff(void * txt, void *mod) {
   if (strcmp(text, "Speed") == 0) {
     c_player.speed += *mod_value;
   } else if (strcmp(text, "Fire Rate") == 0) {
-    c_player.fire_rate += *mod_value;
+    c_player.fire_rate = fmax(0.0, c_player.fire_rate + *mod_value);
   }
   status_menu.num_buff++;
 }
