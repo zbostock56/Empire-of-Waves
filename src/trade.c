@@ -788,7 +788,7 @@ void trade_route_handler(int island_index) {
                     dialog.merchant->chunk, island_index);
     target_merch->has_trade_route = 1;
 
-    dialog.ui_button_trade_route->text = "3. Cancel trade route";
+    dialog.ui_button_trade_route->text = "2. Cancel trade route";
   }
 }
 
