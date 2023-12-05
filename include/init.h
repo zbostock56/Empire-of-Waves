@@ -35,6 +35,7 @@ void init_invasion_ui();
 void open_status_menu();
 int init_inventory_ui();
 void init_surrender_ui();
+void start_hunger_timer();
 
 void free_dialog();
 void free_trade();

@@ -48,6 +48,7 @@ int init_game(char *save_name) {
   init_container_ui();
   init_invasion_ui();
   init_timers();
+  start_hunger_timer();
 
   int status = 0;
   status = init_dialog();
