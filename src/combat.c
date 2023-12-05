@@ -87,11 +87,12 @@ int to_combat_mode(unsigned int enemy_index) {
     glm_vec2_zero(npc_units[i].coords);
     // Spawn enemies in line on right side of the arena
     npc_units[i].direction[X] = -1.0;
-    npc_units[i].coords[X] = arena_dimensions[X] / 4;
-    npc_units[i].coords[Y] = ((arena_dimensions[Y] - 2) / 2) - (i * 2);
+    npc_units[i].coords[X] = (arena_dimensions[X] / 4) - (i / 5);
+    npc_units[i].coords[Y] = ((arena_dimensions[Y] / 2) - 5) + (i % 5);
   }
 
   for (int i = enemy_ship->crew_count; i < num_npc_units; i++) {
+    int ally_index = i - enemy_ship->crew_count;
     npc_units[i].type = ALLY;
     int weapon_type = rand() % 100;
     npc_units[i].ammo = 0;
@@ -113,9 +114,9 @@ int to_combat_mode(unsigned int enemy_index) {
     glm_vec2_zero(npc_units[i].direction);
     glm_vec2_zero(npc_units[i].coords);
     // Spawn allies in line on left side of the arena
-    npc_units[i].direction[X] = -1.0;
-    npc_units[i].coords[X] = -arena_dimensions[X] / 4;
-    npc_units[i].coords[Y] = ((arena_dimensions[Y] - 2) / 2) - (i * 2);
+    npc_units[i].direction[X] = 1.0;
+    npc_units[i].coords[X] = (-arena_dimensions[X] / 4) + (ally_index / 5);
+    npc_units[i].coords[Y] = (arena_dimensions[Y] / 2 - 3) - (ally_index % 5);
     fflush(stdout);
   }
 
