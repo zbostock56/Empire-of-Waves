@@ -5,7 +5,6 @@ int main() {
 
   init_game("eow");
   init_scene();
-  start_hunger_timer();
 
   int status = 0;
   while (!glfwWindowShouldClose(window)) {
