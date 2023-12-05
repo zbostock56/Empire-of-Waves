@@ -114,8 +114,8 @@ Return NULL if not found such empty slot
 */
 I_SLOT * get_player_first_empty_inventory_slot() {
   for (int i = 0; i < MAX_PLAYER_INV_SIZE; i++) {
-    if ((e_player.inventory[i].item_id == 0) ||
-         e_player.inventory[i].quantity == 0) {
+    if ((e_player.inventory[i].item_id < 1) ||
+         e_player.inventory[i].quantity < 1) {
       e_player.inventory[i].quantity = 0;
       return &e_player.inventory[i];
     }

@@ -627,13 +627,13 @@ int set_trade(MERCHANT *merchant, T_TRADE trade_type) {
         trade.merchant_value = 0;
         trade.player_value = 0;
 
-        trade.merchant_item_selected = malloc(sizeof(int) *
+        trade.merchant_item_selected = calloc(sizeof(int), 
                                               merchant->listings_buf_size);
         if (trade.merchant_item_selected == NULL) {
           fprintf(stderr, "trade.c: Unable to allocate merchant selections\n");
           return -1;
         }
-        for (int i = 0; i < merchant->num_listings; i++) {
+        for (int i = 0; i < MAX_MERCHANT_ITEM; i++) {
           trade.merchant_item_selected[i] = 0;
         }
 

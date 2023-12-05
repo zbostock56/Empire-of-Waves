@@ -36,7 +36,7 @@ ITEM_IDS item_id
 */
 LISTING * search_merchant_listing_by_ID(MERCHANT * merchant, ITEM_IDS item_id) {
   for (int i = 0; i < merchant->num_listings; i++) {
-    if (merchant->listings[i].item_id == item_id) {
+    if (merchant->listings[i].item_id == item_id && merchant->listings[i].quantity > 0) {
       return &merchant->listings[i];
     }
   }
@@ -52,7 +52,7 @@ MERCHANT * merchant
 */
 LISTING * get_merchant_first_empty_listing(MERCHANT * merchant) {
   for (int i = 0; i < merchant->listings_buf_size; i++) {
-    if (merchant->listings[i].item_id == EMPTY) {
+    if (merchant->listings[i].item_id < 1) {
       return &merchant->listings[i];
     }
   }
