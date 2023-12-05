@@ -28,6 +28,7 @@
 #define CLEAR_TOK ("clear")
 #define FOG_TOK ("fog")
 #define INVASION ("invasion")
+#define RESPAWN ("respawn")
 
 /* GLOBALS */
 extern LEXER lexer;
@@ -62,4 +63,5 @@ void set_event_timer(float);
 void set_health(float);
 void set_weather(int);
 void spawn_invasion();
+void respawn_player();
 //void establish_nearest_traderoute();
